@@ -41,10 +41,8 @@ cert_fn = certspath.joinpath("localhost+2.pem")
 
 
 async def generate_selfsigned():
-    #: ref: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/security.html#infrastructure-security
     #: ref: https://web.dev/how-to-use-local-https/#caution
     print(f"certspath={certspath}")
-    # cmd = f"openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout {str(key_fn)} -out {str(cert_fn)} -days 1"
     cmd = f"mkcert localhost 127.0.0.1 ::1"
     out = subprocess.check_call(shlex.split(cmd), stdout=sys.stdout, stderr=sys.stdout)
     print()
@@ -114,12 +112,11 @@ if __name__=='__main__':
     asyncio.run(generate_selfsigned())
     formatter = logging.Formatter(
         "[%(asctime)s.%(msecs)03d] %(levelname)s [%(thread)d] - %(message)s", "%Y-%m-%d %H:%M:%S")
-    handler = logging.handlers.RotatingFileHandler(str(certspath.joinpath("app.log")), mode='a', backupCount=1)
+    handler = logging.handlers.RotatingFileHandler(str(certspath.joinpath("cma-app.log")), mode='a', backupCount=1)
     logger.addHandler(handler)
     handler.setFormatter(formatter)
     logger.setLevel(logging.INFO)
     logger.info("...setup logger.")
-
     # log_config=str(certspath.joinpath("log.ini"))
     uvicorn.run('main:app', host="0.0.0.0", port=5000, ssl_certfile=str(cert_fn), ssl_keyfile=str(key_fn), reload=True)
     asyncio.run(delete_selfsigned())
