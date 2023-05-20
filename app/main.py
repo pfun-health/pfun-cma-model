@@ -24,9 +24,8 @@ logging.getLogger("fastapi")
 
 
 #: pfun imports (relative)
-top_path = Path(__file__).parents[2]
 root_path = Path(__file__).parents[1]
-for pth in [top_path, root_path]:
+for pth in [root_path, ]:
     pth = str(pth)
     if pth not in sys.path:
         sys.path.insert(0, pth)

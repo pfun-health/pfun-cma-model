@@ -12,6 +12,7 @@ boto3==1.24.59
 # math
 numpy==1.23.5
 scipy==1.10.1
+scikit-learn==1.2.1
 matplotlib==3.7.0
 matplotlib-inline==0.1.6
 numba==0.56.4
