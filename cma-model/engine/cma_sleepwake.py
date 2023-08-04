@@ -1,47 +1,51 @@
 #!/usr/bin/env python
-"""app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model"""
+"""app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.
+"""
+import importlib
+
 import copy
 import json
 import logging
-import os
 import sys
-from dataclasses import dataclass
+from dataclasses import KW_ONLY, InitVar, dataclass, field
 from io import BytesIO
 from pathlib import Path
-from typing import AnyStr, Container, Dict, Iterable, Optional, Tuple
-import importlib
+from typing import (
+    Any, Callable, AnyStr, Container, Dict, Iterable, Optional, Tuple
+)
 
 import click
 import matplotlib
-import numba
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tabulate
 from pydantic import BaseModel, validator
 from scipy.optimize import Bounds, curve_fit
-from scipy.signal import find_peaks
 from sklearn.model_selection import ParameterGrid
+
+#: pfun imports (relative)
+root_path = str(Path(__file__).parents[2])
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+try:
+    from cma_model.decorators import check_is_numpy
+    from cma_model.engine.calc import normalize
+    from cma_model.engine.data_utils import dt_to_decimal_hours
+except ModuleNotFoundError:
+    # TODO: Fix these imports.
+    check_is_numpy = importlib.import_module(
+        ".decorators", package="app").check_is_numpy
+    normalize = importlib.import_module(
+        ".calc").normalize
+    dt_to_decimal_hours = importlib.import_module(
+        ".data_utils").dt_to_decimal_hours
 
 logger = logging.getLogger()
 
 
-#: pfun imports (relative)
-top_path = Path(__file__).parents[2]
-root_path = Path(__file__).parents[1]
-for pth in [top_path, root_path]:
-    pth = str(pth)
-    if pth not in sys.path:
-        sys.path.insert(0, pth)
-
-
-dt_to_decimal_hours = importlib.import_module(".data_utils", "engine").dt_to_decimal_hours
-normalize = importlib.import_module(".calc", "engine").normalize
-check_is_numpy = importlib.import_module(".decorators", "app").check_is_numpy
-
-
 @check_is_numpy
 def normalize_glucose(G, g0=70, g1=180, g_s=90):
-    """Normalize glucose (mg/dL -> [0.0, 2.0])
+    """Normalize glucose (mg/dL -> [0.0, 2.0]).
 
         <0.9: low,
         0.9: normal-low,
@@ -66,15 +70,66 @@ def E(x):
 
 
 def meal_distr(Cm, t, toff):
+    """Meal distribution function.
+
+    Parameters
+    ----------
+    Cm : float
+        Cortisol concentration (mg/dL).
+    t : array_like
+        Time (hours).
+    toff : float
+        Time offset (hours).
+
+    Returns
+    -------
+    array_like
+        Meal distribution function.
+    """
     return np.power(np.cos(2 * np.pi * Cm * (t + toff) / 24), 2)
 
 
 @check_is_numpy
 def K(x):
-    return np.piecewise(x, [x > 0.0, x <= 0.0,], [lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
+    """
+    Defines the glucose response function.
+    Apply a piecewise function to the input array `x`.
+
+    Parameters:
+        x (numpy.ndarray): The input array.
+
+    Returns:
+        numpy.ndarray: The result of applying the piecewise function to `x`.
+    """
+    return np.piecewise(x, [x > 0.0, x <= 0.0], [
+        lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
 
 
 def vectorized_G(t, I_E, tm, taug, B, Cm, toff):
+    """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
+
+    Parameters
+    ----------
+    t : array_like
+        Time (hours).
+    I_E : float
+        Extracellular insulin (uS/mL).
+    tm : array_like
+        Meal times (hours).
+    taug : array_like
+        Meal duration (hours).
+    B : float
+        Bias constant.
+    Cm : float
+        Cortisol concentration (mg/dL).
+    toff : float
+        Time offset (hours).
+
+    Returns
+    -------
+    array_like
+        G(t, I_E, tm, taug, B, Cm, toff).
+    """
     def Gtmp(tm_, taug_):
         k_G = K((t - tm_) / np.power(taug_, 2))
         return 1.3 * k_G / (1.0 + I_E)
@@ -94,11 +149,12 @@ class CMASleepWakeModel:
     """Defines the Cortisol-Melatonin-Adiponectin Sleep-Wake pfun model.
 
     Methods:
-    --------
+    -------
     1) Input SG -> Project SG to 24-hour phase plane.
     2) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -> Model params (d, taup).
     3) (Fit to projected SG) Compute approximate chronometabolic dynamics:
-        F(m, c, a)(t, d, taup) -> (+/- postprandial insulin, glucose){Late, Early}.
+        F(m, c, a)(t, d, taup) -> ...
+         ...  (+/- postprandial insulin, glucose){Late, Early}.
     """
 
     param_keys = ('d', 'taup', 'taug', 'B', 'Cm', 'toff')
@@ -109,10 +165,11 @@ class CMASleepWakeModel:
         keep_feasible=True
     )
 
-    def __init__(self, t=None, N=288, d=0.0, taup=1.0, taug=1.0, B=0.05, Cm=0.0, toff=0.0,
-                 tM=np.array([7.0, 11.0, 17.5]), seed: None | int = None, eps: float = 1e-18):
-        assert (t is not None or N is not None) and \
-            (t is None or N is None), "Must provide either the 't' or 'N' argument (not both)"
+    def __init__(self, t=None, N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
+                 Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
+                 seed: None | int = None, eps: float = 1e-18):
+        assert (t is not None or N is not None) and (t is None or N is None), \
+            "Must provide either the 't' or 'N' argument (not both)"
         if t is None:
             t = np.linspace(0, 24, num=N)
         self.t = t  # time vector
@@ -144,10 +201,10 @@ class CMASleepWakeModel:
             taug_new = kwds.pop('taug')
             match isinstance(taug_new, Container):
                 case True:
-                    #: ! replace the current values elementwise if given a vector
+                    #: ! replace current values elementwise if given a vector
                     self.params['taug'] = np.broadcast_to(
                         taug_new, (self.n_meals, ))
-                case False:  # ! otherwise, treat the given taug as a scale: <old_taug> *= new_taug
+                case False:  # ! else, taug is a scale: <old_taug> *= new_taug
                     self.params['taug'] = np.array(
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
@@ -184,12 +241,12 @@ class CMASleepWakeModel:
 
     @property
     def B(self) -> float:
-        """return the current bias parameter value (B)."""
+        """Return the current bias parameter value (B)."""
         return self.params.get("B")
 
     @property
     def Cm(self) -> float:
-        """return the current Cm param value"""
+        """return the current Cm param value."""
         return self.params.get("Cm")
 
     @property
@@ -199,7 +256,8 @@ class CMASleepWakeModel:
     def E_L(self, t=None):
         if t is None:
             t = self.t
-        return l(0.025 * np.power((t - 12.0 - self.d), 2) / (self.eps + self.taup))
+        return l(0.025 * np.power((t - 12.0 - self.d), 2) /
+                 (self.eps + self.taup))
 
     @property
     def L(self):
@@ -229,7 +287,8 @@ class CMASleepWakeModel:
     @property
     def a(self):
         return (E(np.power((-self.c * self.m), 3)) +
-                np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) * self.E_L(t=0.7*(27-self.t+self.d))) / 2.0
+                np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) *
+                self.E_L(t=0.7*(27-self.t+self.d))) / 2.0
 
     @property
     def I_S(self):
@@ -241,30 +300,36 @@ class CMASleepWakeModel:
 
     @property
     def G(self):
-        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff)
+        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
+                            self.Cm, self.toff)
 
     @property
     def g(self):
-        """g: get the per-meal post-prandial glucose dynamics
+        """g: get the per-meal post-prandial glucose dynamics.
 
         Examples:
         ---------
             >>> cma = CMASleepWakeModel(N=10, taug=[1.0, 2.0, 3.0])
             >>> cma.g
-            array([[0.1       , 0.1       , 0.1       , 0.67372597, 0.11578822,
-                    0.10127545, 0.1002057 , 0.10005099, 0.10001504, 0.10000496],
-                   [0.1       , 0.1       , 0.1       , 0.1       , 0.1       ,
-                    0.88518704, 0.47741404, 0.27071864, 0.17879965, 0.13754265],
-                   [0.1       , 0.1       , 0.1       , 0.1       , 0.1       ,
-                    0.1       , 0.1       , 0.26789482, 1.2392332 , 1.1899635 ]])
-
+            array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 5.73725968e-01,
+                    1.57882217e-02, 1.27544618e-03, 2.05703931e-04, 5.09901523e-05,
+                    1.50385708e-05, 4.96125002e-06],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 7.85187035e-01, 3.77414036e-01, 1.70718635e-01,
+                    7.87996469e-02, 3.75426497e-02],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.67894822e-01,
+                    1.13923320e+00, 1.08996350e+00]])
         """
         return self.G
 
-    def integrate_signal(self, signal: np.ndarray | None = None, signal_name: str | None = None,
-                         t0: int | float = 0, t1: int | float = 24, M: int = 3,
-                         t_extra: Tuple | None = None, tvec: np.ndarray | None = None):
-        """integrate the signal between the hours given, assuming M discrete events.
+    def integrate_signal(self, signal: np.ndarray | None = None,
+                         signal_name: str | None = None,
+                         t0: int | float = 0, t1: int | float = 24,
+                         M: int = 3,
+                         t_extra: Tuple | None = None,
+                         tvec: np.ndarray | None = None):
+        """Integrate the signal between the hours given, assuming M discrete events.
 
             t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
             to be included in the target time period.
@@ -287,12 +352,13 @@ class CMASleepWakeModel:
         return total
 
     def morning(self, signal: np.ndarray = None, signal_name=None):
-        """compute the total morning integrated signal"""
+        """compute the total morning integrated signal."""
         return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)
 
     def evening(self, signal: np.ndarray = None, signal_name=None):
-        """compute the total evening integrated signal"""
-        return self.integrate_signal(signal=signal, signal_name=signal_name, t0=16, t1=24, t_extra=(0, 3))
+        """Compute the total evening integrated signal."""
+        return self.integrate_signal(signal=signal, signal_name=signal_name,
+                                     t0=16, t1=24, t_extra=(0, 3))
 
     @property
     def columns(self):
@@ -308,7 +374,7 @@ class CMASleepWakeModel:
 
     @property
     def g_instant(self):
-        """vector of instantaneous (overall) glucose"""
+        """vector of instantaneous (overall) glucose."""
         return np.nansum(self.g, axis=0)
 
     @property
@@ -337,12 +403,12 @@ class CMASleepWakeModel:
             >>> cma = CMASleepWakeModel(N=4)
             >>> df = cma.run()
             >>> print(tabulate.tabulate(df, floatfmt='.3f', headers=df.columns))
-                                  t      c      m      a    I_S    I_E      L    g_0    g_1    g_2      G  is_meal
-            ---------------  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  ---------
-            0 days 00:00:00   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.100  0.100  0.100  0.300  False
-            0 days 08:00:00   8.000  0.962  0.003  0.517  0.776  0.401  0.841  0.674  0.100  0.100  0.874  True
-            0 days 16:00:00  16.000  0.597  0.000  0.565  0.863  0.488  0.841  0.100  0.104  0.100  0.305  True
-            1 days 00:00:00  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.100  0.100  0.102  0.302  False
+                     t      c      m      a    I_S    I_E    g_0    g_1    g_2      G
+            --  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+             0   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.000  0.000  0.000
+             1   8.000  0.962  0.003  0.517  0.776  0.401  0.574  0.000  0.000  0.574
+             2  16.000  0.597  0.000  0.565  0.863  0.488  0.000  0.004  0.000  0.005
+             3  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.000  0.002  0.002
         """
         #: init list of "standard" columns
         columns = list(self.columns)
@@ -367,17 +433,135 @@ class CMASleepWakeModel:
         return df
 
 
+def round_to_nearest_integer(number):
+    rounded_number = round(number, 2)
+    return int(rounded_number)
+
+
+class CMAUtils:
+
+    @staticmethod
+    def get_hour_of_day(
+            hour: Tuple[float | int] | float | int) -> int | str | Tuple[str | int]:
+        """
+        Get the hour of the day based on the given hour value.
+
+        Parameters:
+            hour (float or int): The hour value to convert.
+
+        Returns:
+
+            int: The hour of the day as an integer.
+
+            OR
+
+            str: The hour of the day in the format '12AM', '12PM', '1AM', '1PM', etc.
+
+            ...OR as a tuple.
+
+        Raises:
+            ValueError: If the hour is not a float or integer value, or if it is not between 0 and 24.
+        """
+        if isinstance(hour, tuple):
+            # ! handle tuple
+            return tuple(map(CMAUtils.get_hour_of_day, hour))
+        if not isinstance(hour, (float, int)):
+            raise ValueError("The hour must be a float or integer value.")
+        if hour < 0 or hour > 24:
+            raise ValueError("The hour must be between 0 and 24.")
+        if hour == 0 or hour == 24:
+            return '12AM'
+        elif hour == 12:
+            return '12PM'
+        elif hour < 12:
+            return f'{int(hour)}AM'
+        else:
+            return f'{int(hour) - 12}PM'
+
+    @staticmethod
+    def label_meals(df: pd.DataFrame,
+                    rounded: [None | Callable] = round_to_nearest_integer,
+                    as_str: bool = False) -> Tuple[str | int | float]:
+        """Label the meal times in a CMA model results dataframe.
+        Parameters:
+            df (pd.DataFrame): The CMA model results dataframe.
+            rounded (None or Callable): Function to round the meal times.
+            as_str (bool): If True, return the meal times as strings.
+        Returns:
+            tuple: The meal times as strings or integers.
+        Examples:
+            >>> df = pd.DataFrame({'t': [0, 8, 16, 24], 'is_meal': [True, True, True, False]})
+            >>> CMAUtils.label_meals(df)
+            ('12AM', '8AM', '4PM')
+            >>> CMAUtils.label_meals(df, as_str=True)
+            ('12AM', '8AM', '4PM')
+            >>> CMAUtils.label_meals(df, rounded=round_to_nearest_integer)
+            (0, 8, 16)
+        """
+        #: get the meal times
+        mealtimes = df.loc[df['is_meal'], 't']
+        if rounded is not None:
+            mealtimes = mealtimes.apply(rounded)
+        tM = tuple(mealtimes)
+        if as_str:
+            tM = CMAUtils.get_hour_of_day(tM)
+        return tuple(tM)
+
+
+@dataclass
+class CMALabeledTimeAxis:
+
+    """Labeled time axis for CMA model results.
+
+    Description: Label strings, including hour of day, meal times...
+    ...in a CMA model results dataframe.
+    """
+
+    df: InitVar[pd.DataFrame | None] = None
+    KW_ONLY
+    t: Optional[Tuple[int | float]] = ...
+    tM: InitVar[Optional[np.ndarray | Tuple[int | float]]] = ...
+    t_labels: Optional[Tuple[str]] = ...
+    extra_kwargs: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self, df: pd.DataFrame | None, t=None, tM=None, t_labels=None,
+                      extra_kwargs={}) -> None:
+        if t is None and df is None:
+            raise ValueError("Either t or df must be specified.")
+        self.t = t
+        self.tM = tM
+        self.t_labels = t_labels
+        if self.t is None:
+            self.t = df.index.to_numpy()
+        if self.tM is None and df is not None:
+            self.tM = CMAUtils.label_meals(df, as_str=False)
+        if self.t_labels is None:
+            self.t_labels = CMAUtils.get_hour_of_day(self.t)
+
+    @property
+    def xaxis_tlabels(self):
+        return (self.t, self.t_labels)
+
+    @property
+    def xaxis_tMlabels(self):
+        return (self.tM, CMAUtils.label_meals(self.df, as_str=True))
+
+
 @dataclass
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
+    df: pd.DataFrame | None = None
     plot_cols: Optional[Tuple[str]] = (
-        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal")
+        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E",
+        "is_meal", "g_raw")
     labels: Optional[Tuple[str]] = ("Breakfast", "Lunch", "Dinner",
                                     "Glucose", "Cortisol", "Melatonin",
                                     "Adiponectin", "Photoperiod (irradiance)",
                                     "Insulin (secreted)",
-                                    "Insulin (effective)", "Meals")
+                                    "Insulin (effective)",
+                                    "Meals",
+                                    "Glucose (Data)")
     colors: Optional[Tuple[str]] = (
         "#ec5ef9",
         "#bd4bc7",
@@ -389,7 +573,8 @@ class CMAPlotConfig:
         'tab:orange',
         'tab:red',
         'red',
-        'k'
+        'k',
+        'darkgrey'
     )
 
     @classmethod
@@ -400,7 +585,8 @@ class CMAPlotConfig:
         return cls.labels[index]
 
     @classmethod
-    def get_color(cls, col: Container | AnyStr, rgba=False, as_hex=False, keep_alpha=False):
+    def get_color(cls, col: Container | AnyStr, rgba=False, as_hex=False,
+                  keep_alpha=False):
         if not isinstance(col, str):
             return [cls.get_color(c, rgba=rgba) for c in col]
         try:
@@ -417,7 +603,25 @@ class CMAPlotConfig:
         return c
 
     @classmethod
-    def plot_model_results(cls, df=None, soln=None, plot_cols=None, as_blob=True):
+    def set_global_axis_properties(cls, axs, df=None):
+        """set universal axis properties (like time of day labels for x-axis).
+        """
+        if df is None:
+            df = cls.df
+        for ax in axs:
+            ax.set_xticks(*CMALabeledTimeAxis(df).xaxis_tlabels)
+            ax.set_xlim([0.01, 23.99])
+            ax.set_xlabel("Time (24-hours)")
+        return axs
+
+    @classmethod
+    def set_global_axis_attributes(cls, axs):
+        """alias for set_global_axis_properties..."""
+        return cls.set_global_axis_properties(axs)
+
+    @classmethod
+    def plot_model_results(cls, df=None, soln=None, plot_cols=None,
+                           separate2subplots=False, as_blob=True):
         """plot the results of the model"""
         if df is None:
             df = cls.df
@@ -427,27 +631,41 @@ class CMAPlotConfig:
             plot_cols = cls.plot_cols
         #: drop is_meal from plot cols... (it's bool afterall)
         plot_cols = list(plot_cols)
-        ismeal_ix = plot_cols.index("is_meal")
-        plot_cols.pop(ismeal_ix)
+        if "is_meal" in plot_cols:
+            ismeal_ix = plot_cols.index("is_meal")
+            plot_cols.pop(ismeal_ix)
         #: combine the data into a single dataframe
         df = df.set_index("t")
         soln = soln.set_index("t")
         df = pd.merge_ordered(df.copy(), soln, suffixes=("", "_soln"), on="t")
         df = df.set_index("t")
-        fig, axs = plt.subplots(nrows=2)
-        ax = df.plot(ax=axs[0], y="G", color='tab:orange', linestyle='',
-                     marker='o', markersize=4, label="rel glucose (data)")
-        ax1 = ax.twinx()
-        ax1.set_yticks([df["G"].min(), df["G"].max()], [
-                       df['value'].min(), df['value'].max()])
-
-        ax2 = df.plot.area(y=plot_cols, color=cls.get_color(plot_cols), ax=axs[1],
-                           alpha=0.2, label=cls.get_label(plot_cols), stacked=True)
-        ax = df.plot(y="G_soln", color='k', ax=ax, label="rel glucose (model)")
-        ax.vlines(x=df.loc[df.is_meal].index,
+        df = df.drop(columns=['time', ]).interpolate(method='akima')
+        fig, axs = plt.subplots(
+            nrows=2 if separate2subplots is False else len(plot_cols) + 1)
+        #: plot meal times, meal sizes
+        ax = axs[0]
+        ax.fill_between(df.index, y1=df['G_soln'].min(
+        ), y2=df["G_soln"], color='k', label="Estimated Meal Size")
+        ax.vlines(x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
                   ymin=ax.get_ylim()[0], ymax=df.G_soln.max(),
                   color='r', lw=3, linestyle='--', label='estimated mealtimes')
         ax.legend()
+        #: plot other traces
+        if separate2subplots is False:
+            df.plot.area(y=plot_cols, color=cls.get_color(plot_cols), ax=axs[1],
+                         alpha=0.2, label=cls.get_label(plot_cols), stacked=True)
+        elif separate2subplots is True:
+            for pcol, axi in zip(plot_cols, axs[1:]):
+                axi.fill_between(
+                    x=df.index, y1=df[pcol].min(), y2=df[pcol],
+                    color=cls.get_color(pcol),
+                    alpha=0.2,
+                    label=cls.get_label(pcol)
+                )
+                axi.legend()
+        #: set global properties for all axes...
+        axs = cls.set_global_axis_properties(axs)
+        fig.tight_layout()
         #: return the figure and axes (unless this is to be a blob for the web)
         if as_blob is False:
             return fig, axs
@@ -457,6 +675,7 @@ class CMAPlotConfig:
         bytes_value = bio.getvalue()
         img_src = 'data:image/png;base64,'
         img_src = img_src + b64encode(bytes_value).decode('utf-8')
+        plt.tight_layout()
         plt.close()
         return img_src
 
@@ -479,12 +698,25 @@ class CMAFitResult(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        #: ref: https://docs.pydantic.dev/latest/usage/exporting_models/#json_encoders
-        json_encoders = {
-            CMASleepWakeModel: str,
-            pd.DataFrame: lambda df: df.to_json(),
-            np.ndarray: lambda arr: arr.tolist(),
-        }
+
+
+def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h", n_meals: int = 4, **kwds):
+    n_meals = int(n_meals)
+    df = data[['t', ycol]]
+    if not isinstance(df.index, pd.TimedeltaIndex):
+        df = df.assign(dt=pd.to_timedelta(df["t"], "H"))
+        df.set_index("dt", inplace=True)
+    dfres = df.resample(tm_freq).mean()
+    tM = dfres[ycol].diff().dropna() \
+        .groupby(pd.Grouper(freq=tm_freq)).max() \
+        .sort_values() \
+        .index.to_series().apply(
+        lambda d: dt_to_decimal_hours(d)
+    ).unique()[-n_meals:] - 0.05
+    tM[tM < 0.0] += 23.9999
+    tM[tM > 24.0] -= 23.9999
+    tM.sort()
+    return tM
 
 
 def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
@@ -506,7 +738,7 @@ def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
         "verbose": 0,
         "ftol": 1e-6,
         "xtol": 1e-6,
-        "max_nfev": data[ycol].size * 400,
+        "max_nfev": data[ycol].size * 500,
         "check_finite": True,
         "absolute_sigma": False,
         "x_scale": [2.0, 0.01, 0.01, 0.1, 0.1, 0.1],
@@ -520,21 +752,7 @@ def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
 
     #: estimate tM if needed
     if tM is None:
-        n_meals = int(kwds.pop("n_meals", 4))
-        df = data[['t', ycol]]
-        if not isinstance(df.index, pd.TimedeltaIndex):
-            df['dt'] = pd.to_timedelta(df["t"], "H")
-            df.set_index("dt", inplace=True)
-        dfres = df.resample(tm_freq).mean()
-        tM = dfres[ycol].diff().dropna() \
-            .groupby(pd.Grouper(freq=tm_freq)).max() \
-            .sort_values() \
-            .index.to_series().apply(
-            lambda d: dt_to_decimal_hours(d)
-        ).unique()[-n_meals:] - 0.05
-        tM[tM < 0.0] += 23.9999
-        tM[tM > 24.0] -= 23.9999
-        tM.sort()
+        tM = estimate_mealtimes(data, ycol, **kwds)
 
     #: instantiate model
     cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
@@ -558,10 +776,11 @@ def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
         **curve_fit_kwds)
 
     #: informed model (best fit)
-    p0_cma = dict(zip(pkeys_include, popt))
+    p0_cma = dict(zip(pkeys_include, popt, strict=True))
     cma = cma.update(inplace=False, **p0_cma)
 
-    return CMAFitResult(soln=cma.df, cma=cma, popt=popt, pcov=pcov, infodict=infodict, mesg=mesg, ier=ier)
+    return CMAFitResult(soln=cma.df, cma=cma, popt=popt, pcov=pcov,
+                        infodict=infodict, mesg=mesg, ier=ier)
 
 
 def test_fit_model(n=288, plot=False, opts=None, **kwds):
@@ -586,7 +805,8 @@ def test_fit_model(n=288, plot=False, opts=None, **kwds):
     print("p_actual=\n", cma.params)
     print()
     fit_result = fit_model(
-        df, ycol="G", tm_freq="15T", curve_fit_kwds=curve_fit_kwds, taup=taup_est)
+        df, ycol="G", tm_freq="15T", curve_fit_kwds=curve_fit_kwds,
+        taup=taup_est)
     print()
     print("tM_est=\n", fit_result.cma.tM)
     print("p_opt=\n", fit_result.cma.params)
@@ -654,17 +874,10 @@ def run_fit_model(ctx, n, plot, opts, model_config):
 def run_param_grid(ctx):
     global fit_result_global
     fit_result_global = []
-    keys = list(CMASleepWakeModel.param_keys)
-    lb = list(CMASleepWakeModel.bounds.lb)
-    ub = list(CMASleepWakeModel.bounds.ub)
     tmK = ["tM0", "tM1", "tM2"]
-    tmL, tmU = [0, 11, 13], [13, 17, 24]
-    plist = list(zip(keys, lb, ub))
     pdict = {}
     pdict = {"tM0": [7, ], "tM1": [12, ], "tM2": [
         18, ], "d": [-3.0, -2.0, 0.0, 1.0, 2.0], }
-    # pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
-    # pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
     pgrid = ParameterGrid(pdict)
     cma = CMASleepWakeModel(N=48)
     for i, params in enumerate(pgrid):
