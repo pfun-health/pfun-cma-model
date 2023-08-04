@@ -28,9 +28,9 @@ root_path = str(Path(__file__).parents[2])
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 try:
-    from cma_model.decorators import check_is_numpy
-    from cma_model.engine.calc import normalize
-    from cma_model.engine.data_utils import dt_to_decimal_hours
+    from chalicelib.decorators import check_is_numpy
+    from chalicelib.engine.calc import normalize
+    from chalicelib.engine.data_utils import dt_to_decimal_hours
 except ModuleNotFoundError:
     # TODO: Fix these imports.
     check_is_numpy = importlib.import_module(
@@ -823,7 +823,7 @@ def test_fit_model(n=288, plot=False, opts=None, **kwds):
         ax.legend()
         ax.set_title(f"n={n:02d}")
         ax.set_xticklabels(ax.get_xticks(), rotation=45)
-        ax.get_figure().savefig("./test_fit_cma_model.png")
+        ax.get_figure().savefig("./test_fit_chalicelib.png")
     return fit_result
 
 
