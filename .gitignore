@@ -8,6 +8,12 @@
 *.pem
 
 
+#: chalice stuff
+
+.chalice/deployments/
+.chalice/venv/
+
+
 #: NPM stuff
 
 *~
