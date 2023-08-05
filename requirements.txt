@@ -1,51 +1,5 @@
-# CLI
-click==8.1.3
-
-# AWS interactivity
-aiobotocore==2.4.2
-botocore==1.27.59
-boto3==1.24.59
-
-# math
+pydantic
+pandas
+matplotlib
 numpy
 scipy
-scikit-learn==1.2.1
-matplotlib==3.7.0
-matplotlib-inline==0.1.6
-numba==0.56.4
-
-# dataframes
-pandas==2.0.0
-tabulate==0.9.0
-
-# fastapi-related stuff
-fastapi==0.95.0
-python-multipart==0.0.6
-websockets
-#: for starlette.testclient.TestClient
-httpx==0.24.0
-
-# authentication
-requests-oauthlib==1.3.1
-
-# ASGI servers
-uvicorn==0.21.1
-watchfiles==0.19.0
-gunicorn==20.1.0
-
-# database connectivity
-aiosqlite==0.18.0
-databases==0.6.2
-databases[aiosqlite]
-sqlalchemy==1.4.41
-
-# templates & file parsing
-PyYAML>=6.0
-jinja2==3.1.2
-libsass==0.22.0
-orjson==3.8.9
-ormar==0.12.1
-pydantic==1.10.4
-pydantic[dotenv]
-python-dotenv==1.0.0
-dump-env==1.4.0

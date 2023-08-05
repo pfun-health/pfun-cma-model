@@ -2,9 +2,6 @@
 """
 import numpy as np
 import pandas as pd
-from numba import vectorize, njit, float64
-
-njit_serial = njit(parallel=False, nogil=True)
 
 
 def expit_pfun(x):
@@ -15,21 +12,11 @@ def calc_vdep_current(v, v1, v2, A=1.0, B=1.0):
     return A * expit_pfun(B * (v - v1) / v2)
 
 
-_expit_numba = vectorize([float64(float64)], fastmath=False)(expit_pfun)
-
-
-@njit_serial
-def expit_numba(xx):
-    return _expit_numba(xx)
-
-
-@njit_serial
 def E_norm(x):
-    y = 2.0 * (expit_numba(2.0 * x) - 0.5)
+    y = 2.0 * (expit_pfun(2.0 * x) - 0.5)
     return y
 
 
-@njit_serial
 def _normalize(x, a, b):
     """normalize a flattened float array between a and b
     """

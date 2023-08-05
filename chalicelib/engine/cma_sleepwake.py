@@ -2,9 +2,7 @@
 """app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.
 """
 import importlib
-
 import copy
-import json
 import logging
 import sys
 from dataclasses import KW_ONLY, InitVar, dataclass, field
@@ -13,20 +11,20 @@ from pathlib import Path
 from typing import (
     Any, Callable, AnyStr, Container, Dict, Iterable, Optional, Tuple
 )
-
-import click
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from pydantic import BaseModel, validator
+import pandas as pd
 from scipy.optimize import Bounds, curve_fit
-from sklearn.model_selection import ParameterGrid
 
 #: pfun imports (relative)
-root_path = str(Path(__file__).parents[2])
+root_path = str(Path(__file__).parents[1])
+mod_path = str(Path(__file__).parent)
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
+if mod_path not in sys.path:
+    sys.path.insert(0, mod_path)
 try:
     from chalicelib.decorators import check_is_numpy
     from chalicelib.engine.calc import normalize
@@ -34,11 +32,11 @@ try:
 except ModuleNotFoundError:
     # TODO: Fix these imports.
     check_is_numpy = importlib.import_module(
-        ".decorators", package="app").check_is_numpy
+        ".decorators", package="chalicelib").check_is_numpy
     normalize = importlib.import_module(
-        ".calc").normalize
+        ".calc", package="").normalize
     dt_to_decimal_hours = importlib.import_module(
-        ".data_utils").dt_to_decimal_hours
+        ".data_utils", package="").dt_to_decimal_hours
 
 logger = logging.getLogger()
 
@@ -827,12 +825,6 @@ def test_fit_model(n=288, plot=False, opts=None, **kwds):
     return fit_result
 
 
-@click.group()
-@click.pass_context
-def cli(ctx):
-    pass
-
-
 def process_kwds(ctx, param, value):
     if param.name != "opts":
         return value
@@ -847,54 +839,3 @@ def process_kwds(ctx, param, value):
             finally:
                 value[i][1] = new
     return value
-
-
-fit_result_global = None
-
-
-@cli.command()
-@click.option("--N", default=288, type=click.INT)
-@click.option("--plot/--no-plot", is_flag=True, default=False)
-@click.option("--opts", "--curve-fit-kwds", multiple=True, type=click.Tuple([str, click.UNPROCESSED]),
-              callback=process_kwds)
-@click.option("--model-config", "--config", prompt=True, default="{}", type=str)
-@click.pass_context
-def run_fit_model(ctx, n, plot, opts, model_config):
-    global fit_result_global
-    model_config = json.loads(model_config)
-    fit_result = test_fit_model(n=n, plot=plot, opts=opts, **model_config)
-    fit_result_global = fit_result
-    if plot is True:
-        click.confirm("[enter] to exit...", default=True,
-                      abort=True, show_default=False)
-
-
-@cli.command()
-@click.pass_context
-def run_param_grid(ctx):
-    global fit_result_global
-    fit_result_global = []
-    tmK = ["tM0", "tM1", "tM2"]
-    pdict = {}
-    pdict = {"tM0": [7, ], "tM1": [12, ], "tM2": [
-        18, ], "d": [-3.0, -2.0, 0.0, 1.0, 2.0], }
-    pgrid = ParameterGrid(pdict)
-    cma = CMASleepWakeModel(N=48)
-    for i, params in enumerate(pgrid):
-        print(f"Iteration ({i:03d}/{len(pgrid)}) ...")
-        tM = [params.pop(tmk) for tmk in tmK]
-        params["tM"] = tM
-        cma.update(**params)
-        out = cma.run()
-        fit_result_global.append([params, out])
-    print('...done.')
-
-
-@cli.command()
-def run_doctests():
-    import doctest
-    doctest.testmod()
-
-
-if __name__ == '__main__':
-    cli()
