@@ -6,6 +6,8 @@
 /.python-version
 /audio_output/
 *.pem
+/packaged/*.zip
+/lambda_layer/packages/
 
 
 #: chalice stuff

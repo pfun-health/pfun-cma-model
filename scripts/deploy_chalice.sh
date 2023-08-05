@@ -15,6 +15,9 @@ cd packaged || exit
 echo "readying for deployment..."
 
 # package the chalice application (-> ./sam-packaged.json)
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_ENDPOINT_URL
 aws --profile robbie --region us-east-1 \
 	cloudformation package --template-file ./sam.json \
 	--region us-east-1 \
@@ -34,13 +37,15 @@ echo -e "...done building sam package.\n"
 
 sam validate --profile robbie \
 	--region us-east-1 \
-	-t sam-packaged.yaml || exit
+	-t sam-packaged.yaml \
+	--lint || exit
 
 echo -e "testing sam package..."
 
 sam sync --profile robbie \
 	--region us-east-1 \
-	--stack-name pfun-app0 --watch -t sam-packaged.yaml || exit
+	--stack-name pfun-app0 \
+	--watch -t sam-packaged.yaml || exit
 
 echo -e "...done testing sam package.\n"
 

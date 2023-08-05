@@ -74,8 +74,7 @@ Resources:
                   default:
                     statusCode: '200'
                 uri:
-                  Fn::Sub: 
-                    arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
@@ -129,8 +128,7 @@ Resources:
                   default:
                     statusCode: '200'
                 uri:
-                  Fn::Sub: 
-                    arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
@@ -184,8 +182,7 @@ Resources:
                   default:
                     statusCode: '200'
                 uri:
-                  Fn::Sub: 
-                    arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
@@ -239,8 +236,7 @@ Resources:
                   default:
                     statusCode: '200'
                 uri:
-                  Fn::Sub: 
-                    arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
