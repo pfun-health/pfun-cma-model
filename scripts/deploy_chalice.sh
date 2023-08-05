@@ -47,7 +47,7 @@ echo -e "...done testing sam package.\n"
 echo "deploying the chalice application..."
 
 sam deploy --guided -t sam-packaged.yaml \
-    --s3-bucket pfun-app-lambda \
+	--s3-bucket pfun-app-lambda \
 	--profile robbie \
 	--region us-east-1 \
 	--capabilities CAPABILITY_IAM || exit
