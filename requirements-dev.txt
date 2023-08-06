@@ -1,2 +1,2 @@
-git+https://github.com/rocapp/chalice-pfun.git@master#egg=chalice
-pytest
+botocore==1.14.0
+chalice==1.29.0

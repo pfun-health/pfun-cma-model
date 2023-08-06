@@ -1,14 +1,13 @@
-from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-from chalicelib.engine.cma_sleepwake import fit_model as cma_fit_model
 from chalice import (
     Chalice,
     CORSConfig,
+    AuthResponse
 )
 import json
 import sys
 from pathlib import Path
 from typing import Any, AnyStr, Dict, Literal
-import pandas as pd
+import boto3
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[1]
@@ -18,9 +17,18 @@ for pth in [root_path, ]:
         sys.path.insert(0, pth)
 
 #: init app, set cors
-cors_config = CORSConfig(allow_origin='*', allow_credentials=True)
+cors_config = CORSConfig(allow_origin='*')
 app = Chalice(app_name='PFun CMA Model Backend')
 app.api.cors = cors_config
+
+
+@app.authorizer()
+def fake_auth(auth_request):
+    """
+    TODO: continue with this guide: https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
+    ...create an authorization token.
+    """
+    return AuthResponse(routes=['*'], principal_id='user')
 
 
 @app.route("/")
@@ -28,10 +36,11 @@ def index_message():
     return {"message": "Welcome to the PFun CMA Model API!"}
 
 
-@app.route("/log")
+@app.route("/log", authorizer=fake_auth)
 async def logging_route(msg: str,
                         level: Literal['info', 'warning', 'error'] = 'info'):
     msg = app.current_request.query_params.get('msg')
+    level = app.current_request.query_params.get('level', level)
     if msg is None:
         raise RuntimeError("Logging error! No message was provided!")
     loggers = {
@@ -56,19 +65,40 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
-@app.route("/run", methods=["POST"])
-def run_model_with_config():
-    model_config = get_model_config(app)
+def get_lambda_params(event, key: str) -> Dict:
+    http_method = event.get('httpMethod')
+    query_params = event.get('queryStringParams', {})
+    body = event.get('body')
+    params = {}
+    if body is not None:
+        params = json.loads(body)
+    if key in params:
+        params = params[key]
+    params.update(query_params)
+    return params
+
+
+@app.lambda_function("run_model")
+def run_model_with_config(event, context):
+    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    model_config = get_lambda_params(event, 'model_config')
     model = CMASleepWakeModel(**model_config)
     df = model.run()
     output = df.to_json()
     return output
 
 
-@app.route("/fit", methods=["POST"])
-def fit_model_to_data():
+@app.route('/run', methods=["POST"], authorizer=fake_auth)
+def run_model_route():
     model_config = get_model_config(app)
-    data = get_params(app, key='data')
+    response = boto3.client('lambda').invoke(Function='run_model')
+    return json.loads(response.get('body', '[]'))
+
+
+@app.lambda_function("fit_model")
+def fit_model_to_data(event, context):
+    from chalicelib.engine.fit import fit_model as cma_fit_model
+    data = get_lambda_params(app, 'data')
     if data is None:
         raise RuntimeError("no data was provided!")
     if isinstance(data, str):
@@ -84,3 +114,10 @@ def fit_model_to_data():
         return {"error":
                 "failed to fit data. See error message on server log."}, 500
     return {"output": output}
+
+
+@app.route('/fit', methods=['POST'], authorizer=fake_auth)
+def fit_model_route():
+    model_config = get_model_config(app)
+    response = boto3.client('lambda').invoke(Function='fit_model')
+    return json.loads(response.get('body', '[]'))

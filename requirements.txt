@@ -1,5 +1,2 @@
-pydantic
-pandas
-matplotlib
-numpy
-scipy
+botocore==1.14.0
+boto3==1.11.0
