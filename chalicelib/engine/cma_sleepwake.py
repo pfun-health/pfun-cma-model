@@ -6,13 +6,11 @@ import copy
 import logging
 import sys
 from dataclasses import KW_ONLY, InitVar, dataclass, field
-from io import BytesIO
 from pathlib import Path
 from typing import (
     Any, Callable, AnyStr, Container, Dict, Iterable, Optional, Tuple
 )
 import numpy as np
-from pydantic import BaseModel, validator
 
 #: pfun imports (relative)
 root_path = str(Path(__file__).parents[1])
@@ -23,7 +21,7 @@ if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
     from chalicelib.decorators import check_is_numpy
-    from chalicelib.engine.calc import normalize
+    from chalicelib.engine.calc import normalize, normalize_glucose
     from chalicelib.engine.data_utils import dt_to_decimal_hours
     from chalicelib.engine.bounds import Bounds
     import pandas as pd
@@ -31,31 +29,15 @@ except ModuleNotFoundError:
     check_is_numpy = importlib.import_module(
         ".decorators", package="chalicelib").check_is_numpy
     normalize = importlib.import_module(
-        ".calc", package="").normalize
+        ".calc", package="chalicelib.engine").normalize
+    normalize_glucose = importlib.import_module(
+        ".calc", package="chalicelib.engine").normalize_glucose
     dt_to_decimal_hours = importlib.import_module(
-        ".data_utils", package="").dt_to_decimal_hours
+        ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
     Bounds = importlib.import_module(
-        ".bounds", package="").Bounds
+        ".bounds", package="chalicelib.engine").Bounds
 
 logger = logging.getLogger()
-
-
-@check_is_numpy
-def normalize_glucose(G, g0=70, g1=180, g_s=90):
-    """Normalize glucose (mg/dL -> [0.0, 2.0]).
-
-        <0.9: low,
-        0.9: normal-low,
-        0.9-1.5: normal,
-        >1.5: high
-
-    see the graph: https://www.desmos.com/calculator/ii4qrawgjo
-    """
-    def E(x):
-        return 1.0 / (1.0 + np.exp(-2*x))
-    numer = (8.95 * np.power((G - g_s), 3) +
-             np.power((G - g0), 2) - np.power((G - g1), 2))
-    return 2.0 * E(1e-4 * numer / (g1 - g0))
 
 
 def l(x):
@@ -387,6 +369,11 @@ class CMASleepWakeModel:
     def get_model_args(cls):
         """for maintaining compatibility with the pfun.model_funcs API"""
         return dict(zip(cls.param_keys, cls.param_defaults))
+    
+    @property
+    def pvec(self):
+        """easy access to parameter vector (copy)"""
+        return np.array([self.params[k] for k in self.param_keys])
 
     def run(self) -> pd.DataFrame:
         """run the model, return the solution as a labeled pd.DataFrame.

@@ -1,2 +1,8 @@
 botocore==1.14.0
 chalice==1.29.0
+cffi
+pkgconfig
+numpy
+pytest
+pandas==2.0.0
+pydantic

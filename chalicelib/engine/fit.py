@@ -1,14 +1,30 @@
-from scipy.optimize import curve_fit
+import warnings
+from minpack import lmdif
 import pandas as pd
-from typing import Any, Optional, Dict, Iterable
+from typing import Any, Optional, Dict, Iterable, Container
 import numpy as np
-from pydantic import BaseModel, validator
+from numpy.linalg import LinAlgError
+from pydantic import BaseModel, field_validator, computed_field
 import importlib
+import sys
+from pathlib import Path
+
+root_path = str(Path(__file__).parents[1])
+mod_path = str(Path(__file__).parent)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+if mod_path not in sys.path:
+    sys.path.insert(0, mod_path)
+
+CMASleepWakeModel = importlib.import_module(
+    ".cma_sleepwake", package="chalicelib.engine").CMASleepWakeModel
 dt_to_decimal_hours = importlib.import_module(
-        ".data_utils", package="").dt_to_decimal_hours
+        ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
+format_data = importlib.import_module(
+    ".data_utils", package="chalicelib.engine").format_data
 
 
-class CMAFitResult(BaseModel):
+class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
     soln: pd.DataFrame
     cma: Any
     popt: np.ndarray
@@ -16,19 +32,32 @@ class CMAFitResult(BaseModel):
     infodict: Dict
     mesg: str
     ier: int
-    popt_named: Optional[Dict]
+    
+    @computed_field
+    @property
+    def popt_named(self) -> Dict:
+        return {k: v for k, v in zip(self.cma.param_keys, self.popt, strict=True)}
 
-    @validator("popt_named", always=True, allow_reuse=True)
-    def _get_popt_named(cls, v, values):
-        cma = values.get("cma")
-        popt = values.get("popt")
-        return {k: v for k, v in zip(cma.param_keys, popt)}
+    @computed_field
+    @property
+    def cond(self) -> float:
+        #: compute the condition number of the covariance matrix
+        #: Note: this should be small if all params are needed
+        #: ref: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit
+        cond = np.linalg.cond(self.pcov)
+        return cond
 
-    class Config:
-        arbitrary_types_allowed = True
+    @computed_field
+    @property
+    def diag(self) -> np.ndarray:
+        #: compute the diagonal of the covariance matrix
+        #: NOTE: these should be small if all params are needed
+        pcov = self.pcov
+        return np.diag(pcov)
 
 
-def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h", n_meals: int = 4, **kwds):
+def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h",
+                       n_meals: int = 4, **kwds):
     n_meals = int(n_meals)
     df = data[['t', ycol]]
     if not isinstance(df.index, pd.TimedeltaIndex):
@@ -47,8 +76,62 @@ def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h", n_meals: int 
     return tM
 
 
-def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
-              tm_freq: str = "2h", curve_fit_kwds: Dict = {}, **kwds) -> CMAFitResult:
+LEASTSQ_SUCCESS = [1, 2, 3, 4]
+LEASTSQ_FAILURE = [5, 6, 7, 8]
+
+
+def curve_fit(fun, xdata, ydata, p0=None, bounds=None, full_output=True,
+              **kwds):
+    ftol = kwds.get('ftol', 1.49012e-8)
+    xtol = kwds.get('xtol', 1.49012e-8)
+    gtol = kwds.get('gtol', 0.0)
+    maxfev = kwds.get('maxfev', 0)
+    epsfnc = kwds.get("epsfcn", None)
+    factor = kwds.get("factor", 100)
+    diag = kwds.get("diag", None)
+    fvec = np.zeros(len(xdata), dtype=np.float64)
+    p0 = np.array(p0).flatten()
+    pcov = np.eye(len(p0), dtype=np.float64)
+    pmu = np.eye(len(p0), dtype=np.float64)
+    tol = min(xtol, ftol)
+    Niters = np.zeros(1, dtype=np.int64)
+    ier = lmdif(fun, p0, fvec, tol, args=(ydata, pcov, pmu, Niters),
+                xtol=xtol, gtol=gtol, maxfev=maxfev, epsfnc=epsfnc,
+                factor=factor, diag=diag)
+    errors = {0: ["Improper input parameters.", TypeError],
+              1: ["Both actual and predicted relative reductions "
+                  "in the sum of squares\n  are at most %f" % ftol, None],
+              2: ["The relative error between two consecutive "
+                  "iterates is at most %f" % xtol, None],
+              3: ["Both actual and predicted relative reductions in "
+                  "the sum of squares\n  are at most {:f} and the "
+                  "relative error between two consecutive "
+                  "iterates is at \n  most {:f}".format(ftol, xtol), None],
+              4: ["The cosine of the angle between func(x) and any "
+                  "column of the\n  Jacobian is at most %f in "
+                  "absolute value" % gtol, None],
+              5: ["Number of calls to function has reached "
+                  "maxfev = %d." % maxfev, ValueError],
+              6: ["ftol=%f is too small, no further reduction "
+                  "in the sum of squares\n  is possible." % ftol,
+                  ValueError],
+              7: ["xtol=%f is too small, no further improvement in "
+                  "the approximate\n  solution is possible." % xtol,
+                  ValueError],
+              8: ["gtol=%f is too small, func(x) is orthogonal to the "
+                  "columns of\n  the Jacobian to machine "
+                  "precision." % gtol, ValueError]}
+    popt = p0.copy()
+    errmsg = errors.get(ier)
+    infodict = {"message": errmsg, }
+    if ier not in [1, 2, 3, 4]:
+        raise RuntimeError("Optimal parameters not found: " + errmsg)
+    return popt, pcov, infodict, errmsg, ier
+
+
+def fit_model(data: pd.DataFrame | Dict, ycol: str = "G", tM: None | Iterable = None,
+              tm_freq: str = "2h", curve_fit_kwds: Dict = {}, **kwds
+              ) -> CMAFitResult:
     """use `scipy.optimize.curve_fit` to fit the model to data
 
     Arguments:
@@ -60,6 +143,8 @@ def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
     - tM (optional) : vector of mealtimes (decimal hours).
         If unspecified, mealtimes will be estimated (default).
     """
+    
+    data = format_data(data)
 
     #: update from keywords
     default_cf_kwds = {
@@ -80,17 +165,25 @@ def fit_model(data: pd.DataFrame, ycol: str = "G", tM: None | Iterable = None,
 
     #: estimate tM if needed
     if tM is None:
-        tM = estimate_mealtimes(data, ycol, **kwds)
+        tM = estimate_mealtimes(data, ycol, tm_freq=tm_freq, **kwds)
 
     #: instantiate model
     cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         print("taup0=", cma.taup)
 
-    def fun(xdata, d, taup, taug, B, Cm, toff, cma=cma):
+    def fun(p, fvec, args=None, cma=cma, **kwds):
+        y, pcov, pmu, Niters = args
+        if pmu is not None:
+            pmu[:] += p[:] / (Niters + 1)
+        if pcov is not None:
+            pcov[:, :] = (p - pmu)*(p - pmu).T[:, :] / (Niters + 1)
+        d, taup, taug, B, Cm, toff = p
         cma.update(inplace=True, d=d, taup=taup,
                    taug=taug, B=B, Cm=Cm, toff=toff)
-        return cma.g_instant
+        fvec[:] = np.power(y - cma.g_instant, 2)[:]
+        if Niters is not None:
+            Niters += 1
 
     #: perform fitting
     pkeys_include = cma.param_keys

@@ -6,7 +6,7 @@ from chalice import (
 import json
 import sys
 from pathlib import Path
-from typing import Any, AnyStr, Dict, Literal
+from typing import Dict, Literal
 import boto3
 
 #: pfun imports (relative)
@@ -28,17 +28,25 @@ def fake_auth(auth_request):
     TODO: continue with this guide: https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
     ...create an authorization token.
     """
-    return AuthResponse(routes=['*'], principal_id='user')
+    token = auth_request.token
+    if token == 'allow':
+        return AuthResponse(routes=['/', '/log', '/fit', '/run'],
+                            principal_id='user')
+    else:
+        return AuthResponse(routes=[], principal_id='user')
 
 
 @app.route("/")
 def index_message():
-    return {"message": "Welcome to the PFun CMA Model API!"}
+    routes = json.dumps({k: str(v) for k, v in app.routes.items()}, indent=4)
+    return {
+        "message": "Welcome to the PFun CMA Model API!\nRoutes:\n{}"
+        .format(routes)
+    }
 
 
-@app.route("/log", authorizer=fake_auth)
-async def logging_route(msg: str,
-                        level: Literal['info', 'warning', 'error'] = 'info'):
+@app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
+def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
     msg = app.current_request.query_params.get('msg')
     level = app.current_request.query_params.get('level', level)
     if msg is None:
@@ -57,7 +65,8 @@ def get_params(app: Chalice, key: str) -> Dict:
         app.current_request.json_body
     if key in params:
         params = params[key]
-    params.update(app.current_request.query_params)
+    if app.current_request.query_params is not None:
+        params.update(app.current_request.query_params)
     return params
 
 
@@ -68,6 +77,7 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
 def get_lambda_params(event, key: str) -> Dict:
     http_method = event.get('httpMethod')
     query_params = event.get('queryStringParams', {})
+    app.log.info('(lambda) http_method: {}'.format(http_method))
     body = event.get('body')
     params = {}
     if body is not None:
@@ -88,21 +98,24 @@ def run_model_with_config(event, context):
     return output
 
 
-@app.route('/run', methods=["POST"], authorizer=fake_auth)
+@app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
     model_config = get_model_config(app)
-    response = boto3.client('lambda').invoke(Function='run_model')
+    response = boto3.client('lambda') \
+        .invoke(FunctionName='run_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
 
 
 @app.lambda_function("fit_model")
 def fit_model_to_data(event, context):
     from chalicelib.engine.fit import fit_model as cma_fit_model
-    data = get_lambda_params(app, 'data')
+    import pandas as pd
+    data = get_lambda_params(event, 'data')
     if data is None:
         raise RuntimeError("no data was provided!")
     if isinstance(data, str):
         data = json.loads(data)
+    model_config = get_lambda_params(event, 'model_config')
     if isinstance(model_config, str):
         model_config = json.loads(model_config)
     try:
@@ -119,5 +132,6 @@ def fit_model_to_data(event, context):
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
     model_config = get_model_config(app)
-    response = boto3.client('lambda').invoke(Function='fit_model')
+    response = boto3.client('lambda').invoke(
+        FunctionName='fit_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))

@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "app_name": "pfun-cma-model",
-    "layers": [ "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:2" ],
+    "layers": [ "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:3" ],
     "automatic_layer": true,
     "stages": {
 	"dev": {
