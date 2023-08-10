@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Dict
 
 
 class Bounds:
@@ -48,6 +49,41 @@ class Bounds:
         else:
             end = ")"
         return start + end
+
+    def update_values(self, arr: np.ndarray | Dict):
+        """
+        Update the values of the input array so that they stay within the specified limits.
+
+        Args:
+            arr (array-like): The input array that needs to be updated.
+
+        Returns:
+            array-like: The updated array with values within the specified limits.
+
+        Raises:
+            ValueError: If the length of the input array does not match the length of the lower
+                        and upper bound arrays.
+        """
+        keys = None
+        if isinstance(arr, dict):
+            keys = list(arr.keys())
+            arr = np.array(list(arr.values()))
+        if len(arr) != len(self.lb) or len(arr) != len(self.ub):
+            raise ValueError("Length of input array does not match the length of lower and upper bound arrays.")
+
+        updated_arr = []
+        for i, val in enumerate(arr):
+            if val < self.lb[i]:
+                updated_arr.append(self.lb[i])
+            elif val > self.ub[i]:
+                updated_arr.append(self.ub[i])
+            else:
+                updated_arr.append(val)
+
+        updated_arr = np.array(updated_arr, dtype=arr.dtype)
+        if keys is not None:
+            updated_arr = {k: v for k, v in zip(keys, updated_arr)}
+        return updated_arr
 
     def residual(self, x):
         """Calculate the residual (slack) between the input and the bounds

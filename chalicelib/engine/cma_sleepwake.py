@@ -187,9 +187,11 @@ class CMASleepWakeModel:
                     self.params['taug'] = np.array(
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
-        self.params.update({k: kwds[k] for k in kwds if k in self.params})
-        self.params = {k: self.params[k]
-                       for k in self.param_keys}  # ! ensure order
+        self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
+        self.params = {k: self.params[k] for k in self.param_keys}  # ! ensure order
+        #: keep within specified bounds
+        if self.bounds.keep_feasible is True:
+            self.params = self.bounds.update_values(self.params)
         if 'tM' in kwds:
             self.tM = np.array(kwds['tM'], dtype=float).flatten()
         if 'N' in kwds:

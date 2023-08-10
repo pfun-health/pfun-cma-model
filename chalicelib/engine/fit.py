@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Any, Optional, Dict, Iterable, Container
 import numpy as np
 from numpy.linalg import LinAlgError
-from pydantic import BaseModel, field_validator, computed_field
+from pydantic import BaseModel, computed_field
 import importlib
 import sys
 from pathlib import Path
@@ -19,20 +19,21 @@ if mod_path not in sys.path:
 CMASleepWakeModel = importlib.import_module(
     ".cma_sleepwake", package="chalicelib.engine").CMASleepWakeModel
 dt_to_decimal_hours = importlib.import_module(
-        ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
+    ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
 format_data = importlib.import_module(
     ".data_utils", package="chalicelib.engine").format_data
 
 
 class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
     soln: pd.DataFrame
+    formatted_data: pd.DataFrame
     cma: Any
     popt: np.ndarray
     pcov: np.ndarray
     infodict: Dict
     mesg: str
     ier: int
-    
+
     @computed_field
     @property
     def popt_named(self) -> Dict:
@@ -76,62 +77,84 @@ def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h",
     return tM
 
 
-LEASTSQ_SUCCESS = [1, 2, 3, 4]
-LEASTSQ_FAILURE = [5, 6, 7, 8]
+class CurveFitNS:
+    """Curve fit namespace.
+    """
+
+    LEASTSQ_SUCCESS = [1, 2, 3, 4]
+    LEASTSQ_FAILURE = [5, 6, 7, 8]
+
+    def __init__(self, xtol, ftol, maxfev, gtol) -> None:
+        self.xtol, self.ftol, self.maxfev, self.gtol = xtol, ftol, maxfev, gtol
+        self.errors = {}
+        self.get_errors()
+
+    def get_errors(self):
+        """
+        Get the errors associated with the optimization process.
+
+        Returns:
+            dict: A dictionary containing error codes and their corresponding error messages.
+                  The keys are integer error codes, and the values are lists with two elements.
+                  The first element is a string describing the error, and the second element
+                  is the type of error (TypeError or ValueError). If the error type is None,
+                  it means that the error is not associated with a specific error type.
+        """
+        self.errors = {
+            0: ["Improper input parameters.", TypeError],
+            1: ["Both actual and predicted relative reductions "
+                "in the sum of squares\n  are at most %f" % self.ftol, None],
+            2: ["The relative error between two consecutive "
+                "iterates is at most %f" % self.xtol, None],
+            3: ["Both actual and predicted relative reductions in "
+                "the sum of squares\n  are at most {:f} and the "
+                "relative error between two consecutive "
+                "iterates is at \n  most {:f}".format(
+                    self.ftol, self.xtol), None],
+            4: ["The cosine of the angle between func(x) and any "
+                "column of the\n  Jacobian is at most %f in "
+                "absolute value" % self.gtol, None],
+            5: ["Number of calls to function has reached "
+                "maxfev = %d." % self.maxfev, ValueError],
+            6: ["ftol=%f is too small, no further reduction "
+                "in the sum of squares\n  is possible." % self.ftol,
+                ValueError],
+            7: ["xtol=%f is too small, no further improvement in "
+                "the approximate\n  solution is possible." % self.xtol,
+                ValueError],
+            8: ["gtol=%f is too small, func(x) is orthogonal to the "
+                "columns of\n  the Jacobian to machine "
+                "precision." % self.gtol, ValueError]
+        }
+        return self.errors
 
 
-def curve_fit(fun, xdata, ydata, p0=None, bounds=None, full_output=True,
+def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
               **kwds):
     ftol = kwds.get('ftol', 1.49012e-8)
     xtol = kwds.get('xtol', 1.49012e-8)
     gtol = kwds.get('gtol', 0.0)
-    maxfev = kwds.get('maxfev', 0)
-    epsfnc = kwds.get("epsfcn", None)
-    factor = kwds.get("factor", 100)
-    diag = kwds.get("diag", None)
+    maxfev = kwds.get('max_nfev', 148000)
+    cns = CurveFitNS(xtol, ftol, maxfev, gtol)
     fvec = np.zeros(len(xdata), dtype=np.float64)
     p0 = np.array(p0).flatten()
     pcov = np.eye(len(p0), dtype=np.float64)
     pmu = np.eye(len(p0), dtype=np.float64)
-    tol = min(xtol, ftol)
     Niters = np.zeros(1, dtype=np.int64)
-    ier = lmdif(fun, p0, fvec, tol, args=(ydata, pcov, pmu, Niters),
-                xtol=xtol, gtol=gtol, maxfev=maxfev, epsfnc=epsfnc,
-                factor=factor, diag=diag)
-    errors = {0: ["Improper input parameters.", TypeError],
-              1: ["Both actual and predicted relative reductions "
-                  "in the sum of squares\n  are at most %f" % ftol, None],
-              2: ["The relative error between two consecutive "
-                  "iterates is at most %f" % xtol, None],
-              3: ["Both actual and predicted relative reductions in "
-                  "the sum of squares\n  are at most {:f} and the "
-                  "relative error between two consecutive "
-                  "iterates is at \n  most {:f}".format(ftol, xtol), None],
-              4: ["The cosine of the angle between func(x) and any "
-                  "column of the\n  Jacobian is at most %f in "
-                  "absolute value" % gtol, None],
-              5: ["Number of calls to function has reached "
-                  "maxfev = %d." % maxfev, ValueError],
-              6: ["ftol=%f is too small, no further reduction "
-                  "in the sum of squares\n  is possible." % ftol,
-                  ValueError],
-              7: ["xtol=%f is too small, no further improvement in "
-                  "the approximate\n  solution is possible." % xtol,
-                  ValueError],
-              8: ["gtol=%f is too small, func(x) is orthogonal to the "
-                  "columns of\n  the Jacobian to machine "
-                  "precision." % gtol, ValueError]}
+    diag = np.ones(len(p0), dtype=np.dtype("f8"))
+    ier = lmdif(fun, p0, fvec, args=(ydata, pcov, pmu, Niters),
+                xtol=xtol, gtol=gtol, maxfev=maxfev, diag=diag)
     popt = p0.copy()
-    errmsg = errors.get(ier)
-    infodict = {"message": errmsg, }
-    if ier not in [1, 2, 3, 4]:
+    errmsg, err = cns.errors.get(ier)
+    infodict = {"message": errmsg, "error": err, "ier": ier}
+    if ier not in cns.LEASTSQ_SUCCESS:
         raise RuntimeError("Optimal parameters not found: " + errmsg)
     return popt, pcov, infodict, errmsg, ier
 
 
-def fit_model(data: pd.DataFrame | Dict, ycol: str = "G", tM: None | Iterable = None,
-              tm_freq: str = "2h", curve_fit_kwds: Dict = {}, **kwds
-              ) -> CMAFitResult:
+def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
+              tM: None | Iterable = None, tm_freq: str = "2h",
+              curve_fit_kwds: Dict = {}, **kwds) -> CMAFitResult:
     """use `scipy.optimize.curve_fit` to fit the model to data
 
     Arguments:
@@ -143,7 +166,7 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G", tM: None | Iterable = 
     - tM (optional) : vector of mealtimes (decimal hours).
         If unspecified, mealtimes will be estimated (default).
     """
-    
+
     data = format_data(data)
 
     #: update from keywords
@@ -172,22 +195,22 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G", tM: None | Iterable = 
     if curve_fit_kwds.get("verbose"):
         print("taup0=", cma.taup)
 
-    def fun(p, fvec, args=None, cma=cma, **kwds):
+    def fun(p, fvec, args=(), cma=cma):
         y, pcov, pmu, Niters = args
         if pmu is not None:
-            pmu[:] += p[:] / (Niters + 1)
+            pmu[:] = ((p + pmu) / 2.0)[:]
         if pcov is not None:
-            pcov[:, :] = (p - pmu)*(p - pmu).T[:, :] / (Niters + 1)
+            pcov[:, :] = ((p - pmu)*(p - pmu).T / (Niters + 1))[:, :]
         d, taup, taug, B, Cm, toff = p
         cma.update(inplace=True, d=d, taup=taup,
                    taug=taug, B=B, Cm=Cm, toff=toff)
         fvec[:] = np.power(y - cma.g_instant, 2)[:]
         if Niters is not None:
-            Niters += 1
+            Niters[0] = Niters[0] + 1
 
     #: perform fitting
     pkeys_include = cma.param_keys
-    p0 = [cma.params[k] for k in pkeys_include]
+    p0 = np.array([cma.params[k] for k in pkeys_include])
     if isinstance(p0[cma.param_keys.index("taug")], Container):
         #: ! ensure we update using a scalar
         p0[cma.param_keys.index("taug")] = 1.0
@@ -201,4 +224,5 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G", tM: None | Iterable = 
     cma = cma.update(inplace=False, **p0_cma)
 
     return CMAFitResult(soln=cma.df, cma=cma, popt=popt, pcov=pcov,
-                        infodict=infodict, mesg=mesg, ier=ier)
+                        infodict=infodict, mesg=mesg, ier=ier,
+                        formatted_data=data)
