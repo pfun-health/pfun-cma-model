@@ -84,7 +84,7 @@ def K(x):
         lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
 
 
-def vectorized_G(t, I_E, tm, taug, B, Cm, toff):
+def vectorized_G(t: Container, I_E: float, tm: Container, taug: Container, B: float, Cm: float, toff: float):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
 
     Parameters
@@ -279,6 +279,59 @@ class CMASleepWakeModel:
     def I_E(self):
         return self.a * self.I_S
 
+    def calc_Gt(self, t = None, dt = None, n = 1, return_t = False):
+        """
+        Calculate the value of Gt at a given time or times.
+
+        Parameters:
+            t (float or array-like, optional): The time or times at which to
+                calculate Gt. If not provided, the next time step(s) will be
+                calculated based on the previous time step and the specified
+                time step size.
+            dt (float, optional): The time step size. If not provided, it will
+                be calculated as the absolute difference between the last two
+                time steps.
+            n (int, optional): The number of time steps to calculate if `t` is
+                not provided. Defaults to 1.
+            return_t (bool, optional): Whether to return the calculated time
+                step(s) along with the calculated Gt value(s). Defaults to
+                False.
+
+        Returns:
+            Gt (float or array-like): The calculated Gt value(s) at the
+                specified time(s).
+            t (float or array-like, optional): The calculated time step(s) if
+                `return_t` is True.
+        """
+        if t is None:
+            if dt is None:
+                dt = np.abs(self.t[-1] - self.t[-2])
+            t = np.mod(np.linspace(self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+        Gt = vectorized_G(t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff)
+        if return_t is False:
+            return Gt
+        else:
+            return Gt, t
+
+    def update_Gt(self, t = None, dt = None, n = 1, keep_tvec_size = True):
+        """
+        Update the value of Gt and t.
+
+        Parameters:
+            t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
+            dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
+            n (int): The number of time steps to calculate Gt. Default is 1.
+            keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.
+
+        Returns:
+            tuple: A tuple containing the updated Gt and t arrays.
+        """
+        Gt, t = self.calc_Gt(t = t, dt = dt, n = n, return_t = True)
+        self.t = np.append(self.t, t)
+        if keep_tvec_size is True:
+            self.t = self.t[n:]
+        return Gt, self.t
+
     @property
     def G(self):
         return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
@@ -315,8 +368,10 @@ class CMASleepWakeModel:
             t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
             to be included in the target time period.
         """
+        # trunk-ignore(bandit/B101)
         assert any([(signal is None), (signal_name is None)]
                    ), "Must provide exactly one of signal or signal_name"
+        # trunk-ignore(bandit/B101)
         assert any([(signal is not None), (signal_name is not None)]
                    ), "Must provide exactly one of signal or signal_name"
         if tvec is None:
