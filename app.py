@@ -48,24 +48,10 @@ def fake_auth(auth_request):
         return AuthResponse(routes=[], principal_id='user')
 
 
-# @app.lambda_function("/auth/dexcom")
-# def login_dexcom_oauth2():
-#     #: TODO
-#     pass
-
-# authorizer = CustomAuthorizer(
-#     'DexcomAuth', header='Authorization',
-#     authorizer_uri=
-# )
-
-
 @app.route("/")
 def index_message():
     routes = json.dumps({k: str(v) for k, v in app.routes.items()}, indent=4)
-    return {
-        "message": "Welcome to the PFun CMA Model API!\nRoutes:\n{}"
-        .format(routes)
-    }
+    return { "message": f"Welcome to the PFun CMA Model API!\n\n{routes}" }
 
 
 @app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
@@ -128,6 +114,33 @@ def run_model_route():
     response =  CLIENT \
         .invoke(FunctionName='run_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
+
+
+@app.route("/run-at-time", methods=['GET', 'POST'], authorizer=fake_auth)
+def run_at_time_route():
+    global CLIENT
+    model_config = get_model_config(app)
+    calc_params = get_params(app, 'calc_params')
+    params = {
+        "model_config": model_config,
+        "calc_params": calc_params
+    }
+    response =  CLIENT \
+        .invoke(FunctionName='run_at_time', Payload=json.dumps(params))
+    return json.loads(response.get('body', '[]'))
+
+
+@app.lambda_function(name='run_at_time')
+def run_at_time(event, context):
+    import numpy as np
+    import pandas as pd
+    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    model_config = get_lambda_params(event, 'model_config')
+    calc_params = get_lambda_params(event, 'calc_params')
+    model = CMASleepWakeModel(**model_config)
+    output: np.ndarray | tuple = model.calc_Gt(**calc_params)
+    output = pd.json_normalize(output).to_json() # type: ignore
+    return output
 
 
 @app.lambda_function(name="fit_model")

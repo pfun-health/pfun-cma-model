@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict
+from typing import Container, Dict
 
 
 class Bounds:
@@ -36,9 +36,10 @@ class Bounds:
             message = "`lb`, `ub`, and `keep_feasible` must be broadcastable."
             raise ValueError(message)
 
-    def __init__(self, lb=-np.inf, ub=np.inf, keep_feasible=False):
-        self.lb = np.atleast_1d(lb)
-        self.ub = np.atleast_1d(ub)
+    def __init__(self, lb: float | Container[float] = -np.inf,
+                 ub: float | Container[float] = np.inf, keep_feasible=False):
+        self.lb = np.atleast_1d(np.asarray(lb))
+        self.ub = np.atleast_1d(np.asarray(ub))
         self.keep_feasible = np.atleast_1d(keep_feasible).astype(bool)
         self._input_validation()
 

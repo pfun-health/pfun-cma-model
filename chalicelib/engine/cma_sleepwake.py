@@ -26,6 +26,10 @@ try:
     from chalicelib.engine.bounds import Bounds
     import pandas as pd
 except ModuleNotFoundError:
+    try:
+        pd = importlib.import_module("pandas")
+    except ModuleNotFoundError:
+        pd = None
     check_is_numpy = importlib.import_module(
         ".decorators", package="chalicelib").check_is_numpy
     normalize = importlib.import_module(
@@ -542,4 +546,9 @@ class CMAUtils:
         tM = tuple(mealtimes)
         if as_str:
             tM = CMAUtils.get_hour_of_day(tM)
-        return tuple(tM)
+        if not isinstance(tM, tuple):
+            if hasattr(tM, '__iter__'):
+                tM = tuple(tM)
+            else:
+                tM = (tM,)
+        return tM
