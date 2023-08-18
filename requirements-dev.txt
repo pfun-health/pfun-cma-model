@@ -6,3 +6,4 @@ numpy
 pytest
 pandas==2.0.0
 pydantic
+boto3

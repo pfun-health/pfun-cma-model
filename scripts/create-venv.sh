@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo 'deleting old venv'
 set +e
@@ -37,13 +37,24 @@ echo "installling minpack..."
 sleep 1s
 
 set +e
-find $TMPDIR/ -name "*.dist-info" -exec rm -rf {} \;
-find $TMPDIR/ -name "*.egg-info" -exec rm -rf {} \;
-find $TMPDIR/ -name "*.pyc" -exec rm -rf {} \;
-find $TMPDIR/ -name "__pycache__" -exec rm -rf {} \;
-find $TMPDIR/ -name "tests" -exec rm -rf {} \;
-find $TMPDIR/ -name "doc" -exec rm -rf {} \;
-find $TMPDIR/ -name "datasets" -exec rm -rf {} \;
+temp_dir=${TMPDIR}
+
+# List of patterns to remove
+patterns=(
+	"*.dist-info"
+	"*.egg-info"
+	"*.pyc"
+	"__pycache__"
+	"tests"
+	"doc"
+	"datasets"
+)
+
+# Loop through the patterns and remove matching files
+for pattern in "${patterns[@]}"; do
+	find "${temp_dir}/" -name "${pattern}" -exec rm -rf {} -nowarn \;
+done
+
 echo "...done cleaning up dependencies."
 set -e
 sleep 1s

@@ -11,7 +11,8 @@
 		"ghcr.io/devcontainers-contrib/features/amplify-cli:2": {},
 		"ghcr.io/devcontainers-contrib/features/ninja-asdf:2": {},
 		"ghcr.io/customink/codespaces-features/sam-cli:1": {},
-		"ghcr.io/joshuanianji/devcontainer-features/aws-cli-persistence:0": {}
+		"ghcr.io/joshuanianji/devcontainer-features/aws-cli-persistence:0": {},
+		"ghcr.io/devcontainers-contrib/features/meson-asdf:2.0.14": {}
 	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -20,7 +21,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
-	"onCreateCommand": "./scripts/create-venv.sh"
+	"onCreateCommand": "./scripts/prepare-container.sh",
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "uname -a",

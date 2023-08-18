@@ -1,13 +1,16 @@
 from chalice import (
     Chalice,
     CORSConfig,
-    AuthResponse
+    AuthResponse,
+    CustomAuthorizer
 )
 import json
 import sys
 from pathlib import Path
 from typing import Dict, Literal
 import boto3
+
+CLIENT = boto3.client('lambda')
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[1]
@@ -34,6 +37,17 @@ def fake_auth(auth_request):
                             principal_id='user')
     else:
         return AuthResponse(routes=[], principal_id='user')
+
+
+# @app.lambda_function("/auth/dexcom")
+# def login_dexcom_oauth2():
+#     #: TODO
+#     pass
+
+# authorizer = CustomAuthorizer(
+#     'DexcomAuth', header='Authorization',
+#     authorizer_uri=
+# )
 
 
 @app.route("/")
@@ -88,7 +102,7 @@ def get_lambda_params(event, key: str) -> Dict:
     return params
 
 
-@app.lambda_function("run_model")
+@app.lambda_function(name="run_model")
 def run_model_with_config(event, context):
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
     model_config = get_lambda_params(event, 'model_config')
@@ -100,13 +114,14 @@ def run_model_with_config(event, context):
 
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
+    global CLIENT
     model_config = get_model_config(app)
-    response = boto3.client('lambda') \
+    response =  CLIENT \
         .invoke(FunctionName='run_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
 
 
-@app.lambda_function("fit_model")
+@app.lambda_function(name="fit_model")
 def fit_model_to_data(event, context):
     from chalicelib.engine.fit import fit_model as cma_fit_model
     import pandas as pd
@@ -123,7 +138,7 @@ def fit_model_to_data(event, context):
         fit_result = cma_fit_model(df, **model_config)
         output = fit_result.json()
     except Exception:
-        app.log.error('failed to fit to data.', exc_info=1)
+        app.log.error('failed to fit to data.', exc_info=True)
         return {"error":
                 "failed to fit data. See error message on server log."}, 500
     return {"output": output}
@@ -131,7 +146,8 @@ def fit_model_to_data(event, context):
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
+    global CLIENT
     model_config = get_model_config(app)
-    response = boto3.client('lambda').invoke(
+    response = CLIENT.invoke(
         FunctionName='fit_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))

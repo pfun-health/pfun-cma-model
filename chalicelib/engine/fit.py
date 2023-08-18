@@ -101,31 +101,19 @@ class CurveFitNS:
                   it means that the error is not associated with a specific error type.
         """
         self.errors = {
-            0: ["Improper input parameters.", TypeError],
-            1: ["Both actual and predicted relative reductions "
-                "in the sum of squares\n  are at most %f" % self.ftol, None],
-            2: ["The relative error between two consecutive "
-                "iterates is at most %f" % self.xtol, None],
-            3: ["Both actual and predicted relative reductions in "
-                "the sum of squares\n  are at most {:f} and the "
-                "relative error between two consecutive "
-                "iterates is at \n  most {:f}".format(
-                    self.ftol, self.xtol), None],
-            4: ["The cosine of the angle between func(x) and any "
-                "column of the\n  Jacobian is at most %f in "
-                "absolute value" % self.gtol, None],
-            5: ["Number of calls to function has reached "
-                "maxfev = %d." % self.maxfev, ValueError],
-            6: ["ftol=%f is too small, no further reduction "
-                "in the sum of squares\n  is possible." % self.ftol,
-                ValueError],
-            7: ["xtol=%f is too small, no further improvement in "
-                "the approximate\n  solution is possible." % self.xtol,
-                ValueError],
-            8: ["gtol=%f is too small, func(x) is orthogonal to the "
-                "columns of\n  the Jacobian to machine "
-                "precision." % self.gtol, ValueError]
+            0: ["Improper input parameters."],
+            1: [f"Both actual and predicted relative reductions in the sum of squares are at most {self.ftol}"],
+            2: [f"The relative error between two consecutive iterates is at most {self.xtol}"],
+            3: [f"Both actual and predicted relative reductions in the sum of squares are at most {self.ftol} "
+                f"and the relative error between two consecutive iterates is at most {self.xtol}"],
+            4: [f"The cosine of the angle between func(x) and any column of the Jacobian is at most {self.gtol} "
+                f"in absolute value"],
+            5: [f"Number of calls to function has reached maxfev = {self.maxfev}"],
+            6: [f"ftol={self.ftol} is too small, no further reduction in the sum of squares is possible."],
+            7: [f"xtol={self.xtol} is too small, no further improvement in the approximate solution is possible."],
+            8: [f"gtol={self.gtol} is too small, func(x) is orthogonal to the columns of the Jacobian to machine precision."]
         }
+
         return self.errors
 
 

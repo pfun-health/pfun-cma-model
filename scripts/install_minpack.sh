@@ -10,14 +10,14 @@ echo -e "$(pkg-config --modversion minpack)"
 
 export MINPACK_SITE=/tmp/venv310/
 
-cd $HOME/Git/minpack/python
+cd $HOME/Git/minpack/python || exit
 
 meson setup _build -Dpython_version=$(which python3.10) || exit
-meson compile -C _build || exit 
+meson compile -C _build || exit
 meson configure _build --prefix=$MINPACK_SITE || exit
 meson install -C _build || exit
 
 cd ~ && python -c $'import minpack\nprint(dir(minpack))'
 
-cd -
+cd - || exit
 echo "...done install minpack python extension."
