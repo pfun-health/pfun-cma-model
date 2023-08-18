@@ -28,8 +28,17 @@ app.api.cors = cors_config
 @app.authorizer()
 def fake_auth(auth_request):
     """
-    TODO: continue with this guide: https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
-    ...create an authorization token.
+    
+    ... ref (original): https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
+    ...
+    ... TODO: implement with Cognito User Pool (plus oauth2): 
+    ...
+    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-configuring-app-integration.html
+    ...
+    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-add-custom-domain.html
+    ...
+    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain-prefix.html
+    
     """
     token = auth_request.token
     if token == 'allow':
