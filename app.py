@@ -6,7 +6,10 @@ from chalice import (
     CustomAuthorizer,
     Response
 )
-import apispec_chalice
+try:
+    import apispec_chalice
+except (ModuleNotFoundError, ImportError):
+    apispec_chalice = None
 import json
 import sys
 from pathlib import Path
@@ -34,12 +37,15 @@ PUBLIC_ROUTES = [
     '/run-at-time'
 ]
 
-spec = APISpec(
-    title='PFun CMA Model API',
-    version='0.1.0',
-    openapi_version='3.0',
-    plugins=['apispec_chalice'],
-)
+if apispec_chalice != None:
+    spec = APISpec(
+        title='PFun CMA Model API',
+        version='0.1.0',
+        openapi_version='3.0',
+        plugins=['apispec_chalice'],
+    )
+else:
+    spec = None
 
 
 @app.authorizer()
@@ -217,11 +223,13 @@ def fit_model_route():
         FunctionName='fit_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
 
-
-spec.add_path(path='/', operations={'get': {'summary': 'Welcome'}})
-spec.add_path(path='/fit', operations={'post': {'summary': 'Fit the model to timstamped blood glucose data.'}})
-spec.add_path(path='/run', operations={'get': {'summary': 'Run the model to simulate a specified time period.'}})
-spec.add_path(path='/run-at-time', operations={'post': {'summary': 'Generate model output for the specifed time points.'}})
+try:
+    spec.add_path(path='/', operations={'get': {'summary': 'Welcome'}})
+    spec.add_path(path='/fit', operations={'post': {'summary': 'Fit the model to timstamped blood glucose data.'}})
+    spec.add_path(path='/run', operations={'get': {'summary': 'Run the model to simulate a specified time period.'}})
+    spec.add_path(path='/run-at-time', operations={'post': {'summary': 'Generate model output for the specifed time points.'}})
+except Exception:
+    pass
 
 
 @app.route('/openapi.json', methods=['GET'])
@@ -235,4 +243,9 @@ def openapi():
     Returns:
     - A dictionary object representing the OpenAPI JSON file.
     """
-    return spec.to_dict()
+    if spec is not None:
+        return spec.to_dict()
+    schema = json.loads(Path(__file__).parent.
+                        joinpath('openapi.json').
+                        read_text(encoding='utf-8'))
+    return schema

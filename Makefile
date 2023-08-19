@@ -21,10 +21,18 @@ build_venv:
 	sleep 1s
 
 prepare_deployment:
+	echo 'preparing for deployment...'
+	echo 'generating openapi.json...'
+	chalice generate-models > ./chalicelib/openapi.json
+	echo '...generated openapi.json'
+	echo 'cleaning old deployments...'
 	set +e
 	rm -rf ${HOME}/Git/pfun-cma-model/.chalice/deployments/*
 	set -e
-	echo 'preparing for deployment...'
+	sleep 1s
+	echo '...cleared old deployments'
+	sleep 1s
+	echo 'fixing lambda layer version...'
 	sleep 1s
 	/tmp/venv310/bin/python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py"
 	sleep 1s
