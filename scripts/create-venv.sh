@@ -10,6 +10,12 @@ echo 'creating new venv'
 python3.10 -m venv /tmp/venv310
 
 echo 'activate venv'
+sleep 1s
+set +e
+# ! deactivate pyenv just in case
+pyenv deactivate
+set -e
+sleep 1s
 . /tmp/venv310/bin/activate
 sleep 1s
 echo -e "** python version: **\n$(which python)\n"

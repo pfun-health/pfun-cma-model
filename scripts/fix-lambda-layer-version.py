@@ -2,6 +2,12 @@ import boto3
 import json
 from pathlib import Path
 import pandas as pd
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+
 client = boto3.client('lambda')
 
 

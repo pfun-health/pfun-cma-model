@@ -1,9 +1,12 @@
+from apispec import APISpec
 from chalice import (
     Chalice,
     CORSConfig,
     AuthResponse,
-    CustomAuthorizer
+    CustomAuthorizer,
+    Response
 )
+import apispec_chalice
 import json
 import sys
 from pathlib import Path
@@ -30,6 +33,13 @@ PUBLIC_ROUTES = [
     '/fit',
     '/run-at-time'
 ]
+
+spec = APISpec(
+    title='PFun CMA Model API',
+    version='0.1.0',
+    openapi_version='3.0',
+    plugins=['apispec_chalice'],
+)
 
 
 @app.authorizer()
@@ -66,7 +76,19 @@ def index_message():
     """
     routes = json.dumps({k: str(v) for k, v in app.routes.items()
                          if k in PUBLIC_ROUTES}, indent=4)
-    return {"message": f"Welcome to the PFun CMA Model API!\n\n{routes}"}
+    return Response(
+        body='''
+        <html>
+        <body>
+        <h3>Welcome to the PFun CMA Model API!</h3>
+        <hr />
+        <br />
+        {}
+        </body>
+        </html>
+        '''.format(f"<pre>{routes}</pre>"),
+        status_code=200,
+        headers={'Content-Type': 'text/html'})
 
 
 @app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
@@ -194,3 +216,23 @@ def fit_model_route():
     response = CLIENT.invoke(
         FunctionName='fit_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
+
+
+spec.add_path(path='/', operations={'get': {'summary': 'Welcome'}})
+spec.add_path(path='/fit', operations={'post': {'summary': 'Fit the model to timstamped blood glucose data.'}})
+spec.add_path(path='/run', operations={'get': {'summary': 'Run the model to simulate a specified time period.'}})
+spec.add_path(path='/run-at-time', operations={'post': {'summary': 'Generate model output for the specifed time points.'}})
+
+
+@app.route('/openapi.json', methods=['GET'])
+def openapi():
+    """
+    A function that serves the OpenAPI JSON file.
+
+    Parameters:
+    - None
+
+    Returns:
+    - A dictionary object representing the OpenAPI JSON file.
+    """
+    return spec.to_dict()

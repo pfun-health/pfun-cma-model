@@ -10,5 +10,9 @@ pytz
 pydantic
 boto3
 scipy==1.11.2
-pdbpp
-datamodel-code-generator
+apispec
+marshmallow
+apispec-chalice @ git+https://github.com/rocapp/apispec-chalice@master
+apispec[validation]
+apispec[yaml]
+apispec[json]
