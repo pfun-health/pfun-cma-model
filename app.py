@@ -37,16 +37,29 @@ PUBLIC_ROUTES = [
     '/run-at-time'
 ]
 
-if apispec_chalice != None:
-    spec = APISpec(
-        title='PFun CMA Model API',
-        version='0.1.0',
-        openapi_version='3.0',
-        plugins=['apispec_chalice'],
-    )
-else:
-    spec = None
+spec = None
+if apispec_chalice is not None:
+    try:
+        spec = APISpec(
+            title='PFun CMA Model API',
+            version='0.1.0',
+            openapi_version='3.0',
+            plugins=['apispec_chalice'],
+        )
+    except Exception as e:
+        spec = None
 
+
+def aws_get_rapidapi_key():
+    key = str(boto3.client('secretsmanager').get_secret_value(
+        SecretId='pfun-cma-model-rapidapi-key')['SecretString'])
+    return key
+
+
+def aws_get_rapidapi_proxy_secret():
+    key = str(boto3.client('secretsmanager').get_secret_value(
+        SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
+    return key
 
 @app.authorizer()
 def fake_auth(auth_request):
@@ -62,8 +75,10 @@ def fake_auth(auth_request):
     ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain-prefix.html
 
     """
-    token = auth_request.token
-    if token == 'allow':
+    authorized = auth_request.token in ['Bearer allow', 'allow']
+    if not authorized:
+        return Response(status_code=401) 
+    if authorized:
         return AuthResponse(routes=['/', '/log', '/fit', '/run'],
                             principal_id='user')
     else:
@@ -153,6 +168,15 @@ def run_model_with_config(event, context):
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
     global CLIENT
+    request = app.current_request
+    authorized = all([
+        request.headers['Authorization'] == 'Bearer allow',
+        request.headers.get('X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
+        request.headers.get('X-RapidAPI-Key') == aws_get_rapidapi_key(),
+        request.headers.get('X-RapidAPI-Proxy-Secret') == aws_get_rapidapi_proxy_secret()
+    ]) or request.headers['Host'] == '127.0.0.1'
+    if not authorized:
+        return Response(status_code=401)
     if CLIENT is None:
         CLIENT = boto3.client('lambda')
     model_config = get_model_config(app)
@@ -163,6 +187,7 @@ def run_model_route():
 
 @app.route("/run-at-time", methods=['GET', 'POST'], authorizer=fake_auth)
 def run_at_time_route():
+    request = app.current_request
     global CLIENT
     if CLIENT is None:
         CLIENT = boto3.client('lambda')
@@ -232,7 +257,7 @@ except Exception:
     pass
 
 
-@app.route('/openapi.json', methods=['GET'])
+@app.route('/apidocs', methods=['GET'])
 def openapi():
     """
     A function that serves the OpenAPI JSON file.
@@ -248,4 +273,6 @@ def openapi():
     schema = json.loads(Path(__file__).parent.
                         joinpath('openapi.json').
                         read_text(encoding='utf-8'))
-    return schema
+    return Response(body=json.dumps(schema, indent=5),
+                    status_code=200,
+                    headers={'Content-Type': 'application/json'})
