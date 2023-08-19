@@ -2,8 +2,29 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "pfun-cma-model-dev",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// "build": {
+	// 	"dockerfile": "./docker/Dockerfile.dev",
+	// 	"context": "..",
+	// },
+	"mounts": [
+		{
+			"type": "bind",
+			"source": "${HOME}/.aws/credentials",
+			"target": "/home/codespace/.aws/credentials"
+		},
+		{
+			"type": "bind",
+			"source": "${HOME}/.aws/config",
+			"target": "/home/codespace/.aws/config"
+		},
+		{
+			"type": "bind",
+			"source": "${HOME}/Git/pfun-cma-model-deps",
+			"target": "/home/codespace/Git/pfun-cma-model-deps"
+		}
+	],
 	"features": {
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
 		"ghcr.io/devcontainers/features/git:1": {},

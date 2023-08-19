@@ -5,5 +5,9 @@ pkgconfig
 numpy
 pytest
 pandas==2.0.0
+matplotlib
+pytz
 pydantic
 boto3
+scipy==1.11.2
+pdbpp

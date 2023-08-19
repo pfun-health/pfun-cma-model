@@ -24,11 +24,17 @@ cors_config = CORSConfig(allow_origin='*')
 app = Chalice(app_name='PFun CMA Model Backend')
 app.api.cors = cors_config
 
+PUBLIC_ROUTES = [
+    '/',
+    '/run',
+    '/fit',
+    '/run-at-time'
+]
+
 
 @app.authorizer()
 def fake_auth(auth_request):
     """
-    
     ... ref (original): https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
     ...
     ... TODO: implement with Cognito User Pool (plus oauth2): 
@@ -38,7 +44,7 @@ def fake_auth(auth_request):
     ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-add-custom-domain.html
     ...
     ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain-prefix.html
-    
+
     """
     token = auth_request.token
     if token == 'allow':
@@ -50,8 +56,17 @@ def fake_auth(auth_request):
 
 @app.route("/")
 def index_message():
-    routes = json.dumps({k: str(v) for k, v in app.routes.items()}, indent=4)
-    return { "message": f"Welcome to the PFun CMA Model API!\n\n{routes}" }
+    """
+    A function that returns a message containing the welcome message and 
+    the routes of the PFun CMA Model API.
+
+    Returns:
+        dict: A dictionary containing the welcome message and the routes of
+        the API.
+    """
+    routes = json.dumps({k: str(v) for k, v in app.routes.items()
+                         if k in PUBLIC_ROUTES}, indent=4)
+    return {"message": f"Welcome to the PFun CMA Model API!\n\n{routes}"}
 
 
 @app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
@@ -110,8 +125,10 @@ def run_model_with_config(event, context):
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
     global CLIENT
+    if CLIENT is None:
+        CLIENT = boto3.client('lambda')
     model_config = get_model_config(app)
-    response =  CLIENT \
+    response = CLIENT \
         .invoke(FunctionName='run_model', Payload=json.dumps(model_config))
     return json.loads(response.get('body', '[]'))
 
@@ -119,13 +136,15 @@ def run_model_route():
 @app.route("/run-at-time", methods=['GET', 'POST'], authorizer=fake_auth)
 def run_at_time_route():
     global CLIENT
+    if CLIENT is None:
+        CLIENT = boto3.client('lambda')
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     params = {
         "model_config": model_config,
         "calc_params": calc_params
     }
-    response =  CLIENT \
+    response = CLIENT \
         .invoke(FunctionName='run_at_time', Payload=json.dumps(params))
     return json.loads(response.get('body', '[]'))
 
@@ -139,7 +158,7 @@ def run_at_time(event, context):
     calc_params = get_lambda_params(event, 'calc_params')
     model = CMASleepWakeModel(**model_config)
     output: np.ndarray | tuple = model.calc_Gt(**calc_params)
-    output = pd.json_normalize(output).to_json() # type: ignore
+    output = pd.json_normalize(output).to_json()  # type: ignore
     return output
 
 
@@ -158,7 +177,7 @@ def fit_model_to_data(event, context):
     try:
         df = pd.DataFrame(data)
         fit_result = cma_fit_model(df, **model_config)
-        output = fit_result.json()
+        output = fit_result.json(exclude=['cma'])
     except Exception:
         app.log.error('failed to fit to data.', exc_info=True)
         return {"error":
@@ -169,6 +188,8 @@ def fit_model_to_data(event, context):
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
     global CLIENT
+    if CLIENT is None:
+        CLIENT = boto3.client('lambda')
     model_config = get_model_config(app)
     response = CLIENT.invoke(
         FunctionName='fit_model', Payload=json.dumps(model_config))

@@ -3,12 +3,12 @@
 """
 import importlib
 import copy
+import json
 import logging
 import sys
-from dataclasses import KW_ONLY, InitVar, dataclass, field
 from pathlib import Path
 from typing import (
-    Any, Callable, AnyStr, Container, Dict, Iterable, Optional, Tuple
+    Callable, Container, Dict, Iterable, Tuple
 )
 import numpy as np
 
@@ -28,8 +28,9 @@ try:
 except ModuleNotFoundError:
     try:
         pd = importlib.import_module("pandas")
-    except ModuleNotFoundError:
-        pd = None
+    except ModuleNotFoundError as err:
+        err.msg += '\nContext: chalicelib/engine/cma_sleepwake.py'
+        raise err
     check_is_numpy = importlib.import_module(
         ".decorators", package="chalicelib").check_is_numpy
     normalize = importlib.import_module(
@@ -58,11 +59,11 @@ def meal_distr(Cm, t, toff):
     Parameters
     ----------
     Cm : float
-        Cortisol concentration (mg/dL).
+        Cortisol temporal sensitivity coefficient (u/h).
     t : array_like
         Time (hours).
     toff : float
-        Time offset (hours).
+        Meal-relative time offset (hours).
 
     Returns
     -------
@@ -73,7 +74,7 @@ def meal_distr(Cm, t, toff):
 
 
 @check_is_numpy
-def K(x):
+def K(x: np.ndarray):
     """
     Defines the glucose response function.
     Apply a piecewise function to the input array `x`.
@@ -88,15 +89,17 @@ def K(x):
         lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
 
 
-def vectorized_G(t: Container, I_E: float, tm: Container, taug: Container, B: float, Cm: float, toff: float):
+def vectorized_G(t: np.ndarray | float, I_E: np.ndarray | float,
+                 tm: np.ndarray | float, taug: np.ndarray | float,
+                 B: float, Cm: float, toff: float):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
 
     Parameters
     ----------
-    t : array_like
-        Time (hours).
+    t : array_like | float
+        Time vector (hours).
     I_E : float
-        Extracellular insulin (uS/mL).
+        Extracellular insulin (u*mg/mL).
     tm : array_like
         Meal times (hours).
     taug : array_like
@@ -104,27 +107,45 @@ def vectorized_G(t: Container, I_E: float, tm: Container, taug: Container, B: fl
     B : float
         Bias constant.
     Cm : float
-        Cortisol concentration (mg/dL).
+        Cortisol temporal sensitivity coefficient (u/h).
     toff : float
-        Time offset (hours).
+        Meal-relative time offset (hours).
 
     Returns
     -------
     array_like
         G(t, I_E, tm, taug, B, Cm, toff).
     """
-    def Gtmp(tm_, taug_):
-        k_G = K((t - tm_) / np.power(taug_, 2))
+    tm = np.atleast_1d(tm)
+    t = np.atleast_1d(t)
+    taug = np.atleast_1d(taug)
+
+    def Gtmp(tm_: float | np.ndarray, taug_: float | np.ndarray):
+        k_G = K((t - np.atleast_1d(tm_)) / np.power(np.atleast_1d(taug_), 2))
         return 1.3 * k_G / (1.0 + I_E)
+
     m = len(tm)
     n = len(t)
     j = 0
     out = np.zeros((m, n), dtype=float)
     while j < m:
-        out[j, :] = Gtmp(tm[j], taug[j])
+        gtmp = Gtmp(tm[j], taug[j])
+        out[j, :] = gtmp
         j = j + 1
     out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
     return out
+
+
+class CMAParamTypeError(TypeError):
+    """CMA parameter type error."""
+
+    def __init__(self, pkey, *args: object) -> None:
+        super().__init__(*args)
+        self._pkey = pkey
+
+    def __repr__(self) -> str:
+        return super().__repr__() + \
+            f"...Parameter '{self._pkey}' must be numeric."
 
 
 class CMASleepWakeModel:
@@ -143,23 +164,99 @@ class CMASleepWakeModel:
     param_keys = ('d', 'taup', 'taug', 'B', 'Cm', 'toff')
     param_defaults = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
     bounds = Bounds(
-        lb=[-6.0, 0.5, 0.1, 0.0, 0.0, -3.0, ],
-        ub=[6.0, 2.0, 3.0, 1.0, 2.0, 3.0, ],
-        keep_feasible=True
+        lb=[-12.0, 0.5, 0.1, 0.0, 0.0, -3.0, ],
+        ub=[14.0, 3.0, 3.0, 1.0, 2.0, 3.0, ],
+        keep_feasible=Bounds.True_
     )
 
-    def __init__(self, t=None, N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
-                 Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
-                 seed: None | int = None, eps: float = 1e-18):
+    def param_key_index(self, keys: str | Iterable[str]) -> int | Iterable[int]:
+        """Return the index of the parameter key."""
+        if isinstance(keys, str):
+            return self.param_keys.index(keys)
+        else:
+            return [self.param_keys.index(k) for k in keys]
+
+    def update_bounds(self, keys, lb, ub,
+                      keep_feasible: np.bool_ | Iterable[np.bool_] = Bounds.True_,
+                      return_bounds=False):
+        """Update the bounds of the model."""
+        keys = [keys] if isinstance(keys, str) else keys
+        lb = [float(lb)] if isinstance(lb, (float, int)) else lb
+        ub = [float(ub)] if isinstance(ub, (float, int)) else ub
+        keep_feasible = [keep_feasible, ] if isinstance(keep_feasible, Bounds.bool_) \
+            else keep_feasible
+        for k in keys:
+            ix = self.param_keys.index(k)
+            self.bounds[ix] = (
+                lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
+        if return_bounds:
+            return self.bounds
+
+    def __json__(self):
+        """JSON serialization."""
+        out = {k: v for k, v in self.__dict__.items()}
+        for key, value in out.items():
+            if isinstance(value, np.ndarray):
+                out[key] = value.tolist()
+            elif isinstance(value, pd.DataFrame):
+                out[key] = pd.json_normalize(
+                    value.to_dict()).to_dict()  # type: ignore
+            elif isinstance(value, pd.Series):
+                out[key] = value.tolist()
+            elif isinstance(value, Bounds):
+                out[key] = value.json()
+            elif hasattr(value, '__json__'):
+                out[key] = value.__json__()
+            try:
+                out[key] = json.dumps(out[key])
+            except json.JSONDecodeError:
+                logging.warning("Could not convert %s to JSON.", str(value))
+                out.pop(key)  # ! remove any non-JSONable value
+        return out
+
+    def json(self):
+        """JSON serialization."""
+        return self.__json__()
+
+    def __init__(self, **kwds):
+        """PFun CMA model constructor.
+
+        Arguments:
+        ----------
+            t (array or float, optional): Time vector (corresponds to ). If not provided, t will be a linearly spaced vector of length N.
+            N (int, optional): Number of time points. Defaults to 288.
+            d (float, optional): Offset from UTC solar noon for the estimated latitude (hours). Defaults to 0.0.
+            taup (float, optional): Photoperiod length (hours). Defaults to 1.0.
+            taug (float, optional): Meal duration (hours). Defaults to 1.0.
+            B (float, optional): Bias constant. Defaults to 0.05.
+            Cm (float, optional): Cortisol temporal sensitivity coefficient (u/h). Defaults to 0.0.
+            toff (float, optional): Solar noon offset for the estimated latitude (hours). Defaults to 0.0.
+            tM (tuple, optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+            seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
+            eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
+        """
+        defaults = dict(
+            t=None,
+            N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
+            Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
+            seed=None, eps=1e-18
+        )
+        params = defaults.copy()
+        params.update(kwds)
+        t, N, tM, seed, eps = params.pop('t'), params.pop('N'), params.pop(
+            'tM'), params.pop('seed'), params.pop('eps')
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
         if t is None:
-            t = np.linspace(0, 24, num=N)
-        self.t = t  # time vector
+            t = np.linspace(0, 24, num=int(N))
+        self.t: Container[float] | np.ndarray = t  # time vector
         self.tM = np.asarray(tM, dtype=float)  # mealtimes vector
-        self.params = {}
+        self.params: Dict[str, float] = {k: v for k, v in params.items() if k
+                                         in self.param_keys}
         for pkey in self.param_keys:
-            self.params[pkey] = locals().get(pkey)
+            pval = params.get(pkey)
+            if pval is not None:
+                self.params[pkey] = pval
         self.bounds = copy.copy(self.__class__.bounds)
         self.eps = eps
         self.rng = None
@@ -168,9 +265,36 @@ class CMASleepWakeModel:
 
     @property
     def N(self):
+        """Number of time steps."""
         return len(self.t)
 
     def update(self, *args, inplace=True, **kwds):
+        """
+        Update the current instance with new values.
+
+        Parameters:
+            *args: Variable length argument list.
+            inplace (bool): If True, update the current instance in place. If False, create a new instance with the updated values.
+            **kwds: Keyword arguments to update the instance.
+
+        Returns:
+            The updated instance if `inplace` is False, otherwise None.
+
+        Raises:
+            ValueError: If a parameter is not found.
+            TypeError: If a parameter is not numeric.
+
+        Note:
+            - If `inplace` is False, a new instance is created with the updated values and returned.
+            - Parameters in `kwds` that are not present in the instance's `param_keys` are ignored.
+            - The instance's `params` dictionary is updated with the values from `kwds`.
+            - The order of the parameters in the `params` dictionary is preserved.
+            - The instance's `params` dictionary is updated to keep values within the specified bounds.
+            - The `tM` attribute is updated with the values from `kwds` if 'tM' is present.
+            - The `t` attribute is updated with a linspace from 0 to 24 if 'N' is present.
+            - The `rng` attribute is updated with a new random number generator if 'seed' is present.
+            - The `eps` attribute is updated with the value from `kwds` if 'eps' is present.
+        """
         if len(args) > 0:
             opts = args[0]
             opts.update(kwds)
@@ -185,17 +309,17 @@ class CMASleepWakeModel:
             match isinstance(taug_new, Container):
                 case True:
                     #: ! replace current values elementwise if given a vector
-                    self.params['taug'] = np.broadcast_to(
+                    self.params['taug'] = np.broadcast_to(  # type: ignore
                         taug_new, (self.n_meals, ))
                 case False:  # ! else, taug is a scale: <old_taug> *= new_taug
-                    self.params['taug'] = np.array(
+                    self.params['taug'] = np.array(  # type: ignore
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
         self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
-        self.params = {k: self.params[k] for k in self.param_keys}  # ! ensure order
-        #: keep within specified bounds
-        if self.bounds.keep_feasible is True:
-            self.params = self.bounds.update_values(self.params)
+        self.params = {k: self.params[k]
+                       for k in self.param_keys}  # ! ensure order
+        #: keep within specified bounds (keep_feasible is handled by Bounds)
+        self.params = self.bounds.update_values(self.params)  # type: ignore
         if 'tM' in kwds:
             self.tM = np.array(kwds['tM'], dtype=float).flatten()
         if 'N' in kwds:
@@ -204,39 +328,52 @@ class CMASleepWakeModel:
             self.rng = np.random.default_rng(seed=kwds['seed'])
         if 'eps' in kwds:
             self.eps = kwds['eps']
+        #: check all parameters are present and valid types
+        for pkey in self.param_keys:
+            if pkey not in self.params:
+                raise ValueError(f"Parameter '{pkey}' not found.")
+            if not isinstance(self.params[pkey], (float, int)):
+                raise TypeError(f"Parameter '{pkey}' must be numeric.")
 
     @property
     def d(self) -> float:
-        return self.params.get("d")
+        """d : float
+             Offset from UTC solar noon for the estimated latitude (hours).
+        """
+        return self.params["d"]
 
     @property
-    def taup(self):
-        return self.params.get("taup")
+    def taup(self) -> float:
+        """taup : float
+                Approximate photoperiod (hours).
+        """
+        return self.params["taup"]
 
     @property
     def n_meals(self):
+        """Number of meals."""
         return len(self.tM)
 
     @property
     def taug(self) -> np.ndarray:
         """taug: get an array broadcasted to: (, number_of_meals)."""
-        taug_ = self.params.get("taug")
+        taug_ = self.params["taug"]
         taug_vector = np.broadcast_to(taug_, (self.n_meals, ))
         return taug_vector
 
     @property
     def B(self) -> float:
         """Return the current bias parameter value (B)."""
-        return self.params.get("B")
+        return self.params["B"]
 
     @property
     def Cm(self) -> float:
         """return the current Cm param value."""
-        return self.params.get("Cm")
+        return self.params["Cm"]
 
     @property
     def toff(self) -> float:
-        return self.params.get("toff")
+        return self.params["toff"]
 
     def E_L(self, t=None):
         if t is None:
@@ -283,7 +420,7 @@ class CMASleepWakeModel:
     def I_E(self):
         return self.a * self.I_S
 
-    def calc_Gt(self, t = None, dt = None, n = 1, return_t = False):
+    def calc_Gt(self, t=None, dt=None, n=1, return_t=False):
         """
         Calculate the value of Gt at a given time or times.
 
@@ -310,14 +447,16 @@ class CMASleepWakeModel:
         if t is None:
             if dt is None:
                 dt = np.abs(self.t[-1] - self.t[-2])
-            t = np.mod(np.linspace(self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
-        Gt = vectorized_G(t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff)
+            t = np.mod(np.linspace(
+                self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
+                          self.B, self.Cm, self.toff)
         if return_t is False:
             return Gt
         else:
             return Gt, t
 
-    def update_Gt(self, t = None, dt = None, n = 1, keep_tvec_size = True):
+    def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
         """
         Update the value of Gt and t.
 
@@ -330,7 +469,7 @@ class CMASleepWakeModel:
         Returns:
             tuple: A tuple containing the updated Gt and t arrays.
         """
-        Gt, t = self.calc_Gt(t = t, dt = dt, n = n, return_t = True)
+        Gt, t = self.calc_Gt(t=t, dt=dt, n=n, return_t=True)
         self.t = np.append(self.t, t)
         if keep_tvec_size is True:
             self.t = self.t[n:]
@@ -366,7 +505,7 @@ class CMASleepWakeModel:
                          t0: int | float = 0, t1: int | float = 24,
                          M: int = 3,
                          t_extra: Tuple | None = None,
-                         tvec: np.ndarray | None = None):
+                         tvec: np.ndarray | None = None) -> float:
         """Integrate the signal between the hours given, assuming M discrete events.
 
             t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
@@ -430,7 +569,7 @@ class CMASleepWakeModel:
     def get_model_args(cls):
         """for maintaining compatibility with the pfun.model_funcs API"""
         return dict(zip(cls.param_keys, cls.param_defaults))
-    
+
     @property
     def pvec(self):
         """easy access to parameter vector (copy)"""
@@ -548,7 +687,7 @@ class CMAUtils:
             tM = CMAUtils.get_hour_of_day(tM)
         if not isinstance(tM, tuple):
             if hasattr(tM, '__iter__'):
-                tM = tuple(tM)
+                tM = tuple(tM)  # type: ignore
             else:
                 tM = (tM,)
         return tM

@@ -11,6 +11,9 @@ python3.10 -m venv /tmp/venv310
 
 echo 'activate venv'
 . /tmp/venv310/bin/activate
+sleep 1s
+echo -e "** python version: **\n$(which python)\n"
+sleep 1s
 
 echo 'installing from venv...'
 TMPDIR=/tmp/venv310/lib/python3.10/site-packages
@@ -36,25 +39,25 @@ echo "installling minpack..."
 ./scripts/install_minpack.sh
 sleep 1s
 
-set +e
-temp_dir=${TMPDIR}
+# set +e
+# temp_dir=${TMPDIR}
 
-# List of patterns to remove
-patterns=(
-	"*.dist-info"
-	"*.egg-info"
-	"*.pyc"
-	"__pycache__"
-	"tests"
-	"doc"
-	"datasets"
-)
+# # List of patterns to remove
+# patterns=(
+# 	"*.dist-info"
+# 	"*.egg-info"
+# 	"*.pyc"
+# 	"__pycache__"
+# 	"tests"
+# 	"doc"
+# 	"datasets"
+# )
 
-# Loop through the patterns and remove matching files
-for pattern in "${patterns[@]}"; do
-	find "${temp_dir}/" -name "${pattern}" -exec rm -rf {} -nowarn \;
-done
+# # Loop through the patterns and remove matching files
+# for pattern in "${patterns[@]}"; do
+# 	find "${temp_dir}/" -name "${pattern}" -exec rm -rf {} \;
+# done
 
-echo "...done cleaning up dependencies."
-set -e
-sleep 1s
+# echo "...done cleaning up dependencies."
+# set -e
+# sleep 1s

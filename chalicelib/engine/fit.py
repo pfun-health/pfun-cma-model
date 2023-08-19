@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Any, Optional, Dict, Iterable, Container
 import numpy as np
 from numpy.linalg import LinAlgError
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
 import importlib
 import sys
 from pathlib import Path
@@ -25,6 +25,7 @@ format_data = importlib.import_module(
 
 
 class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
+    model_config = ConfigDict()
     soln: pd.DataFrame
     formatted_data: pd.DataFrame
     cma: Any
@@ -33,6 +34,30 @@ class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
     infodict: Dict
     mesg: str
     ier: int
+
+    def model_dump_json(self, *,
+                        indent=None,
+                        include=None,
+                        exclude=None,
+                        by_alias=False,
+                        exclude_unset=False,
+                        exclude_defaults=False,
+                        exclude_none=False,
+                        round_trip=False,
+                        warnings=True):
+        original_dict = self.__dict__.copy()
+        for key, value in self.__dict__.items():
+            if isinstance(value, pd.DataFrame):
+                self.__dict__[key] = value.to_json()
+            if isinstance(value, np.ndarray):
+                self.__dict__[key] = value.tolist()
+        output = super().model_dump_json(
+            indent=indent, include=include, exclude=exclude,
+            by_alias=by_alias, exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults, exclude_none=exclude_none,
+            round_trip=round_trip, warnings=warnings)
+        self.__dict__.update(original_dict)
+        return output
 
     @computed_field
     @property
@@ -55,6 +80,22 @@ class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
         #: NOTE: these should be small if all params are needed
         pcov = self.pcov
         return np.diag(pcov)
+
+    @field_serializer('soln', 'formatted_data')
+    def serialize_dataframe(self, df: pd.DataFrame | Dict, *args) -> dict:
+        if isinstance(df, pd.DataFrame):
+            return pd.json_normalize(df.to_dict()).to_dict()
+        return df
+
+    @field_serializer('popt', 'pcov', 'diag')
+    def serialize_numpy_array(self, arr: np.ndarray | list, *args) -> list:
+        if isinstance(arr, np.ndarray):
+            return arr.tolist()
+        return arr
+
+    @field_serializer('cma')
+    def serialize_cma(self, cma: Any, _info):
+        return cma.json()
 
 
 def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h",
@@ -101,17 +142,30 @@ class CurveFitNS:
                   it means that the error is not associated with a specific error type.
         """
         self.errors = {
-            0: ["Improper input parameters."],
-            1: [f"Both actual and predicted relative reductions in the sum of squares are at most {self.ftol}"],
-            2: [f"The relative error between two consecutive iterates is at most {self.xtol}"],
-            3: [f"Both actual and predicted relative reductions in the sum of squares are at most {self.ftol} "
-                f"and the relative error between two consecutive iterates is at most {self.xtol}"],
-            4: [f"The cosine of the angle between func(x) and any column of the Jacobian is at most {self.gtol} "
-                f"in absolute value"],
-            5: [f"Number of calls to function has reached maxfev = {self.maxfev}"],
-            6: [f"ftol={self.ftol} is too small, no further reduction in the sum of squares is possible."],
-            7: [f"xtol={self.xtol} is too small, no further improvement in the approximate solution is possible."],
-            8: [f"gtol={self.gtol} is too small, func(x) is orthogonal to the columns of the Jacobian to machine precision."]
+            0: ["Improper input parameters.", TypeError],
+            1: ["Both actual and predicted relative reductions "
+                "in the sum of squares\n  are at most %f" % self.ftol, None],
+            2: ["The relative error between two consecutive "
+                "iterates is at most %f" % self.xtol, None],
+            3: ["Both actual and predicted relative reductions in "
+                "the sum of squares\n  are at most {:f} and the "
+                "relative error between two consecutive "
+                "iterates is at \n  most {:f}".format(
+                    self.ftol, self.xtol), None],
+            4: ["The cosine of the angle between func(x) and any "
+                "column of the\n  Jacobian is at most %f in "
+                "absolute value" % self.gtol, None],
+            5: ["Number of calls to function has reached "
+                "maxfev = %d." % self.maxfev, ValueError],
+            6: ["ftol=%f is too small, no further reduction "
+                "in the sum of squares\n  is possible." % self.ftol,
+                ValueError],
+            7: ["xtol=%f is too small, no further improvement in "
+                "the approximate\n  solution is possible." % self.xtol,
+                ValueError],
+            8: ["gtol=%f is too small, func(x) is orthogonal to the "
+                "columns of\n  the Jacobian to machine "
+                "precision." % self.gtol, ValueError]
         }
 
         return self.errors
@@ -122,7 +176,7 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
     ftol = kwds.get('ftol', 1.49012e-8)
     xtol = kwds.get('xtol', 1.49012e-8)
     gtol = kwds.get('gtol', 0.0)
-    maxfev = kwds.get('max_nfev', 148000)
+    maxfev = kwds.get('max_nfev', 150000)
     cns = CurveFitNS(xtol, ftol, maxfev, gtol)
     fvec = np.zeros(len(xdata), dtype=np.float64)
     p0 = np.array(p0).flatten()
@@ -133,16 +187,21 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
     ier = lmdif(fun, p0, fvec, args=(ydata, pcov, pmu, Niters),
                 xtol=xtol, gtol=gtol, maxfev=maxfev, diag=diag)
     popt = p0.copy()
-    errmsg, err = cns.errors.get(ier)
+    errout = cns.errors[ier]
+    if len(errout) == 2:
+        errmsg, err = errout
+    else:
+        err = None
+        errmsg = errout
     infodict = {"message": errmsg, "error": err, "ier": ier}
     if ier not in cns.LEASTSQ_SUCCESS:
-        raise RuntimeError("Optimal parameters not found: " + errmsg)
+        raise RuntimeError(f"Optimal parameters not found: {errmsg}")
     return popt, pcov, infodict, errmsg, ier
 
 
 def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
               tM: None | Iterable = None, tm_freq: str = "2h",
-              curve_fit_kwds: Dict = {}, **kwds) -> CMAFitResult:
+              curve_fit_kwds: Dict | None = None, **kwds) -> CMAFitResult:
     """use `scipy.optimize.curve_fit` to fit the model to data
 
     Arguments:
@@ -154,7 +213,11 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
     - tM (optional) : vector of mealtimes (decimal hours).
         If unspecified, mealtimes will be estimated (default).
     """
+    #: handle curve_fit_kwds missing
+    if curve_fit_kwds is None:
+        curve_fit_kwds = {}
 
+    #: format data
     data = format_data(data)
 
     #: update from keywords
