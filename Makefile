@@ -17,6 +17,8 @@ deploy_model: build_venv prepare_deployment deploy_chalice test_deployment
 build_venv:
 	./scripts/create-venv.sh
 	sleep 1s
+	python -c "from apispec.yaml_utils import load_operations_from_docstring"
+	sleep 1s
 
 prepare_deployment:
 	set +e
