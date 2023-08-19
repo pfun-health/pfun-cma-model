@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Container, Any
 import numpy as np
 
 
-class CMAModelParams(BaseModel):
+class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     """
     Represents the parameters for a CMA model.
 

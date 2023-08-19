@@ -11,3 +11,4 @@ pydantic
 boto3
 scipy==1.11.2
 pdbpp
+datamodel-code-generator
