@@ -1,4 +1,3 @@
-from apispec import APISpec
 from chalice import (
     Chalice,
     CORSConfig,
@@ -7,6 +6,7 @@ from chalice import (
     Response
 )
 try:
+    from apispec import APISpec
     import apispec_chalice
 except (ModuleNotFoundError, ImportError):
     apispec_chalice = None

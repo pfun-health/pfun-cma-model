@@ -3,7 +3,6 @@ deploy: deploy_dependencies build_venv prepare_deployment deploy_chalice test_de
 deploy_dependencies:
 	echo "deploying dependencies layer..."
 	cd ${HOME}/Git/pfun-cma-model-deps && ./deploy.sh
-	cd -
 	sleep 2s
 
 deploy_local: build_venv prepare_deployment
@@ -41,6 +40,7 @@ deploy_chalice:
 	echo 'deploying...'
 	sleep 1s
 	/tmp/venv310/bin/chalice deploy
+	sleep 1s
 
 test_deployment:
 	echo 'testing...'

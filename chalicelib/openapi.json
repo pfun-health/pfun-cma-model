@@ -504,7 +504,7 @@
                 }
             }
         },
-        "/openapi.json": {
+        "/apidocs": {
             "get": {
                 "consumes": [
                     "application/json"
