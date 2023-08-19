@@ -2,8 +2,8 @@ deploy: deploy_dependencies build_venv prepare_deployment deploy_chalice test_de
 
 deploy_dependencies:
 	echo "deploying dependencies layer..."
-	cd ${HOME}/Git/pfun-cma-model-deps && ./deploy.sh || exit 1
-	cd - || exit 1
+	cd ${HOME}/Git/pfun-cma-model-deps && ./deploy.sh
+	cd -
 	sleep 2s
 
 deploy_local: build_venv prepare_deployment
@@ -24,20 +24,19 @@ prepare_deployment:
 	set -e
 	echo 'preparing for deployment...'
 	sleep 1s
-	/tmp/venv310/bin/python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py" ||exit 1
+	/tmp/venv310/bin/python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py"
 	sleep 1s
 
 deploy_chalice:
 	echo 'deploying...'
 	sleep 1s
-	/tmp/venv310/bin/chalice deploy || exit
+	/tmp/venv310/bin/chalice deploy
 
 test_deployment:
 	echo 'testing...'
 	sleep 1s
 	(/tmp/venv310/bin/chalice invoke -n run_model | jq) && \
-		echo 'Success (see above)...done testing.' || \
-		echo "Failure (see above)...done testing."
+		echo 'Success (see above)...done testing.'
 
 activate:
 	sleep 1s
