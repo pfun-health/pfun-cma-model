@@ -1,48 +1,5 @@
 {
-  "resources": [
-    {
-      "name": "managed-layer",
-      "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:17"
-    },
-    {
-      "name": "default-role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev",
-      "role_name": "pfun-cma-model-dev"
-    },
-    {
-      "name": "run_model",
-      "resource_type": "lambda_function",
-      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-run_model"
-    },
-    {
-      "name": "run_at_time",
-      "resource_type": "lambda_function",
-      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-run_at_time"
-    },
-    {
-      "name": "fit_model",
-      "resource_type": "lambda_function",
-      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-fit_model"
-    },
-    {
-      "name": "api_handler",
-      "resource_type": "lambda_function",
-      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
-    },
-    {
-      "name": "fake_auth",
-      "resource_type": "lambda_function",
-      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-fake_auth"
-    },
-    {
-      "name": "rest_api",
-      "resource_type": "rest_api",
-      "rest_api_id": "ukpfvcn2ac",
-      "rest_api_url": "https://ukpfvcn2ac.execute-api.us-east-1.amazonaws.com/api/"
-    }
-  ],
+  "resources": [],
   "schema_version": "2.0",
   "backend": "api"
 }
