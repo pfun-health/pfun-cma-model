@@ -1,0 +1,58 @@
+API_NAME=PFun CMA Model Backend
+API_STAGE=api
+API_KEY_NAME=PFun CMA Model API Key
+REGION=us-east-1
+unset AWS_ENDPOINT_URL
+
+print_python_version:
+	@python --version
+	@which python
+
+print_env:
+	@echo "Shell environment variables:"
+	@env
+	@echo ""
+	@echo "Make environment variables:"
+	@printenv
+
+get_api_id:
+	@echo -e "API: ${API_NAME}"
+	API_ID=$$(aws --region us-east-1 apigateway get-rest-apis --query "items[?name=='${API_NAME}'].id" --output text)
+	echo -e "${API_ID}"
+
+
+create_usage_plan:
+	USAGE_PLAN_ID=$$(aws --region ${REGION} apigateway create-usage-plan --name pfun-cma-model-dev-plan --description 'for use with development of the pfun-cma-model API' --api-stages "apiId=$$(make get_api_id),stage=${API_STAGE}" | jq -r '.id') && echo $$USAGE_PLAN_ID
+
+create_api_key:
+	API_KEY_ID=$$(aws --region ${REGION} apigateway create-api-key --name ${API_KEY_NAME} --enabled --generate-distinct-id | jq -r '.id') && echo $$API_KEY_ID
+
+associate_usage_plan_key:
+	aws --region ${REGION} apigateway create-usage-plan-key --usage-plan-id $$(make create_usage_plan) --key-id $$(make create_api_key) --key-type API_KEY
+
+get_resources:
+	aws --region ${REGION} apigateway get-resources --rest-api-id $$(make get_api_id) | jq -r '.items[] | select(.path == "/" or .path == "/fit" or .path == "/run" or .path == "/run-at-time") | .id'
+
+set_api_key:
+	for RESOURCE_ID in $$(make get_resources); do \
+		aws --region ${REGION} apigateway update-api-key --api-key $$(make create_api_key) --patch-operations op='replace',path=/$$RESOURCE_ID/stageKeys,value=$$RESOURCE_ID/${API_STAGE}; \
+	done
+
+update_deployment:
+	aws --region ${REGION} apigateway update-deployment --rest-api-id $$(make get_api_id) --stage-name ${API_STAGE}
+
+
+.DEFAULT_GOAL := help
+
+## help: Displays available targets and their descriptions
+help:
+	@echo "Available targets:"
+	@echo "  get_api_id                : Retrieves the API ID of the specified API name."
+	@echo "  create_usage_plan         : Creates a usage plan for the API."
+	@echo "  create_api_key            : Creates an API key."
+	@echo "  associate_usage_plan_key  : Associates the API key with the usage plan."
+	@echo "  get_resources             : Retrieves the resource IDs of the specified resources."
+	@echo "  set_api_key               : Sets the API key for each resource."
+	@echo "  update_deployment         : Updates the deployment for the API."
+	@echo ""
+	@echo "Please note that you may need to modify the Makefile if you have different values for API_NAME, API_STAGE, and API_KEY_NAME."

@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pfun-cma-model.chalicelib.engine.bounds API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pfun-cma-model.chalicelib.engine.bounds</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+from typing import Container, Dict, Tuple, Any
+
+
+class BaseCustomException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __repr__(self):
+        return self.msg
+
+
+class BoundsTypeError(BaseCustomException):
+    def __init__(self, i: int) -&gt; None:
+        msg = f&#34;Element {i} of bounds array is not a number.&#34;
+        super().__init__(msg)
+
+
+#: Aliases for numpy bool types (necessary for type checking).
+True_, False_ = np.bool_(True), np.bool_(False)
+Bool_ = np.bool_
+
+
+class Bounds:
+    &#34;&#34;&#34;Bounds constraint on the variables.
+
+    The constraint has the general inequality form::
+
+        lb &lt;= x &lt;= ub
+
+    It is possible to use equal bounds to represent an equality constraint or
+    infinite bounds to represent a one-sided constraint.
+
+    Parameters
+    ----------
+    lb, ub : dense array_like, optional
+        Lower and upper bounds on independent variables. `lb`, `ub`, and
+        `keep_feasible` must be the same shape or broadcastable.
+        Set components of `lb` and `ub` equal
+        to fix a variable. Use ``np.inf`` with an appropriate sign to disable
+        bounds on all or some variables. Note that you can mix constraints of
+        different types: interval, one-sided or equality, by setting different
+        components of `lb` and `ub` as necessary. Defaults to ``lb = -np.inf``
+        and ``ub = np.inf`` (no bounds).
+    keep_feasible : dense array_like of bool, optional
+        Whether to keep the constraint components feasible throughout
+        iterations. Must be broadcastable with `lb` and `ub`.
+        Default is False. Has no effect for equality constraints.
+    &#34;&#34;&#34;
+
+    #: ! important: keep_feasible must have integer dtype (not bool)
+    #: ...defined within the Bounds namespace for easy access.
+    True_ = True_
+    False_ = False_
+    Bool_ = bool_ = Bool_
+
+    def _input_validation(self):
+        try:
+            res = np.broadcast_arrays(self.lb, self.ub, self.keep_feasible)
+            self.lb, self.ub, self.keep_feasible = res
+        except ValueError as exc:
+            message = &#34;`lb`, `ub`, and `keep_feasible` must be broadcastable.&#34;
+            raise ValueError(message) from exc
+
+    def __json__(self):
+        &#34;&#34;&#34;json serialization.&#34;&#34;&#34;
+        return {
+            &#34;lb&#34;: self.lb.tolist(),
+            &#34;ub&#34;: self.ub.tolist(),
+            &#34;keep_feasible&#34;: self.keep_feasible.tolist()
+        }
+
+    def json(self):
+        &#34;&#34;&#34;json serialization.&#34;&#34;&#34;
+        return self.__json__()
+
+    @property
+    def array(self):
+        &#34;&#34;&#34;return the bounds as an array with columns [lower, upper, keep_feasible].&#34;&#34;&#34;
+        return self._array
+
+    @array.setter
+    def array(self, arr):
+        self._array = arr
+
+    def __iter__(self):
+        &#34;&#34;&#34;get an iterator over the bounds array.&#34;&#34;&#34;
+        return iter(self.array)
+
+    def __getitem__(self, index):
+        &#34;&#34;&#34;get the bounds information at the specified index.&#34;&#34;&#34;
+        return self.array[index]
+
+    @property
+    def lb(self):
+        return self.array[:, 0]
+
+    @lb.setter
+    def lb(self, value):
+        self.array[:, 0] = value
+
+    @property
+    def ub(self):
+        return self.array[:, 1]
+
+    @ub.setter
+    def ub(self, value):
+        self.array[:, 1] = value
+
+    @property
+    def keep_feasible(self):
+        return self.array[:, 2]
+
+    @keep_feasible.setter
+    def keep_feasible(self, value):
+        self.array[:, 2] = value
+
+    def __setitem__(self, index: int | slice | Container[int | Any], value):
+        &#34;&#34;&#34;set the bounds information at the specified index.&#34;&#34;&#34;
+        if isinstance(index, slice):
+            self._array[:, index] = np.asarray(value, dtype=object)[:]
+            self.lb, self.ub, self.keep_feasible = list(zip(*self._array))
+            self.lb = np.asarray(self.lb, dtype=np.float64)
+            self.ub = np.asarray(self.ub, dtype=np.float64)
+            #: ! important: keep_feasible must have np.bool_ or integer dtype (not bool)
+            #: reference: https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool_
+            self.keep_feasible = np.asarray(self.keep_feasible, dtype=np.bool_)
+        elif isinstance(index, int):
+            self.lb[index] = np.asarray(value[0])
+            self.ub[index] = np.asarray(value[1])
+            self.keep_feasible[index] = np.asarray(value[2])
+        else:
+            raise TypeError(&#34;Bounds index must be an integer or slice.&#34;)
+
+    def __len__(self):
+        return len(self.lb)
+
+    def __eq__(self, __value: object) -&gt; np.bool_:
+        nb = Bounds(__value)
+        return np.all(np.allclose(self.array, nb.array))
+
+    @classmethod
+    def _assemble_array(cls, lb, ub, keep_feasible):
+        keep_feasible = np.asarray(keep_feasible, dtype=np.bool_)
+        if keep_feasible.size &lt; len(lb):
+            keep_feasible = np.tile(keep_feasible, len(lb))
+        return np.asarray(list(zip(lb, ub, keep_feasible)))
+
+    def __init__(self, *args, lb: float | Container[float] = -np.inf,
+                 ub: float | Container[float] = np.inf,
+                 keep_feasible: np.bool_ = True_):
+        if len(args) &gt; 0:
+            #: handle Bounds positional argument
+            if isinstance(args[0], Bounds):
+                lb, ub, keep_feasible = args[0].lb, args[0].ub, args[0].keep_feasible
+                if len(args) &gt; 1:
+                    raise ValueError(
+                        &#34;Too many positional arguments. Expected either one (a Bounds) instance, or 0.&#34;)
+            else:
+                #: handle alternative positional arguments
+                lb, ub, keep_feasible = args
+        lb = np.asarray(lb, dtype=np.float64)
+        ub = np.asarray(ub, dtype=np.float64)
+        keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
+        self._array = self._assemble_array(lb, ub, keep_feasible)
+        self._input_validation()
+
+    def __repr__(self):
+        start = f&#34;{type(self).__name__}({self.lb!r}, {self.ub!r}&#34;
+        if np.any(self.keep_feasible):
+            end = f&#34;, keep_feasible={self.keep_feasible!r})&#34;
+        else:
+            end = &#34;)&#34;
+        return start + end
+
+    def update_values(self, arr: np.ndarray | Dict) -&gt; np.ndarray | Dict[str, float | int]:
+        &#34;&#34;&#34;
+        Update the values of the input array so that they stay within the specified limits.
+
+        Args:
+            arr (array-like): The input array that needs to be updated.
+
+        Returns:
+            array-like: The updated array with values within the specified limits.
+
+        Raises:
+            ValueError: If the length of the input array does not match the length of the lower
+                        and upper bound arrays.
+        &#34;&#34;&#34;
+        keys = None
+        if isinstance(arr, dict):
+            keys = list(arr.keys())
+            arr = np.array(list(arr.values()))
+        if len(arr) != len(self.lb) or len(arr) != len(self.ub):
+            raise ValueError(
+                &#34;Length of input array does not match the length of lower and upper bound arrays.&#34;)
+
+        updated_arr = []
+        for i, val in enumerate(arr):
+            if not isinstance(val, (float, int)):
+                raise BoundsTypeError(i)
+            if not self.keep_feasible[i]:
+                updated_arr.append(val)  # ! make sure to still append
+                continue  # ! skip bounds check if keep_feasible is False for this element
+            if val &lt; self.lb[i]:
+                updated_arr.append(self.lb[i])
+            elif val &gt; self.ub[i]:
+                updated_arr.append(self.ub[i])
+            else:
+                updated_arr.append(val)
+
+        updated_arr = np.array(updated_arr, dtype=arr.dtype)
+        if keys is not None:
+            updated_arr = {k: v for k, v in zip(keys, updated_arr, strict=True)}
+        return updated_arr
+
+    def residual(self, x):
+        &#34;&#34;&#34;Calculate the residual (slack) between the input and the bounds
+
+        For a bound constraint of the form::
+
+            lb &lt;= x &lt;= ub
+
+        the lower and upper residuals between `x` and the bounds are values
+        ``sl`` and ``sb`` such that::
+
+            lb + sl == x == ub - sb
+
+        When all elements of ``sl`` and ``sb`` are positive, all elements of
+        ``x`` lie within the bounds; a negative element in ``sl`` or ``sb``
+        indicates that the corresponding element of ``x`` is out of bounds.
+
+        Parameters
+        ----------
+        x: array_like
+            Vector of independent variables
+
+        Returns
+        -------
+        sl, sb : array-like
+            The lower and upper residuals
+        &#34;&#34;&#34;
+        return x - self.lb, self.ub - x</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.BaseCustomException"><code class="flex name class">
+<span>class <span class="ident">BaseCustomException</span></span>
+<span>(</span><span>msg)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BaseCustomException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __repr__(self):
+        return self.msg</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pfun-cma-model.chalicelib.engine.bounds.BoundsTypeError" href="#pfun-cma-model.chalicelib.engine.bounds.BoundsTypeError">BoundsTypeError</a></li>
+</ul>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds"><code class="flex name class">
+<span>class <span class="ident">Bounds</span></span>
+<span>(</span><span>*args, lb: Union[float, Container[float]] = -inf, ub: Union[float, Container[float]] = inf, keep_feasible: numpy.bool_ = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Bounds constraint on the variables.</p>
+<p>The constraint has the general inequality form::</p>
+<pre><code>lb &lt;= x &lt;= ub
+</code></pre>
+<p>It is possible to use equal bounds to represent an equality constraint or
+infinite bounds to represent a one-sided constraint.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>lb</code></strong>, <strong><code>ub</code></strong> :&ensp;<code>dense array_like</code>, optional</dt>
+<dd>Lower and upper bounds on independent variables. <code>lb</code>, <code>ub</code>, and
+<code>keep_feasible</code> must be the same shape or broadcastable.
+Set components of <code>lb</code> and <code>ub</code> equal
+to fix a variable. Use <code>np.inf</code> with an appropriate sign to disable
+bounds on all or some variables. Note that you can mix constraints of
+different types: interval, one-sided or equality, by setting different
+components of <code>lb</code> and <code>ub</code> as necessary. Defaults to <code>lb = -np.inf</code>
+and <code>ub = np.inf</code> (no bounds).</dd>
+<dt><strong><code>keep_feasible</code></strong> :&ensp;<code>dense array_like</code> of <code>bool</code>, optional</dt>
+<dd>Whether to keep the constraint components feasible throughout
+iterations. Must be broadcastable with <code>lb</code> and <code>ub</code>.
+Default is False. Has no effect for equality constraints.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Bounds:
+    &#34;&#34;&#34;Bounds constraint on the variables.
+
+    The constraint has the general inequality form::
+
+        lb &lt;= x &lt;= ub
+
+    It is possible to use equal bounds to represent an equality constraint or
+    infinite bounds to represent a one-sided constraint.
+
+    Parameters
+    ----------
+    lb, ub : dense array_like, optional
+        Lower and upper bounds on independent variables. `lb`, `ub`, and
+        `keep_feasible` must be the same shape or broadcastable.
+        Set components of `lb` and `ub` equal
+        to fix a variable. Use ``np.inf`` with an appropriate sign to disable
+        bounds on all or some variables. Note that you can mix constraints of
+        different types: interval, one-sided or equality, by setting different
+        components of `lb` and `ub` as necessary. Defaults to ``lb = -np.inf``
+        and ``ub = np.inf`` (no bounds).
+    keep_feasible : dense array_like of bool, optional
+        Whether to keep the constraint components feasible throughout
+        iterations. Must be broadcastable with `lb` and `ub`.
+        Default is False. Has no effect for equality constraints.
+    &#34;&#34;&#34;
+
+    #: ! important: keep_feasible must have integer dtype (not bool)
+    #: ...defined within the Bounds namespace for easy access.
+    True_ = True_
+    False_ = False_
+    Bool_ = bool_ = Bool_
+
+    def _input_validation(self):
+        try:
+            res = np.broadcast_arrays(self.lb, self.ub, self.keep_feasible)
+            self.lb, self.ub, self.keep_feasible = res
+        except ValueError as exc:
+            message = &#34;`lb`, `ub`, and `keep_feasible` must be broadcastable.&#34;
+            raise ValueError(message) from exc
+
+    def __json__(self):
+        &#34;&#34;&#34;json serialization.&#34;&#34;&#34;
+        return {
+            &#34;lb&#34;: self.lb.tolist(),
+            &#34;ub&#34;: self.ub.tolist(),
+            &#34;keep_feasible&#34;: self.keep_feasible.tolist()
+        }
+
+    def json(self):
+        &#34;&#34;&#34;json serialization.&#34;&#34;&#34;
+        return self.__json__()
+
+    @property
+    def array(self):
+        &#34;&#34;&#34;return the bounds as an array with columns [lower, upper, keep_feasible].&#34;&#34;&#34;
+        return self._array
+
+    @array.setter
+    def array(self, arr):
+        self._array = arr
+
+    def __iter__(self):
+        &#34;&#34;&#34;get an iterator over the bounds array.&#34;&#34;&#34;
+        return iter(self.array)
+
+    def __getitem__(self, index):
+        &#34;&#34;&#34;get the bounds information at the specified index.&#34;&#34;&#34;
+        return self.array[index]
+
+    @property
+    def lb(self):
+        return self.array[:, 0]
+
+    @lb.setter
+    def lb(self, value):
+        self.array[:, 0] = value
+
+    @property
+    def ub(self):
+        return self.array[:, 1]
+
+    @ub.setter
+    def ub(self, value):
+        self.array[:, 1] = value
+
+    @property
+    def keep_feasible(self):
+        return self.array[:, 2]
+
+    @keep_feasible.setter
+    def keep_feasible(self, value):
+        self.array[:, 2] = value
+
+    def __setitem__(self, index: int | slice | Container[int | Any], value):
+        &#34;&#34;&#34;set the bounds information at the specified index.&#34;&#34;&#34;
+        if isinstance(index, slice):
+            self._array[:, index] = np.asarray(value, dtype=object)[:]
+            self.lb, self.ub, self.keep_feasible = list(zip(*self._array))
+            self.lb = np.asarray(self.lb, dtype=np.float64)
+            self.ub = np.asarray(self.ub, dtype=np.float64)
+            #: ! important: keep_feasible must have np.bool_ or integer dtype (not bool)
+            #: reference: https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool_
+            self.keep_feasible = np.asarray(self.keep_feasible, dtype=np.bool_)
+        elif isinstance(index, int):
+            self.lb[index] = np.asarray(value[0])
+            self.ub[index] = np.asarray(value[1])
+            self.keep_feasible[index] = np.asarray(value[2])
+        else:
+            raise TypeError(&#34;Bounds index must be an integer or slice.&#34;)
+
+    def __len__(self):
+        return len(self.lb)
+
+    def __eq__(self, __value: object) -&gt; np.bool_:
+        nb = Bounds(__value)
+        return np.all(np.allclose(self.array, nb.array))
+
+    @classmethod
+    def _assemble_array(cls, lb, ub, keep_feasible):
+        keep_feasible = np.asarray(keep_feasible, dtype=np.bool_)
+        if keep_feasible.size &lt; len(lb):
+            keep_feasible = np.tile(keep_feasible, len(lb))
+        return np.asarray(list(zip(lb, ub, keep_feasible)))
+
+    def __init__(self, *args, lb: float | Container[float] = -np.inf,
+                 ub: float | Container[float] = np.inf,
+                 keep_feasible: np.bool_ = True_):
+        if len(args) &gt; 0:
+            #: handle Bounds positional argument
+            if isinstance(args[0], Bounds):
+                lb, ub, keep_feasible = args[0].lb, args[0].ub, args[0].keep_feasible
+                if len(args) &gt; 1:
+                    raise ValueError(
+                        &#34;Too many positional arguments. Expected either one (a Bounds) instance, or 0.&#34;)
+            else:
+                #: handle alternative positional arguments
+                lb, ub, keep_feasible = args
+        lb = np.asarray(lb, dtype=np.float64)
+        ub = np.asarray(ub, dtype=np.float64)
+        keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
+        self._array = self._assemble_array(lb, ub, keep_feasible)
+        self._input_validation()
+
+    def __repr__(self):
+        start = f&#34;{type(self).__name__}({self.lb!r}, {self.ub!r}&#34;
+        if np.any(self.keep_feasible):
+            end = f&#34;, keep_feasible={self.keep_feasible!r})&#34;
+        else:
+            end = &#34;)&#34;
+        return start + end
+
+    def update_values(self, arr: np.ndarray | Dict) -&gt; np.ndarray | Dict[str, float | int]:
+        &#34;&#34;&#34;
+        Update the values of the input array so that they stay within the specified limits.
+
+        Args:
+            arr (array-like): The input array that needs to be updated.
+
+        Returns:
+            array-like: The updated array with values within the specified limits.
+
+        Raises:
+            ValueError: If the length of the input array does not match the length of the lower
+                        and upper bound arrays.
+        &#34;&#34;&#34;
+        keys = None
+        if isinstance(arr, dict):
+            keys = list(arr.keys())
+            arr = np.array(list(arr.values()))
+        if len(arr) != len(self.lb) or len(arr) != len(self.ub):
+            raise ValueError(
+                &#34;Length of input array does not match the length of lower and upper bound arrays.&#34;)
+
+        updated_arr = []
+        for i, val in enumerate(arr):
+            if not isinstance(val, (float, int)):
+                raise BoundsTypeError(i)
+            if not self.keep_feasible[i]:
+                updated_arr.append(val)  # ! make sure to still append
+                continue  # ! skip bounds check if keep_feasible is False for this element
+            if val &lt; self.lb[i]:
+                updated_arr.append(self.lb[i])
+            elif val &gt; self.ub[i]:
+                updated_arr.append(self.ub[i])
+            else:
+                updated_arr.append(val)
+
+        updated_arr = np.array(updated_arr, dtype=arr.dtype)
+        if keys is not None:
+            updated_arr = {k: v for k, v in zip(keys, updated_arr, strict=True)}
+        return updated_arr
+
+    def residual(self, x):
+        &#34;&#34;&#34;Calculate the residual (slack) between the input and the bounds
+
+        For a bound constraint of the form::
+
+            lb &lt;= x &lt;= ub
+
+        the lower and upper residuals between `x` and the bounds are values
+        ``sl`` and ``sb`` such that::
+
+            lb + sl == x == ub - sb
+
+        When all elements of ``sl`` and ``sb`` are positive, all elements of
+        ``x`` lie within the bounds; a negative element in ``sl`` or ``sb``
+        indicates that the corresponding element of ``x`` is out of bounds.
+
+        Parameters
+        ----------
+        x: array_like
+            Vector of independent variables
+
+        Returns
+        -------
+        sl, sb : array-like
+            The lower and upper residuals
+        &#34;&#34;&#34;
+        return x - self.lb, self.ub - x</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.Bool_"><code class="name">var <span class="ident">Bool_</span></code></dt>
+<dd>
+<div class="desc"><p>Boolean type (True or False), stored as a byte.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The :class:<code>bool_</code> type is not a subclass of the :class:<code>int_</code> type
+(the :class:<code>bool_</code> is not even a number type). This is different
+than Python's default implementation of :class:<code>bool</code> as a
+sub-class of :class:<code>int</code>.</p>
+</div>
+<p>:Character code: <code>'?'</code></p></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.False_"><code class="name">var <span class="ident">False_</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.True_"><code class="name">var <span class="ident">True_</span></code></dt>
+<dd>
+<div class="desc"><p>! important: keep_feasible must have integer dtype (not bool)
+&hellip;defined within the Bounds namespace for easy access.</p></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.bool_"><code class="name">var <span class="ident">bool_</span></code></dt>
+<dd>
+<div class="desc"><p>Boolean type (True or False), stored as a byte.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The :class:<code>bool_</code> type is not a subclass of the :class:<code>int_</code> type
+(the :class:<code>bool_</code> is not even a number type). This is different
+than Python's default implementation of :class:<code>bool</code> as a
+sub-class of :class:<code>int</code>.</p>
+</div>
+<p>:Character code: <code>'?'</code></p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.array"><code class="name">var <span class="ident">array</span></code></dt>
+<dd>
+<div class="desc"><p>return the bounds as an array with columns [lower, upper, keep_feasible].</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def array(self):
+    &#34;&#34;&#34;return the bounds as an array with columns [lower, upper, keep_feasible].&#34;&#34;&#34;
+    return self._array</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.keep_feasible"><code class="name">var <span class="ident">keep_feasible</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def keep_feasible(self):
+    return self.array[:, 2]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.lb"><code class="name">var <span class="ident">lb</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def lb(self):
+    return self.array[:, 0]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.ub"><code class="name">var <span class="ident">ub</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ub(self):
+    return self.array[:, 1]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.json"><code class="name flex">
+<span>def <span class="ident">json</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>json serialization.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def json(self):
+    &#34;&#34;&#34;json serialization.&#34;&#34;&#34;
+    return self.__json__()</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.residual"><code class="name flex">
+<span>def <span class="ident">residual</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the residual (slack) between the input and the bounds</p>
+<p>For a bound constraint of the form::</p>
+<pre><code>lb &lt;= x &lt;= ub
+</code></pre>
+<p>the lower and upper residuals between <code>x</code> and the bounds are values
+<code>sl</code> and <code>sb</code> such that::</p>
+<pre><code>lb + sl == x == ub - sb
+</code></pre>
+<p>When all elements of <code>sl</code> and <code>sb</code> are positive, all elements of
+<code>x</code> lie within the bounds; a negative element in <code>sl</code> or <code>sb</code>
+indicates that the corresponding element of <code>x</code> is out of bounds.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Vector of independent variables</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>sl</code></strong>, <strong><code>sb</code></strong> :&ensp;<code>array-like</code></dt>
+<dd>The lower and upper residuals</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def residual(self, x):
+    &#34;&#34;&#34;Calculate the residual (slack) between the input and the bounds
+
+    For a bound constraint of the form::
+
+        lb &lt;= x &lt;= ub
+
+    the lower and upper residuals between `x` and the bounds are values
+    ``sl`` and ``sb`` such that::
+
+        lb + sl == x == ub - sb
+
+    When all elements of ``sl`` and ``sb`` are positive, all elements of
+    ``x`` lie within the bounds; a negative element in ``sl`` or ``sb``
+    indicates that the corresponding element of ``x`` is out of bounds.
+
+    Parameters
+    ----------
+    x: array_like
+        Vector of independent variables
+
+    Returns
+    -------
+    sl, sb : array-like
+        The lower and upper residuals
+    &#34;&#34;&#34;
+    return x - self.lb, self.ub - x</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.Bounds.update_values"><code class="name flex">
+<span>def <span class="ident">update_values</span></span>(<span>self, arr: Union[numpy.ndarray, Dict]) ‑> Union[numpy.ndarray, Dict[str, float | int]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the values of the input array so that they stay within the specified limits.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>arr</code></strong> :&ensp;<code>array-like</code></dt>
+<dd>The input array that needs to be updated.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>array-like: The updated array with values within the specified limits.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If the length of the input array does not match the length of the lower
+and upper bound arrays.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_values(self, arr: np.ndarray | Dict) -&gt; np.ndarray | Dict[str, float | int]:
+    &#34;&#34;&#34;
+    Update the values of the input array so that they stay within the specified limits.
+
+    Args:
+        arr (array-like): The input array that needs to be updated.
+
+    Returns:
+        array-like: The updated array with values within the specified limits.
+
+    Raises:
+        ValueError: If the length of the input array does not match the length of the lower
+                    and upper bound arrays.
+    &#34;&#34;&#34;
+    keys = None
+    if isinstance(arr, dict):
+        keys = list(arr.keys())
+        arr = np.array(list(arr.values()))
+    if len(arr) != len(self.lb) or len(arr) != len(self.ub):
+        raise ValueError(
+            &#34;Length of input array does not match the length of lower and upper bound arrays.&#34;)
+
+    updated_arr = []
+    for i, val in enumerate(arr):
+        if not isinstance(val, (float, int)):
+            raise BoundsTypeError(i)
+        if not self.keep_feasible[i]:
+            updated_arr.append(val)  # ! make sure to still append
+            continue  # ! skip bounds check if keep_feasible is False for this element
+        if val &lt; self.lb[i]:
+            updated_arr.append(self.lb[i])
+        elif val &gt; self.ub[i]:
+            updated_arr.append(self.ub[i])
+        else:
+            updated_arr.append(val)
+
+    updated_arr = np.array(updated_arr, dtype=arr.dtype)
+    if keys is not None:
+        updated_arr = {k: v for k, v in zip(keys, updated_arr, strict=True)}
+    return updated_arr</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.bounds.BoundsTypeError"><code class="flex name class">
+<span>class <span class="ident">BoundsTypeError</span></span>
+<span>(</span><span>i: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BoundsTypeError(BaseCustomException):
+    def __init__(self, i: int) -&gt; None:
+        msg = f&#34;Element {i} of bounds array is not a number.&#34;
+        super().__init__(msg)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pfun-cma-model.chalicelib.engine.bounds.BaseCustomException" href="#pfun-cma-model.chalicelib.engine.bounds.BaseCustomException">BaseCustomException</a></li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pfun-cma-model.chalicelib.engine" href="index.html">pfun-cma-model.chalicelib.engine</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.bounds.BaseCustomException" href="#pfun-cma-model.chalicelib.engine.bounds.BaseCustomException">BaseCustomException</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds">Bounds</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.Bool_" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.Bool_">Bool_</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.False_" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.False_">False_</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.True_" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.True_">True_</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.array" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.array">array</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.bool_" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.bool_">bool_</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.json" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.json">json</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.keep_feasible" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.keep_feasible">keep_feasible</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.lb" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.lb">lb</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.residual" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.residual">residual</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.ub" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.ub">ub</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.bounds.Bounds.update_values" href="#pfun-cma-model.chalicelib.engine.bounds.Bounds.update_values">update_values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.bounds.BoundsTypeError" href="#pfun-cma-model.chalicelib.engine.bounds.BoundsTypeError">BoundsTypeError</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

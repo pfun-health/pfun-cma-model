@@ -1,22 +1,28 @@
-from chalice import (
-    Chalice,
-    CORSConfig,
-    AuthResponse,
-    CustomAuthorizer,
-    Response
-)
-try:
-    from apispec import APISpec
-    import apispec_chalice
-except (ModuleNotFoundError, ImportError):
-    apispec_chalice = None
+"""
+PFun CMA Model API routes.
+"""
 import json
 import sys
 from pathlib import Path
 from typing import Dict, Literal
+from botocore.session import Session
+from botocore.exceptions import ClientError
+from botocore.client import BaseClient
 import boto3
+import threading
+from chalice import (
+    AuthRoute,
+    Chalice,
+    CORSConfig,
+    AuthResponse,
+    Response,
+)
+from chalice.app import Request, AuthRequest
+from chalice.awsclient import (
+    TypedAWSClient
+)
 
-CLIENT = boto3.client('lambda')
+LAMBDA_CLIENT = TypedAWSClient(Session())
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[1]
@@ -26,94 +32,184 @@ for pth in [root_path, ]:
         sys.path.insert(0, pth)
 
 #: init app, set cors
-cors_config = CORSConfig(allow_origin='*')
+cors_config = CORSConfig(
+    allow_origin='pfun-cma-model-api.p.rapidapi.com',
+    allow_headers=['X-RapidAPI-Key',
+                   'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host'],
+    allow_credentials=True,
+    max_age=300,
+    expose_headers=['X-RapidAPI-Key',
+                    'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host']
+)
 app = Chalice(app_name='PFun CMA Model Backend')
 app.api.cors = cors_config
+app.websocket_api.session = boto3.Session()
+app.experimental_feature_flags.update([
+    'WEBSOCKETS'
+])
 
-PUBLIC_ROUTES = [
+PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
     '/run',
     '/fit',
-    '/run-at-time'
+    '/run-at-time',
+    '/routes'
 ]
 
-spec = None
-if apispec_chalice is not None:
-    try:
-        spec = APISpec(
-            title='PFun CMA Model API',
-            version='0.1.0',
-            openapi_version='3.0',
-            plugins=['apispec_chalice'],
-        )
-    except Exception as e:
-        spec = None
+
+class SecretsWrapper(threading.Thread):
+    """
+    Wrapper class for boto3 client 'secretsmanager'
+    """
+
+    def __init__(self, secrets_lock, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._secrets_lock = secrets_lock
+        self._secrets_manager: BaseClient | None = None
+        self._session: boto3.Session | None = None
+
+    def run(self):
+        self.session = boto3.Session()
+
+    @property
+    def session(self):
+        if not self._session:
+            with self._secrets_lock:
+                if not self._session:
+                    self._session = boto3.Session()
+        return self._session
+
+    @session.setter
+    def session(self, session):
+        with self._secrets_lock:
+            self._session = session
+
+    @property
+    def secrets_manager(self):
+        """
+        Retrieves the secrets manager client.
+
+        Returns:
+            BaseClient: _description_
+        """
+        def test_client(client_):
+            try:
+                client_.get_secret_value()
+                return True
+            except ClientError:
+                return False
+        with self._secrets_lock:
+            if not test_client(self._secrets_manager) or \
+                    self._secrets_manager is None:
+                self._secrets_manager = \
+                    self.session.client('secretsmanager')
+            return self._secrets_manager
+
+    def authorize(self, request: Request):
+        authorized = all([
+            request.headers['Authorization'] == 'Bearer allow',
+            request.headers.get(
+                'X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
+            request.headers.get('X-RapidAPI-Key') ==
+            self.aws_get_rapidapi_key(),
+            request.headers.get('X-RapidAPI-Proxy-Secret') ==
+            self.aws_get_rapidapi_proxy_secret()
+        ]) or request.headers['Host'] == '127.0.0.1'
+        return authorized
+
+    def aws_get_rapidapi_key(self):
+        """
+        Retrieves the RapidAPI proxy secret from the AWS Secrets Manager.
+
+        :param self: The reference to the current object.
+        :return: The RapidAPI proxy secret as a string.
+        """
+        key = str(self.secrets_manager.get_secret_value(
+            SecretId='pfun-cma-model-rapidapi-key')['SecretString'])
+        return key
+
+    def aws_get_rapidapi_proxy_secret(self):
+        """
+        Retrieves the RapidAPI proxy secret from the AWS Secrets Manager.
+
+        :param self: The reference to the current object.
+        :return: The RapidAPI proxy secret as a string.
+        """
+        key = str(self.secrets_manager.get_secret_value(
+            SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
+        return key
 
 
-def aws_get_rapidapi_key():
-    key = str(boto3.client('secretsmanager').get_secret_value(
-        SecretId='pfun-cma-model-rapidapi-key')['SecretString'])
-    return key
+class SecretsManagerContainer:
+    """
+    Container class for boto3 client 'secretsmanager'
+    """
+
+    secrets_lock = threading.Lock()
+
+    def __init__(self, *args, **kwargs):
+        self._secrets = SecretsWrapper(self.__class__.secrets_lock, *args,
+                                       **kwargs)
+        self._secrets.start()
+
+    def __del__(self):
+        self._secrets.join(timeout=1.0)
+
+    def authorize(self, *args, **kwargs):
+        return self._secrets.authorize(*args, **kwargs)
 
 
-def aws_get_rapidapi_proxy_secret():
-    key = str(boto3.client('secretsmanager').get_secret_value(
-        SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
-    return key
+secman = SecretsManagerContainer()
+
 
 @app.authorizer()
-def fake_auth(auth_request):
-    """
-    ... ref (original): https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html
-    ...
-    ... TODO: implement with Cognito User Pool (plus oauth2): 
-    ...
-    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-configuring-app-integration.html
-    ...
-    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-add-custom-domain.html
-    ...
-    ... https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain-prefix.html
-
+def fake_auth(auth_request: AuthRequest):
+    """Temporary authorizer for testing purposes.
     """
     authorized = auth_request.token in ['Bearer allow', 'allow']
     if not authorized:
-        return Response(status_code=401) 
+        return Response(body='Unauthorized', status_code=401)
     if authorized:
-        return AuthResponse(routes=['/', '/log', '/fit', '/run'],
+        return AuthResponse(routes=PUBLIC_ROUTES,
                             principal_id='user')
     else:
         return AuthResponse(routes=[], principal_id='user')
 
 
 @app.route("/")
-def index_message():
-    """
-    A function that returns a message containing the welcome message and 
-    the routes of the PFun CMA Model API.
+def index():
+    SCRIPTS = '''
+    <script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+    <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+    <script type="text/javascript" src="apigClient.js"></script>
+    '''
+    body = body.format(
+        SCRIPTS=SCRIPTS,
+    )
+    return Response(body=body, status_code=200, headers={'Content-Type': 'text/html'})
 
-    Returns:
-        dict: A dictionary containing the welcome message and the routes of
-        the API.
-    """
+
+@app.route("/routes")
+def get_routes():
     routes = json.dumps({k: str(v) for k, v in app.routes.items()
                          if k in PUBLIC_ROUTES}, indent=4)
-    return Response(
-        body='''
-        <html>
-        <body>
-        <h3>Welcome to the PFun CMA Model API!</h3>
-        <hr />
-        <br />
-        {}
-        </body>
-        </html>
-        '''.format(f"<pre>{routes}</pre>"),
-        status_code=200,
-        headers={'Content-Type': 'text/html'})
+    return Response(body=routes, status_code=200)
 
 
 @app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
 def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
+    if app.current_request is None:
+        raise RuntimeError("Logging error! No request was provided!")
+    if app.current_request.query_params is None:
+        raise RuntimeError("Logging error! No query parameters were provided!")
     msg = app.current_request.query_params.get('msg')
     level = app.current_request.query_params.get('level', level)
     if msg is None:
@@ -128,6 +224,8 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
 
 
 def get_params(app: Chalice, key: str) -> Dict:
+    if app.current_request is None:
+        raise RuntimeError("No request was provided!")
     params = {} if app.current_request.json_body is None else \
         app.current_request.json_body
     if key in params:
@@ -144,7 +242,7 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
 def get_lambda_params(event, key: str) -> Dict:
     http_method = event.get('httpMethod')
     query_params = event.get('queryStringParams', {})
-    app.log.info('(lambda) http_method: {}'.format(http_method))
+    app.log.info('(lambda) http_method: %s', http_method)
     body = event.get('body')
     params = {}
     if body is not None:
@@ -167,39 +265,38 @@ def run_model_with_config(event, context):
 
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
-    global CLIENT
-    request = app.current_request
-    authorized = all([
-        request.headers['Authorization'] == 'Bearer allow',
-        request.headers.get('X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
-        request.headers.get('X-RapidAPI-Key') == aws_get_rapidapi_key(),
-        request.headers.get('X-RapidAPI-Proxy-Secret') == aws_get_rapidapi_proxy_secret()
-    ]) or request.headers['Host'] == '127.0.0.1'
+    """
+    A function that returns a message containing the welcome message and the
+    routes of the PFun CMA Model API.
+    """
+    global LAMBDA_CLIENT  # type: ignore
+    request: Request | None = app.current_request
+    if request is None:
+        raise RuntimeError("No request was provided!")
+    authorized = secman.authorize(request)
     if not authorized:
-        return Response(status_code=401)
-    if CLIENT is None:
-        CLIENT = boto3.client('lambda')
+        return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    response = CLIENT \
-        .invoke(FunctionName='run_model', Payload=json.dumps(model_config))
-    return json.loads(response.get('body', '[]'))
+    payload = json.dumps(model_config).encode('utf-8')
+    response = LAMBDA_CLIENT \
+        .invoke_function(name='run_model', payload=payload)
+    return json.loads(response.get('body', b'[]'))
 
 
-@app.route("/run-at-time", methods=['GET', 'POST'], authorizer=fake_auth)
-def run_at_time_route():
-    request = app.current_request
-    global CLIENT
-    if CLIENT is None:
-        CLIENT = boto3.client('lambda')
+@app.on_ws_message(name="/run-at-time")
+def run_at_time_route(event):
+    global LAMBDA_CLIENT
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     params = {
         "model_config": model_config,
         "calc_params": calc_params
     }
-    response = CLIENT \
-        .invoke(FunctionName='run_at_time', Payload=json.dumps(params))
-    return json.loads(response.get('body', '[]'))
+    payload = json.dumps(params).encode('utf-8')
+    response = LAMBDA_CLIENT \
+        .invoke_function(name='run_at_time', payload=payload)
+    lambda_response = response.get('body', b'[]').decode('utf-8')
+    app.websocket_api.send(event.connection_id, lambda_response)
 
 
 @app.lambda_function(name='run_at_time')
@@ -230,7 +327,7 @@ def fit_model_to_data(event, context):
     try:
         df = pd.DataFrame(data)
         fit_result = cma_fit_model(df, **model_config)
-        output = fit_result.json(exclude=['cma'])
+        output = fit_result.model_dump_json()
     except Exception:
         app.log.error('failed to fit to data.', exc_info=True)
         return {"error":
@@ -240,39 +337,11 @@ def fit_model_to_data(event, context):
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
-    global CLIENT
-    if CLIENT is None:
-        CLIENT = boto3.client('lambda')
+    global LAMBDA_CLIENT
+    authorized = secman.authorize(app.current_request)
+    if not authorized:
+        return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    response = CLIENT.invoke(
-        FunctionName='fit_model', Payload=json.dumps(model_config))
-    return json.loads(response.get('body', '[]'))
-
-try:
-    spec.add_path(path='/', operations={'get': {'summary': 'Welcome'}})
-    spec.add_path(path='/fit', operations={'post': {'summary': 'Fit the model to timstamped blood glucose data.'}})
-    spec.add_path(path='/run', operations={'get': {'summary': 'Run the model to simulate a specified time period.'}})
-    spec.add_path(path='/run-at-time', operations={'post': {'summary': 'Generate model output for the specifed time points.'}})
-except Exception:
-    pass
-
-
-@app.route('/apidocs', methods=['GET'])
-def openapi():
-    """
-    A function that serves the OpenAPI JSON file.
-
-    Parameters:
-    - None
-
-    Returns:
-    - A dictionary object representing the OpenAPI JSON file.
-    """
-    if spec is not None:
-        return spec.to_dict()
-    schema = json.loads(Path(__file__).parent.
-                        joinpath('openapi.json').
-                        read_text(encoding='utf-8'))
-    return Response(body=json.dumps(schema, indent=5),
-                    status_code=200,
-                    headers={'Content-Type': 'application/json'})
+    response = LAMBDA_CLIENT.invoke_function(
+        name='fit_model', payload=json.dumps(model_config).encode('utf-8'))
+    return json.loads(response.get('body', b'[]'))

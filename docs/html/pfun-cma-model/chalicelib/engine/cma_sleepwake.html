@@ -1,0 +1,2566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pfun-cma-model.chalicelib.engine.cma_sleepwake API documentation</title>
+<meta name="description" content="app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pfun-cma-model.chalicelib.engine.cma_sleepwake</code></h1>
+</header>
+<section id="section-intro">
+<p>app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python
+&#34;&#34;&#34;app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.
+&#34;&#34;&#34;
+import importlib
+import copy
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import (
+    Callable, Container, Dict, Iterable, Tuple
+)
+import numpy as np
+
+#: pfun imports (relative)
+root_path = str(Path(__file__).parents[1])
+mod_path = str(Path(__file__).parent)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+if mod_path not in sys.path:
+    sys.path.insert(0, mod_path)
+try:
+    from chalicelib.decorators import check_is_numpy
+    from chalicelib.engine.calc import normalize, normalize_glucose
+    from chalicelib.engine.data_utils import dt_to_decimal_hours
+    from chalicelib.engine.bounds import Bounds
+    import pandas as pd
+except ModuleNotFoundError:
+    try:
+        pd = importlib.import_module(&#34;pandas&#34;)
+    except ModuleNotFoundError as err:
+        err.msg += &#39;\nContext: chalicelib/engine/cma_sleepwake.py&#39;
+        raise err
+    check_is_numpy = importlib.import_module(
+        &#34;.decorators&#34;, package=&#34;chalicelib&#34;).check_is_numpy
+    normalize = importlib.import_module(
+        &#34;.calc&#34;, package=&#34;chalicelib.engine&#34;).normalize
+    normalize_glucose = importlib.import_module(
+        &#34;.calc&#34;, package=&#34;chalicelib.engine&#34;).normalize_glucose
+    dt_to_decimal_hours = importlib.import_module(
+        &#34;.data_utils&#34;, package=&#34;chalicelib.engine&#34;).dt_to_decimal_hours
+    Bounds = importlib.import_module(
+        &#34;.bounds&#34;, package=&#34;chalicelib.engine&#34;).Bounds
+
+logger = logging.getLogger()
+
+
+def l(x):
+    return 2.0 / (1.0 + np.exp(2.0 * np.power(x, 2)))
+
+
+def E(x):
+    return 1.0 / (1.0 + np.exp(-2.0 * x))
+
+
+def meal_distr(Cm, t, toff):
+    &#34;&#34;&#34;Meal distribution function.
+
+    Parameters
+    ----------
+    Cm : float
+        Cortisol temporal sensitivity coefficient (u/h).
+    t : array_like
+        Time (hours).
+    toff : float
+        Meal-relative time offset (hours).
+
+    Returns
+    -------
+    array_like
+        Meal distribution function.
+    &#34;&#34;&#34;
+    return np.power(np.cos(2 * np.pi * Cm * (t + toff) / 24), 2)
+
+
+@check_is_numpy
+def K(x: np.ndarray):
+    &#34;&#34;&#34;
+    Defines the glucose response function.
+    Apply a piecewise function to the input array `x`.
+
+    Parameters:
+        x (numpy.ndarray): The input array.
+
+    Returns:
+        numpy.ndarray: The result of applying the piecewise function to `x`.
+    &#34;&#34;&#34;
+    return np.piecewise(x, [x &gt; 0.0, x &lt;= 0.0], [
+        lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
+
+
+def vectorized_G(t: np.ndarray | float, I_E: np.ndarray | float,
+                 tm: np.ndarray | float, taug: np.ndarray | float,
+                 B: float, Cm: float, toff: float):
+    &#34;&#34;&#34;Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
+
+    Parameters
+    ----------
+    t : array_like | float
+        Time vector (hours).
+    I_E : float
+        Extracellular insulin (u*mg/mL).
+    tm : array_like
+        Meal times (hours).
+    taug : array_like
+        Meal duration (hours).
+    B : float
+        Bias constant.
+    Cm : float
+        Cortisol temporal sensitivity coefficient (u/h).
+    toff : float
+        Meal-relative time offset (hours).
+
+    Returns
+    -------
+    array_like
+        G(t, I_E, tm, taug, B, Cm, toff).
+    &#34;&#34;&#34;
+    tm = np.atleast_1d(tm)
+    t = np.atleast_1d(t)
+    taug = np.atleast_1d(taug)
+
+    def Gtmp(tm_: float | np.ndarray, taug_: float | np.ndarray):
+        k_G = K((t - np.atleast_1d(tm_)) / np.power(np.atleast_1d(taug_), 2))
+        return 1.3 * k_G / (1.0 + I_E)
+
+    m = len(tm)
+    n = len(t)
+    j = 0
+    out = np.zeros((m, n), dtype=float)
+    while j &lt; m:
+        gtmp = Gtmp(tm[j], taug[j])
+        out[j, :] = gtmp
+        j = j + 1
+    out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
+    return out
+
+
+class CMAParamTypeError(TypeError):
+    &#34;&#34;&#34;CMA parameter type error.&#34;&#34;&#34;
+
+    def __init__(self, pkey, *args: object) -&gt; None:
+        super().__init__(*args)
+        self._pkey = pkey
+
+    def __repr__(self) -&gt; str:
+        return super().__repr__() + \
+            f&#34;...Parameter &#39;{self._pkey}&#39; must be numeric.&#34;
+
+
+class CMASleepWakeModel:
+
+    &#34;&#34;&#34;Defines the Cortisol-Melatonin-Adiponectin Sleep-Wake pfun model.
+
+    Methods:
+    -------
+    1) Input SG -&gt; Project SG to 24-hour phase plane.
+    2) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -&gt; Model params (d, taup).
+    3) (Fit to projected SG) Compute approximate chronometabolic dynamics:
+        F(m, c, a)(t, d, taup) -&gt; ...
+         ...  (+/- postprandial insulin, glucose){Late, Early}.
+    &#34;&#34;&#34;
+
+    param_keys = (&#39;d&#39;, &#39;taup&#39;, &#39;taug&#39;, &#39;B&#39;, &#39;Cm&#39;, &#39;toff&#39;)
+    param_defaults = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
+    bounds = Bounds(
+        lb=[-12.0, 0.5, 0.1, 0.0, 0.0, -3.0, ],
+        ub=[14.0, 3.0, 3.0, 1.0, 2.0, 3.0, ],
+        keep_feasible=Bounds.True_
+    )
+
+    def param_key_index(self, keys: str | Iterable[str]) -&gt; int | Iterable[int]:
+        &#34;&#34;&#34;Return the index of the parameter key.&#34;&#34;&#34;
+        if isinstance(keys, str):
+            return self.param_keys.index(keys)
+        else:
+            return [self.param_keys.index(k) for k in keys]
+
+    def update_bounds(self, keys, lb, ub,
+                      keep_feasible: np.bool_ | Iterable[np.bool_] = Bounds.True_,
+                      return_bounds=False):
+        &#34;&#34;&#34;Update the bounds of the model.&#34;&#34;&#34;
+        keys = [keys] if isinstance(keys, str) else keys
+        lb = [float(lb)] if isinstance(lb, (float, int)) else lb
+        ub = [float(ub)] if isinstance(ub, (float, int)) else ub
+        keep_feasible = [keep_feasible, ] if isinstance(keep_feasible, Bounds.bool_) \
+            else keep_feasible
+        for k in keys:
+            ix = self.param_keys.index(k)
+            self.bounds[ix] = (
+                lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
+        if return_bounds:
+            return self.bounds
+
+    def __json__(self):
+        &#34;&#34;&#34;JSON serialization.&#34;&#34;&#34;
+        out = {k: v for k, v in self.__dict__.items()}
+        for key, value in out.items():
+            if isinstance(value, np.ndarray):
+                out[key] = value.tolist()
+            elif isinstance(value, pd.DataFrame):
+                out[key] = pd.json_normalize(
+                    value.to_dict()).to_dict()  # type: ignore
+            elif isinstance(value, pd.Series):
+                out[key] = value.tolist()
+            elif isinstance(value, Bounds):
+                out[key] = value.json()
+            elif hasattr(value, &#39;__json__&#39;):
+                out[key] = value.__json__()
+            try:
+                out[key] = json.dumps(out[key])
+            except json.JSONDecodeError:
+                logging.warning(&#34;Could not convert %s to JSON.&#34;, str(value))
+                out.pop(key)  # ! remove any non-JSONable value
+        return out
+
+    def json(self):
+        &#34;&#34;&#34;JSON serialization.&#34;&#34;&#34;
+        return self.__json__()
+
+    def __init__(self, **kwds):
+        &#34;&#34;&#34;PFun CMA model constructor.
+
+        Arguments:
+        ----------
+            t (array or float, optional): Time vector (corresponds to ). If not provided, t will be a linearly spaced vector of length N.
+            N (int, optional): Number of time points. Defaults to 288.
+            d (float, optional): Offset from UTC solar noon for the estimated latitude (hours). Defaults to 0.0.
+            taup (float, optional): Photoperiod length (hours). Defaults to 1.0.
+            taug (float, optional): Meal duration (hours). Defaults to 1.0.
+            B (float, optional): Bias constant. Defaults to 0.05.
+            Cm (float, optional): Cortisol temporal sensitivity coefficient (u/h). Defaults to 0.0.
+            toff (float, optional): Solar noon offset for the estimated latitude (hours). Defaults to 0.0.
+            tM (tuple, optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+            seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
+            eps (float, optional): Random noise scale (&#34;epsilon&#34;). Defaults to 1e-18.
+        &#34;&#34;&#34;
+        defaults = dict(
+            t=None,
+            N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
+            Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
+            seed=None, eps=1e-18
+        )
+        params = defaults.copy()
+        params.update(kwds)
+        t, N, tM, seed, eps = params.pop(&#39;t&#39;), params.pop(&#39;N&#39;), params.pop(
+            &#39;tM&#39;), params.pop(&#39;seed&#39;), params.pop(&#39;eps&#39;)
+        assert (t is not None or N is not None) and (t is None or N is None), \
+            &#34;Must provide either the &#39;t&#39; or &#39;N&#39; argument (not both)&#34;
+        if t is None:
+            t = np.linspace(0, 24, num=int(N))
+        self.t: Container[float] | np.ndarray = t  # time vector
+        self.tM = np.asarray(tM, dtype=float)  # mealtimes vector
+        self.params: Dict[str, float] = {k: v for k, v in params.items() if k
+                                         in self.param_keys}
+        for pkey in self.param_keys:
+            pval = params.get(pkey)
+            if pval is not None:
+                self.params[pkey] = pval
+        self.bounds = copy.copy(self.__class__.bounds)
+        self.eps = eps
+        self.rng = None
+        if seed is not None:
+            self.rng = np.random.default_rng(seed=seed)
+
+    @property
+    def N(self):
+        &#34;&#34;&#34;Number of time steps.&#34;&#34;&#34;
+        return len(self.t)
+
+    def update(self, *args, inplace=True, **kwds):
+        &#34;&#34;&#34;
+        Update the current instance with new values.
+
+        Parameters:
+            *args: Variable length argument list.
+            inplace (bool): If True, update the current instance in place. If False, create a new instance with the updated values.
+            **kwds: Keyword arguments to update the instance.
+
+        Returns:
+            The updated instance if `inplace` is False, otherwise None.
+
+        Raises:
+            ValueError: If a parameter is not found.
+            TypeError: If a parameter is not numeric.
+
+        Note:
+            - If `inplace` is False, a new instance is created with the updated values and returned.
+            - Parameters in `kwds` that are not present in the instance&#39;s `param_keys` are ignored.
+            - The instance&#39;s `params` dictionary is updated with the values from `kwds`.
+            - The order of the parameters in the `params` dictionary is preserved.
+            - The instance&#39;s `params` dictionary is updated to keep values within the specified bounds.
+            - The `tM` attribute is updated with the values from `kwds` if &#39;tM&#39; is present.
+            - The `t` attribute is updated with a linspace from 0 to 24 if &#39;N&#39; is present.
+            - The `rng` attribute is updated with a new random number generator if &#39;seed&#39; is present.
+            - The `eps` attribute is updated with the value from `kwds` if &#39;eps&#39; is present.
+        &#34;&#34;&#34;
+        if len(args) &gt; 0:
+            opts = args[0]
+            opts.update(kwds)
+            kwds = dict(opts)
+        if inplace is False:
+            new_inst = copy.copy(self)
+            new_inst.update(inplace=True, **kwds)
+            return new_inst
+        #: ! handle case in which taug was given as a vector initially
+        if &#39;taug&#39; in kwds and isinstance(self.params[&#39;taug&#39;], Container):
+            taug_new = kwds.pop(&#39;taug&#39;)
+            match isinstance(taug_new, Container):
+                case True:
+                    #: ! replace current values elementwise if given a vector
+                    self.params[&#39;taug&#39;] = np.broadcast_to(  # type: ignore
+                        taug_new, (self.n_meals, ))
+                case False:  # ! else, taug is a scale: &lt;old_taug&gt; *= new_taug
+                    self.params[&#39;taug&#39;] = np.array(  # type: ignore
+                        self.params[&#39;taug&#39;], dtype=float) * float(taug_new)
+        #: update all given params
+        self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
+        self.params = {k: self.params[k]
+                       for k in self.param_keys}  # ! ensure order
+        #: keep within specified bounds (keep_feasible is handled by Bounds)
+        self.params = self.bounds.update_values(self.params)  # type: ignore
+        if &#39;tM&#39; in kwds:
+            self.tM = np.array(kwds[&#39;tM&#39;], dtype=float).flatten()
+        if &#39;N&#39; in kwds:
+            self.t = np.linspace(0, 24, num=kwds[&#39;N&#39;])
+        if &#39;seed&#39; in kwds:
+            self.rng = np.random.default_rng(seed=kwds[&#39;seed&#39;])
+        if &#39;eps&#39; in kwds:
+            self.eps = kwds[&#39;eps&#39;]
+        #: check all parameters are present and valid types
+        for pkey in self.param_keys:
+            if pkey not in self.params:
+                raise ValueError(f&#34;Parameter &#39;{pkey}&#39; not found.&#34;)
+            if not isinstance(self.params[pkey], (float, int)):
+                raise TypeError(f&#34;Parameter &#39;{pkey}&#39; must be numeric.&#34;)
+
+    @property
+    def d(self) -&gt; float:
+        &#34;&#34;&#34;d : float
+             Offset from UTC solar noon for the estimated latitude (hours).
+        &#34;&#34;&#34;
+        return self.params[&#34;d&#34;]
+
+    @property
+    def taup(self) -&gt; float:
+        &#34;&#34;&#34;taup : float
+                Approximate photoperiod (hours).
+        &#34;&#34;&#34;
+        return self.params[&#34;taup&#34;]
+
+    @property
+    def n_meals(self):
+        &#34;&#34;&#34;Number of meals.&#34;&#34;&#34;
+        return len(self.tM)
+
+    @property
+    def taug(self) -&gt; np.ndarray:
+        &#34;&#34;&#34;taug: get an array broadcasted to: (, number_of_meals).&#34;&#34;&#34;
+        taug_ = self.params[&#34;taug&#34;]
+        taug_vector = np.broadcast_to(taug_, (self.n_meals, ))
+        return taug_vector
+
+    @property
+    def B(self) -&gt; float:
+        &#34;&#34;&#34;Return the current bias parameter value (B).&#34;&#34;&#34;
+        return self.params[&#34;B&#34;]
+
+    @property
+    def Cm(self) -&gt; float:
+        &#34;&#34;&#34;return the current Cm param value.&#34;&#34;&#34;
+        return self.params[&#34;Cm&#34;]
+
+    @property
+    def toff(self) -&gt; float:
+        return self.params[&#34;toff&#34;]
+
+    def E_L(self, t=None):
+        if t is None:
+            t = self.t
+        return l(0.025 * np.power((t - 12.0 - self.d), 2) /
+                 (self.eps + self.taup))
+
+    @property
+    def L(self):
+        return self.E_L(t=self.t)
+
+    def M(self, t=None):
+        &#34;&#34;&#34;compute the estimated relative Melatonin signal.&#34;&#34;&#34;
+        if t is None:
+            t = self.t
+        m_out = np.power((1.0 - self.L), 3) * \
+            np.power(np.cos(-(t - 3.0 - self.d) * np.pi / 24.0), 2)
+        if self.rng is not None:
+            # ! tiny amount of random noise
+            m_out = m_out + \
+                self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
+        return m_out
+
+    @property
+    def m(self):
+        return self.M(t=self.t)
+
+    @property
+    def c(self):
+        return (4.9 / (1.0 + self.taup)) * np.pi * E(np.power((self.L - 0.88), 3)) * \
+            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * np.power(-self.m, 3))
+
+    @property
+    def a(self):
+        return (E(np.power((-self.c * self.m), 3)) +
+                np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) *
+                self.E_L(t=0.7*(27-self.t+self.d))) / 2.0
+
+    @property
+    def I_S(self):
+        return 1.0 - 0.23 * self.c - 0.97 * self.m
+
+    @property
+    def I_E(self):
+        return self.a * self.I_S
+
+    def calc_Gt(self, t=None, dt=None, n=1, return_t=False):
+        &#34;&#34;&#34;
+        Calculate the value of Gt at a given time or times.
+
+        Parameters:
+            t (float or array-like, optional): The time or times at which to
+                calculate Gt. If not provided, the next time step(s) will be
+                calculated based on the previous time step and the specified
+                time step size.
+            dt (float, optional): The time step size. If not provided, it will
+                be calculated as the absolute difference between the last two
+                time steps.
+            n (int, optional): The number of time steps to calculate if `t` is
+                not provided. Defaults to 1.
+            return_t (bool, optional): Whether to return the calculated time
+                step(s) along with the calculated Gt value(s). Defaults to
+                False.
+
+        Returns:
+            Gt (float or array-like): The calculated Gt value(s) at the
+                specified time(s).
+            t (float or array-like, optional): The calculated time step(s) if
+                `return_t` is True.
+        &#34;&#34;&#34;
+        if t is None:
+            if dt is None:
+                dt = np.abs(self.t[-1] - self.t[-2])
+            t = np.mod(np.linspace(
+                self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
+                          self.B, self.Cm, self.toff)
+        if return_t is False:
+            return Gt
+        else:
+            return Gt, t
+
+    def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
+        &#34;&#34;&#34;
+        Update the value of Gt and t.
+
+        Parameters:
+            t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
+            dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
+            n (int): The number of time steps to calculate Gt. Default is 1.
+            keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.
+
+        Returns:
+            tuple: A tuple containing the updated Gt and t arrays.
+        &#34;&#34;&#34;
+        Gt, t = self.calc_Gt(t=t, dt=dt, n=n, return_t=True)
+        self.t = np.append(self.t, t)
+        if keep_tvec_size is True:
+            self.t = self.t[n:]
+        return Gt, self.t
+
+    @property
+    def G(self):
+        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
+                            self.Cm, self.toff)
+
+    @property
+    def g(self):
+        &#34;&#34;&#34;g: get the per-meal post-prandial glucose dynamics.
+
+        Examples:
+        ---------
+            &gt;&gt;&gt; cma = CMASleepWakeModel(N=10, taug=[1.0, 2.0, 3.0])
+            &gt;&gt;&gt; cma.g
+            array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 5.73725968e-01,
+                    1.57882217e-02, 1.27544618e-03, 2.05703931e-04, 5.09901523e-05,
+                    1.50385708e-05, 4.96125002e-06],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 7.85187035e-01, 3.77414036e-01, 1.70718635e-01,
+                    7.87996469e-02, 3.75426497e-02],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.67894822e-01,
+                    1.13923320e+00, 1.08996350e+00]])
+        &#34;&#34;&#34;
+        return self.G
+
+    def integrate_signal(self, signal: np.ndarray | None = None,
+                         signal_name: str | None = None,
+                         t0: int | float = 0, t1: int | float = 24,
+                         M: int = 3,
+                         t_extra: Tuple | None = None,
+                         tvec: np.ndarray | None = None) -&gt; float:
+        &#34;&#34;&#34;Integrate the signal between the hours given, assuming M discrete events.
+
+            t_extra specifies any additional range of &#39;accepted hours&#39; as an inclusive tuple [te0, te1],
+            to be included in the target time period.
+        &#34;&#34;&#34;
+        # trunk-ignore(bandit/B101)
+        assert any([(signal is None), (signal_name is None)]
+                   ), &#34;Must provide exactly one of signal or signal_name&#34;
+        # trunk-ignore(bandit/B101)
+        assert any([(signal is not None), (signal_name is not None)]
+                   ), &#34;Must provide exactly one of signal or signal_name&#34;
+        if tvec is None:
+            tvec = self.t
+        if signal_name is not None:
+            signal = getattr(self, signal_name)
+        if signal.shape[0] != tvec.size:
+            signal = signal.T
+        period = np.logical_and((tvec &gt;= t0), (tvec &lt;= t1))
+        if t_extra is not None:
+            period = np.logical_or(
+                period, (tvec &gt;= t_extra[0]) &amp; (tvec &lt;= t_extra[1]))
+        total = np.nansum(signal[period]) / (M * (t1 - t0))
+        return total
+
+    def morning(self, signal: np.ndarray = None, signal_name=None):
+        &#34;&#34;&#34;compute the total morning integrated signal.&#34;&#34;&#34;
+        return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)
+
+    def evening(self, signal: np.ndarray = None, signal_name=None):
+        &#34;&#34;&#34;Compute the total evening integrated signal.&#34;&#34;&#34;
+        return self.integrate_signal(signal=signal, signal_name=signal_name,
+                                     t0=16, t1=24, t_extra=(0, 3))
+
+    @property
+    def columns(self):
+        return [&#34;t&#34;, &#34;c&#34;, &#34;m&#34;, &#34;a&#34;, &#34;I_S&#34;, &#34;I_E&#34;, &#34;L&#34;, &#34;G&#34;]
+
+    @property
+    def g_morning(self):
+        return self.morning(self.g)
+
+    @property
+    def g_evening(self):
+        return self.evening(self.g)
+
+    @property
+    def g_instant(self):
+        &#34;&#34;&#34;vector of instantaneous (overall) glucose.&#34;&#34;&#34;
+        return np.nansum(self.g, axis=0)
+
+    @property
+    def df(self) -&gt; pd.DataFrame:
+        return self.run()
+
+    @property
+    def dt(self):
+        #: TimedeltaIndex (in hours)
+        return pd.to_timedelta(self.t, unit=&#39;H&#39;)
+
+    @classmethod
+    def get_model_args(cls):
+        &#34;&#34;&#34;for maintaining compatibility with the pfun.model_funcs API&#34;&#34;&#34;
+        return dict(zip(cls.param_keys, cls.param_defaults))
+
+    @property
+    def pvec(self):
+        &#34;&#34;&#34;easy access to parameter vector (copy)&#34;&#34;&#34;
+        return np.array([self.params[k] for k in self.param_keys])
+
+    def run(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;run the model, return the solution as a labeled pd.DataFrame.
+
+        Examples:
+        ---------
+            &gt;&gt;&gt; cma = CMASleepWakeModel(N=4)
+            &gt;&gt;&gt; df = cma.run()
+            &gt;&gt;&gt; print(tabulate.tabulate(df, floatfmt=&#39;.3f&#39;, headers=df.columns))
+                     t      c      m      a    I_S    I_E    g_0    g_1    g_2      G
+            --  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+             0   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.000  0.000  0.000
+             1   8.000  0.962  0.003  0.517  0.776  0.401  0.574  0.000  0.000  0.574
+             2  16.000  0.597  0.000  0.565  0.863  0.488  0.000  0.004  0.000  0.005
+             3  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.000  0.002  0.002
+        &#34;&#34;&#34;
+        #: init list of &#34;standard&#34; columns
+        columns = list(self.columns)
+        # ! exclude instantaneous G until after computing components...
+        columns.remove(&#34;G&#34;)
+        #: get the corresponding values
+        values = [getattr(self, k) for k in columns]
+        #: compute &#34;G&#34; (separate components)
+        g = self.g
+        #: labels &amp; values of the separate components of &#34;G&#34;
+        gi_cols = [f&#34;g_{j}&#34; for j in range(g.shape[0])]
+        columns = columns + gi_cols
+        values = values + [g[i, :] for i in range(g.shape[0])]
+        data = {k: v for k, v in zip(columns, values)}
+        df = pd.DataFrame(data, columns=columns, index=self.dt)
+        #: record instantaneous glucose
+        df[&#34;G&#34;] = self.g_instant
+        #: record estimated meal times
+        ismeal = [(df[&#39;t&#39;] - tm).abs().idxmin() for tm in self.tM]
+        df[&#39;is_meal&#39;] = False
+        df.loc[ismeal, &#39;is_meal&#39;] = True
+        return df
+
+
+def round_to_nearest_integer(number):
+    rounded_number = round(number, 2)
+    return int(rounded_number)
+
+
+class CMAUtils:
+
+    @staticmethod
+    def get_hour_of_day(
+            hour: Tuple[float | int] | float | int) -&gt; int | str | Tuple[str | int]:
+        &#34;&#34;&#34;
+        Get the hour of the day based on the given hour value.
+
+        Parameters:
+            hour (float or int): The hour value to convert.
+
+        Returns:
+
+            int: The hour of the day as an integer.
+
+            OR
+
+            str: The hour of the day in the format &#39;12AM&#39;, &#39;12PM&#39;, &#39;1AM&#39;, &#39;1PM&#39;, etc.
+
+            ...OR as a tuple.
+
+        Raises:
+            ValueError: If the hour is not a float or integer value, or if it is not between 0 and 24.
+        &#34;&#34;&#34;
+        if isinstance(hour, tuple):
+            # ! handle tuple
+            return tuple(map(CMAUtils.get_hour_of_day, hour))
+        if not isinstance(hour, (float, int)):
+            raise ValueError(&#34;The hour must be a float or integer value.&#34;)
+        if hour &lt; 0 or hour &gt; 24:
+            raise ValueError(&#34;The hour must be between 0 and 24.&#34;)
+        if hour == 0 or hour == 24:
+            return &#39;12AM&#39;
+        elif hour == 12:
+            return &#39;12PM&#39;
+        elif hour &lt; 12:
+            return f&#39;{int(hour)}AM&#39;
+        else:
+            return f&#39;{int(hour) - 12}PM&#39;
+
+    @staticmethod
+    def label_meals(df: pd.DataFrame,
+                    rounded: [None | Callable] = round_to_nearest_integer,
+                    as_str: bool = False) -&gt; Tuple[str | int | float]:
+        &#34;&#34;&#34;Label the meal times in a CMA model results dataframe.
+        Parameters:
+            df (pd.DataFrame): The CMA model results dataframe.
+            rounded (None or Callable): Function to round the meal times.
+            as_str (bool): If True, return the meal times as strings.
+        Returns:
+            tuple: The meal times as strings or integers.
+        Examples:
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;t&#39;: [0, 8, 16, 24], &#39;is_meal&#39;: [True, True, True, False]})
+            &gt;&gt;&gt; CMAUtils.label_meals(df)
+            (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+            &gt;&gt;&gt; CMAUtils.label_meals(df, as_str=True)
+            (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+            &gt;&gt;&gt; CMAUtils.label_meals(df, rounded=round_to_nearest_integer)
+            (0, 8, 16)
+        &#34;&#34;&#34;
+        #: get the meal times
+        mealtimes = df.loc[df[&#39;is_meal&#39;], &#39;t&#39;]
+        if rounded is not None:
+            mealtimes = mealtimes.apply(rounded)
+        tM = tuple(mealtimes)
+        if as_str:
+            tM = CMAUtils.get_hour_of_day(tM)
+        if not isinstance(tM, tuple):
+            if hasattr(tM, &#39;__iter__&#39;):
+                tM = tuple(tM)  # type: ignore
+            else:
+                tM = (tM,)
+        return tM</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.root_path"><code class="name">var <span class="ident">root_path</span></code></dt>
+<dd>
+<div class="desc"><p>pfun imports (relative)</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.E"><code class="name flex">
+<span>def <span class="ident">E</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def E(x):
+    return 1.0 / (1.0 + np.exp(-2.0 * x))</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.K"><code class="name flex">
+<span>def <span class="ident">K</span></span>(<span>x: numpy.ndarray)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the glucose response function.
+Apply a piecewise function to the input array <code>x</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<p>x (numpy.ndarray): The input array.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>numpy.ndarray</code></dt>
+<dd>The result of applying the piecewise function to <code>x</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_is_numpy
+def K(x: np.ndarray):
+    &#34;&#34;&#34;
+    Defines the glucose response function.
+    Apply a piecewise function to the input array `x`.
+
+    Parameters:
+        x (numpy.ndarray): The input array.
+
+    Returns:
+        numpy.ndarray: The result of applying the piecewise function to `x`.
+    &#34;&#34;&#34;
+    return np.piecewise(x, [x &gt; 0.0, x &lt;= 0.0], [
+        lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.l"><code class="name flex">
+<span>def <span class="ident">l</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def l(x):
+    return 2.0 / (1.0 + np.exp(2.0 * np.power(x, 2)))</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.meal_distr"><code class="name flex">
+<span>def <span class="ident">meal_distr</span></span>(<span>Cm, t, toff)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Meal distribution function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>Cm</code></strong> :&ensp;<code>float</code></dt>
+<dd>Cortisol temporal sensitivity coefficient (u/h).</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Time (hours).</dd>
+<dt><strong><code>toff</code></strong> :&ensp;<code>float</code></dt>
+<dd>Meal-relative time offset (hours).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>array_like</code></dt>
+<dd>Meal distribution function.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def meal_distr(Cm, t, toff):
+    &#34;&#34;&#34;Meal distribution function.
+
+    Parameters
+    ----------
+    Cm : float
+        Cortisol temporal sensitivity coefficient (u/h).
+    t : array_like
+        Time (hours).
+    toff : float
+        Meal-relative time offset (hours).
+
+    Returns
+    -------
+    array_like
+        Meal distribution function.
+    &#34;&#34;&#34;
+    return np.power(np.cos(2 * np.pi * Cm * (t + toff) / 24), 2)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.round_to_nearest_integer"><code class="name flex">
+<span>def <span class="ident">round_to_nearest_integer</span></span>(<span>number)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def round_to_nearest_integer(number):
+    rounded_number = round(number, 2)
+    return int(rounded_number)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.vectorized_G"><code class="name flex">
+<span>def <span class="ident">vectorized_G</span></span>(<span>t: numpy.ndarray | float, I_E: numpy.ndarray | float, tm: numpy.ndarray | float, taug: numpy.ndarray | float, B: float, Cm: float, toff: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>t</code></strong> :&ensp;<code>array_like | float</code></dt>
+<dd>Time vector (hours).</dd>
+<dt><strong><code>I_E</code></strong> :&ensp;<code>float</code></dt>
+<dd>Extracellular insulin (u*mg/mL).</dd>
+<dt><strong><code>tm</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Meal times (hours).</dd>
+<dt><strong><code>taug</code></strong> :&ensp;<code>array_like</code></dt>
+<dd>Meal duration (hours).</dd>
+<dt><strong><code>B</code></strong> :&ensp;<code>float</code></dt>
+<dd>Bias constant.</dd>
+<dt><strong><code>Cm</code></strong> :&ensp;<code>float</code></dt>
+<dd>Cortisol temporal sensitivity coefficient (u/h).</dd>
+<dt><strong><code>toff</code></strong> :&ensp;<code>float</code></dt>
+<dd>Meal-relative time offset (hours).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>array_like</code></dt>
+<dd>G(t, I_E, tm, taug, B, Cm, toff).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def vectorized_G(t: np.ndarray | float, I_E: np.ndarray | float,
+                 tm: np.ndarray | float, taug: np.ndarray | float,
+                 B: float, Cm: float, toff: float):
+    &#34;&#34;&#34;Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
+
+    Parameters
+    ----------
+    t : array_like | float
+        Time vector (hours).
+    I_E : float
+        Extracellular insulin (u*mg/mL).
+    tm : array_like
+        Meal times (hours).
+    taug : array_like
+        Meal duration (hours).
+    B : float
+        Bias constant.
+    Cm : float
+        Cortisol temporal sensitivity coefficient (u/h).
+    toff : float
+        Meal-relative time offset (hours).
+
+    Returns
+    -------
+    array_like
+        G(t, I_E, tm, taug, B, Cm, toff).
+    &#34;&#34;&#34;
+    tm = np.atleast_1d(tm)
+    t = np.atleast_1d(t)
+    taug = np.atleast_1d(taug)
+
+    def Gtmp(tm_: float | np.ndarray, taug_: float | np.ndarray):
+        k_G = K((t - np.atleast_1d(tm_)) / np.power(np.atleast_1d(taug_), 2))
+        return 1.3 * k_G / (1.0 + I_E)
+
+    m = len(tm)
+    n = len(t)
+    j = 0
+    out = np.zeros((m, n), dtype=float)
+    while j &lt; m:
+        gtmp = Gtmp(tm[j], taug[j])
+        out[j, :] = gtmp
+        j = j + 1
+    out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
+    return out</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAParamTypeError"><code class="flex name class">
+<span>class <span class="ident">CMAParamTypeError</span></span>
+<span>(</span><span>pkey, *args: object)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>CMA parameter type error.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CMAParamTypeError(TypeError):
+    &#34;&#34;&#34;CMA parameter type error.&#34;&#34;&#34;
+
+    def __init__(self, pkey, *args: object) -&gt; None:
+        super().__init__(*args)
+        self._pkey = pkey
+
+    def __repr__(self) -&gt; str:
+        return super().__repr__() + \
+            f&#34;...Parameter &#39;{self._pkey}&#39; must be numeric.&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.TypeError</li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel"><code class="flex name class">
+<span>class <span class="ident">CMASleepWakeModel</span></span>
+<span>(</span><span>**kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the Cortisol-Melatonin-Adiponectin Sleep-Wake pfun model.</p>
+<h2 id="methods">Methods:</h2>
+<p>1) Input SG -&gt; Project SG to 24-hour phase plane.
+2) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -&gt; Model params (d, taup).
+3) (Fit to projected SG) Compute approximate chronometabolic dynamics:
+F(m, c, a)(t, d, taup) -&gt; &hellip;
+&hellip;
+(+/- postprandial insulin, glucose){Late, Early}.</p>
+<p>PFun CMA model constructor.</p>
+<h2 id="arguments">Arguments:</h2>
+<pre><code>t (array or float, optional): Time vector (corresponds to ). If not provided, t will be a linearly spaced vector of length N.
+N (int, optional): Number of time points. Defaults to 288.
+d (float, optional): Offset from UTC solar noon for the estimated latitude (hours). Defaults to 0.0.
+taup (float, optional): Photoperiod length (hours). Defaults to 1.0.
+taug (float, optional): Meal duration (hours). Defaults to 1.0.
+B (float, optional): Bias constant. Defaults to 0.05.
+Cm (float, optional): Cortisol temporal sensitivity coefficient (u/h). Defaults to 0.0.
+toff (float, optional): Solar noon offset for the estimated latitude (hours). Defaults to 0.0.
+tM (tuple, optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
+eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CMASleepWakeModel:
+
+    &#34;&#34;&#34;Defines the Cortisol-Melatonin-Adiponectin Sleep-Wake pfun model.
+
+    Methods:
+    -------
+    1) Input SG -&gt; Project SG to 24-hour phase plane.
+    2) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -&gt; Model params (d, taup).
+    3) (Fit to projected SG) Compute approximate chronometabolic dynamics:
+        F(m, c, a)(t, d, taup) -&gt; ...
+         ...  (+/- postprandial insulin, glucose){Late, Early}.
+    &#34;&#34;&#34;
+
+    param_keys = (&#39;d&#39;, &#39;taup&#39;, &#39;taug&#39;, &#39;B&#39;, &#39;Cm&#39;, &#39;toff&#39;)
+    param_defaults = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
+    bounds = Bounds(
+        lb=[-12.0, 0.5, 0.1, 0.0, 0.0, -3.0, ],
+        ub=[14.0, 3.0, 3.0, 1.0, 2.0, 3.0, ],
+        keep_feasible=Bounds.True_
+    )
+
+    def param_key_index(self, keys: str | Iterable[str]) -&gt; int | Iterable[int]:
+        &#34;&#34;&#34;Return the index of the parameter key.&#34;&#34;&#34;
+        if isinstance(keys, str):
+            return self.param_keys.index(keys)
+        else:
+            return [self.param_keys.index(k) for k in keys]
+
+    def update_bounds(self, keys, lb, ub,
+                      keep_feasible: np.bool_ | Iterable[np.bool_] = Bounds.True_,
+                      return_bounds=False):
+        &#34;&#34;&#34;Update the bounds of the model.&#34;&#34;&#34;
+        keys = [keys] if isinstance(keys, str) else keys
+        lb = [float(lb)] if isinstance(lb, (float, int)) else lb
+        ub = [float(ub)] if isinstance(ub, (float, int)) else ub
+        keep_feasible = [keep_feasible, ] if isinstance(keep_feasible, Bounds.bool_) \
+            else keep_feasible
+        for k in keys:
+            ix = self.param_keys.index(k)
+            self.bounds[ix] = (
+                lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
+        if return_bounds:
+            return self.bounds
+
+    def __json__(self):
+        &#34;&#34;&#34;JSON serialization.&#34;&#34;&#34;
+        out = {k: v for k, v in self.__dict__.items()}
+        for key, value in out.items():
+            if isinstance(value, np.ndarray):
+                out[key] = value.tolist()
+            elif isinstance(value, pd.DataFrame):
+                out[key] = pd.json_normalize(
+                    value.to_dict()).to_dict()  # type: ignore
+            elif isinstance(value, pd.Series):
+                out[key] = value.tolist()
+            elif isinstance(value, Bounds):
+                out[key] = value.json()
+            elif hasattr(value, &#39;__json__&#39;):
+                out[key] = value.__json__()
+            try:
+                out[key] = json.dumps(out[key])
+            except json.JSONDecodeError:
+                logging.warning(&#34;Could not convert %s to JSON.&#34;, str(value))
+                out.pop(key)  # ! remove any non-JSONable value
+        return out
+
+    def json(self):
+        &#34;&#34;&#34;JSON serialization.&#34;&#34;&#34;
+        return self.__json__()
+
+    def __init__(self, **kwds):
+        &#34;&#34;&#34;PFun CMA model constructor.
+
+        Arguments:
+        ----------
+            t (array or float, optional): Time vector (corresponds to ). If not provided, t will be a linearly spaced vector of length N.
+            N (int, optional): Number of time points. Defaults to 288.
+            d (float, optional): Offset from UTC solar noon for the estimated latitude (hours). Defaults to 0.0.
+            taup (float, optional): Photoperiod length (hours). Defaults to 1.0.
+            taug (float, optional): Meal duration (hours). Defaults to 1.0.
+            B (float, optional): Bias constant. Defaults to 0.05.
+            Cm (float, optional): Cortisol temporal sensitivity coefficient (u/h). Defaults to 0.0.
+            toff (float, optional): Solar noon offset for the estimated latitude (hours). Defaults to 0.0.
+            tM (tuple, optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+            seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
+            eps (float, optional): Random noise scale (&#34;epsilon&#34;). Defaults to 1e-18.
+        &#34;&#34;&#34;
+        defaults = dict(
+            t=None,
+            N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
+            Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
+            seed=None, eps=1e-18
+        )
+        params = defaults.copy()
+        params.update(kwds)
+        t, N, tM, seed, eps = params.pop(&#39;t&#39;), params.pop(&#39;N&#39;), params.pop(
+            &#39;tM&#39;), params.pop(&#39;seed&#39;), params.pop(&#39;eps&#39;)
+        assert (t is not None or N is not None) and (t is None or N is None), \
+            &#34;Must provide either the &#39;t&#39; or &#39;N&#39; argument (not both)&#34;
+        if t is None:
+            t = np.linspace(0, 24, num=int(N))
+        self.t: Container[float] | np.ndarray = t  # time vector
+        self.tM = np.asarray(tM, dtype=float)  # mealtimes vector
+        self.params: Dict[str, float] = {k: v for k, v in params.items() if k
+                                         in self.param_keys}
+        for pkey in self.param_keys:
+            pval = params.get(pkey)
+            if pval is not None:
+                self.params[pkey] = pval
+        self.bounds = copy.copy(self.__class__.bounds)
+        self.eps = eps
+        self.rng = None
+        if seed is not None:
+            self.rng = np.random.default_rng(seed=seed)
+
+    @property
+    def N(self):
+        &#34;&#34;&#34;Number of time steps.&#34;&#34;&#34;
+        return len(self.t)
+
+    def update(self, *args, inplace=True, **kwds):
+        &#34;&#34;&#34;
+        Update the current instance with new values.
+
+        Parameters:
+            *args: Variable length argument list.
+            inplace (bool): If True, update the current instance in place. If False, create a new instance with the updated values.
+            **kwds: Keyword arguments to update the instance.
+
+        Returns:
+            The updated instance if `inplace` is False, otherwise None.
+
+        Raises:
+            ValueError: If a parameter is not found.
+            TypeError: If a parameter is not numeric.
+
+        Note:
+            - If `inplace` is False, a new instance is created with the updated values and returned.
+            - Parameters in `kwds` that are not present in the instance&#39;s `param_keys` are ignored.
+            - The instance&#39;s `params` dictionary is updated with the values from `kwds`.
+            - The order of the parameters in the `params` dictionary is preserved.
+            - The instance&#39;s `params` dictionary is updated to keep values within the specified bounds.
+            - The `tM` attribute is updated with the values from `kwds` if &#39;tM&#39; is present.
+            - The `t` attribute is updated with a linspace from 0 to 24 if &#39;N&#39; is present.
+            - The `rng` attribute is updated with a new random number generator if &#39;seed&#39; is present.
+            - The `eps` attribute is updated with the value from `kwds` if &#39;eps&#39; is present.
+        &#34;&#34;&#34;
+        if len(args) &gt; 0:
+            opts = args[0]
+            opts.update(kwds)
+            kwds = dict(opts)
+        if inplace is False:
+            new_inst = copy.copy(self)
+            new_inst.update(inplace=True, **kwds)
+            return new_inst
+        #: ! handle case in which taug was given as a vector initially
+        if &#39;taug&#39; in kwds and isinstance(self.params[&#39;taug&#39;], Container):
+            taug_new = kwds.pop(&#39;taug&#39;)
+            match isinstance(taug_new, Container):
+                case True:
+                    #: ! replace current values elementwise if given a vector
+                    self.params[&#39;taug&#39;] = np.broadcast_to(  # type: ignore
+                        taug_new, (self.n_meals, ))
+                case False:  # ! else, taug is a scale: &lt;old_taug&gt; *= new_taug
+                    self.params[&#39;taug&#39;] = np.array(  # type: ignore
+                        self.params[&#39;taug&#39;], dtype=float) * float(taug_new)
+        #: update all given params
+        self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
+        self.params = {k: self.params[k]
+                       for k in self.param_keys}  # ! ensure order
+        #: keep within specified bounds (keep_feasible is handled by Bounds)
+        self.params = self.bounds.update_values(self.params)  # type: ignore
+        if &#39;tM&#39; in kwds:
+            self.tM = np.array(kwds[&#39;tM&#39;], dtype=float).flatten()
+        if &#39;N&#39; in kwds:
+            self.t = np.linspace(0, 24, num=kwds[&#39;N&#39;])
+        if &#39;seed&#39; in kwds:
+            self.rng = np.random.default_rng(seed=kwds[&#39;seed&#39;])
+        if &#39;eps&#39; in kwds:
+            self.eps = kwds[&#39;eps&#39;]
+        #: check all parameters are present and valid types
+        for pkey in self.param_keys:
+            if pkey not in self.params:
+                raise ValueError(f&#34;Parameter &#39;{pkey}&#39; not found.&#34;)
+            if not isinstance(self.params[pkey], (float, int)):
+                raise TypeError(f&#34;Parameter &#39;{pkey}&#39; must be numeric.&#34;)
+
+    @property
+    def d(self) -&gt; float:
+        &#34;&#34;&#34;d : float
+             Offset from UTC solar noon for the estimated latitude (hours).
+        &#34;&#34;&#34;
+        return self.params[&#34;d&#34;]
+
+    @property
+    def taup(self) -&gt; float:
+        &#34;&#34;&#34;taup : float
+                Approximate photoperiod (hours).
+        &#34;&#34;&#34;
+        return self.params[&#34;taup&#34;]
+
+    @property
+    def n_meals(self):
+        &#34;&#34;&#34;Number of meals.&#34;&#34;&#34;
+        return len(self.tM)
+
+    @property
+    def taug(self) -&gt; np.ndarray:
+        &#34;&#34;&#34;taug: get an array broadcasted to: (, number_of_meals).&#34;&#34;&#34;
+        taug_ = self.params[&#34;taug&#34;]
+        taug_vector = np.broadcast_to(taug_, (self.n_meals, ))
+        return taug_vector
+
+    @property
+    def B(self) -&gt; float:
+        &#34;&#34;&#34;Return the current bias parameter value (B).&#34;&#34;&#34;
+        return self.params[&#34;B&#34;]
+
+    @property
+    def Cm(self) -&gt; float:
+        &#34;&#34;&#34;return the current Cm param value.&#34;&#34;&#34;
+        return self.params[&#34;Cm&#34;]
+
+    @property
+    def toff(self) -&gt; float:
+        return self.params[&#34;toff&#34;]
+
+    def E_L(self, t=None):
+        if t is None:
+            t = self.t
+        return l(0.025 * np.power((t - 12.0 - self.d), 2) /
+                 (self.eps + self.taup))
+
+    @property
+    def L(self):
+        return self.E_L(t=self.t)
+
+    def M(self, t=None):
+        &#34;&#34;&#34;compute the estimated relative Melatonin signal.&#34;&#34;&#34;
+        if t is None:
+            t = self.t
+        m_out = np.power((1.0 - self.L), 3) * \
+            np.power(np.cos(-(t - 3.0 - self.d) * np.pi / 24.0), 2)
+        if self.rng is not None:
+            # ! tiny amount of random noise
+            m_out = m_out + \
+                self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
+        return m_out
+
+    @property
+    def m(self):
+        return self.M(t=self.t)
+
+    @property
+    def c(self):
+        return (4.9 / (1.0 + self.taup)) * np.pi * E(np.power((self.L - 0.88), 3)) * \
+            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * np.power(-self.m, 3))
+
+    @property
+    def a(self):
+        return (E(np.power((-self.c * self.m), 3)) +
+                np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) *
+                self.E_L(t=0.7*(27-self.t+self.d))) / 2.0
+
+    @property
+    def I_S(self):
+        return 1.0 - 0.23 * self.c - 0.97 * self.m
+
+    @property
+    def I_E(self):
+        return self.a * self.I_S
+
+    def calc_Gt(self, t=None, dt=None, n=1, return_t=False):
+        &#34;&#34;&#34;
+        Calculate the value of Gt at a given time or times.
+
+        Parameters:
+            t (float or array-like, optional): The time or times at which to
+                calculate Gt. If not provided, the next time step(s) will be
+                calculated based on the previous time step and the specified
+                time step size.
+            dt (float, optional): The time step size. If not provided, it will
+                be calculated as the absolute difference between the last two
+                time steps.
+            n (int, optional): The number of time steps to calculate if `t` is
+                not provided. Defaults to 1.
+            return_t (bool, optional): Whether to return the calculated time
+                step(s) along with the calculated Gt value(s). Defaults to
+                False.
+
+        Returns:
+            Gt (float or array-like): The calculated Gt value(s) at the
+                specified time(s).
+            t (float or array-like, optional): The calculated time step(s) if
+                `return_t` is True.
+        &#34;&#34;&#34;
+        if t is None:
+            if dt is None:
+                dt = np.abs(self.t[-1] - self.t[-2])
+            t = np.mod(np.linspace(
+                self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
+                          self.B, self.Cm, self.toff)
+        if return_t is False:
+            return Gt
+        else:
+            return Gt, t
+
+    def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
+        &#34;&#34;&#34;
+        Update the value of Gt and t.
+
+        Parameters:
+            t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
+            dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
+            n (int): The number of time steps to calculate Gt. Default is 1.
+            keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.
+
+        Returns:
+            tuple: A tuple containing the updated Gt and t arrays.
+        &#34;&#34;&#34;
+        Gt, t = self.calc_Gt(t=t, dt=dt, n=n, return_t=True)
+        self.t = np.append(self.t, t)
+        if keep_tvec_size is True:
+            self.t = self.t[n:]
+        return Gt, self.t
+
+    @property
+    def G(self):
+        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
+                            self.Cm, self.toff)
+
+    @property
+    def g(self):
+        &#34;&#34;&#34;g: get the per-meal post-prandial glucose dynamics.
+
+        Examples:
+        ---------
+            &gt;&gt;&gt; cma = CMASleepWakeModel(N=10, taug=[1.0, 2.0, 3.0])
+            &gt;&gt;&gt; cma.g
+            array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 5.73725968e-01,
+                    1.57882217e-02, 1.27544618e-03, 2.05703931e-04, 5.09901523e-05,
+                    1.50385708e-05, 4.96125002e-06],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 7.85187035e-01, 3.77414036e-01, 1.70718635e-01,
+                    7.87996469e-02, 3.75426497e-02],
+                   [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                    0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.67894822e-01,
+                    1.13923320e+00, 1.08996350e+00]])
+        &#34;&#34;&#34;
+        return self.G
+
+    def integrate_signal(self, signal: np.ndarray | None = None,
+                         signal_name: str | None = None,
+                         t0: int | float = 0, t1: int | float = 24,
+                         M: int = 3,
+                         t_extra: Tuple | None = None,
+                         tvec: np.ndarray | None = None) -&gt; float:
+        &#34;&#34;&#34;Integrate the signal between the hours given, assuming M discrete events.
+
+            t_extra specifies any additional range of &#39;accepted hours&#39; as an inclusive tuple [te0, te1],
+            to be included in the target time period.
+        &#34;&#34;&#34;
+        # trunk-ignore(bandit/B101)
+        assert any([(signal is None), (signal_name is None)]
+                   ), &#34;Must provide exactly one of signal or signal_name&#34;
+        # trunk-ignore(bandit/B101)
+        assert any([(signal is not None), (signal_name is not None)]
+                   ), &#34;Must provide exactly one of signal or signal_name&#34;
+        if tvec is None:
+            tvec = self.t
+        if signal_name is not None:
+            signal = getattr(self, signal_name)
+        if signal.shape[0] != tvec.size:
+            signal = signal.T
+        period = np.logical_and((tvec &gt;= t0), (tvec &lt;= t1))
+        if t_extra is not None:
+            period = np.logical_or(
+                period, (tvec &gt;= t_extra[0]) &amp; (tvec &lt;= t_extra[1]))
+        total = np.nansum(signal[period]) / (M * (t1 - t0))
+        return total
+
+    def morning(self, signal: np.ndarray = None, signal_name=None):
+        &#34;&#34;&#34;compute the total morning integrated signal.&#34;&#34;&#34;
+        return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)
+
+    def evening(self, signal: np.ndarray = None, signal_name=None):
+        &#34;&#34;&#34;Compute the total evening integrated signal.&#34;&#34;&#34;
+        return self.integrate_signal(signal=signal, signal_name=signal_name,
+                                     t0=16, t1=24, t_extra=(0, 3))
+
+    @property
+    def columns(self):
+        return [&#34;t&#34;, &#34;c&#34;, &#34;m&#34;, &#34;a&#34;, &#34;I_S&#34;, &#34;I_E&#34;, &#34;L&#34;, &#34;G&#34;]
+
+    @property
+    def g_morning(self):
+        return self.morning(self.g)
+
+    @property
+    def g_evening(self):
+        return self.evening(self.g)
+
+    @property
+    def g_instant(self):
+        &#34;&#34;&#34;vector of instantaneous (overall) glucose.&#34;&#34;&#34;
+        return np.nansum(self.g, axis=0)
+
+    @property
+    def df(self) -&gt; pd.DataFrame:
+        return self.run()
+
+    @property
+    def dt(self):
+        #: TimedeltaIndex (in hours)
+        return pd.to_timedelta(self.t, unit=&#39;H&#39;)
+
+    @classmethod
+    def get_model_args(cls):
+        &#34;&#34;&#34;for maintaining compatibility with the pfun.model_funcs API&#34;&#34;&#34;
+        return dict(zip(cls.param_keys, cls.param_defaults))
+
+    @property
+    def pvec(self):
+        &#34;&#34;&#34;easy access to parameter vector (copy)&#34;&#34;&#34;
+        return np.array([self.params[k] for k in self.param_keys])
+
+    def run(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;run the model, return the solution as a labeled pd.DataFrame.
+
+        Examples:
+        ---------
+            &gt;&gt;&gt; cma = CMASleepWakeModel(N=4)
+            &gt;&gt;&gt; df = cma.run()
+            &gt;&gt;&gt; print(tabulate.tabulate(df, floatfmt=&#39;.3f&#39;, headers=df.columns))
+                     t      c      m      a    I_S    I_E    g_0    g_1    g_2      G
+            --  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+             0   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.000  0.000  0.000
+             1   8.000  0.962  0.003  0.517  0.776  0.401  0.574  0.000  0.000  0.574
+             2  16.000  0.597  0.000  0.565  0.863  0.488  0.000  0.004  0.000  0.005
+             3  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.000  0.002  0.002
+        &#34;&#34;&#34;
+        #: init list of &#34;standard&#34; columns
+        columns = list(self.columns)
+        # ! exclude instantaneous G until after computing components...
+        columns.remove(&#34;G&#34;)
+        #: get the corresponding values
+        values = [getattr(self, k) for k in columns]
+        #: compute &#34;G&#34; (separate components)
+        g = self.g
+        #: labels &amp; values of the separate components of &#34;G&#34;
+        gi_cols = [f&#34;g_{j}&#34; for j in range(g.shape[0])]
+        columns = columns + gi_cols
+        values = values + [g[i, :] for i in range(g.shape[0])]
+        data = {k: v for k, v in zip(columns, values)}
+        df = pd.DataFrame(data, columns=columns, index=self.dt)
+        #: record instantaneous glucose
+        df[&#34;G&#34;] = self.g_instant
+        #: record estimated meal times
+        ismeal = [(df[&#39;t&#39;] - tm).abs().idxmin() for tm in self.tM]
+        df[&#39;is_meal&#39;] = False
+        df.loc[ismeal, &#39;is_meal&#39;] = True
+        return df</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.bounds"><code class="name">var <span class="ident">bounds</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_defaults"><code class="name">var <span class="ident">param_defaults</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_keys"><code class="name">var <span class="ident">param_keys</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.get_model_args"><code class="name flex">
+<span>def <span class="ident">get_model_args</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>for maintaining compatibility with the pfun.model_funcs API</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def get_model_args(cls):
+    &#34;&#34;&#34;for maintaining compatibility with the pfun.model_funcs API&#34;&#34;&#34;
+    return dict(zip(cls.param_keys, cls.param_defaults))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.B"><code class="name">var <span class="ident">B</span> : float</code></dt>
+<dd>
+<div class="desc"><p>Return the current bias parameter value (B).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def B(self) -&gt; float:
+    &#34;&#34;&#34;Return the current bias parameter value (B).&#34;&#34;&#34;
+    return self.params[&#34;B&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.Cm"><code class="name">var <span class="ident">Cm</span> : float</code></dt>
+<dd>
+<div class="desc"><p>return the current Cm param value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def Cm(self) -&gt; float:
+    &#34;&#34;&#34;return the current Cm param value.&#34;&#34;&#34;
+    return self.params[&#34;Cm&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.G"><code class="name">var <span class="ident">G</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def G(self):
+    return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
+                        self.Cm, self.toff)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_E"><code class="name">var <span class="ident">I_E</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def I_E(self):
+    return self.a * self.I_S</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_S"><code class="name">var <span class="ident">I_S</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def I_S(self):
+    return 1.0 - 0.23 * self.c - 0.97 * self.m</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.L"><code class="name">var <span class="ident">L</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def L(self):
+    return self.E_L(t=self.t)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.N"><code class="name">var <span class="ident">N</span></code></dt>
+<dd>
+<div class="desc"><p>Number of time steps.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def N(self):
+    &#34;&#34;&#34;Number of time steps.&#34;&#34;&#34;
+    return len(self.t)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.a"><code class="name">var <span class="ident">a</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def a(self):
+    return (E(np.power((-self.c * self.m), 3)) +
+            np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) *
+            self.E_L(t=0.7*(27-self.t+self.d))) / 2.0</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.c"><code class="name">var <span class="ident">c</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def c(self):
+    return (4.9 / (1.0 + self.taup)) * np.pi * E(np.power((self.L - 0.88), 3)) * \
+        E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * np.power(-self.m, 3))</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.columns"><code class="name">var <span class="ident">columns</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def columns(self):
+    return [&#34;t&#34;, &#34;c&#34;, &#34;m&#34;, &#34;a&#34;, &#34;I_S&#34;, &#34;I_E&#34;, &#34;L&#34;, &#34;G&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.d"><code class="name">var <span class="ident">d</span> : float</code></dt>
+<dd>
+<div class="desc"><p>d : float
+Offset from UTC solar noon for the estimated latitude (hours).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def d(self) -&gt; float:
+    &#34;&#34;&#34;d : float
+         Offset from UTC solar noon for the estimated latitude (hours).
+    &#34;&#34;&#34;
+    return self.params[&#34;d&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.df"><code class="name">var <span class="ident">df</span> : pandas.core.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def df(self) -&gt; pd.DataFrame:
+    return self.run()</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.dt"><code class="name">var <span class="ident">dt</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def dt(self):
+    #: TimedeltaIndex (in hours)
+    return pd.to_timedelta(self.t, unit=&#39;H&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g"><code class="name">var <span class="ident">g</span></code></dt>
+<dd>
+<div class="desc"><p>g: get the per-meal post-prandial glucose dynamics.</p>
+<h2 id="examples">Examples:</h2>
+<pre><code>&gt;&gt;&gt; cma = CMASleepWakeModel(N=10, taug=[1.0, 2.0, 3.0])
+&gt;&gt;&gt; cma.g
+array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 5.73725968e-01,
+        1.57882217e-02, 1.27544618e-03, 2.05703931e-04, 5.09901523e-05,
+        1.50385708e-05, 4.96125002e-06],
+       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 7.85187035e-01, 3.77414036e-01, 1.70718635e-01,
+        7.87996469e-02, 3.75426497e-02],
+       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.67894822e-01,
+        1.13923320e+00, 1.08996350e+00]])
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def g(self):
+    &#34;&#34;&#34;g: get the per-meal post-prandial glucose dynamics.
+
+    Examples:
+    ---------
+        &gt;&gt;&gt; cma = CMASleepWakeModel(N=10, taug=[1.0, 2.0, 3.0])
+        &gt;&gt;&gt; cma.g
+        array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 5.73725968e-01,
+                1.57882217e-02, 1.27544618e-03, 2.05703931e-04, 5.09901523e-05,
+                1.50385708e-05, 4.96125002e-06],
+               [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                0.00000000e+00, 7.85187035e-01, 3.77414036e-01, 1.70718635e-01,
+                7.87996469e-02, 3.75426497e-02],
+               [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.67894822e-01,
+                1.13923320e+00, 1.08996350e+00]])
+    &#34;&#34;&#34;
+    return self.G</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_evening"><code class="name">var <span class="ident">g_evening</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def g_evening(self):
+    return self.evening(self.g)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_instant"><code class="name">var <span class="ident">g_instant</span></code></dt>
+<dd>
+<div class="desc"><p>vector of instantaneous (overall) glucose.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def g_instant(self):
+    &#34;&#34;&#34;vector of instantaneous (overall) glucose.&#34;&#34;&#34;
+    return np.nansum(self.g, axis=0)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_morning"><code class="name">var <span class="ident">g_morning</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def g_morning(self):
+    return self.morning(self.g)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.m"><code class="name">var <span class="ident">m</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def m(self):
+    return self.M(t=self.t)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.n_meals"><code class="name">var <span class="ident">n_meals</span></code></dt>
+<dd>
+<div class="desc"><p>Number of meals.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def n_meals(self):
+    &#34;&#34;&#34;Number of meals.&#34;&#34;&#34;
+    return len(self.tM)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.pvec"><code class="name">var <span class="ident">pvec</span></code></dt>
+<dd>
+<div class="desc"><p>easy access to parameter vector (copy)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def pvec(self):
+    &#34;&#34;&#34;easy access to parameter vector (copy)&#34;&#34;&#34;
+    return np.array([self.params[k] for k in self.param_keys])</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taug"><code class="name">var <span class="ident">taug</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"><p>taug: get an array broadcasted to: (, number_of_meals).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def taug(self) -&gt; np.ndarray:
+    &#34;&#34;&#34;taug: get an array broadcasted to: (, number_of_meals).&#34;&#34;&#34;
+    taug_ = self.params[&#34;taug&#34;]
+    taug_vector = np.broadcast_to(taug_, (self.n_meals, ))
+    return taug_vector</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taup"><code class="name">var <span class="ident">taup</span> : float</code></dt>
+<dd>
+<div class="desc"><p>taup : float
+Approximate photoperiod (hours).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def taup(self) -&gt; float:
+    &#34;&#34;&#34;taup : float
+            Approximate photoperiod (hours).
+    &#34;&#34;&#34;
+    return self.params[&#34;taup&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.toff"><code class="name">var <span class="ident">toff</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def toff(self) -&gt; float:
+    return self.params[&#34;toff&#34;]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.E_L"><code class="name flex">
+<span>def <span class="ident">E_L</span></span>(<span>self, t=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def E_L(self, t=None):
+    if t is None:
+        t = self.t
+    return l(0.025 * np.power((t - 12.0 - self.d), 2) /
+             (self.eps + self.taup))</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.M"><code class="name flex">
+<span>def <span class="ident">M</span></span>(<span>self, t=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>compute the estimated relative Melatonin signal.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def M(self, t=None):
+    &#34;&#34;&#34;compute the estimated relative Melatonin signal.&#34;&#34;&#34;
+    if t is None:
+        t = self.t
+    m_out = np.power((1.0 - self.L), 3) * \
+        np.power(np.cos(-(t - 3.0 - self.d) * np.pi / 24.0), 2)
+    if self.rng is not None:
+        # ! tiny amount of random noise
+        m_out = m_out + \
+            self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
+    return m_out</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.calc_Gt"><code class="name flex">
+<span>def <span class="ident">calc_Gt</span></span>(<span>self, t=None, dt=None, n=1, return_t=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the value of Gt at a given time or times.</p>
+<h2 id="parameters">Parameters</h2>
+<p>t (float or array-like, optional): The time or times at which to
+calculate Gt. If not provided, the next time step(s) will be
+calculated based on the previous time step and the specified
+time step size.
+dt (float, optional): The time step size. If not provided, it will
+be calculated as the absolute difference between the last two
+time steps.
+n (int, optional): The number of time steps to calculate if <code>t</code> is
+not provided. Defaults to 1.
+return_t (bool, optional): Whether to return the calculated time
+step(s) along with the calculated Gt value(s). Defaults to
+False.</p>
+<h2 id="returns">Returns</h2>
+<p>Gt (float or array-like): The calculated Gt value(s) at the
+specified time(s).
+t (float or array-like, optional): The calculated time step(s) if
+<code>return_t</code> is True.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calc_Gt(self, t=None, dt=None, n=1, return_t=False):
+    &#34;&#34;&#34;
+    Calculate the value of Gt at a given time or times.
+
+    Parameters:
+        t (float or array-like, optional): The time or times at which to
+            calculate Gt. If not provided, the next time step(s) will be
+            calculated based on the previous time step and the specified
+            time step size.
+        dt (float, optional): The time step size. If not provided, it will
+            be calculated as the absolute difference between the last two
+            time steps.
+        n (int, optional): The number of time steps to calculate if `t` is
+            not provided. Defaults to 1.
+        return_t (bool, optional): Whether to return the calculated time
+            step(s) along with the calculated Gt value(s). Defaults to
+            False.
+
+    Returns:
+        Gt (float or array-like): The calculated Gt value(s) at the
+            specified time(s).
+        t (float or array-like, optional): The calculated time step(s) if
+            `return_t` is True.
+    &#34;&#34;&#34;
+    if t is None:
+        if dt is None:
+            dt = np.abs(self.t[-1] - self.t[-2])
+        t = np.mod(np.linspace(
+            self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+    Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
+                      self.B, self.Cm, self.toff)
+    if return_t is False:
+        return Gt
+    else:
+        return Gt, t</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.evening"><code class="name flex">
+<span>def <span class="ident">evening</span></span>(<span>self, signal: numpy.ndarray = None, signal_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the total evening integrated signal.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evening(self, signal: np.ndarray = None, signal_name=None):
+    &#34;&#34;&#34;Compute the total evening integrated signal.&#34;&#34;&#34;
+    return self.integrate_signal(signal=signal, signal_name=signal_name,
+                                 t0=16, t1=24, t_extra=(0, 3))</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.integrate_signal"><code class="name flex">
+<span>def <span class="ident">integrate_signal</span></span>(<span>self, signal: numpy.ndarray | None = None, signal_name: str | None = None, t0: int | float = 0, t1: int | float = 24, M: int = 3, t_extra: Optional[Tuple] = None, tvec: numpy.ndarray | None = None) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Integrate the signal between the hours given, assuming M discrete events.</p>
+<p>t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
+to be included in the target time period.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def integrate_signal(self, signal: np.ndarray | None = None,
+                     signal_name: str | None = None,
+                     t0: int | float = 0, t1: int | float = 24,
+                     M: int = 3,
+                     t_extra: Tuple | None = None,
+                     tvec: np.ndarray | None = None) -&gt; float:
+    &#34;&#34;&#34;Integrate the signal between the hours given, assuming M discrete events.
+
+        t_extra specifies any additional range of &#39;accepted hours&#39; as an inclusive tuple [te0, te1],
+        to be included in the target time period.
+    &#34;&#34;&#34;
+    # trunk-ignore(bandit/B101)
+    assert any([(signal is None), (signal_name is None)]
+               ), &#34;Must provide exactly one of signal or signal_name&#34;
+    # trunk-ignore(bandit/B101)
+    assert any([(signal is not None), (signal_name is not None)]
+               ), &#34;Must provide exactly one of signal or signal_name&#34;
+    if tvec is None:
+        tvec = self.t
+    if signal_name is not None:
+        signal = getattr(self, signal_name)
+    if signal.shape[0] != tvec.size:
+        signal = signal.T
+    period = np.logical_and((tvec &gt;= t0), (tvec &lt;= t1))
+    if t_extra is not None:
+        period = np.logical_or(
+            period, (tvec &gt;= t_extra[0]) &amp; (tvec &lt;= t_extra[1]))
+    total = np.nansum(signal[period]) / (M * (t1 - t0))
+    return total</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.json"><code class="name flex">
+<span>def <span class="ident">json</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>JSON serialization.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def json(self):
+    &#34;&#34;&#34;JSON serialization.&#34;&#34;&#34;
+    return self.__json__()</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.morning"><code class="name flex">
+<span>def <span class="ident">morning</span></span>(<span>self, signal: numpy.ndarray = None, signal_name=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>compute the total morning integrated signal.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def morning(self, signal: np.ndarray = None, signal_name=None):
+    &#34;&#34;&#34;compute the total morning integrated signal.&#34;&#34;&#34;
+    return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_key_index"><code class="name flex">
+<span>def <span class="ident">param_key_index</span></span>(<span>self, keys: Union[str, Iterable[str]]) ‑> Union[int, Iterable[int]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the index of the parameter key.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def param_key_index(self, keys: str | Iterable[str]) -&gt; int | Iterable[int]:
+    &#34;&#34;&#34;Return the index of the parameter key.&#34;&#34;&#34;
+    if isinstance(keys, str):
+        return self.param_keys.index(keys)
+    else:
+        return [self.param_keys.index(k) for k in keys]</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>run the model, return the solution as a labeled pd.DataFrame.</p>
+<h2 id="examples">Examples:</h2>
+<pre><code>&gt;&gt;&gt; cma = CMASleepWakeModel(N=4)
+&gt;&gt;&gt; df = cma.run()
+&gt;&gt;&gt; print(tabulate.tabulate(df, floatfmt='.3f', headers=df.columns))
+         t      c      m      a    I_S    I_E    g_0    g_1    g_2      G
+--  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+ 0   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.000  0.000  0.000
+ 1   8.000  0.962  0.003  0.517  0.776  0.401  0.574  0.000  0.000  0.574
+ 2  16.000  0.597  0.000  0.565  0.863  0.488  0.000  0.004  0.000  0.005
+ 3  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.000  0.002  0.002
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;run the model, return the solution as a labeled pd.DataFrame.
+
+    Examples:
+    ---------
+        &gt;&gt;&gt; cma = CMASleepWakeModel(N=4)
+        &gt;&gt;&gt; df = cma.run()
+        &gt;&gt;&gt; print(tabulate.tabulate(df, floatfmt=&#39;.3f&#39;, headers=df.columns))
+                 t      c      m      a    I_S    I_E    g_0    g_1    g_2      G
+        --  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+         0   0.000  0.083  0.854  0.251  0.153  0.038  0.000  0.000  0.000  0.000
+         1   8.000  0.962  0.003  0.517  0.776  0.401  0.574  0.000  0.000  0.574
+         2  16.000  0.597  0.000  0.565  0.863  0.488  0.000  0.004  0.000  0.005
+         3  24.000  0.020  0.854  0.250  0.167  0.042  0.000  0.000  0.002  0.002
+    &#34;&#34;&#34;
+    #: init list of &#34;standard&#34; columns
+    columns = list(self.columns)
+    # ! exclude instantaneous G until after computing components...
+    columns.remove(&#34;G&#34;)
+    #: get the corresponding values
+    values = [getattr(self, k) for k in columns]
+    #: compute &#34;G&#34; (separate components)
+    g = self.g
+    #: labels &amp; values of the separate components of &#34;G&#34;
+    gi_cols = [f&#34;g_{j}&#34; for j in range(g.shape[0])]
+    columns = columns + gi_cols
+    values = values + [g[i, :] for i in range(g.shape[0])]
+    data = {k: v for k, v in zip(columns, values)}
+    df = pd.DataFrame(data, columns=columns, index=self.dt)
+    #: record instantaneous glucose
+    df[&#34;G&#34;] = self.g_instant
+    #: record estimated meal times
+    ismeal = [(df[&#39;t&#39;] - tm).abs().idxmin() for tm in self.tM]
+    df[&#39;is_meal&#39;] = False
+    df.loc[ismeal, &#39;is_meal&#39;] = True
+    return df</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, *args, inplace=True, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the current instance with new values.</p>
+<h2 id="parameters">Parameters</h2>
+<p><em>args: Variable length argument list.
+inplace (bool): If True, update the current instance in place. If False, create a new instance with the updated values.
+</em>*kwds: Keyword arguments to update the instance.</p>
+<h2 id="returns">Returns</h2>
+<p>The updated instance if <code>inplace</code> is False, otherwise None.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If a parameter is not found.</dd>
+<dt><code>TypeError</code></dt>
+<dd>If a parameter is not numeric.</dd>
+</dl>
+<h2 id="note">Note</h2>
+<ul>
+<li>If <code>inplace</code> is False, a new instance is created with the updated values and returned.</li>
+<li>Parameters in <code>kwds</code> that are not present in the instance's <code>param_keys</code> are ignored.</li>
+<li>The instance's <code>params</code> dictionary is updated with the values from <code>kwds</code>.</li>
+<li>The order of the parameters in the <code>params</code> dictionary is preserved.</li>
+<li>The instance's <code>params</code> dictionary is updated to keep values within the specified bounds.</li>
+<li>The <code>tM</code> attribute is updated with the values from <code>kwds</code> if 'tM' is present.</li>
+<li>The <code>t</code> attribute is updated with a linspace from 0 to 24 if 'N' is present.</li>
+<li>The <code>rng</code> attribute is updated with a new random number generator if 'seed' is present.</li>
+<li>The <code>eps</code> attribute is updated with the value from <code>kwds</code> if 'eps' is present.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, *args, inplace=True, **kwds):
+    &#34;&#34;&#34;
+    Update the current instance with new values.
+
+    Parameters:
+        *args: Variable length argument list.
+        inplace (bool): If True, update the current instance in place. If False, create a new instance with the updated values.
+        **kwds: Keyword arguments to update the instance.
+
+    Returns:
+        The updated instance if `inplace` is False, otherwise None.
+
+    Raises:
+        ValueError: If a parameter is not found.
+        TypeError: If a parameter is not numeric.
+
+    Note:
+        - If `inplace` is False, a new instance is created with the updated values and returned.
+        - Parameters in `kwds` that are not present in the instance&#39;s `param_keys` are ignored.
+        - The instance&#39;s `params` dictionary is updated with the values from `kwds`.
+        - The order of the parameters in the `params` dictionary is preserved.
+        - The instance&#39;s `params` dictionary is updated to keep values within the specified bounds.
+        - The `tM` attribute is updated with the values from `kwds` if &#39;tM&#39; is present.
+        - The `t` attribute is updated with a linspace from 0 to 24 if &#39;N&#39; is present.
+        - The `rng` attribute is updated with a new random number generator if &#39;seed&#39; is present.
+        - The `eps` attribute is updated with the value from `kwds` if &#39;eps&#39; is present.
+    &#34;&#34;&#34;
+    if len(args) &gt; 0:
+        opts = args[0]
+        opts.update(kwds)
+        kwds = dict(opts)
+    if inplace is False:
+        new_inst = copy.copy(self)
+        new_inst.update(inplace=True, **kwds)
+        return new_inst
+    #: ! handle case in which taug was given as a vector initially
+    if &#39;taug&#39; in kwds and isinstance(self.params[&#39;taug&#39;], Container):
+        taug_new = kwds.pop(&#39;taug&#39;)
+        match isinstance(taug_new, Container):
+            case True:
+                #: ! replace current values elementwise if given a vector
+                self.params[&#39;taug&#39;] = np.broadcast_to(  # type: ignore
+                    taug_new, (self.n_meals, ))
+            case False:  # ! else, taug is a scale: &lt;old_taug&gt; *= new_taug
+                self.params[&#39;taug&#39;] = np.array(  # type: ignore
+                    self.params[&#39;taug&#39;], dtype=float) * float(taug_new)
+    #: update all given params
+    self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
+    self.params = {k: self.params[k]
+                   for k in self.param_keys}  # ! ensure order
+    #: keep within specified bounds (keep_feasible is handled by Bounds)
+    self.params = self.bounds.update_values(self.params)  # type: ignore
+    if &#39;tM&#39; in kwds:
+        self.tM = np.array(kwds[&#39;tM&#39;], dtype=float).flatten()
+    if &#39;N&#39; in kwds:
+        self.t = np.linspace(0, 24, num=kwds[&#39;N&#39;])
+    if &#39;seed&#39; in kwds:
+        self.rng = np.random.default_rng(seed=kwds[&#39;seed&#39;])
+    if &#39;eps&#39; in kwds:
+        self.eps = kwds[&#39;eps&#39;]
+    #: check all parameters are present and valid types
+    for pkey in self.param_keys:
+        if pkey not in self.params:
+            raise ValueError(f&#34;Parameter &#39;{pkey}&#39; not found.&#34;)
+        if not isinstance(self.params[pkey], (float, int)):
+            raise TypeError(f&#34;Parameter &#39;{pkey}&#39; must be numeric.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_Gt"><code class="name flex">
+<span>def <span class="ident">update_Gt</span></span>(<span>self, t=None, dt=None, n=1, keep_tvec_size=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the value of Gt and t.</p>
+<h2 id="parameters">Parameters</h2>
+<p>t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
+dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
+n (int): The number of time steps to calculate Gt. Default is 1.
+keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>A tuple containing the updated Gt and t arrays.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
+    &#34;&#34;&#34;
+    Update the value of Gt and t.
+
+    Parameters:
+        t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
+        dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
+        n (int): The number of time steps to calculate Gt. Default is 1.
+        keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.
+
+    Returns:
+        tuple: A tuple containing the updated Gt and t arrays.
+    &#34;&#34;&#34;
+    Gt, t = self.calc_Gt(t=t, dt=dt, n=n, return_t=True)
+    self.t = np.append(self.t, t)
+    if keep_tvec_size is True:
+        self.t = self.t[n:]
+    return Gt, self.t</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_bounds"><code class="name flex">
+<span>def <span class="ident">update_bounds</span></span>(<span>self, keys, lb, ub, keep_feasible: Union[numpy.bool_, Iterable[numpy.bool_]] = True, return_bounds=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the bounds of the model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_bounds(self, keys, lb, ub,
+                  keep_feasible: np.bool_ | Iterable[np.bool_] = Bounds.True_,
+                  return_bounds=False):
+    &#34;&#34;&#34;Update the bounds of the model.&#34;&#34;&#34;
+    keys = [keys] if isinstance(keys, str) else keys
+    lb = [float(lb)] if isinstance(lb, (float, int)) else lb
+    ub = [float(ub)] if isinstance(ub, (float, int)) else ub
+    keep_feasible = [keep_feasible, ] if isinstance(keep_feasible, Bounds.bool_) \
+        else keep_feasible
+    for k in keys:
+        ix = self.param_keys.index(k)
+        self.bounds[ix] = (
+            lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
+    if return_bounds:
+        return self.bounds</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils"><code class="flex name class">
+<span>class <span class="ident">CMAUtils</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CMAUtils:
+
+    @staticmethod
+    def get_hour_of_day(
+            hour: Tuple[float | int] | float | int) -&gt; int | str | Tuple[str | int]:
+        &#34;&#34;&#34;
+        Get the hour of the day based on the given hour value.
+
+        Parameters:
+            hour (float or int): The hour value to convert.
+
+        Returns:
+
+            int: The hour of the day as an integer.
+
+            OR
+
+            str: The hour of the day in the format &#39;12AM&#39;, &#39;12PM&#39;, &#39;1AM&#39;, &#39;1PM&#39;, etc.
+
+            ...OR as a tuple.
+
+        Raises:
+            ValueError: If the hour is not a float or integer value, or if it is not between 0 and 24.
+        &#34;&#34;&#34;
+        if isinstance(hour, tuple):
+            # ! handle tuple
+            return tuple(map(CMAUtils.get_hour_of_day, hour))
+        if not isinstance(hour, (float, int)):
+            raise ValueError(&#34;The hour must be a float or integer value.&#34;)
+        if hour &lt; 0 or hour &gt; 24:
+            raise ValueError(&#34;The hour must be between 0 and 24.&#34;)
+        if hour == 0 or hour == 24:
+            return &#39;12AM&#39;
+        elif hour == 12:
+            return &#39;12PM&#39;
+        elif hour &lt; 12:
+            return f&#39;{int(hour)}AM&#39;
+        else:
+            return f&#39;{int(hour) - 12}PM&#39;
+
+    @staticmethod
+    def label_meals(df: pd.DataFrame,
+                    rounded: [None | Callable] = round_to_nearest_integer,
+                    as_str: bool = False) -&gt; Tuple[str | int | float]:
+        &#34;&#34;&#34;Label the meal times in a CMA model results dataframe.
+        Parameters:
+            df (pd.DataFrame): The CMA model results dataframe.
+            rounded (None or Callable): Function to round the meal times.
+            as_str (bool): If True, return the meal times as strings.
+        Returns:
+            tuple: The meal times as strings or integers.
+        Examples:
+            &gt;&gt;&gt; df = pd.DataFrame({&#39;t&#39;: [0, 8, 16, 24], &#39;is_meal&#39;: [True, True, True, False]})
+            &gt;&gt;&gt; CMAUtils.label_meals(df)
+            (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+            &gt;&gt;&gt; CMAUtils.label_meals(df, as_str=True)
+            (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+            &gt;&gt;&gt; CMAUtils.label_meals(df, rounded=round_to_nearest_integer)
+            (0, 8, 16)
+        &#34;&#34;&#34;
+        #: get the meal times
+        mealtimes = df.loc[df[&#39;is_meal&#39;], &#39;t&#39;]
+        if rounded is not None:
+            mealtimes = mealtimes.apply(rounded)
+        tM = tuple(mealtimes)
+        if as_str:
+            tM = CMAUtils.get_hour_of_day(tM)
+        if not isinstance(tM, tuple):
+            if hasattr(tM, &#39;__iter__&#39;):
+                tM = tuple(tM)  # type: ignore
+            else:
+                tM = (tM,)
+        return tM</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.get_hour_of_day"><code class="name flex">
+<span>def <span class="ident">get_hour_of_day</span></span>(<span>hour: Union[Tuple[float | int], float, int]) ‑> Union[int, str, Tuple[str | int]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the hour of the day based on the given hour value.</p>
+<h2 id="parameters">Parameters</h2>
+<p>hour (float or int): The hour value to convert.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>The hour of the day as an integer.</dd>
+</dl>
+<p>OR</p>
+<dl>
+<dt><code>str</code></dt>
+<dd>The hour of the day in the format '12AM', '12PM', '1AM', '1PM', etc.</dd>
+</dl>
+<p>&hellip;OR as a tuple.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If the hour is not a float or integer value, or if it is not between 0 and 24.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def get_hour_of_day(
+        hour: Tuple[float | int] | float | int) -&gt; int | str | Tuple[str | int]:
+    &#34;&#34;&#34;
+    Get the hour of the day based on the given hour value.
+
+    Parameters:
+        hour (float or int): The hour value to convert.
+
+    Returns:
+
+        int: The hour of the day as an integer.
+
+        OR
+
+        str: The hour of the day in the format &#39;12AM&#39;, &#39;12PM&#39;, &#39;1AM&#39;, &#39;1PM&#39;, etc.
+
+        ...OR as a tuple.
+
+    Raises:
+        ValueError: If the hour is not a float or integer value, or if it is not between 0 and 24.
+    &#34;&#34;&#34;
+    if isinstance(hour, tuple):
+        # ! handle tuple
+        return tuple(map(CMAUtils.get_hour_of_day, hour))
+    if not isinstance(hour, (float, int)):
+        raise ValueError(&#34;The hour must be a float or integer value.&#34;)
+    if hour &lt; 0 or hour &gt; 24:
+        raise ValueError(&#34;The hour must be between 0 and 24.&#34;)
+    if hour == 0 or hour == 24:
+        return &#39;12AM&#39;
+    elif hour == 12:
+        return &#39;12PM&#39;
+    elif hour &lt; 12:
+        return f&#39;{int(hour)}AM&#39;
+    else:
+        return f&#39;{int(hour) - 12}PM&#39;</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.label_meals"><code class="name flex">
+<span>def <span class="ident">label_meals</span></span>(<span>df: pandas.core.frame.DataFrame, rounded: [typing.Optional[typing.Callable]] = &lt;function round_to_nearest_integer&gt;, as_str: bool = False) ‑> Tuple[str | int | float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Label the meal times in a CMA model results dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<p>df (pd.DataFrame): The CMA model results dataframe.
+rounded (None or Callable): Function to round the meal times.
+as_str (bool): If True, return the meal times as strings.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>The meal times as strings or integers.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; df = pd.DataFrame({'t': [0, 8, 16, 24], 'is_meal': [True, True, True, False]})
+&gt;&gt;&gt; CMAUtils.label_meals(df)
+('12AM', '8AM', '4PM')
+&gt;&gt;&gt; CMAUtils.label_meals(df, as_str=True)
+('12AM', '8AM', '4PM')
+&gt;&gt;&gt; CMAUtils.label_meals(df, rounded=round_to_nearest_integer)
+(0, 8, 16)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def label_meals(df: pd.DataFrame,
+                rounded: [None | Callable] = round_to_nearest_integer,
+                as_str: bool = False) -&gt; Tuple[str | int | float]:
+    &#34;&#34;&#34;Label the meal times in a CMA model results dataframe.
+    Parameters:
+        df (pd.DataFrame): The CMA model results dataframe.
+        rounded (None or Callable): Function to round the meal times.
+        as_str (bool): If True, return the meal times as strings.
+    Returns:
+        tuple: The meal times as strings or integers.
+    Examples:
+        &gt;&gt;&gt; df = pd.DataFrame({&#39;t&#39;: [0, 8, 16, 24], &#39;is_meal&#39;: [True, True, True, False]})
+        &gt;&gt;&gt; CMAUtils.label_meals(df)
+        (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+        &gt;&gt;&gt; CMAUtils.label_meals(df, as_str=True)
+        (&#39;12AM&#39;, &#39;8AM&#39;, &#39;4PM&#39;)
+        &gt;&gt;&gt; CMAUtils.label_meals(df, rounded=round_to_nearest_integer)
+        (0, 8, 16)
+    &#34;&#34;&#34;
+    #: get the meal times
+    mealtimes = df.loc[df[&#39;is_meal&#39;], &#39;t&#39;]
+    if rounded is not None:
+        mealtimes = mealtimes.apply(rounded)
+    tM = tuple(mealtimes)
+    if as_str:
+        tM = CMAUtils.get_hour_of_day(tM)
+    if not isinstance(tM, tuple):
+        if hasattr(tM, &#39;__iter__&#39;):
+            tM = tuple(tM)  # type: ignore
+        else:
+            tM = (tM,)
+    return tM</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pfun-cma-model.chalicelib.engine" href="index.html">pfun-cma-model.chalicelib.engine</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.root_path" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.root_path">root_path</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.E" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.E">E</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.K" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.K">K</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.l" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.l">l</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.meal_distr" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.meal_distr">meal_distr</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.round_to_nearest_integer" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.round_to_nearest_integer">round_to_nearest_integer</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.vectorized_G" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.vectorized_G">vectorized_G</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAParamTypeError" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAParamTypeError">CMAParamTypeError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel">CMASleepWakeModel</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.B" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.B">B</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.Cm" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.Cm">Cm</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.E_L" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.E_L">E_L</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.G" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.G">G</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_E" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_E">I_E</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_S" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.I_S">I_S</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.L" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.L">L</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.M" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.M">M</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.N" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.N">N</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.a" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.a">a</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.bounds" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.bounds">bounds</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.c" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.c">c</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.calc_Gt" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.calc_Gt">calc_Gt</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.columns" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.columns">columns</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.d" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.d">d</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.df" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.df">df</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.dt" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.dt">dt</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.evening" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.evening">evening</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g">g</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_evening" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_evening">g_evening</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_instant" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_instant">g_instant</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_morning" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.g_morning">g_morning</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.get_model_args" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.get_model_args">get_model_args</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.integrate_signal" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.integrate_signal">integrate_signal</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.json" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.json">json</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.m" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.m">m</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.morning" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.morning">morning</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.n_meals" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.n_meals">n_meals</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_defaults" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_defaults">param_defaults</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_key_index" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_key_index">param_key_index</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_keys" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.param_keys">param_keys</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.pvec" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.pvec">pvec</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.run" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.run">run</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taug" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taug">taug</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taup" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.taup">taup</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.toff" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.toff">toff</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update">update</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_Gt" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_Gt">update_Gt</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_bounds" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMASleepWakeModel.update_bounds">update_bounds</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils">CMAUtils</a></code></h4>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.get_hour_of_day" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.get_hour_of_day">get_hour_of_day</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.label_meals" href="#pfun-cma-model.chalicelib.engine.cma_sleepwake.CMAUtils.label_meals">label_meals</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

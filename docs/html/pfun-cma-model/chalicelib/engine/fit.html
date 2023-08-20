@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pfun-cma-model.chalicelib.engine.fit API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pfun-cma-model.chalicelib.engine.fit</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import warnings
+from minpack import lmdif
+import pandas as pd
+from typing import Any, Optional, Dict, Iterable, Container
+import numpy as np
+from numpy.linalg import LinAlgError
+from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
+import importlib
+import sys
+from pathlib import Path
+
+root_path = str(Path(__file__).parents[1])
+mod_path = str(Path(__file__).parent)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+if mod_path not in sys.path:
+    sys.path.insert(0, mod_path)
+
+CMASleepWakeModel = importlib.import_module(
+    &#34;.cma_sleepwake&#34;, package=&#34;chalicelib.engine&#34;).CMASleepWakeModel
+dt_to_decimal_hours = importlib.import_module(
+    &#34;.data_utils&#34;, package=&#34;chalicelib.engine&#34;).dt_to_decimal_hours
+format_data = importlib.import_module(
+    &#34;.data_utils&#34;, package=&#34;chalicelib.engine&#34;).format_data
+
+
+class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
+    model_config = ConfigDict()
+    soln: pd.DataFrame
+    formatted_data: pd.DataFrame
+    cma: Any
+    popt: np.ndarray
+    pcov: np.ndarray
+    infodict: Dict
+    mesg: str
+    ier: int
+
+    def model_dump_json(self, *,
+                        indent=None,
+                        include=None,
+                        exclude=None,
+                        by_alias=False,
+                        exclude_unset=False,
+                        exclude_defaults=False,
+                        exclude_none=False,
+                        round_trip=False,
+                        warnings=True):
+        original_dict = self.__dict__.copy()
+        for key, value in self.__dict__.items():
+            if isinstance(value, pd.DataFrame):
+                self.__dict__[key] = value.to_json()
+            if isinstance(value, np.ndarray):
+                self.__dict__[key] = value.tolist()
+        output = super().model_dump_json(
+            indent=indent, include=include, exclude=exclude,
+            by_alias=by_alias, exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults, exclude_none=exclude_none,
+            round_trip=round_trip, warnings=warnings)
+        self.__dict__.update(original_dict)
+        return output
+
+    @computed_field
+    @property
+    def popt_named(self) -&gt; Dict:
+        return {k: v for k, v in zip(self.cma.param_keys, self.popt, strict=True)}
+
+    @computed_field
+    @property
+    def cond(self) -&gt; float:
+        #: compute the condition number of the covariance matrix
+        #: Note: this should be small if all params are needed
+        #: ref: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit
+        cond = np.linalg.cond(self.pcov)
+        return cond
+
+    @computed_field
+    @property
+    def diag(self) -&gt; np.ndarray:
+        #: compute the diagonal of the covariance matrix
+        #: NOTE: these should be small if all params are needed
+        pcov = self.pcov
+        return np.diag(pcov)
+
+    @field_serializer(&#39;soln&#39;, &#39;formatted_data&#39;)
+    def serialize_dataframe(self, df: pd.DataFrame | Dict, *args) -&gt; dict:
+        if isinstance(df, pd.DataFrame):
+            return pd.json_normalize(df.to_dict()).to_dict()
+        return df
+
+    @field_serializer(&#39;popt&#39;, &#39;pcov&#39;, &#39;diag&#39;)
+    def serialize_numpy_array(self, arr: np.ndarray | list, *args) -&gt; list:
+        if isinstance(arr, np.ndarray):
+            return arr.tolist()
+        return arr
+
+    @field_serializer(&#39;cma&#39;)
+    def serialize_cma(self, cma: Any, _info):
+        return cma.json()
+
+
+def estimate_mealtimes(data, ycol: str = &#39;G&#39;, tm_freq: str = &#34;2h&#34;,
+                       n_meals: int = 4, **kwds):
+    n_meals = int(n_meals)
+    df = data[[&#39;t&#39;, ycol]]
+    if not isinstance(df.index, pd.TimedeltaIndex):
+        df = df.assign(dt=pd.to_timedelta(df[&#34;t&#34;], &#34;H&#34;))
+        df.set_index(&#34;dt&#34;, inplace=True)
+    dfres = df.resample(tm_freq).mean()
+    tM = dfres[ycol].diff().dropna() \
+        .groupby(pd.Grouper(freq=tm_freq)).max() \
+        .sort_values() \
+        .index.to_series().apply(
+        lambda d: dt_to_decimal_hours(d)
+    ).unique()[-n_meals:] - 0.05
+    tM[tM &lt; 0.0] += 23.9999
+    tM[tM &gt; 24.0] -= 23.9999
+    tM.sort()
+    return tM
+
+
+class CurveFitNS:
+    &#34;&#34;&#34;Curve fit namespace.
+    &#34;&#34;&#34;
+
+    LEASTSQ_SUCCESS = [1, 2, 3, 4]
+    LEASTSQ_FAILURE = [5, 6, 7, 8]
+
+    def __init__(self, xtol, ftol, maxfev, gtol) -&gt; None:
+        self.xtol, self.ftol, self.maxfev, self.gtol = xtol, ftol, maxfev, gtol
+        self.errors = {}
+        self.get_errors()
+
+    def get_errors(self):
+        &#34;&#34;&#34;
+        Get the errors associated with the optimization process.
+
+        Returns:
+            dict: A dictionary containing error codes and their corresponding error messages.
+                  The keys are integer error codes, and the values are lists with two elements.
+                  The first element is a string describing the error, and the second element
+                  is the type of error (TypeError or ValueError). If the error type is None,
+                  it means that the error is not associated with a specific error type.
+        &#34;&#34;&#34;
+        self.errors = {
+            0: [&#34;Improper input parameters.&#34;, TypeError],
+            1: [&#34;Both actual and predicted relative reductions &#34;
+                &#34;in the sum of squares\n  are at most %f&#34; % self.ftol, None],
+            2: [&#34;The relative error between two consecutive &#34;
+                &#34;iterates is at most %f&#34; % self.xtol, None],
+            3: [&#34;Both actual and predicted relative reductions in &#34;
+                &#34;the sum of squares\n  are at most {:f} and the &#34;
+                &#34;relative error between two consecutive &#34;
+                &#34;iterates is at \n  most {:f}&#34;.format(
+                    self.ftol, self.xtol), None],
+            4: [&#34;The cosine of the angle between func(x) and any &#34;
+                &#34;column of the\n  Jacobian is at most %f in &#34;
+                &#34;absolute value&#34; % self.gtol, None],
+            5: [&#34;Number of calls to function has reached &#34;
+                &#34;maxfev = %d.&#34; % self.maxfev, ValueError],
+            6: [&#34;ftol=%f is too small, no further reduction &#34;
+                &#34;in the sum of squares\n  is possible.&#34; % self.ftol,
+                ValueError],
+            7: [&#34;xtol=%f is too small, no further improvement in &#34;
+                &#34;the approximate\n  solution is possible.&#34; % self.xtol,
+                ValueError],
+            8: [&#34;gtol=%f is too small, func(x) is orthogonal to the &#34;
+                &#34;columns of\n  the Jacobian to machine &#34;
+                &#34;precision.&#34; % self.gtol, ValueError]
+        }
+
+        return self.errors
+
+
+def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
+              **kwds):
+    ftol = kwds.get(&#39;ftol&#39;, 1.49012e-8)
+    xtol = kwds.get(&#39;xtol&#39;, 1.49012e-8)
+    gtol = kwds.get(&#39;gtol&#39;, 0.0)
+    maxfev = kwds.get(&#39;max_nfev&#39;, 150000)
+    cns = CurveFitNS(xtol, ftol, maxfev, gtol)
+    fvec = np.zeros(len(xdata), dtype=np.float64)
+    p0 = np.array(p0).flatten()
+    pcov = np.eye(len(p0), dtype=np.float64)
+    pmu = np.eye(len(p0), dtype=np.float64)
+    Niters = np.zeros(1, dtype=np.int64)
+    diag = np.ones(len(p0), dtype=np.dtype(&#34;f8&#34;))
+    ier = lmdif(fun, p0, fvec, args=(ydata, pcov, pmu, Niters),
+                xtol=xtol, gtol=gtol, maxfev=maxfev, diag=diag)
+    popt = p0.copy()
+    errout = cns.errors[ier]
+    if len(errout) == 2:
+        errmsg, err = errout
+    else:
+        err = None
+        errmsg = errout
+    infodict = {&#34;message&#34;: errmsg, &#34;error&#34;: err, &#34;ier&#34;: ier}
+    if ier not in cns.LEASTSQ_SUCCESS:
+        raise RuntimeError(f&#34;Optimal parameters not found: {errmsg}&#34;)
+    return popt, pcov, infodict, errmsg, ier
+
+
+def fit_model(data: pd.DataFrame | Dict, ycol: str = &#34;G&#34;,
+              tM: None | Iterable = None, tm_freq: str = &#34;2h&#34;,
+              curve_fit_kwds: Dict | None = None, **kwds) -&gt; CMAFitResult:
+    &#34;&#34;&#34;use `scipy.optimize.curve_fit` to fit the model to data
+
+    Arguments:
+    ----------
+    - data (pd.DataFrame) : [&#34;t&#34;, &#34;ycol&#34;]
+        &#34;t&#34;      : 24-hour hour of day
+        &#34;&lt;ycol&gt;&#34; : raw egv
+    - ycol (str) : name of output data column
+    - tM (optional) : vector of mealtimes (decimal hours).
+        If unspecified, mealtimes will be estimated (default).
+    &#34;&#34;&#34;
+    #: handle curve_fit_kwds missing
+    if curve_fit_kwds is None:
+        curve_fit_kwds = {}
+
+    #: format data
+    data = format_data(data)
+
+    #: update from keywords
+    default_cf_kwds = {
+        &#34;verbose&#34;: 0,
+        &#34;ftol&#34;: 1e-6,
+        &#34;xtol&#34;: 1e-6,
+        &#34;max_nfev&#34;: data[ycol].size * 500,
+        &#34;check_finite&#34;: True,
+        &#34;absolute_sigma&#34;: False,
+        &#34;x_scale&#34;: [2.0, 0.01, 0.01, 0.1, 0.1, 0.1],
+    }
+    default_cf_kwds.update(curve_fit_kwds)
+    curve_fit_kwds = dict(default_cf_kwds)
+
+    #: get xdata, ydata as float vectors
+    xdata = data[&#34;t&#34;].to_numpy(dtype=float)
+    ydata = data[ycol].to_numpy(dtype=float, na_value=np.nan)
+
+    #: estimate tM if needed
+    if tM is None:
+        tM = estimate_mealtimes(data, ycol, tm_freq=tm_freq, **kwds)
+
+    #: instantiate model
+    cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
+    if curve_fit_kwds.get(&#34;verbose&#34;):
+        print(&#34;taup0=&#34;, cma.taup)
+
+    def fun(p, fvec, args=(), cma=cma):
+        y, pcov, pmu, Niters = args
+        if pmu is not None:
+            pmu[:] = ((p + pmu) / 2.0)[:]
+        if pcov is not None:
+            pcov[:, :] = ((p - pmu)*(p - pmu).T / (Niters + 1))[:, :]
+        d, taup, taug, B, Cm, toff = p
+        cma.update(inplace=True, d=d, taup=taup,
+                   taug=taug, B=B, Cm=Cm, toff=toff)
+        fvec[:] = np.power(y - cma.g_instant, 2)[:]
+        if Niters is not None:
+            Niters[0] = Niters[0] + 1
+
+    #: perform fitting
+    pkeys_include = cma.param_keys
+    p0 = np.array([cma.params[k] for k in pkeys_include])
+    if isinstance(p0[cma.param_keys.index(&#34;taug&#34;)], Container):
+        #: ! ensure we update using a scalar
+        p0[cma.param_keys.index(&#34;taug&#34;)] = 1.0
+    bounds = cma.bounds
+    popt, pcov, infodict, mesg, ier = curve_fit(
+        fun, xdata, ydata, p0=p0, bounds=bounds, full_output=True,
+        **curve_fit_kwds)
+
+    #: informed model (best fit)
+    p0_cma = dict(zip(pkeys_include, popt, strict=True))
+    cma = cma.update(inplace=False, **p0_cma)
+
+    return CMAFitResult(soln=cma.df, cma=cma, popt=popt, pcov=pcov,
+                        infodict=infodict, mesg=mesg, ier=ier,
+                        formatted_data=data)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.curve_fit"><code class="name flex">
+<span>def <span class="ident">curve_fit</span></span>(<span>fun, xdata, ydata, p0=None, bounds=None, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
+              **kwds):
+    ftol = kwds.get(&#39;ftol&#39;, 1.49012e-8)
+    xtol = kwds.get(&#39;xtol&#39;, 1.49012e-8)
+    gtol = kwds.get(&#39;gtol&#39;, 0.0)
+    maxfev = kwds.get(&#39;max_nfev&#39;, 150000)
+    cns = CurveFitNS(xtol, ftol, maxfev, gtol)
+    fvec = np.zeros(len(xdata), dtype=np.float64)
+    p0 = np.array(p0).flatten()
+    pcov = np.eye(len(p0), dtype=np.float64)
+    pmu = np.eye(len(p0), dtype=np.float64)
+    Niters = np.zeros(1, dtype=np.int64)
+    diag = np.ones(len(p0), dtype=np.dtype(&#34;f8&#34;))
+    ier = lmdif(fun, p0, fvec, args=(ydata, pcov, pmu, Niters),
+                xtol=xtol, gtol=gtol, maxfev=maxfev, diag=diag)
+    popt = p0.copy()
+    errout = cns.errors[ier]
+    if len(errout) == 2:
+        errmsg, err = errout
+    else:
+        err = None
+        errmsg = errout
+    infodict = {&#34;message&#34;: errmsg, &#34;error&#34;: err, &#34;ier&#34;: ier}
+    if ier not in cns.LEASTSQ_SUCCESS:
+        raise RuntimeError(f&#34;Optimal parameters not found: {errmsg}&#34;)
+    return popt, pcov, infodict, errmsg, ier</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.estimate_mealtimes"><code class="name flex">
+<span>def <span class="ident">estimate_mealtimes</span></span>(<span>data, ycol: str = 'G', tm_freq: str = '2h', n_meals: int = 4, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def estimate_mealtimes(data, ycol: str = &#39;G&#39;, tm_freq: str = &#34;2h&#34;,
+                       n_meals: int = 4, **kwds):
+    n_meals = int(n_meals)
+    df = data[[&#39;t&#39;, ycol]]
+    if not isinstance(df.index, pd.TimedeltaIndex):
+        df = df.assign(dt=pd.to_timedelta(df[&#34;t&#34;], &#34;H&#34;))
+        df.set_index(&#34;dt&#34;, inplace=True)
+    dfres = df.resample(tm_freq).mean()
+    tM = dfres[ycol].diff().dropna() \
+        .groupby(pd.Grouper(freq=tm_freq)).max() \
+        .sort_values() \
+        .index.to_series().apply(
+        lambda d: dt_to_decimal_hours(d)
+    ).unique()[-n_meals:] - 0.05
+    tM[tM &lt; 0.0] += 23.9999
+    tM[tM &gt; 24.0] -= 23.9999
+    tM.sort()
+    return tM</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.fit_model"><code class="name flex">
+<span>def <span class="ident">fit_model</span></span>(<span>data: Union[Dict, pandas.core.frame.DataFrame], ycol: str = 'G', tM: Optional[None] = None, tm_freq: str = '2h', curve_fit_kwds: Optional[Dict] = None, **kwds) ‑> pfun-cma-model.chalicelib.engine.fit.CMAFitResult</span>
+</code></dt>
+<dd>
+<div class="desc"><p>use <code>scipy.optimize.curve_fit</code> to fit the model to data</p>
+<h2 id="arguments">Arguments:</h2>
+<ul>
+<li>data (pd.DataFrame) : ["t", "ycol"]
+"t"
+: 24-hour hour of day
+"<ycol>" : raw egv</li>
+<li>ycol (str) : name of output data column</li>
+<li>tM (optional) : vector of mealtimes (decimal hours).
+If unspecified, mealtimes will be estimated (default).</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_model(data: pd.DataFrame | Dict, ycol: str = &#34;G&#34;,
+              tM: None | Iterable = None, tm_freq: str = &#34;2h&#34;,
+              curve_fit_kwds: Dict | None = None, **kwds) -&gt; CMAFitResult:
+    &#34;&#34;&#34;use `scipy.optimize.curve_fit` to fit the model to data
+
+    Arguments:
+    ----------
+    - data (pd.DataFrame) : [&#34;t&#34;, &#34;ycol&#34;]
+        &#34;t&#34;      : 24-hour hour of day
+        &#34;&lt;ycol&gt;&#34; : raw egv
+    - ycol (str) : name of output data column
+    - tM (optional) : vector of mealtimes (decimal hours).
+        If unspecified, mealtimes will be estimated (default).
+    &#34;&#34;&#34;
+    #: handle curve_fit_kwds missing
+    if curve_fit_kwds is None:
+        curve_fit_kwds = {}
+
+    #: format data
+    data = format_data(data)
+
+    #: update from keywords
+    default_cf_kwds = {
+        &#34;verbose&#34;: 0,
+        &#34;ftol&#34;: 1e-6,
+        &#34;xtol&#34;: 1e-6,
+        &#34;max_nfev&#34;: data[ycol].size * 500,
+        &#34;check_finite&#34;: True,
+        &#34;absolute_sigma&#34;: False,
+        &#34;x_scale&#34;: [2.0, 0.01, 0.01, 0.1, 0.1, 0.1],
+    }
+    default_cf_kwds.update(curve_fit_kwds)
+    curve_fit_kwds = dict(default_cf_kwds)
+
+    #: get xdata, ydata as float vectors
+    xdata = data[&#34;t&#34;].to_numpy(dtype=float)
+    ydata = data[ycol].to_numpy(dtype=float, na_value=np.nan)
+
+    #: estimate tM if needed
+    if tM is None:
+        tM = estimate_mealtimes(data, ycol, tm_freq=tm_freq, **kwds)
+
+    #: instantiate model
+    cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
+    if curve_fit_kwds.get(&#34;verbose&#34;):
+        print(&#34;taup0=&#34;, cma.taup)
+
+    def fun(p, fvec, args=(), cma=cma):
+        y, pcov, pmu, Niters = args
+        if pmu is not None:
+            pmu[:] = ((p + pmu) / 2.0)[:]
+        if pcov is not None:
+            pcov[:, :] = ((p - pmu)*(p - pmu).T / (Niters + 1))[:, :]
+        d, taup, taug, B, Cm, toff = p
+        cma.update(inplace=True, d=d, taup=taup,
+                   taug=taug, B=B, Cm=Cm, toff=toff)
+        fvec[:] = np.power(y - cma.g_instant, 2)[:]
+        if Niters is not None:
+            Niters[0] = Niters[0] + 1
+
+    #: perform fitting
+    pkeys_include = cma.param_keys
+    p0 = np.array([cma.params[k] for k in pkeys_include])
+    if isinstance(p0[cma.param_keys.index(&#34;taug&#34;)], Container):
+        #: ! ensure we update using a scalar
+        p0[cma.param_keys.index(&#34;taug&#34;)] = 1.0
+    bounds = cma.bounds
+    popt, pcov, infodict, mesg, ier = curve_fit(
+        fun, xdata, ydata, p0=p0, bounds=bounds, full_output=True,
+        **curve_fit_kwds)
+
+    #: informed model (best fit)
+    p0_cma = dict(zip(pkeys_include, popt, strict=True))
+    cma = cma.update(inplace=False, **p0_cma)
+
+    return CMAFitResult(soln=cma.df, cma=cma, popt=popt, pcov=pcov,
+                        infodict=infodict, mesg=mesg, ier=ier,
+                        formatted_data=data)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult"><code class="flex name class">
+<span>class <span class="ident">CMAFitResult</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Usage docs: <a href="https://docs.pydantic.dev/2.2/usage/models/">https://docs.pydantic.dev/2.2/usage/models/</a></p>
+<p>A base class for creating Pydantic models.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>__class_vars__</code></strong></dt>
+<dd>The names of classvars defined on the model.</dd>
+<dt><strong><code>__private_attributes__</code></strong></dt>
+<dd>Metadata about the private attributes of the model.</dd>
+<dt><strong><code>__signature__</code></strong></dt>
+<dd>The signature for instantiating the model.</dd>
+<dt><strong><code>__pydantic_complete__</code></strong></dt>
+<dd>Whether model building is completed, or if there are still undefined fields.</dd>
+<dt><strong><code>__pydantic_core_schema__</code></strong></dt>
+<dd>The pydantic-core schema used to build the SchemaValidator and SchemaSerializer.</dd>
+<dt><strong><code>__pydantic_custom_init__</code></strong></dt>
+<dd>Whether the model has a custom <code>__init__</code> function.</dd>
+<dt><strong><code>__pydantic_decorators__</code></strong></dt>
+<dd>Metadata containing the decorators defined on the model.
+This replaces <code>Model.__validators__</code> and <code>Model.__root_validators__</code> from Pydantic V1.</dd>
+<dt><strong><code>__pydantic_generic_metadata__</code></strong></dt>
+<dd>Metadata for generic models; contains data used for a similar purpose to
+<strong>args</strong>, <strong>origin</strong>, <strong>parameters</strong> in typing-module generics. May eventually be replaced by these.</dd>
+<dt><strong><code>__pydantic_parent_namespace__</code></strong></dt>
+<dd>Parent namespace of the model, used for automatic rebuilding of models.</dd>
+<dt><strong><code>__pydantic_post_init__</code></strong></dt>
+<dd>The name of the post-init method for the model, if defined.</dd>
+<dt><strong><code>__pydantic_root_model__</code></strong></dt>
+<dd>Whether the model is a <code>RootModel</code>.</dd>
+<dt><strong><code>__pydantic_serializer__</code></strong></dt>
+<dd>The pydantic-core SchemaSerializer used to dump instances of the model.</dd>
+<dt><strong><code>__pydantic_validator__</code></strong></dt>
+<dd>The pydantic-core SchemaValidator used to validate instances of the model.</dd>
+<dt><strong><code>__pydantic_extra__</code></strong></dt>
+<dd>An instance attribute with the values of extra fields from validation when
+<code>model_config['extra'] == 'allow'</code>.</dd>
+<dt><strong><code>__pydantic_fields_set__</code></strong></dt>
+<dd>An instance attribute with the names of fields explicitly specified during validation.</dd>
+<dt><strong><code>__pydantic_private__</code></strong></dt>
+<dd>Instance attribute with the values of private attributes set on the model instance.</dd>
+</dl>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<code>ValidationError</code>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><code>__init__</code> uses <code>__pydantic_self__</code> instead of the more common <code>self</code> for the first arg to
+allow <code>self</code> as a field name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
+    model_config = ConfigDict()
+    soln: pd.DataFrame
+    formatted_data: pd.DataFrame
+    cma: Any
+    popt: np.ndarray
+    pcov: np.ndarray
+    infodict: Dict
+    mesg: str
+    ier: int
+
+    def model_dump_json(self, *,
+                        indent=None,
+                        include=None,
+                        exclude=None,
+                        by_alias=False,
+                        exclude_unset=False,
+                        exclude_defaults=False,
+                        exclude_none=False,
+                        round_trip=False,
+                        warnings=True):
+        original_dict = self.__dict__.copy()
+        for key, value in self.__dict__.items():
+            if isinstance(value, pd.DataFrame):
+                self.__dict__[key] = value.to_json()
+            if isinstance(value, np.ndarray):
+                self.__dict__[key] = value.tolist()
+        output = super().model_dump_json(
+            indent=indent, include=include, exclude=exclude,
+            by_alias=by_alias, exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults, exclude_none=exclude_none,
+            round_trip=round_trip, warnings=warnings)
+        self.__dict__.update(original_dict)
+        return output
+
+    @computed_field
+    @property
+    def popt_named(self) -&gt; Dict:
+        return {k: v for k, v in zip(self.cma.param_keys, self.popt, strict=True)}
+
+    @computed_field
+    @property
+    def cond(self) -&gt; float:
+        #: compute the condition number of the covariance matrix
+        #: Note: this should be small if all params are needed
+        #: ref: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit
+        cond = np.linalg.cond(self.pcov)
+        return cond
+
+    @computed_field
+    @property
+    def diag(self) -&gt; np.ndarray:
+        #: compute the diagonal of the covariance matrix
+        #: NOTE: these should be small if all params are needed
+        pcov = self.pcov
+        return np.diag(pcov)
+
+    @field_serializer(&#39;soln&#39;, &#39;formatted_data&#39;)
+    def serialize_dataframe(self, df: pd.DataFrame | Dict, *args) -&gt; dict:
+        if isinstance(df, pd.DataFrame):
+            return pd.json_normalize(df.to_dict()).to_dict()
+        return df
+
+    @field_serializer(&#39;popt&#39;, &#39;pcov&#39;, &#39;diag&#39;)
+    def serialize_numpy_array(self, arr: np.ndarray | list, *args) -&gt; list:
+        if isinstance(arr, np.ndarray):
+            return arr.tolist()
+        return arr
+
+    @field_serializer(&#39;cma&#39;)
+    def serialize_cma(self, cma: Any, _info):
+        return cma.json()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cma"><code class="name">var <span class="ident">cma</span> : Any</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.formatted_data"><code class="name">var <span class="ident">formatted_data</span> : pandas.core.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.ier"><code class="name">var <span class="ident">ier</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.infodict"><code class="name">var <span class="ident">infodict</span> : Dict</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.mesg"><code class="name">var <span class="ident">mesg</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_config"><code class="name">var <span class="ident">model_config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_fields"><code class="name">var <span class="ident">model_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.pcov"><code class="name">var <span class="ident">pcov</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt"><code class="name">var <span class="ident">popt</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.soln"><code class="name">var <span class="ident">soln</span> : pandas.core.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cond"><code class="name">var <span class="ident">cond</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@computed_field
+@property
+def cond(self) -&gt; float:
+    #: compute the condition number of the covariance matrix
+    #: Note: this should be small if all params are needed
+    #: ref: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit
+    cond = np.linalg.cond(self.pcov)
+    return cond</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.diag"><code class="name">var <span class="ident">diag</span> : numpy.ndarray</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@computed_field
+@property
+def diag(self) -&gt; np.ndarray:
+    #: compute the diagonal of the covariance matrix
+    #: NOTE: these should be small if all params are needed
+    pcov = self.pcov
+    return np.diag(pcov)</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt_named"><code class="name">var <span class="ident">popt_named</span> : Dict</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@computed_field
+@property
+def popt_named(self) -&gt; Dict:
+    return {k: v for k, v in zip(self.cma.param_keys, self.popt, strict=True)}</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_dump_json"><code class="name flex">
+<span>def <span class="ident">model_dump_json</span></span>(<span>self, *, indent=None, include=None, exclude=None, by_alias=False, exclude_unset=False, exclude_defaults=False, exclude_none=False, round_trip=False, warnings=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Usage docs: <a href="https://docs.pydantic.dev/2.2/usage/serialization/#modelmodel_dump_json">https://docs.pydantic.dev/2.2/usage/serialization/#modelmodel_dump_json</a></p>
+<p>Generates a JSON representation of the model using Pydantic's <code>to_json</code> method.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>indent</code></strong></dt>
+<dd>Indentation to use in the JSON output. If None is passed, the output will be compact.</dd>
+<dt><strong><code>include</code></strong></dt>
+<dd>Field(s) to include in the JSON output. Can take either a string or set of strings.</dd>
+<dt><strong><code>exclude</code></strong></dt>
+<dd>Field(s) to exclude from the JSON output. Can take either a string or set of strings.</dd>
+<dt><strong><code>by_alias</code></strong></dt>
+<dd>Whether to serialize using field aliases.</dd>
+<dt><strong><code>exclude_unset</code></strong></dt>
+<dd>Whether to exclude fields that have not been explicitly set.</dd>
+<dt><strong><code>exclude_defaults</code></strong></dt>
+<dd>Whether to exclude fields that have the default value.</dd>
+<dt><strong><code>exclude_none</code></strong></dt>
+<dd>Whether to exclude fields that have a value of <code>None</code>.</dd>
+<dt><strong><code>round_trip</code></strong></dt>
+<dd>Whether to use serialization/deserialization between JSON and class instance.</dd>
+<dt><strong><code>warnings</code></strong></dt>
+<dd>Whether to show any warnings that occurred during serialization.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A JSON string representation of the model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def model_dump_json(self, *,
+                    indent=None,
+                    include=None,
+                    exclude=None,
+                    by_alias=False,
+                    exclude_unset=False,
+                    exclude_defaults=False,
+                    exclude_none=False,
+                    round_trip=False,
+                    warnings=True):
+    original_dict = self.__dict__.copy()
+    for key, value in self.__dict__.items():
+        if isinstance(value, pd.DataFrame):
+            self.__dict__[key] = value.to_json()
+        if isinstance(value, np.ndarray):
+            self.__dict__[key] = value.tolist()
+    output = super().model_dump_json(
+        indent=indent, include=include, exclude=exclude,
+        by_alias=by_alias, exclude_unset=exclude_unset,
+        exclude_defaults=exclude_defaults, exclude_none=exclude_none,
+        round_trip=round_trip, warnings=warnings)
+    self.__dict__.update(original_dict)
+    return output</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_cma"><code class="name flex">
+<span>def <span class="ident">serialize_cma</span></span>(<span>self, cma: Any, _info)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@field_serializer(&#39;cma&#39;)
+def serialize_cma(self, cma: Any, _info):
+    return cma.json()</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_dataframe"><code class="name flex">
+<span>def <span class="ident">serialize_dataframe</span></span>(<span>self, df: Union[Dict, pandas.core.frame.DataFrame], *args) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@field_serializer(&#39;soln&#39;, &#39;formatted_data&#39;)
+def serialize_dataframe(self, df: pd.DataFrame | Dict, *args) -&gt; dict:
+    if isinstance(df, pd.DataFrame):
+        return pd.json_normalize(df.to_dict()).to_dict()
+    return df</code></pre>
+</details>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_numpy_array"><code class="name flex">
+<span>def <span class="ident">serialize_numpy_array</span></span>(<span>self, arr: numpy.ndarray | list, *args) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@field_serializer(&#39;popt&#39;, &#39;pcov&#39;, &#39;diag&#39;)
+def serialize_numpy_array(self, arr: np.ndarray | list, *args) -&gt; list:
+    if isinstance(arr, np.ndarray):
+        return arr.tolist()
+    return arr</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CurveFitNS"><code class="flex name class">
+<span>class <span class="ident">CurveFitNS</span></span>
+<span>(</span><span>xtol, ftol, maxfev, gtol)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Curve fit namespace.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CurveFitNS:
+    &#34;&#34;&#34;Curve fit namespace.
+    &#34;&#34;&#34;
+
+    LEASTSQ_SUCCESS = [1, 2, 3, 4]
+    LEASTSQ_FAILURE = [5, 6, 7, 8]
+
+    def __init__(self, xtol, ftol, maxfev, gtol) -&gt; None:
+        self.xtol, self.ftol, self.maxfev, self.gtol = xtol, ftol, maxfev, gtol
+        self.errors = {}
+        self.get_errors()
+
+    def get_errors(self):
+        &#34;&#34;&#34;
+        Get the errors associated with the optimization process.
+
+        Returns:
+            dict: A dictionary containing error codes and their corresponding error messages.
+                  The keys are integer error codes, and the values are lists with two elements.
+                  The first element is a string describing the error, and the second element
+                  is the type of error (TypeError or ValueError). If the error type is None,
+                  it means that the error is not associated with a specific error type.
+        &#34;&#34;&#34;
+        self.errors = {
+            0: [&#34;Improper input parameters.&#34;, TypeError],
+            1: [&#34;Both actual and predicted relative reductions &#34;
+                &#34;in the sum of squares\n  are at most %f&#34; % self.ftol, None],
+            2: [&#34;The relative error between two consecutive &#34;
+                &#34;iterates is at most %f&#34; % self.xtol, None],
+            3: [&#34;Both actual and predicted relative reductions in &#34;
+                &#34;the sum of squares\n  are at most {:f} and the &#34;
+                &#34;relative error between two consecutive &#34;
+                &#34;iterates is at \n  most {:f}&#34;.format(
+                    self.ftol, self.xtol), None],
+            4: [&#34;The cosine of the angle between func(x) and any &#34;
+                &#34;column of the\n  Jacobian is at most %f in &#34;
+                &#34;absolute value&#34; % self.gtol, None],
+            5: [&#34;Number of calls to function has reached &#34;
+                &#34;maxfev = %d.&#34; % self.maxfev, ValueError],
+            6: [&#34;ftol=%f is too small, no further reduction &#34;
+                &#34;in the sum of squares\n  is possible.&#34; % self.ftol,
+                ValueError],
+            7: [&#34;xtol=%f is too small, no further improvement in &#34;
+                &#34;the approximate\n  solution is possible.&#34; % self.xtol,
+                ValueError],
+            8: [&#34;gtol=%f is too small, func(x) is orthogonal to the &#34;
+                &#34;columns of\n  the Jacobian to machine &#34;
+                &#34;precision.&#34; % self.gtol, ValueError]
+        }
+
+        return self.errors</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_FAILURE"><code class="name">var <span class="ident">LEASTSQ_FAILURE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_SUCCESS"><code class="name">var <span class="ident">LEASTSQ_SUCCESS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.get_errors"><code class="name flex">
+<span>def <span class="ident">get_errors</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the errors associated with the optimization process.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary containing error codes and their corresponding error messages.
+The keys are integer error codes, and the values are lists with two elements.
+The first element is a string describing the error, and the second element
+is the type of error (TypeError or ValueError). If the error type is None,
+it means that the error is not associated with a specific error type.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_errors(self):
+    &#34;&#34;&#34;
+    Get the errors associated with the optimization process.
+
+    Returns:
+        dict: A dictionary containing error codes and their corresponding error messages.
+              The keys are integer error codes, and the values are lists with two elements.
+              The first element is a string describing the error, and the second element
+              is the type of error (TypeError or ValueError). If the error type is None,
+              it means that the error is not associated with a specific error type.
+    &#34;&#34;&#34;
+    self.errors = {
+        0: [&#34;Improper input parameters.&#34;, TypeError],
+        1: [&#34;Both actual and predicted relative reductions &#34;
+            &#34;in the sum of squares\n  are at most %f&#34; % self.ftol, None],
+        2: [&#34;The relative error between two consecutive &#34;
+            &#34;iterates is at most %f&#34; % self.xtol, None],
+        3: [&#34;Both actual and predicted relative reductions in &#34;
+            &#34;the sum of squares\n  are at most {:f} and the &#34;
+            &#34;relative error between two consecutive &#34;
+            &#34;iterates is at \n  most {:f}&#34;.format(
+                self.ftol, self.xtol), None],
+        4: [&#34;The cosine of the angle between func(x) and any &#34;
+            &#34;column of the\n  Jacobian is at most %f in &#34;
+            &#34;absolute value&#34; % self.gtol, None],
+        5: [&#34;Number of calls to function has reached &#34;
+            &#34;maxfev = %d.&#34; % self.maxfev, ValueError],
+        6: [&#34;ftol=%f is too small, no further reduction &#34;
+            &#34;in the sum of squares\n  is possible.&#34; % self.ftol,
+            ValueError],
+        7: [&#34;xtol=%f is too small, no further improvement in &#34;
+            &#34;the approximate\n  solution is possible.&#34; % self.xtol,
+            ValueError],
+        8: [&#34;gtol=%f is too small, func(x) is orthogonal to the &#34;
+            &#34;columns of\n  the Jacobian to machine &#34;
+            &#34;precision.&#34; % self.gtol, ValueError]
+    }
+
+    return self.errors</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pfun-cma-model.chalicelib.engine" href="index.html">pfun-cma-model.chalicelib.engine</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.curve_fit" href="#pfun-cma-model.chalicelib.engine.fit.curve_fit">curve_fit</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.estimate_mealtimes" href="#pfun-cma-model.chalicelib.engine.fit.estimate_mealtimes">estimate_mealtimes</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.fit_model" href="#pfun-cma-model.chalicelib.engine.fit.fit_model">fit_model</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult">CMAFitResult</a></code></h4>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cma" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cma">cma</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cond" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.cond">cond</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.diag" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.diag">diag</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.formatted_data" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.formatted_data">formatted_data</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.ier" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.ier">ier</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.infodict" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.infodict">infodict</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.mesg" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.mesg">mesg</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_config" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_config">model_config</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_dump_json" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_dump_json">model_dump_json</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_fields" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.model_fields">model_fields</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.pcov" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.pcov">pcov</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt">popt</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt_named" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.popt_named">popt_named</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_cma" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_cma">serialize_cma</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_dataframe" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_dataframe">serialize_dataframe</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_numpy_array" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.serialize_numpy_array">serialize_numpy_array</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CMAFitResult.soln" href="#pfun-cma-model.chalicelib.engine.fit.CMAFitResult.soln">soln</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.fit.CurveFitNS" href="#pfun-cma-model.chalicelib.engine.fit.CurveFitNS">CurveFitNS</a></code></h4>
+<ul class="">
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_FAILURE" href="#pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_FAILURE">LEASTSQ_FAILURE</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_SUCCESS" href="#pfun-cma-model.chalicelib.engine.fit.CurveFitNS.LEASTSQ_SUCCESS">LEASTSQ_SUCCESS</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.fit.CurveFitNS.get_errors" href="#pfun-cma-model.chalicelib.engine.fit.CurveFitNS.get_errors">get_errors</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

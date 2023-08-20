@@ -19,4 +19,4 @@ RUN apk update && apk upgrade && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     rm -r /root/.cache
 
-CMD ["/bin/bash", "-c", "cd /root/Git/pfun-cma-model && make deploy"]
+CMD ["/bin/bash", "-c", "cd /root/Git/pfun-cma-model && make deploy_local"]

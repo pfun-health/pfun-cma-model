@@ -10,8 +10,4 @@ pytz
 pydantic
 boto3==1.11.0
 scipy==1.11.2
-apispec
-marshmallow
-apispec-chalice @ git+https://github.com/rocapp/apispec-chalice@bugfixes-0.2.3
-apispec[validation]
-apispec[yaml]
+pdoc3

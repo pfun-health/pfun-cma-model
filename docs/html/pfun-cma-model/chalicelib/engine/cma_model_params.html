@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pfun-cma-model.chalicelib.engine.cma_model_params API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pfun-cma-model.chalicelib.engine.cma_model_params</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from pydantic import BaseModel, field_serializer
+from typing import Optional, Tuple, Container, Any
+import numpy as np
+
+
+class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
+    &#34;&#34;&#34;
+    Represents the parameters for a CMA model.
+
+    Args:
+        t (Optional[type], optional): The value of t. Defaults to None.
+        N (int, optional): The value of N. Defaults to 288.
+        d (float, optional): The value of d. Defaults to 0.0.
+        taup (float, optional): The value of taup. Defaults to 1.0.
+        taug (float, optional): The value of taug. Defaults to 1.0.
+        B (float, optional): The value of B. Defaults to 0.05.
+        Cm (float, optional): The value of Cm. Defaults to 0.0.
+        toff (float, optional): The value of toff. Defaults to 0.0.
+        tM (Tuple[float, float, float], optional): The value of tM. Defaults to (7.0, 11.0, 17.5).
+        seed (Optional[int], optional): The value of seed. Defaults to None.
+        eps (float, optional): The value of eps. Defaults to 1e-18.
+    &#34;&#34;&#34;
+    t: Optional[float | Container[float]] = None
+    N: int = 288
+    d: float = 0.0
+    taup: float = 1.0
+    taug: float | Container[float] = 1.0
+    B: float = 0.05
+    Cm: float = 0.0
+    toff: float = 0.0
+    tM: Container[float] | float = (7.0, 11.0, 17.5)
+    seed: Optional[int | float] = None
+    eps: float = 1e-18
+
+    @field_serializer(&#39;t&#39;)
+    def serialize_t(self, value, *args):
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams"><code class="flex name class">
+<span>class <span class="ident">CMAModelParams</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represents the parameters for a CMA model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>t</code></strong> :&ensp;<code>Optional[type]</code>, optional</dt>
+<dd>The value of t. Defaults to None.</dd>
+<dt><strong><code>N</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The value of N. Defaults to 288.</dd>
+<dt><strong><code>d</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of d. Defaults to 0.0.</dd>
+<dt><strong><code>taup</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of taup. Defaults to 1.0.</dd>
+<dt><strong><code>taug</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of taug. Defaults to 1.0.</dd>
+<dt><strong><code>B</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of B. Defaults to 0.05.</dd>
+<dt><strong><code>Cm</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of Cm. Defaults to 0.0.</dd>
+<dt><strong><code>toff</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of toff. Defaults to 0.0.</dd>
+<dt><strong><code>tM</code></strong> :&ensp;<code>Tuple[float, float, float]</code>, optional</dt>
+<dd>The value of tM. Defaults to (7.0, 11.0, 17.5).</dd>
+<dt><strong><code>seed</code></strong> :&ensp;<code>Optional[int]</code>, optional</dt>
+<dd>The value of seed. Defaults to None.</dd>
+<dt><strong><code>eps</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>The value of eps. Defaults to 1e-18.</dd>
+</dl>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<code>ValidationError</code>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><code>__init__</code> uses <code>__pydantic_self__</code> instead of the more common <code>self</code> for the first arg to
+allow <code>self</code> as a field name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
+    &#34;&#34;&#34;
+    Represents the parameters for a CMA model.
+
+    Args:
+        t (Optional[type], optional): The value of t. Defaults to None.
+        N (int, optional): The value of N. Defaults to 288.
+        d (float, optional): The value of d. Defaults to 0.0.
+        taup (float, optional): The value of taup. Defaults to 1.0.
+        taug (float, optional): The value of taug. Defaults to 1.0.
+        B (float, optional): The value of B. Defaults to 0.05.
+        Cm (float, optional): The value of Cm. Defaults to 0.0.
+        toff (float, optional): The value of toff. Defaults to 0.0.
+        tM (Tuple[float, float, float], optional): The value of tM. Defaults to (7.0, 11.0, 17.5).
+        seed (Optional[int], optional): The value of seed. Defaults to None.
+        eps (float, optional): The value of eps. Defaults to 1e-18.
+    &#34;&#34;&#34;
+    t: Optional[float | Container[float]] = None
+    N: int = 288
+    d: float = 0.0
+    taup: float = 1.0
+    taug: float | Container[float] = 1.0
+    B: float = 0.05
+    Cm: float = 0.0
+    toff: float = 0.0
+    tM: Container[float] | float = (7.0, 11.0, 17.5)
+    seed: Optional[int | float] = None
+    eps: float = 1e-18
+
+    @field_serializer(&#39;t&#39;)
+    def serialize_t(self, value, *args):
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.B"><code class="name">var <span class="ident">B</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.Cm"><code class="name">var <span class="ident">Cm</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.N"><code class="name">var <span class="ident">N</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.d"><code class="name">var <span class="ident">d</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.eps"><code class="name">var <span class="ident">eps</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_config"><code class="name">var <span class="ident">model_config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_fields"><code class="name">var <span class="ident">model_fields</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.seed"><code class="name">var <span class="ident">seed</span> : Union[int, float, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.t"><code class="name">var <span class="ident">t</span> : Union[float, Container[float], ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.tM"><code class="name">var <span class="ident">tM</span> : Union[float, Container[float]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taug"><code class="name">var <span class="ident">taug</span> : Union[float, Container[float]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taup"><code class="name">var <span class="ident">taup</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.toff"><code class="name">var <span class="ident">toff</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.serialize_t"><code class="name flex">
+<span>def <span class="ident">serialize_t</span></span>(<span>self, value, *args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@field_serializer(&#39;t&#39;)
+def serialize_t(self, value, *args):
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    return value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pfun-cma-model.chalicelib.engine" href="index.html">pfun-cma-model.chalicelib.engine</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams">CMAModelParams</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.B" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.B">B</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.Cm" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.Cm">Cm</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.N" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.N">N</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.d" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.d">d</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.eps" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.eps">eps</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_config" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_config">model_config</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_fields" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.model_fields">model_fields</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.seed" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.seed">seed</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.serialize_t" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.serialize_t">serialize_t</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.t" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.t">t</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.tM" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.tM">tM</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taug" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taug">taug</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taup" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.taup">taup</a></code></li>
+<li><code><a title="pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.toff" href="#pfun-cma-model.chalicelib.engine.cma_model_params.CMAModelParams.toff">toff</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
