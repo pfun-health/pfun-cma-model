@@ -6,6 +6,7 @@ unset AWS_ENDPOINT_URL
 proxy_secret=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapid-api-proxy-secret --region us-east-1 | jq -r '.SecretString')
 api_key=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapidapi-key --region us-east-1 | jq -r '.SecretString')
 sleep 1s
+api_host="pfun-cma-model-api.p.rapidapi.com"
 
 endpoint=${1:-run}
 set +e
@@ -17,6 +18,7 @@ base_url=${base_url:-${default_url}}
 
 curl --request POST --url ${url} \
 	--header "X-RapidAPI-Proxy-Secret: $proxy_secret" \
+	--header "X-RapidAPI-Host: $api_host" \
 	--header "X-RapidAPI-Key: $api_key" \
 	--header "Content-Type: application/json" \
 	--header "Authorization: Bearer allow" \
