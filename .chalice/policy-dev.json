@@ -1,41 +1,56 @@
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "DefaultLambdaPermissions",
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogStream",
-        "execute-api:ManageConnections",
-        "logs:CreateLogGroup",
-        "logs:PutLogEvents"
-      ],
-      "Resource": ["arn:*:execute-api:*:*:*/@connections/*", "arn:*:logs:*:*:*"]
-    },
-    {
-      "Sid": "GetSecretPFunModel",
-      "Effect": "Allow",
-      "Action": ["secretsmanager:GetSecretValue"],
-      "Resource": [
-        "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1",
-        "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb"
-      ],
-      "Condition": {
-        "ArnEquals": {
-          "secretsmanager:SecretId": [
-            "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1",
-            "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb"
-          ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DefaultLambdaPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "execute-api:ManageConnections",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents",
+                "apigateway:GET",
+                "apigateway:POST",
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:*:execute-api:*:*:*/@connections/*",
+                "arn:*:logs:*:*:*"
+            ]
+        },
+        {
+            "Sid": "GetSecretPFunModel",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": [
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1",
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb"
+            ]
+        },
+        {
+            "Sid": "InvokeLambdaPFunModel",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeFunction",
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-*",
+                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+            ]
+        },
+        {
+            "Sid": "ExecuteAPI",
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:GET",
+                "apigateway:POST"
+            ],
+            "Resource": [
+                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+            ]
         }
-      }
-    },
-    {
-      "Sid": "InvokeLambdaPFunModel",
-      "Effect": "Allow",
-      "Action": ["lambda:InvokeFunction"],
-      "Resource": [
-        "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-*"
-      ]
-    }
-  ]
+    ]
 }

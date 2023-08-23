@@ -3,13 +3,7 @@
     {
       "name": "managed-layer",
       "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:23"
-    },
-    {
-      "name": "run_model_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-run_model",
-      "role_name": "pfun-cma-model-dev-run_model"
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:27"
     },
     {
       "name": "run_model",
@@ -17,21 +11,9 @@
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-run_model"
     },
     {
-      "name": "run_at_time_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-run_at_time",
-      "role_name": "pfun-cma-model-dev-run_at_time"
-    },
-    {
       "name": "run_at_time",
       "resource_type": "lambda_function",
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-run_at_time"
-    },
-    {
-      "name": "fit_model_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-fit_model",
-      "role_name": "pfun-cma-model-dev-fit_model"
     },
     {
       "name": "fit_model",
@@ -39,21 +21,9 @@
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-fit_model"
     },
     {
-      "name": "api_handler_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-api_handler",
-      "role_name": "pfun-cma-model-dev-api_handler"
-    },
-    {
       "name": "api_handler",
       "resource_type": "lambda_function",
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
-    },
-    {
-      "name": "fake_auth_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-fake_auth",
-      "role_name": "pfun-cma-model-dev-fake_auth"
     },
     {
       "name": "fake_auth",
@@ -65,12 +35,6 @@
       "resource_type": "rest_api",
       "rest_api_id": "01f2v7s163",
       "rest_api_url": "https://01f2v7s163.execute-api.us-east-1.amazonaws.com/api/"
-    },
-    {
-      "name": "websocket_message_role",
-      "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-websocket_message",
-      "role_name": "pfun-cma-model-dev-websocket_message"
     },
     {
       "name": "websocket_message",
