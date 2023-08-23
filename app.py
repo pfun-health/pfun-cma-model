@@ -18,7 +18,6 @@ from chalice import (
     Response,
     Chalice,
 )
-from chalice.config import Config
 from chalice.app import Request, AuthRequest
 
 
@@ -64,11 +63,6 @@ cors_config = CORSConfig(
                     'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host']
 )
 app = Chalice(app_name='PFun CMA Model Backend')
-
-config = Config.create(
-    chalice_app=app,
-    iam_role_arn='arn:aws:lambda:us-east-1:860311922912:role:pfun-cma-model-dev'
-)
 
 app.api.cors = cors_config
 app.websocket_api.session = new_boto3_session()
