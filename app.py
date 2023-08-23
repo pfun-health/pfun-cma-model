@@ -192,8 +192,13 @@ def index():
     pypath = '/opt/python/lib/python%s.%s/site-packages' % sys.version_info[:2]
     body = Path(pypath).joinpath('www', 'index.html') \
         .read_text(encoding='utf-8')
+    ROUTES = '\n'.join([
+        f'<li><a class="dropdown-item" href="{route}">{name}</a></li>'
+        for name, route in app.routes.items() if name in PUBLIC_ROUTES
+    ])
     body = body.format(
         SCRIPTS=SCRIPTS,
+        ROUTES=ROUTES
     )
     return Response(
         body=body,
