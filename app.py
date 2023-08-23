@@ -295,7 +295,8 @@ def run_model_with_config(event, context):
     model = CMASleepWakeModel(**model_config)
     df = model.run()
     output = df.to_json()
-    return output
+    return Response(body=output, status_code=200,
+                    headers={'Content-Type': 'application/json'})
 
 
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
