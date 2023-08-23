@@ -21,3 +21,6 @@ services:
       - type: bind
         source: ${HOME}/Git/pfun-cma-model
         target: /root/Git/pfun-cma-model
+      - type: bind
+        source: ${HOME}/Git/minpack
+        target: /root/Git/minpack

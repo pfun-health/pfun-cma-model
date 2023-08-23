@@ -10,6 +10,10 @@ RUN apk update && apk upgrade && \
         bash \
         curl \
         git \
+        meson \
+        pkgconfig \
+        build-base \
+        gfortran \
     && \
     export PATH=/root/.local/bin:/usr/local/bin:/bin:/usr/bin:$PATH && \
     python3 -m ensurepip && \

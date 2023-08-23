@@ -5,9 +5,12 @@
         "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:12"
     ],
     "automatic_layer": true,
+    "api_gateway_stage": "api",
     "stages": {
         "dev": {
-            "api_gateway_stage": "api"
+            "manage_iam_role": true,
+            "autogen_policy": false,
+            "iam_policy_file": "policy-dev.json"
         }
     }
 }

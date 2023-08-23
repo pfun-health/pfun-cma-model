@@ -1,14 +1,18 @@
-deploy: generate-sdk tests deploy_dependencies build_venv prepare_deployment deploy_chalice test_deployment
+deploy: tests deploy_dependencies build_venv prepare_deployment deploy_chalice test_deployment
 
 deploy_dependencies:
 	echo "deploying dependencies layer..."
 	cd ${HOME}/Git/pfun-cma-model-deps && ./deploy.sh
 	sleep 2s
 
-deploy_local: generate-sdk tests build_venv prepare_deployment test_local_deployment
-	/tmp/venv310/bin/chalice local
+deploy_local: build_venv tests prepare_deployment
+	@sleep 1s;
+	@/tmp/venv310/bin/chalice local
+	@sleep 1s;
+	@echo -e '...Success (see above)...deployed locally.'
+	@sleep 1s;
+	@make test_local_deployment
 	sleep 1s;
-	echo -e '...Success (see above)...deployed locally.'
 
 test_local_deployment:
 	sleep 1s;
@@ -18,13 +22,11 @@ test_local_deployment:
 	sleep 1s
 	echo '...Success (see above)...done testing.'
 
-deploy_model: generate-sdk build_venv prepare_deployment deploy_chalice test_deployment
+deploy_model: build_venv generate-sdk prepare_deployment deploy_chalice test_deployment
 	echo -e '...Success (see above)...done deploying.'
 
 build_venv:
 	./scripts/create-venv.sh
-	sleep 1s
-	python -c "from apispec.yaml_utils import load_operations_from_docstring"
 	sleep 1s
 
 prepare_deployment:
@@ -87,9 +89,9 @@ clean:
 docs:
 	pdoc --html .
 
-generate-sdk: clean
+generate-sdk:
 	echo 'generating SDK...'
 	sleep 1s
-	/tmp/venv310/bin/chalice generate-sdk --stage dev --sdk-type javascript ./chalice
+	/tmp/venv310/bin/chalice generate-sdk --sdk-type javascript ./chalicelib/www
 	sleep 1s
 	echo '...generated SDK'

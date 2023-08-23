@@ -5,7 +5,6 @@ import json
 import sys
 from pathlib import Path
 from typing import Dict, Literal
-from botocore.session import Session
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
 import boto3
@@ -18,11 +17,8 @@ from chalice import (
     Response,
 )
 from chalice.app import Request, AuthRequest
-from chalice.awsclient import (
-    TypedAWSClient
-)
 
-LAMBDA_CLIENT = TypedAWSClient(Session())
+LAMBDA_CLIENT = boto3.client('lambda')
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[1]
@@ -35,7 +31,10 @@ for pth in [root_path, ]:
 cors_config = CORSConfig(
     allow_origin='pfun-cma-model-api.p.rapidapi.com',
     allow_headers=['X-RapidAPI-Key',
-                   'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host'],
+                   'X-RapidAPI-Proxy-Secret',
+                   'X-RapidAPI-Host',
+                   'X-API-Key',
+                   'Authorization'],
     allow_credentials=True,
     max_age=300,
     expose_headers=['X-RapidAPI-Key',
@@ -99,8 +98,7 @@ class SecretsWrapper(threading.Thread):
             except ClientError:
                 return False
         with self._secrets_lock:
-            if not test_client(self._secrets_manager) or \
-                    self._secrets_manager is None:
+            if self._secrets_manager is None:
                 self._secrets_manager = \
                     self.session.client('secretsmanager')
             return self._secrets_manager
@@ -191,10 +189,17 @@ def index():
     <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
     <script type="text/javascript" src="apigClient.js"></script>
     '''
+    pypath = '/opt/python/lib/python%s.%s/site-packages' % sys.version_info[:2]
+    body = Path(pypath).joinpath('www', 'index.html') \
+        .read_text(encoding='utf-8')
     body = body.format(
         SCRIPTS=SCRIPTS,
     )
-    return Response(body=body, status_code=200, headers={'Content-Type': 'text/html'})
+    return Response(
+        body=body,
+        status_code=200,
+        headers={'Content-Type': 'text/html'}
+    )
 
 
 @app.route("/routes")
@@ -279,11 +284,11 @@ def run_model_route():
     model_config = get_model_config(app)
     payload = json.dumps(model_config).encode('utf-8')
     response = LAMBDA_CLIENT \
-        .invoke_function(name='run_model', payload=payload)
+        .invoke(FunctionName='run_model', Payload=payload)
     return json.loads(response.get('body', b'[]'))
 
 
-@app.on_ws_message(name="/run-at-time")
+@app.on_ws_message(name="run_at_time")
 def run_at_time_route(event):
     global LAMBDA_CLIENT
     model_config = get_model_config(app)
@@ -294,7 +299,7 @@ def run_at_time_route(event):
     }
     payload = json.dumps(params).encode('utf-8')
     response = LAMBDA_CLIENT \
-        .invoke_function(name='run_at_time', payload=payload)
+        .invoke(FunctionName='run_at_time', Payload=payload)
     lambda_response = response.get('body', b'[]').decode('utf-8')
     app.websocket_api.send(event.connection_id, lambda_response)
 
@@ -342,6 +347,6 @@ def fit_model_route():
     if not authorized:
         return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    response = LAMBDA_CLIENT.invoke_function(
-        name='fit_model', payload=json.dumps(model_config).encode('utf-8'))
+    response = LAMBDA_CLIENT.invoke(
+        FunctionName='fit_model', Payload=json.dumps(model_config).encode('utf-8'))
     return json.loads(response.get('body', b'[]'))
