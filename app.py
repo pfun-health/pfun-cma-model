@@ -189,12 +189,14 @@ def index():
     <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
     <script type="text/javascript" src="apigClient.js"></script>
     '''
-    pypath = '/opt/python/lib/python%s.%s/site-packages' % sys.version_info[:2]
+    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % sys.version_info[:2]
+    if not Path(pypath).exists():
+        pypath = Path(__file__).parent.joinpath("chalicelib")
     body = Path(pypath).joinpath('www', 'index.html') \
         .read_text(encoding='utf-8')
     ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item" href="{route}">{name}</a></li>'
-        for name, route in app.routes.items() if name in PUBLIC_ROUTES
+        f'<li><a class="dropdown-item" href="{name}">{name}</a></li>'
+        for name, _ in app.routes.items() if name in PUBLIC_ROUTES
     ])
     body = body.format(
         SCRIPTS=SCRIPTS,
@@ -209,7 +211,7 @@ def index():
 
 @app.route("/routes")
 def get_routes():
-    routes = json.dumps({k: str(v) for k, v in app.routes.items()
+    routes = json.dumps({k: list(v.keys()) for k, v in app.routes.items()
                          if k in PUBLIC_ROUTES}, indent=4)
     return Response(body=routes, status_code=200)
 
