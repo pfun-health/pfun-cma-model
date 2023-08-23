@@ -7,18 +7,41 @@ from pathlib import Path
 from typing import Dict, Literal
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
+from botocore.session import Session as SessionCore
+from botocore.config import Config as ConfigCore
 import boto3
 import threading
 from chalice import (
     AuthRoute,
-    Chalice,
     CORSConfig,
     AuthResponse,
     Response,
+    Chalice,
 )
+from chalice.config import Config
 from chalice.app import Request, AuthRequest
 
-LAMBDA_CLIENT = boto3.client('lambda')
+
+def new_boto3_session():
+    session_ = boto3.Session()
+    session_.client('iam').attach_role_policy(
+        RoleName='pfun-cma-model-dev',
+        PolicyArn='arn:aws:iam::860311922912:policy/pfun-cma-model-dev'
+    )
+    return session_
+
+
+def new_boto3_client(service_name, session=None, *args, **kwds):
+    config = ConfigCore(
+        region_name='us-east-1',
+    )
+    if session is None:
+        session = new_boto3_session()
+    client_ = session.client(service_name, *args, config=config, **kwds)
+    return client_
+
+
+LAMBDA_CLIENT = new_boto3_client('lambda')
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[1]
@@ -41,8 +64,14 @@ cors_config = CORSConfig(
                     'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host']
 )
 app = Chalice(app_name='PFun CMA Model Backend')
+
+config = Config.create(
+    chalice_app=app,
+    iam_role_arn='arn:aws:lambda:us-east-1:860311922912:role:pfun-cma-model-dev'
+)
+
 app.api.cors = cors_config
-app.websocket_api.session = boto3.Session()
+app.websocket_api.session = new_boto3_session()
 app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
@@ -68,14 +97,14 @@ class SecretsWrapper(threading.Thread):
         self._session: boto3.Session | None = None
 
     def run(self):
-        self.session = boto3.Session()
+        self.session = new_boto3_session()
 
     @property
     def session(self):
         if not self._session:
             with self._secrets_lock:
                 if not self._session:
-                    self._session = boto3.Session()
+                    self._session = new_boto3_session()
         return self._session
 
     @session.setter
@@ -100,7 +129,7 @@ class SecretsWrapper(threading.Thread):
         with self._secrets_lock:
             if self._secrets_manager is None:
                 self._secrets_manager = \
-                    self.session.client('secretsmanager')
+                    new_boto3_client('secretsmanager', session=self.session)
             return self._secrets_manager
 
     def authorize(self, request: Request):

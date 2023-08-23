@@ -10,8 +10,7 @@
                 "logs:CreateLogGroup",
                 "logs:PutLogEvents",
                 "apigateway:GET",
-                "apigateway:POST",
-                "sts:AssumeRole"
+                "apigateway:POST"
             ],
             "Resource": [
                 "arn:*:execute-api:*:*:*/@connections/*",
@@ -25,8 +24,9 @@
                 "secretsmanager:GetSecretValue"
             ],
             "Resource": [
-                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1",
-                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb"
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:*",
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb",
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1"
             ]
         },
         {
@@ -37,8 +37,7 @@
                 "sts:AssumeRole"
             ],
             "Resource": [
-                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-*",
-                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+                "arn:aws:lambda:us-east-1:860311922912:*:*"
             ]
         },
         {
@@ -46,11 +45,20 @@
             "Effect": "Allow",
             "Action": [
                 "apigateway:GET",
-                "apigateway:POST"
+                "apigateway:POST",
+                "execute-api:Invoke"
             ],
             "Resource": [
-                "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+                "arn:aws:execute-api:us-east-1:*:*"
             ]
+        },
+        {
+            "Sid": "Role",
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": "arn:aws:iam::860311922912:role/*"
         }
     ]
 }
