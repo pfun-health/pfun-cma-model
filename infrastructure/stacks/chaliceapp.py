@@ -56,12 +56,22 @@ class ChaliceApp(cdk.Stack):
                 'us-east-1c',
             ]
         )
-        
+
         attach_policy_statement = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
-            actions=['iam:AttachRolePolicy'],
-            resources=['arn:aws:iam::860311922912:role/pfun-cma-model-dev'],
+            actions=[
+                'apigateway:POST',
+                'lambda:CreateFunction',
+                'lambda:CreateAlias',
+                'iam:AttachRolePolicy'
+            ],
+            resources=[
+                'arn:aws:apigateway:*::/*',
+                'arn:aws:lambda:*:*:function:*',
+                'arn:aws:iam::*:role/pfun-cma-model-dev'
+            ],
         )
+
         iam_role = iam.Role(
             self, 'PFunCMAModelRole',
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),)
