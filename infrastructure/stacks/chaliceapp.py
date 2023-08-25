@@ -8,7 +8,13 @@ from aws_cdk import aws_autoscaling as autoscaling
 
 from chalice.cdk import Chalice
 
-
+import sys
+from pathlib import Path
+root_path = Path(__file__).parents[2]
+for pth in [root_path, ]:
+    pth = str(pth)
+    if pth not in sys.path:
+        sys.path.insert(0, pth)
 RUNTIME_SOURCE_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), os.pardir, 'runtime')
 
@@ -32,7 +38,7 @@ class ChaliceApp(cdk.Stack):
 
         launch_configuration = autoscaling.CfnLaunchConfiguration(
             self, "PFunCMAModelLaunchConfiguration",
-            image_id='ami-041c209db5829dfb9',
+            image_id='ami-02675d30b814d1daa',
             instance_type='m5.large',
             # other configuration options
         )

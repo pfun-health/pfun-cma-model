@@ -12,7 +12,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2a04d4dcb312dac157bd709cd5189a8b0af479561c714cd993d9c8add6fe4eb7.zip"
+     "Key": "0cd9b2ab28271b48194ab41add1d9853a2d3d8d7590c8c78b76ae4974d97241a.zip"
     },
     "LayerName": "pfun-cma-model-pfun-cma-model-managed-layer"
    }
@@ -24,7 +24,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -49,7 +49,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -74,7 +74,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -99,7 +99,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -124,7 +124,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -149,7 +149,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -986,7 +986,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+     "Key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
     },
     "Handler": "app.run_at_time_route",
     "Layers": [
@@ -1099,7 +1099,7 @@
   "PFunCMAModelLaunchConfiguration": {
    "Type": "AWS::AutoScaling::LaunchConfiguration",
    "Properties": {
-    "ImageId": "ami-041c209db5829dfb9",
+    "ImageId": "ami-02675d30b814d1daa",
     "InstanceType": "m5.large"
    },
    "Metadata": {
