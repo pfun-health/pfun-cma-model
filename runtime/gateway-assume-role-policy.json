@@ -1,0 +1,19 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:POST",
+                "lambda:CreateFunction",
+                "lambda:CreateAlias",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": [
+                "arn:aws:apigateway:*::/*",
+                "arn:aws:lambda:*:*:function:*",
+                "arn:aws:iam::*:role/pfun-cma-model-dev"
+            ]
+        }
+    ]
+}

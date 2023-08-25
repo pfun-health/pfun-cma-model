@@ -125,7 +125,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -158,7 +158,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -191,7 +191,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -224,7 +224,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -257,7 +257,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -290,7 +290,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -1159,7 +1159,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "635f1e400f4c98996db5e77d45877921eb58fa7e22721fbd873e79d0a1335340.zip"
+                          "key": "cbb38677520470b2b59bd4ec2131437b53bb287d14fd546d9ac05b9db7764280.zip"
                         },
                         "handler": "app.run_at_time_route",
                         "layers": [
@@ -1502,9 +1502,18 @@
                         "policyDocument": {
                           "Statement": [
                             {
-                              "Action": "iam:AttachRolePolicy",
+                              "Action": [
+                                "apigateway:POST",
+                                "lambda:CreateFunction",
+                                "lambda:CreateAlias",
+                                "iam:AttachRolePolicy"
+                              ],
                               "Effect": "Allow",
-                              "Resource": "arn:aws:iam::860311922912:role/pfun-cma-model-dev"
+                              "Resource": [
+                                "arn:aws:apigateway:*::/*",
+                                "arn:aws:lambda:*:*:function:*",
+                                "arn:aws:iam::*:role/pfun-cma-model-dev"
+                              ]
                             }
                           ],
                           "Version": "2012-10-17"

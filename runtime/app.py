@@ -54,7 +54,7 @@ for pth in [root_path, ]:
         sys.path.insert(0, pth)
 
 get_secret_func = importlib.import_module(
-    '.secrets', package='runtime.chalicelib').get_secret_func
+    '.secrets', package='chalicelib').get_secret_func
 
 #: init app, set cors
 cors_config = CORSConfig(
