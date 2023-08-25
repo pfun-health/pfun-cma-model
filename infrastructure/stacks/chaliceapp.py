@@ -43,4 +43,9 @@ class ChaliceApp(cdk.Stack):
             max_size='10',
             desired_capacity='5',
             launch_configuration_name=launch_configuration.ref,
+            availability_zones=[
+                'us-east-1a',
+                'us-east-1b',
+                'us-east-1c',
+            ]
         )

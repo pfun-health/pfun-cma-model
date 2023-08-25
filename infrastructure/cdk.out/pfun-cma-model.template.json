@@ -24,7 +24,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -49,7 +49,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -74,9 +74,34 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.fit_model_to_data",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "Oauth2Dexcom": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
+    },
+    "Handler": "app.oauth2_dexcom",
     "Layers": [
      {
       "Ref": "ManagedLayer"
@@ -99,7 +124,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -124,7 +149,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -689,7 +714,7 @@
         }
        }
       },
-      "/oauth2-dexcom/connect": {
+      "/login-success": {
        "get": {
         "consumes": [
          "application/json"
@@ -718,8 +743,96 @@
          "httpMethod": "POST",
          "contentHandling": "CONVERT_TO_TEXT",
          "type": "aws_proxy"
+        }
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
         },
-        "summary": "Handles the Dexcom login request."
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/login-dexcom": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        }
        },
        "options": {
         "consumes": [
@@ -873,7 +986,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+     "Key": "ce4b8e153d6716b421b762c5dda7ba0612d9c04c814106cb810a34ca82099928.zip"
     },
     "Handler": "app.run_at_time_route",
     "Layers": [
@@ -996,6 +1109,11 @@
   "PFunCMAModelScalingGroup": {
    "Type": "AWS::AutoScaling::AutoScalingGroup",
    "Properties": {
+    "AvailabilityZones": [
+     "us-east-1a",
+     "us-east-1b",
+     "us-east-1c"
+    ],
     "DesiredCapacity": "5",
     "LaunchConfigurationName": {
      "Ref": "PFunCMAModelLaunchConfiguration"

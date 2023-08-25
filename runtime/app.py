@@ -47,14 +47,14 @@ def new_boto3_client(service_name, session=None, *args, **kwds):
 LAMBDA_CLIENT = new_boto3_client('lambda')
 
 #: pfun imports (relative)
-root_path = Path(__file__).parents[1]
+root_path = Path(__file__).parents[2]
 for pth in [root_path, ]:
     pth = str(pth)
     if pth not in sys.path:
         sys.path.insert(0, pth)
 
 get_secret_func = importlib.import_module(
-    '.secrets', package='chalicelib').get_secret_func
+    '.secrets', package='runtime.chalicelib').get_secret_func
 
 #: init app, set cors
 cors_config = CORSConfig(
