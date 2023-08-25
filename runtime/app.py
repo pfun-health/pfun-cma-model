@@ -134,15 +134,18 @@ class SecretsWrapper(threading.Thread):
             return self._secrets_manager
 
     def authorize(self, request: Request):
-        authorized = all([
-            request.headers['Authorization'] == 'Bearer allow',
-            request.headers.get(
-                'X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
-            request.headers.get('X-RapidAPI-Key') ==
-            self.aws_get_rapidapi_key(),
-            request.headers.get('X-RapidAPI-Proxy-Secret') ==
-            self.aws_get_rapidapi_proxy_secret()
-        ]) or request.headers['Host'] == '127.0.0.1'
+        try:
+            authorized = all([
+                request.headers['Authorization'] == 'Bearer allow',
+                request.headers.get(
+                    'X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
+                request.headers.get('X-RapidAPI-Key') ==
+                self.aws_get_rapidapi_key(),
+                request.headers.get('X-RapidAPI-Proxy-Secret') ==
+                self.aws_get_rapidapi_proxy_secret()
+            ])
+        except KeyError:
+            authorized = False
         return authorized
 
     def aws_get_rapidapi_key(self):
