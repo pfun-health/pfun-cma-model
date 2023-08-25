@@ -70,12 +70,15 @@ class ChaliceApp(cdk.Stack):
                 'arn:aws:apigateway:*::/*',
                 'arn:aws:lambda:*:*:function:*',
                 'arn:aws:iam::*:role/pfun-cma-model-dev'
-            ],
+            ]
         )
 
         iam_role = iam.Role(
             self, 'PFunCMAModelRole',
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),)
+        iam_role.grant_assume_role(iam.ServicePrincipal('apigateway.amazonaws.com'))
+        iam_role.grant_assume_role(iam.ServicePrincipal('lambda.amazonaws.com'))
+        iam_role.grant_assume_role(iam.ServicePrincipal('iam.amazonaws.com'))
         iam_role.add_to_policy(attach_policy_statement)
 
         statements = json.loads(
@@ -83,10 +86,6 @@ class ChaliceApp(cdk.Stack):
                 os.path.join(
                     RUNTIME_SOURCE_DIR,
                     'gateway-assume-role-policy.json'), 'r').read())['Statement']
-        handler_role = iam.Role(
-            self, 'pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW',
-            assumed_by=iam.ServicePrincipal('apigateway.amazonaws.com')
-        )
         policy_doc = iam.PolicyDocument(statements=[
             iam.PolicyStatement(
                 actions=statements[0]['Action'],
@@ -94,9 +93,13 @@ class ChaliceApp(cdk.Stack):
                 resources=statements[0]['Resource']
             )
         ])
-        handler_role.attach_inline_policy(
+        apihandler_policy = \
             iam.Policy(
                 self, id='PFunCMAModel-APIHandler-Policy',
                 document=policy_doc, force=True
             )
-        )
+        apihandler_policy.attach_to_role(iam_role)
+
+        iam.CfnRolePolicy(self, 'PFunCMAModel-APIHandler-Policy-Role',
+                          role_name=iam_role.role_name, policy_name=apihandler_policy.policy_name,
+                          policy_document=apihandler_policy.document)
