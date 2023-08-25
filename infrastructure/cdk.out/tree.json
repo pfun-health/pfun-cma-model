@@ -21,7 +21,7 @@
                     "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceAppCode/Stage",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.AssetStaging",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "AssetBucket": {
@@ -29,13 +29,13 @@
                     "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceAppCode/AssetBucket",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_s3.BucketBase",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   }
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
-                  "version": "2.92.0"
+                  "version": "2.93.0"
                 }
               },
               "ChaliceManagedLayer": {
@@ -47,7 +47,7 @@
                     "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceManagedLayer/Stage",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.AssetStaging",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "AssetBucket": {
@@ -55,13 +55,13 @@
                     "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceManagedLayer/AssetBucket",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_s3.BucketBase",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   }
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
-                  "version": "2.92.0"
+                  "version": "2.93.0"
                 }
               },
               "ChaliceApp": {
@@ -112,7 +112,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnLayerVersion",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "RunModel": {
@@ -145,7 +145,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "RunAtTime": {
@@ -178,7 +178,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "FitModel": {
@@ -211,7 +211,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "Oauth2Dexcom": {
@@ -244,7 +244,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "FakeAuth": {
@@ -277,7 +277,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "APIHandler": {
@@ -310,7 +310,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "RestAPI": {
@@ -1087,7 +1087,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnApi",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "APIHandlerInvokePermission": {
@@ -1115,7 +1115,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "FakeAuthInvokePermission": {
@@ -1146,7 +1146,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketMessage": {
@@ -1179,7 +1179,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketAPI": {
@@ -1195,7 +1195,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnApi",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketMessageAPIIntegration": {
@@ -1224,7 +1224,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnIntegration",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketMessageInvokePermission": {
@@ -1252,7 +1252,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketMessageRoute": {
@@ -1280,7 +1280,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnRoute",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketAPIDeployment": {
@@ -1296,7 +1296,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnDeployment",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "WebsocketAPIStage": {
@@ -1316,7 +1316,7 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnStage",
-                      "version": "2.92.0"
+                      "version": "2.93.0"
                     }
                   },
                   "$Hooks": {
@@ -1336,7 +1336,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "APIHandlerName": {
@@ -1344,7 +1344,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "APIHandlerArn": {
@@ -1352,7 +1352,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "EndpointURL": {
@@ -1360,7 +1360,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "WebsocketAPIId": {
@@ -1368,7 +1368,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "WebsocketMessageHandlerArn": {
@@ -1376,7 +1376,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "WebsocketMessageHandlerName": {
@@ -1384,7 +1384,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       },
                       "WebsocketConnectEndpointURL": {
@@ -1392,7 +1392,7 @@
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
-                          "version": "2.92.0"
+                          "version": "2.93.0"
                         }
                       }
                     },
@@ -1404,7 +1404,7 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.cloudformation_include.CfnInclude",
-                  "version": "2.92.0"
+                  "version": "2.93.0"
                 }
               }
             },
@@ -1425,7 +1425,7 @@
             },
             "constructInfo": {
               "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
-              "version": "2.92.0"
+              "version": "2.93.0"
             }
           },
           "PFunCMAModelScalingGroup": {
@@ -1449,7 +1449,89 @@
             },
             "constructInfo": {
               "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
-              "version": "2.92.0"
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelRole": {
+            "id": "PFunCMAModelRole",
+            "path": "pfun-cma-model/PFunCMAModelRole",
+            "children": {
+              "ImportPFunCMAModelRole": {
+                "id": "ImportPFunCMAModelRole",
+                "path": "pfun-cma-model/PFunCMAModelRole/ImportPFunCMAModelRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.93.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunCMAModelRole/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.93.0"
+                }
+              },
+              "DefaultPolicy": {
+                "id": "DefaultPolicy",
+                "path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "iam:AttachRolePolicy",
+                              "Effect": "Allow",
+                              "Resource": "arn:aws:iam::860311922912:role/pfun-cma-model-dev"
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "PFunCMAModelRoleDefaultPolicy0E341EE9",
+                        "roles": [
+                          {
+                            "Ref": "PFunCMAModelRole4C9342EE"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.93.0"
             }
           },
           "CDKMetadata": {
@@ -1461,7 +1543,7 @@
                 "path": "pfun-cma-model/CDKMetadata/Default",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnResource",
-                  "version": "2.92.0"
+                  "version": "2.93.0"
                 }
               },
               "Condition": {
@@ -1469,7 +1551,7 @@
                 "path": "pfun-cma-model/CDKMetadata/Condition",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnCondition",
-                  "version": "2.92.0"
+                  "version": "2.93.0"
                 }
               }
             },
@@ -1483,7 +1565,7 @@
             "path": "pfun-cma-model/BootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnParameter",
-              "version": "2.92.0"
+              "version": "2.93.0"
             }
           },
           "CheckBootstrapVersion": {
@@ -1491,13 +1573,13 @@
             "path": "pfun-cma-model/CheckBootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnRule",
-              "version": "2.92.0"
+              "version": "2.93.0"
             }
           }
         },
         "constructInfo": {
           "fqn": "aws-cdk-lib.Stack",
-          "version": "2.92.0"
+          "version": "2.93.0"
         }
       },
       "Tree": {
@@ -1511,7 +1593,7 @@
     },
     "constructInfo": {
       "fqn": "aws-cdk-lib.App",
-      "version": "2.92.0"
+      "version": "2.93.0"
     }
   }
 }

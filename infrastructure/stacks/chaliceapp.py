@@ -5,6 +5,7 @@ try:
 except ImportError:
     import aws_cdk as cdk
 from aws_cdk import aws_autoscaling as autoscaling
+from aws_cdk import aws_iam as iam
 
 from chalice.cdk import Chalice
 
@@ -55,3 +56,12 @@ class ChaliceApp(cdk.Stack):
                 'us-east-1c',
             ]
         )
+        
+        attach_policy_statement = iam.PolicyStatement(
+            actions=['iam:AttachRolePolicy'],
+            resources=['arn:aws:iam::860311922912:role/pfun-cma-model-dev']
+        )
+        iam_role = iam.Role(
+            self, 'PFunCMAModelRole',
+            assumed_by=iam.User(self, 'arn:aws:sts::860311922912:assumed-role/pfun-cma-model-APIHandlerRole-TGB2YFHB5LXH/pfun-cma-model-APIHandler-kKTXKXPERAYR'),)
+        iam_role.add_to_policy(attach_policy_statement)

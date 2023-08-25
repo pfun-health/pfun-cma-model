@@ -1125,10 +1125,54 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelScalingGroup"
    }
   },
+  "PFunCMAModelRole4C9342EE": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelRole/Resource"
+   }
+  },
+  "PFunCMAModelRoleDefaultPolicy0E341EE9": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "iam:AttachRolePolicy",
+       "Effect": "Allow",
+       "Resource": "arn:aws:iam::860311922912:role/pfun-cma-model-dev"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PFunCMAModelRoleDefaultPolicy0E341EE9",
+    "Roles": [
+     {
+      "Ref": "PFunCMAModelRole4C9342EE"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0VPTWvDMAz9Lb27Xpecekw7NgaDlRR2DaqjpF4cO1jWSgj577Pdjp2kJ96XCrkv5G4DN9qqdtgafZHLOYAaRDw1C5UNEGEgWaUhqJQHVgOGAxAKglEux85+wIz+Cz1pZ0XEr2xVeOzVpFdhYLy0ICM8oR81ZSJMuoeAN5h/imwTqUnxbgP2Hv4MascB0/KCk3HziDYkFEv2uArg4EiB0bZ/VInZ16Ozne7536SKtPOd9uYdT+sq8kPJJd6EMo7bzvkxKxptleEWZW6T12TyyWHiHF4jOfYqX2NWq5NqFac5XJ19KuXzTu4336T11rMNekRZ3+cvmxL3Vm8BAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/01Py27CMBD8Fu7GpeTEMVAVVapUFKRe0eIsYYtjR951URTl32snVO1pZ6x5ea03hV4t4M5LU9+Wls56OAqYm0pPp4GLEzCjsC7zUVzobTQ3lC0wKoZWD7uLe4cewycGJu9U4q/RGXngsqNRWWjPNehEDxha4kkIHTUgeIf+ez3FJGl2vDnBJsBvQOWjYAYv2Fnft+gkszSywVFBFM8GLLnmMSV1X3feXaiJfyFlkh1n2T742I2K8vbKW5w70j14S6bPdEbjqKZP56bkU8b6WF98aKfUEzljY416WjzBbP2I0kVRFbKPwczh/3AaVlO2j+rQy9W7p0I/r/Rm8cVEyxCdUIu6mu8PJl6q6JwBAAA="
    },
    "Metadata": {
     "aws:cdk:path": "pfun-cma-model/CDKMetadata/Default"

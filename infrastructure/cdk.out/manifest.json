@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/76ae89ae58f2134424aeebe497ba7442ed2a41dfcb6a71c9e00ea8ba30245df9.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b9e8675de0184b6b65ecae88dfd6166de3179800181e0dd39b24921243bb9860.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -199,6 +199,18 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunCMAModelScalingGroup"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelRole4C9342EE"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelRoleDefaultPolicy0E341EE9"
           }
         ],
         "/pfun-cma-model/CDKMetadata/Default": [
