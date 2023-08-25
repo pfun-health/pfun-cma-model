@@ -1178,6 +1178,59 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource"
    }
   },
+  "pfuncmamodelAPIHandlerRole11YV5DY5SH4FW21B01B7F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW/Resource"
+   }
+  },
+  "PFunCMAModelAPIHandlerPolicy469B3EE0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "apigateway:POST",
+        "lambda:CreateFunction",
+        "lambda:CreateAlias",
+        "iam:AttachRolePolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:apigateway:*::/*",
+        "arn:aws:lambda:*:*:function:*",
+        "arn:aws:iam::*:role/pfun-cma-model-dev"
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
+    "Roles": [
+     {
+      "Ref": "pfuncmamodelAPIHandlerRole11YV5DY5SH4FW21B01B7F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy/Resource"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {

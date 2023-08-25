@@ -1,3 +1,4 @@
+import json
 import os
 
 try:
@@ -76,3 +77,26 @@ class ChaliceApp(cdk.Stack):
             self, 'PFunCMAModelRole',
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),)
         iam_role.add_to_policy(attach_policy_statement)
+
+        statements = json.loads(
+            open(
+                os.path.join(
+                    RUNTIME_SOURCE_DIR,
+                    'gateway-assume-role-policy.json'), 'r').read())['Statement']
+        handler_role = iam.Role(
+            self, 'pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW',
+            assumed_by=iam.ServicePrincipal('apigateway.amazonaws.com')
+        )
+        policy_doc = iam.PolicyDocument(statements=[
+            iam.PolicyStatement(
+                actions=statements[0]['Action'],
+                effect=iam.Effect.ALLOW if statements[0]['Effect'] == 'Allow' else iam.Effect.DENY,
+                resources=statements[0]['Resource']
+            )
+        ])
+        handler_role.attach_inline_policy(
+            iam.Policy(
+                self, id='PFunCMAModel-APIHandler-Policy',
+                document=policy_doc, force=True
+            )
+        )

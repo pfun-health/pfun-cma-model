@@ -1543,6 +1543,97 @@
               "version": "2.93.0"
             }
           },
+          "pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW": {
+            "id": "pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW",
+            "path": "pfun-cma-model/pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW",
+            "children": {
+              "Importpfun-cma-model-APIHandlerRole-11YV5DY5SH4FW": {
+                "id": "Importpfun-cma-model-APIHandlerRole-11YV5DY5SH4FW",
+                "path": "pfun-cma-model/pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW/Importpfun-cma-model-APIHandlerRole-11YV5DY5SH4FW",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.93.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "apigateway.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModel-APIHandler-Policy": {
+            "id": "PFunCMAModel-APIHandler-Policy",
+            "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                  "aws:cdk:cloudformation:props": {
+                    "policyDocument": {
+                      "Statement": [
+                        {
+                          "Action": [
+                            "apigateway:POST",
+                            "lambda:CreateFunction",
+                            "lambda:CreateAlias",
+                            "iam:AttachRolePolicy"
+                          ],
+                          "Effect": "Allow",
+                          "Resource": [
+                            "arn:aws:apigateway:*::/*",
+                            "arn:aws:lambda:*:*:function:*",
+                            "arn:aws:iam::*:role/pfun-cma-model-dev"
+                          ]
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    },
+                    "policyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
+                    "roles": [
+                      {
+                        "Ref": "pfuncmamodelAPIHandlerRole11YV5DY5SH4FW21B01B7F"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Policy",
+              "version": "2.93.0"
+            }
+          },
           "CDKMetadata": {
             "id": "CDKMetadata",
             "path": "pfun-cma-model/CDKMetadata",
@@ -1580,6 +1671,213 @@
           "CheckBootstrapVersion": {
             "id": "CheckBootstrapVersion",
             "path": "pfun-cma-model/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.93.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.93.0"
+        }
+      },
+      "PFunCMAEndpointDistribution": {
+        "id": "PFunCMAEndpointDistribution",
+        "path": "PFunCMAEndpointDistribution",
+        "children": {
+          "44cae873-0fb0-44cf-8679-9534ba12b25b": {
+            "id": "44cae873-0fb0-44cf-8679-9534ba12b25b",
+            "path": "PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CertificateManager::Certificate",
+                  "aws:cdk:cloudformation:props": {
+                    "domainName": "dev.pfun.app",
+                    "domainValidationOptions": [
+                      {
+                        "domainName": "dev.pfun.app",
+                        "validationDomain": "pfun.app"
+                      }
+                    ],
+                    "tags": [
+                      {
+                        "key": "Name",
+                        "value": "dev.pfun.app"
+                      }
+                    ],
+                    "validationMethod": "EMAIL"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_certificatemanager.CfnCertificate",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_certificatemanager.Certificate",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAEndpointDistribution": {
+            "id": "PFunCMAEndpointDistribution",
+            "path": "PFunCMAEndpointDistribution/PFunCMAEndpointDistribution",
+            "children": {
+              "CFDistribution": {
+                "id": "CFDistribution",
+                "path": "PFunCMAEndpointDistribution/PFunCMAEndpointDistribution/CFDistribution",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::CloudFront::Distribution",
+                  "aws:cdk:cloudformation:props": {
+                    "distributionConfig": {
+                      "enabled": true,
+                      "defaultRootObject": "index.html",
+                      "httpVersion": "http2",
+                      "priceClass": "PriceClass_100",
+                      "ipv6Enabled": true,
+                      "origins": [
+                        {
+                          "id": "origin1",
+                          "domainName": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "pfun-cma-model.",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ".amazonaws.com"
+                              ]
+                            ]
+                          },
+                          "customOriginConfig": {
+                            "httpPort": 80,
+                            "httpsPort": 443,
+                            "originKeepaliveTimeout": 5,
+                            "originReadTimeout": 30,
+                            "originProtocolPolicy": "https-only",
+                            "originSslProtocols": [
+                              "TLSv1.2"
+                            ]
+                          },
+                          "connectionAttempts": 3,
+                          "connectionTimeout": 10
+                        }
+                      ],
+                      "defaultCacheBehavior": {
+                        "allowedMethods": [
+                          "GET",
+                          "HEAD"
+                        ],
+                        "cachedMethods": [
+                          "GET",
+                          "HEAD"
+                        ],
+                        "compress": true,
+                        "forwardedValues": {
+                          "queryString": false,
+                          "cookies": {
+                            "forward": "none"
+                          }
+                        },
+                        "targetOriginId": "origin1",
+                        "viewerProtocolPolicy": "redirect-to-https"
+                      },
+                      "cacheBehaviors": [
+                        {
+                          "allowedMethods": [
+                            "GET",
+                            "HEAD"
+                          ],
+                          "cachedMethods": [
+                            "GET",
+                            "HEAD"
+                          ],
+                          "compress": true,
+                          "forwardedValues": {
+                            "queryString": false,
+                            "cookies": {
+                              "forward": "none"
+                            }
+                          },
+                          "targetOriginId": "origin1",
+                          "viewerProtocolPolicy": "redirect-to-https",
+                          "pathPattern": "/*"
+                        }
+                      ],
+                      "aliases": [
+                        "dev.pfun.app"
+                      ],
+                      "viewerCertificate": {
+                        "acmCertificateArn": {
+                          "Ref": "44cae8730fb044cf86799534ba12b25b2AAE2826"
+                        },
+                        "sslSupportMethod": "sni-only",
+                        "minimumProtocolVersion": "TLSv1"
+                      }
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudfront.CfnDistribution",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudfront.CloudFrontWebDistribution",
+              "version": "2.93.0"
+            }
+          },
+          "DistributionDomainName": {
+            "id": "DistributionDomainName",
+            "path": "PFunCMAEndpointDistribution/DistributionDomainName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.93.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "PFunCMAEndpointDistribution/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "PFunCMAEndpointDistribution/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.93.0"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "PFunCMAEndpointDistribution/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnCondition",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "PFunCMAEndpointDistribution/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.93.0"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "PFunCMAEndpointDistribution/CheckBootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnRule",
               "version": "2.93.0"

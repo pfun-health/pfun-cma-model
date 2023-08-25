@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/43b5b3cb6c12d8c1832dc15be8259ee8dccb829682e681e3ccb25d4627adea71.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e88679b4e6f92186c5c6a0baa07d6857da0aafd72e9d6dff8927af06bfbfc159.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -213,6 +213,18 @@
             "data": "PFunCMAModelRoleDefaultPolicy0E341EE9"
           }
         ],
+        "/pfun-cma-model/pfun-cma-model-APIHandlerRole-11YV5DY5SH4FW/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "pfuncmamodelAPIHandlerRole11YV5DY5SH4FW21B01B7F"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModel-APIHandler-Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIHandlerPolicy469B3EE0"
+          }
+        ],
         "/pfun-cma-model/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
@@ -239,6 +251,83 @@
         ]
       },
       "displayName": "pfun-cma-model"
+    },
+    "PFunCMAEndpointDistribution.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "PFunCMAEndpointDistribution.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "PFunCMAEndpointDistribution": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "PFunCMAEndpointDistribution.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1b996b91233fea33e9a917f02e8e369572aaad44f0674702e9ee8e2d48b172fa.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "PFunCMAEndpointDistribution.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "PFunCMAEndpointDistribution.assets"
+      ],
+      "metadata": {
+        "/PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "44cae8730fb044cf86799534ba12b25b2AAE2826"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/PFunCMAEndpointDistribution/CFDistribution": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAEndpointDistributionCFDistribution35384641"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/DistributionDomainName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DistributionDomainName"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/PFunCMAEndpointDistribution/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "PFunCMAEndpointDistribution"
     },
     "Tree": {
       "type": "cdk:tree",

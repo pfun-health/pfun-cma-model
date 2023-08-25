@@ -35,9 +35,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "summary": "A function that returns a message containing the welcome message and ",
-                "description": "the routes of the PFun CMA Model API.\n\nReturns:\n    dict: A dictionary containing the welcome message and the routes of\n    the API."
+                }
             },
             "options": {
                 "consumes": [
@@ -61,6 +59,15 @@
                             },
                             "Access-Control-Allow-Headers": {
                                 "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
                             }
                         }
                     }
@@ -71,8 +78,98 @@
                             "statusCode": "200",
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                            }
+                        }
+                    },
+                    "requestTemplates": {
+                        "application/json": "{\"statusCode\": 200}"
+                    },
+                    "passthroughBehavior": "when_no_match",
+                    "type": "mock",
+                    "contentHandling": "CONVERT_TO_TEXT"
+                }
+            }
+        },
+        "/routes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "200 response",
+                        "schema": {
+                            "$ref": "#/definitions/Empty"
+                        }
+                    }
+                },
+                "x-amazon-apigateway-integration": {
+                    "responses": {
+                        "default": {
+                            "statusCode": "200"
+                        }
+                    },
+                    "uri": "arn:{partition}:apigateway:{region_name}:lambda:path/2015-03-31/functions/{api_handler_lambda_arn}/invocations",
+                    "passthroughBehavior": "when_no_match",
+                    "httpMethod": "POST",
+                    "contentHandling": "CONVERT_TO_TEXT",
+                    "type": "aws_proxy"
+                }
+            },
+            "options": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "200 response",
+                        "schema": {
+                            "$ref": "#/definitions/Empty"
+                        },
+                        "headers": {
+                            "Access-Control-Allow-Methods": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "x-amazon-apigateway-integration": {
+                    "responses": {
+                        "default": {
+                            "statusCode": "200",
+                            "responseParameters": {
+                                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
                         }
                     },
@@ -174,6 +271,15 @@
                             },
                             "Access-Control-Allow-Headers": {
                                 "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
                             }
                         }
                     }
@@ -184,8 +290,11 @@
                             "statusCode": "200",
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
                         }
                     },
@@ -226,6 +335,8 @@
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
                 },
+                "summary": "A function that returns a message containing the welcome message and the",
+                "description": "routes of the PFun CMA Model API.",
                 "security": [
                     {
                         "fake_auth": []
@@ -259,6 +370,8 @@
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
                 },
+                "summary": "A function that returns a message containing the welcome message and the",
+                "description": "routes of the PFun CMA Model API.",
                 "security": [
                     {
                         "fake_auth": []
@@ -287,118 +400,14 @@
                             },
                             "Access-Control-Allow-Headers": {
                                 "type": "string"
-                            }
-                        }
-                    }
-                },
-                "x-amazon-apigateway-integration": {
-                    "responses": {
-                        "default": {
-                            "statusCode": "200",
-                            "responseParameters": {
-                                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
-                            }
-                        }
-                    },
-                    "requestTemplates": {
-                        "application/json": "{\"statusCode\": 200}"
-                    },
-                    "passthroughBehavior": "when_no_match",
-                    "type": "mock",
-                    "contentHandling": "CONVERT_TO_TEXT"
-                }
-            }
-        },
-        "/run-at-time": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "200 response",
-                        "schema": {
-                            "$ref": "#/definitions/Empty"
-                        }
-                    }
-                },
-                "x-amazon-apigateway-integration": {
-                    "responses": {
-                        "default": {
-                            "statusCode": "200"
-                        }
-                    },
-                    "uri": "arn:{partition}:apigateway:{region_name}:lambda:path/2015-03-31/functions/{api_handler_lambda_arn}/invocations",
-                    "passthroughBehavior": "when_no_match",
-                    "httpMethod": "POST",
-                    "contentHandling": "CONVERT_TO_TEXT",
-                    "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "200 response",
-                        "schema": {
-                            "$ref": "#/definitions/Empty"
-                        }
-                    }
-                },
-                "x-amazon-apigateway-integration": {
-                    "responses": {
-                        "default": {
-                            "statusCode": "200"
-                        }
-                    },
-                    "uri": "arn:{partition}:apigateway:{region_name}:lambda:path/2015-03-31/functions/{api_handler_lambda_arn}/invocations",
-                    "passthroughBehavior": "when_no_match",
-                    "httpMethod": "POST",
-                    "contentHandling": "CONVERT_TO_TEXT",
-                    "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
-            },
-            "options": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "200 response",
-                        "schema": {
-                            "$ref": "#/definitions/Empty"
-                        },
-                        "headers": {
-                            "Access-Control-Allow-Methods": {
+                            },
+                            "Access-Control-Expose-Headers": {
                                 "type": "string"
                             },
-                            "Access-Control-Allow-Origin": {
+                            "Access-Control-Max-Age": {
                                 "type": "string"
                             },
-                            "Access-Control-Allow-Headers": {
+                            "Access-Control-Allow-Credentials": {
                                 "type": "string"
                             }
                         }
@@ -410,8 +419,11 @@
                             "statusCode": "200",
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
                         }
                     },
@@ -480,6 +492,15 @@
                             },
                             "Access-Control-Allow-Headers": {
                                 "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
                             }
                         }
                     }
@@ -490,8 +511,11 @@
                             "statusCode": "200",
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
                         }
                     },
@@ -504,7 +528,7 @@
                 }
             }
         },
-        "/openapi.json": {
+        "/login-success": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -531,9 +555,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "summary": "A function that serves the OpenAPI JSON file.",
-                "description": "Parameters:\n- None\n\nReturns:\n- A dictionary object representing the OpenAPI JSON file."
+                }
             },
             "options": {
                 "consumes": [
@@ -557,6 +579,15 @@
                             },
                             "Access-Control-Allow-Headers": {
                                 "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
                             }
                         }
                     }
@@ -567,8 +598,98 @@
                             "statusCode": "200",
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                            }
+                        }
+                    },
+                    "requestTemplates": {
+                        "application/json": "{\"statusCode\": 200}"
+                    },
+                    "passthroughBehavior": "when_no_match",
+                    "type": "mock",
+                    "contentHandling": "CONVERT_TO_TEXT"
+                }
+            }
+        },
+        "/login-dexcom": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "200 response",
+                        "schema": {
+                            "$ref": "#/definitions/Empty"
+                        }
+                    }
+                },
+                "x-amazon-apigateway-integration": {
+                    "responses": {
+                        "default": {
+                            "statusCode": "200"
+                        }
+                    },
+                    "uri": "arn:{partition}:apigateway:{region_name}:lambda:path/2015-03-31/functions/{api_handler_lambda_arn}/invocations",
+                    "passthroughBehavior": "when_no_match",
+                    "httpMethod": "POST",
+                    "contentHandling": "CONVERT_TO_TEXT",
+                    "type": "aws_proxy"
+                }
+            },
+            "options": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "200 response",
+                        "schema": {
+                            "$ref": "#/definitions/Empty"
+                        },
+                        "headers": {
+                            "Access-Control-Allow-Methods": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Max-Age": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "x-amazon-apigateway-integration": {
+                    "responses": {
+                        "default": {
+                            "statusCode": "200",
+                            "responseParameters": {
+                                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                "method.response.header.Access-Control-Max-Age": "'300'",
+                                "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
                         }
                     },
