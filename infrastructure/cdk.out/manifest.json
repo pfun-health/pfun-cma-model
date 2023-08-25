@@ -1,0 +1,232 @@
+{
+  "version": "33.0.0",
+  "artifacts": {
+    "pfun-cma-model.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "pfun-cma-model.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "pfun-cma-model": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "pfun-cma-model.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/223cc852e5b21c7545252e1a664212f0148cc7f9aec5fc2dd0cb2cec7b7e6702.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "pfun-cma-model.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "pfun-cma-model.assets"
+      ],
+      "metadata": {
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelChaliceAppD89E4244"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ManagedLayer"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunModel": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RunModel"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RunAtTime"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FitModel": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FitModel"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FakeAuth"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandler"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RestAPI": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RestAPI"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerInvokePermission"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FakeAuthInvokePermission"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessage"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPI"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageAPIIntegration"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageInvokePermission"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageRoute"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIDeployment"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIStage"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RestAPIId"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerName"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerArn"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EndpointURL"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIId"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageHandlerArn"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageHandlerName"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectEndpointURL"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelLaunchConfiguration": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLaunchConfiguration"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelScalingGroup": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelScalingGroup"
+          }
+        ],
+        "/pfun-cma-model/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/pfun-cma-model/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/pfun-cma-model/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/pfun-cma-model/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "pfun-cma-model"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

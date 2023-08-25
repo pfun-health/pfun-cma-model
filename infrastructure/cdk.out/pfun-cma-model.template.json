@@ -1,0 +1,1297 @@
+{
+ "Transform": "AWS::Serverless-2016-10-31",
+ "AWSTemplateFormatVersion": "2010-09-09",
+ "Resources": {
+  "ManagedLayer": {
+   "Type": "AWS::Serverless::LayerVersion",
+   "Properties": {
+    "CompatibleRuntimes": [
+     "python3.10"
+    ],
+    "ContentUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2a04d4dcb312dac157bd709cd5189a8b0af479561c714cd993d9c8add6fe4eb7.zip"
+    },
+    "LayerName": "pfun-cma-model-pfun-cma-model-managed-layer"
+   }
+  },
+  "RunModel": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.run_model_with_config",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "RunAtTime": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.run_at_time",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "FitModel": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.fit_model_to_data",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "FakeAuth": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.fake_auth",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "APIHandler": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.app",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "RestAPI": {
+   "Type": "AWS::Serverless::Api",
+   "Properties": {
+    "DefinitionBody": {
+     "swagger": "2.0",
+     "info": {
+      "version": "1.0",
+      "title": "PFun CMA Model Backend"
+     },
+     "schemes": [
+      "https"
+     ],
+     "paths": {
+      "/": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        }
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/routes": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        }
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/log": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "post": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/run": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "summary": "A function that returns a message containing the welcome message and the",
+        "description": "routes of the PFun CMA Model API.",
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "post": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "summary": "A function that returns a message containing the welcome message and the",
+        "description": "routes of the PFun CMA Model API.",
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/fit": {
+       "post": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/oauth2-dexcom/connect": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "summary": "Handles the Dexcom login request."
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      }
+     },
+     "definitions": {
+      "Empty": {
+       "type": "object",
+       "title": "Empty Schema"
+      }
+     },
+     "x-amazon-apigateway-binary-media-types": [
+      "application/octet-stream",
+      "application/x-tar",
+      "application/zip",
+      "audio/basic",
+      "audio/ogg",
+      "audio/mp4",
+      "audio/mpeg",
+      "audio/wav",
+      "audio/webm",
+      "image/png",
+      "image/jpg",
+      "image/jpeg",
+      "image/gif",
+      "video/ogg",
+      "video/mpeg",
+      "video/webm"
+     ],
+     "securityDefinitions": {
+      "fake_auth": {
+       "in": "header",
+       "type": "apiKey",
+       "name": "Authorization",
+       "x-amazon-apigateway-authtype": "custom",
+       "x-amazon-apigateway-authorizer": {
+        "type": "token",
+        "authorizerUri": {
+         "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FakeAuth.Arn}/invocations"
+        }
+       }
+      }
+     }
+    },
+    "EndpointConfiguration": "EDGE",
+    "StageName": "api"
+   }
+  },
+  "APIHandlerInvokePermission": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "APIHandler"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*",
+      {
+       "RestAPIId": {
+        "Ref": "RestAPI"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "FakeAuthInvokePermission": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "FakeAuth",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*",
+      {
+       "RestAPIId": {
+        "Ref": "RestAPI"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "WebsocketMessage": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+    },
+    "Handler": "app.run_at_time_route",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
+  "WebsocketAPI": {
+   "Type": "AWS::ApiGatewayV2::Api",
+   "Properties": {
+    "Name": "pfun-cma-model-pfun-cma-model-websocket-api",
+    "ProtocolType": "WEBSOCKET",
+    "RouteSelectionExpression": "$request.body.action"
+   }
+  },
+  "WebsocketMessageAPIIntegration": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    },
+    "ConnectionType": "INTERNET",
+    "ContentHandlingStrategy": "CONVERT_TO_TEXT",
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${WebsocketHandler}/invocations",
+      {
+       "WebsocketHandler": {
+        "Ref": "WebsocketMessage"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "WebsocketMessageInvokePermission": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "WebsocketMessage"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketAPIId}/*",
+      {
+       "WebsocketAPIId": {
+        "Ref": "WebsocketAPI"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "WebsocketMessageRoute": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    },
+    "RouteKey": "$default",
+    "Target": {
+     "Fn::Join": [
+      "/",
+      [
+       "integrations",
+       {
+        "Ref": "WebsocketMessageAPIIntegration"
+       }
+      ]
+     ]
+    }
+   }
+  },
+  "WebsocketAPIDeployment": {
+   "Type": "AWS::ApiGatewayV2::Deployment",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    }
+   },
+   "DependsOn": [
+    "WebsocketMessageRoute"
+   ]
+  },
+  "WebsocketAPIStage": {
+   "Type": "AWS::ApiGatewayV2::Stage",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    },
+    "DeploymentId": {
+     "Ref": "WebsocketAPIDeployment"
+    },
+    "StageName": "api"
+   }
+  },
+  "PFunCMAModelLaunchConfiguration": {
+   "Type": "AWS::AutoScaling::LaunchConfiguration",
+   "Properties": {
+    "ImageId": "ami-041c209db5829dfb9",
+    "InstanceType": "m5.large"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelLaunchConfiguration"
+   }
+  },
+  "PFunCMAModelScalingGroup": {
+   "Type": "AWS::AutoScaling::AutoScalingGroup",
+   "Properties": {
+    "DesiredCapacity": "5",
+    "LaunchConfigurationName": {
+     "Ref": "PFunCMAModelLaunchConfiguration"
+    },
+    "MaxSize": "10",
+    "MinSize": "1"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelScalingGroup"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0VPTWvDMAz9Lb27Xpecekw7NgaDlRR2DaqjpF4cO1jWSgj577Pdjp2kJ96XCrkv5G4DN9qqdtgafZHLOYAaRDw1C5UNEGEgWaUhqJQHVgOGAxAKglEux85+wIz+Cz1pZ0XEr2xVeOzVpFdhYLy0ICM8oR81ZSJMuoeAN5h/imwTqUnxbgP2Hv4MascB0/KCk3HziDYkFEv2uArg4EiB0bZ/VInZ16Ozne7536SKtPOd9uYdT+sq8kPJJd6EMo7bzvkxKxptleEWZW6T12TyyWHiHF4jOfYqX2NWq5NqFac5XJ19KuXzTu4336T11rMNekRZ3+cvmxL3Vm8BAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "RestAPIId": {
+   "Value": {
+    "Ref": "RestAPI"
+   }
+  },
+  "APIHandlerName": {
+   "Value": {
+    "Ref": "APIHandler"
+   }
+  },
+  "APIHandlerArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "APIHandler",
+     "Arn"
+    ]
+   }
+  },
+  "EndpointURL": {
+   "Value": {
+    "Fn::Sub": "https://${RestAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/"
+   }
+  },
+  "WebsocketAPIId": {
+   "Value": {
+    "Ref": "WebsocketAPI"
+   }
+  },
+  "WebsocketMessageHandlerArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "WebsocketMessage",
+     "Arn"
+    ]
+   }
+  },
+  "WebsocketMessageHandlerName": {
+   "Value": {
+    "Ref": "WebsocketMessage"
+   }
+  },
+  "WebsocketConnectEndpointURL": {
+   "Value": {
+    "Fn::Sub": "wss://${WebsocketAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/"
+   }
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-2"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

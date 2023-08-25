@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  model:
+    image: rocapp/pfun-cma-model:latest
+    container_name: pfun-cma-model
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ${HOME}/.aws/credentials
+        target: /root/.aws
+      - type: bind
+        source: ${HOME}/.aws/config
+        target: /root/.aws
+      - type: bind
+        source: ${HOME}/Git/pfun-cma-model-deps
+        target: /root/Git/pfun-cma-model-deps
+      - type: bind
+        source: ${HOME}/Git/pfun-cma-model
+        target: /root/Git/pfun-cma-model
+      - type: bind
+        source: ${HOME}/Git/minpack
+        target: /root/Git/minpack

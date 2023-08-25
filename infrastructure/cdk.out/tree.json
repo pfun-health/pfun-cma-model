@@ -1,0 +1,1391 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "pfun-cma-model": {
+        "id": "pfun-cma-model",
+        "path": "pfun-cma-model",
+        "children": {
+          "PFunCMAModelChaliceApp": {
+            "id": "PFunCMAModelChaliceApp",
+            "path": "pfun-cma-model/PFunCMAModelChaliceApp",
+            "children": {
+              "ChaliceAppCode": {
+                "id": "ChaliceAppCode",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceAppCode",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceAppCode/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceAppCode/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.92.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.92.0"
+                }
+              },
+              "ChaliceManagedLayer": {
+                "id": "ChaliceManagedLayer",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceManagedLayer",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceManagedLayer/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceManagedLayer/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.92.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.92.0"
+                }
+              },
+              "ChaliceApp": {
+                "id": "ChaliceApp",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp",
+                "children": {
+                  "$Mappings": {
+                    "id": "$Mappings",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Mappings",
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  },
+                  "$Conditions": {
+                    "id": "$Conditions",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Conditions",
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  },
+                  "$Rules": {
+                    "id": "$Rules",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Rules",
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  },
+                  "ManagedLayer": {
+                    "id": "ManagedLayer",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::LayerVersion",
+                      "aws:cdk:cloudformation:props": {
+                        "compatibleRuntimes": [
+                          "python3.10"
+                        ],
+                        "contentUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2a04d4dcb312dac157bd709cd5189a8b0af479561c714cd993d9c8add6fe4eb7.zip"
+                        },
+                        "layerName": "pfun-cma-model-pfun-cma-model-managed-layer"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnLayerVersion",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "RunModel": {
+                    "id": "RunModel",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunModel",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.run_model_with_config",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "RunAtTime": {
+                    "id": "RunAtTime",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.run_at_time",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "FitModel": {
+                    "id": "FitModel",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FitModel",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.fit_model_to_data",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "FakeAuth": {
+                    "id": "FakeAuth",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.fake_auth",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "APIHandler": {
+                    "id": "APIHandler",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandler",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.app",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "RestAPI": {
+                    "id": "RestAPI",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RestAPI",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Api",
+                      "aws:cdk:cloudformation:props": {
+                        "definitionBody": {
+                          "swagger": "2.0",
+                          "info": {
+                            "version": "1.0",
+                            "title": "PFun CMA Model Backend"
+                          },
+                          "schemes": [
+                            "https"
+                          ],
+                          "paths": {
+                            "/": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                }
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/routes": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                }
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/log": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "post": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/run": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "summary": "A function that returns a message containing the welcome message and the",
+                                "description": "routes of the PFun CMA Model API.",
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "post": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "summary": "A function that returns a message containing the welcome message and the",
+                                "description": "routes of the PFun CMA Model API.",
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/fit": {
+                              "post": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/oauth2-dexcom/connect": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "summary": "Handles the Dexcom login request."
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            }
+                          },
+                          "definitions": {
+                            "Empty": {
+                              "type": "object",
+                              "title": "Empty Schema"
+                            }
+                          },
+                          "x-amazon-apigateway-binary-media-types": [
+                            "application/octet-stream",
+                            "application/x-tar",
+                            "application/zip",
+                            "audio/basic",
+                            "audio/ogg",
+                            "audio/mp4",
+                            "audio/mpeg",
+                            "audio/wav",
+                            "audio/webm",
+                            "image/png",
+                            "image/jpg",
+                            "image/jpeg",
+                            "image/gif",
+                            "video/ogg",
+                            "video/mpeg",
+                            "video/webm"
+                          ],
+                          "securityDefinitions": {
+                            "fake_auth": {
+                              "in": "header",
+                              "type": "apiKey",
+                              "name": "Authorization",
+                              "x-amazon-apigateway-authtype": "custom",
+                              "x-amazon-apigateway-authorizer": {
+                                "type": "token",
+                                "authorizerUri": {
+                                  "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FakeAuth.Arn}/invocations"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "endpointConfiguration": "EDGE",
+                        "stageName": "api"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnApi",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "APIHandlerInvokePermission": {
+                    "id": "APIHandlerInvokePermission",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Ref": "APIHandler"
+                        },
+                        "principal": "apigateway.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*",
+                            {
+                              "RestAPIId": {
+                                "Ref": "RestAPI"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "FakeAuthInvokePermission": {
+                    "id": "FakeAuthInvokePermission",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "FakeAuth",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "apigateway.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*",
+                            {
+                              "RestAPIId": {
+                                "Ref": "RestAPI"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketMessage": {
+                    "id": "WebsocketMessage",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "2869e29198ae553915899062def91d169d10be8bf08bac34bd07d824d6102779.zip"
+                        },
+                        "handler": "app.run_at_time_route",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketAPI": {
+                    "id": "WebsocketAPI",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Api",
+                      "aws:cdk:cloudformation:props": {
+                        "name": "pfun-cma-model-pfun-cma-model-websocket-api",
+                        "protocolType": "WEBSOCKET",
+                        "routeSelectionExpression": "$request.body.action"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnApi",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketMessageAPIIntegration": {
+                    "id": "WebsocketMessageAPIIntegration",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Integration",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        },
+                        "connectionType": "INTERNET",
+                        "contentHandlingStrategy": "CONVERT_TO_TEXT",
+                        "integrationType": "AWS_PROXY",
+                        "integrationUri": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${WebsocketHandler}/invocations",
+                            {
+                              "WebsocketHandler": {
+                                "Ref": "WebsocketMessage"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnIntegration",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketMessageInvokePermission": {
+                    "id": "WebsocketMessageInvokePermission",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Ref": "WebsocketMessage"
+                        },
+                        "principal": "apigateway.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketAPIId}/*",
+                            {
+                              "WebsocketAPIId": {
+                                "Ref": "WebsocketAPI"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketMessageRoute": {
+                    "id": "WebsocketMessageRoute",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        },
+                        "routeKey": "$default",
+                        "target": {
+                          "Fn::Join": [
+                            "/",
+                            [
+                              "integrations",
+                              {
+                                "Ref": "WebsocketMessageAPIIntegration"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnRoute",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketAPIDeployment": {
+                    "id": "WebsocketAPIDeployment",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Deployment",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnDeployment",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "WebsocketAPIStage": {
+                    "id": "WebsocketAPIStage",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Stage",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        },
+                        "deploymentId": {
+                          "Ref": "WebsocketAPIDeployment"
+                        },
+                        "stageName": "api"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnStage",
+                      "version": "2.92.0"
+                    }
+                  },
+                  "$Hooks": {
+                    "id": "$Hooks",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Hooks",
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  },
+                  "$Ouputs": {
+                    "id": "$Ouputs",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs",
+                    "children": {
+                      "RestAPIId": {
+                        "id": "RestAPIId",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "APIHandlerName": {
+                        "id": "APIHandlerName",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "APIHandlerArn": {
+                        "id": "APIHandlerArn",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "EndpointURL": {
+                        "id": "EndpointURL",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "WebsocketAPIId": {
+                        "id": "WebsocketAPIId",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "WebsocketMessageHandlerArn": {
+                        "id": "WebsocketMessageHandlerArn",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "WebsocketMessageHandlerName": {
+                        "id": "WebsocketMessageHandlerName",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      },
+                      "WebsocketConnectEndpointURL": {
+                        "id": "WebsocketConnectEndpointURL",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.92.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.cloudformation_include.CfnInclude",
+                  "version": "2.92.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "PFunCMAModelLaunchConfiguration": {
+            "id": "PFunCMAModelLaunchConfiguration",
+            "path": "pfun-cma-model/PFunCMAModelLaunchConfiguration",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
+              "aws:cdk:cloudformation:props": {
+                "imageId": "ami-041c209db5829dfb9",
+                "instanceType": "m5.large"
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
+              "version": "2.92.0"
+            }
+          },
+          "PFunCMAModelScalingGroup": {
+            "id": "PFunCMAModelScalingGroup",
+            "path": "pfun-cma-model/PFunCMAModelScalingGroup",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
+              "aws:cdk:cloudformation:props": {
+                "desiredCapacity": "5",
+                "launchConfigurationName": {
+                  "Ref": "PFunCMAModelLaunchConfiguration"
+                },
+                "maxSize": "10",
+                "minSize": "1"
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
+              "version": "2.92.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "pfun-cma-model/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "pfun-cma-model/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.92.0"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "pfun-cma-model/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnCondition",
+                  "version": "2.92.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "pfun-cma-model/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.92.0"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "pfun-cma-model/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.92.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.92.0"
+        }
+      },
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.2.69"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.92.0"
+    }
+  }
+}

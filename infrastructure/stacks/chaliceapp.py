@@ -32,8 +32,8 @@ class ChaliceApp(cdk.Stack):
 
         launch_configuration = autoscaling.CfnLaunchConfiguration(
             self, "PFunCMAModelLaunchConfiguration",
-            image_id='YOUR_AMI_ID',
-            instance_type='YOUR_INSTANCE_TYPE',
+            image_id='ami-041c209db5829dfb9',
+            instance_type='m5.large',
             # other configuration options
         )
 

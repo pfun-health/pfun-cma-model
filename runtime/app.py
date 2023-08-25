@@ -1,16 +1,20 @@
 """
 PFun CMA Model API routes.
 """
+import os
 import json
 import sys
+import uuid
+import requests
 from pathlib import Path
+import urllib.parse as urlparse
 from typing import Dict, Literal
 from botocore.exceptions import ClientError
 from botocore.client import BaseClient
-from botocore.session import Session as SessionCore
 from botocore.config import Config as ConfigCore
 import boto3
 import threading
+import importlib
 from chalice import (
     AuthRoute,
     CORSConfig,
@@ -48,6 +52,9 @@ for pth in [root_path, ]:
     pth = str(pth)
     if pth not in sys.path:
         sys.path.insert(0, pth)
+
+get_secret_func = importlib.import_module(
+    '.secrets', package='chalicelib').get_secret_func
 
 #: init app, set cors
 cors_config = CORSConfig(
@@ -274,7 +281,7 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
-def get_lambda_params(event, key: str) -> Dict:
+def get_lambda_params(event, key: str) -> Dict | None:
     http_method = event.get('httpMethod')
     query_params = event.get('queryStringParams', {})
     app.log.info('(lambda) http_method: %s', http_method)
@@ -285,6 +292,8 @@ def get_lambda_params(event, key: str) -> Dict:
     if key in params:
         params = params[key]
     params.update(query_params)
+    if len(params) == None:
+        return None
     return params
 
 
@@ -380,4 +389,131 @@ def fit_model_route():
     model_config = get_model_config(app)
     response = LAMBDA_CLIENT.invoke(
         FunctionName='fit_model', Payload=json.dumps(model_config).encode('utf-8'))
+    return json.loads(response.get('body', b'[]'))
+
+
+DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
+                         "devices", "events"]
+
+
+def get_oauth_info(event):
+    oauth_info = {
+        "creds": {},
+        "host": "",
+        "login_url": "",
+        "redirect_uri": "",
+        "state": str(uuid.uuid4()),
+        "oauth2_tokens": None
+    }
+    secret = get_secret_func("dexcom_pfun-app_glucose")
+    oauth_info["creds"] = json.loads(secret)
+    os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
+    os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
+    oauth_info["host"] = os.getenv(
+        "DEXCOM_HOST", get_lambda_params(event, 'DEXCOM_HOST')) or \
+        'https://api.dexcom.com'
+    oauth_info["login_url"] = urlparse.urljoin(
+        oauth_info["host"], "/v2/oauth2/login")
+    oauth_info["redirect_uri"] = os.getenv("DEXCOM_REDIRECT_URI") or \
+        '/login-success'
+    oauth_info["token_url"] = urlparse.urljoin(
+        oauth_info["host"], "v2/oauth2/token")
+    oauth_info['refresh_url'] = urlparse.urljoin(
+        oauth_info["host"], "v2/oauth2/token")
+    oauth_info['endpoint_urls'] = {}
+    for endpoint in DexcomEndpoint.__args__:
+        oauth_info["endpoint_urls"][endpoint] = urlparse.urljoin(
+            oauth_info['host'], f"v3/users/{{}}/{endpoint}")
+    return oauth_info
+
+
+oauth_info = None
+
+
+@app.lambda_function(name="oauth2_dexcom")
+def oauth2_dexcom(event, context):
+    """Handles the Dexcom login request."""
+
+    global oauth_info
+    if oauth_info is None:
+        oauth_info = get_oauth_info(event)
+
+    # Get the authorization code from the event.
+    authorization_code = get_lambda_params(event, 'authorization_code')
+    if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
+        # Exchange the authorization code for an access token.
+        url = oauth_info['token_url']
+        payload = {
+            'client_id': os.environ['DEXCOM_CLIENT_ID'],
+            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
+            'code': authorization_code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': oauth_info['redirect_uri']
+        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.post(
+            url, data=payload, timeout=10, headers=headers)
+        data = response.json()
+        oauth_info['oauth2_tokens'] = data
+
+        # Return the refresh, access tokens.
+        return {
+            'refresh_token': data['refresh_token'],
+            'access_token': data['access_token'],
+            'expires_in': data['expires_in'],
+            'token_type': data['token_type'],
+            'message': 'Successfully authorized.'
+        }
+    elif authorization_code is None and oauth_info['oauth2_tokens'] is None:
+        #: Redirect to dexcom, get the authorization code.
+        url = oauth_info['login_url']
+        payload = {
+            'client_id': os.environ['DEXCOM_CLIENT_ID'],
+            'redirect_uri': oauth_info['redirect_uri'],
+            'response_type': 'code',
+            'scope': 'offline_access',
+            'state': oauth_info['state']
+        }
+        return Response(
+            status_code=301,
+            headers={'Location': url + '?' + urlparse.urlencode(payload)},
+            body=''
+        )
+    elif oauth_info['oauth2_tokens'] is not None:
+        #: Refresh the token.
+        url = oauth_info['refresh_url']
+        payload = {
+            'client_id': os.environ['DEXCOM_CLIENT_ID'],
+            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
+            'refresh_token': oauth_info['oauth2_tokens']['refresh_token'],
+            'grant_type': 'refresh_token',
+            'redirect_uri': oauth_info['redirect_uri']
+        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.post(
+            url, data=payload, timeout=10, headers=headers)
+        data = response.json()
+        oauth_info['oauth2_tokens'] = data
+        return {
+            'refresh_token': data['refresh_token'],
+            'access_token': data['access_token'],
+            'expires_in': data['expires_in'],
+            'token_type': data['token_type'],
+            'message': 'Successfully refreshed token.'
+        }
+
+
+@app.route('/login-success', methods=['GET'])
+def login_success():
+    return Response(status_code=200, body='<h1>Dexcom Login Success!</h1>')
+
+
+@app.route('/login-dexcom', methods=['GET'])
+def login_dexcom():
+    global LAMBDA_CLIENT
+    payload = app.current_request.to_dict()
+    response = LAMBDA_CLIENT.invoke(
+        FunctionName='oauth2_dexcom',
+        Payload=json.dumps(payload).encode('utf-8')
+    )
     return json.loads(response.get('body', b'[]'))
