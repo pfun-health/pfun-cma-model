@@ -5,6 +5,7 @@ import os
 import json
 import sys
 import uuid
+from chalice.app import Request, AuthRequest
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
@@ -22,15 +23,21 @@ from chalice import (
     Response,
     Chalice,
 )
-from chalice.app import Request, AuthRequest
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def new_boto3_session():
     session_ = boto3.Session()
-    session_.client('iam').attach_role_policy(
-        RoleName='pfun-cma-model-dev',
-        PolicyArn='arn:aws:iam::860311922912:policy/pfun-cma-model-dev'
-    )
+    client_ = session_.client('iam')
+    try:
+        client_.attach_role_policy(
+            RoleName='pfun-cma-model-dev',
+            PolicyArn='arn:aws:iam::860311922912:policy/pfun-cma-model-dev'
+        )
+    except ClientError as err:
+        logging.warning('not authorized to attach role policy: %s', str(err))
     return session_
 
 
