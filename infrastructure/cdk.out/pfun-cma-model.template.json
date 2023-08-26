@@ -24,7 +24,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -49,7 +49,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -74,7 +74,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -99,7 +99,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -124,7 +124,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -149,7 +149,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -986,7 +986,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "066b393b0b384db02a4172859e0e6ffdcc89a8c4c44ac9cc376f906e8741ab89.zip"
+     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
     },
     "Handler": "app.run_at_time_route",
     "Layers": [
@@ -1161,7 +1161,8 @@
        "Resource": [
         "arn:aws:apigateway:*::/*",
         "arn:aws:lambda:*:*:function:*",
-        "arn:aws:iam::*:role/pfun-cma-model-dev"
+        "arn:aws:iam::*:role/pfun-cma-model-dev",
+        "arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*"
        ]
       }
      ],

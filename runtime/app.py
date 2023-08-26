@@ -314,8 +314,9 @@ def run_model_with_config(event, context):
     model = CMASleepWakeModel(**model_config)
     df = model.run()
     output = df.to_json()
-    return Response(body=output, status_code=200,
-                    headers={'Content-Type': 'application/json'})
+    response = Response(body=output, status_code=200,
+                        headers={'Content-Type': 'application/json'})
+    return json.dumps(response.to_dict())
 
 
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
@@ -337,6 +338,13 @@ def run_model_route():
         .invoke(FunctionName='run_model', Payload=payload)
     return json.loads(response.get('body', b'[]'))
 
+
+@app.on_ws_connect(name="run_at_time")
+def run_at_time_connect(event):
+    print('New connection: %s' % event.connection_id)
+    return {
+      'headers': {'Sec-WebSocket-Protocol': 'PFun-Model-Web-Socket-Protocol'},
+    }
 
 @app.on_ws_message(name="run_at_time")
 def run_at_time_route(event):
@@ -385,9 +393,11 @@ def fit_model_to_data(event, context):
         output = fit_result.model_dump_json()
     except Exception:
         app.log.error('failed to fit to data.', exc_info=True)
-        return {"error":
-                "failed to fit data. See error message on server log."}, 500
-    return {"output": output}
+        error_response = Response(body={"error": "failed to fit data. See error message on server log."}, status_code=500, headers={'Content-Type': 'application/json'})
+        return json.dumps(error_response.to_dict())
+    response = Response(body={"output": output}, status_code=200,
+                        headers={'Content-Type': 'application/json'})
+    return json.dumps(response.to_dict())
 
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
@@ -467,13 +477,13 @@ def oauth2_dexcom(event, context):
         oauth_info['oauth2_tokens'] = data
 
         # Return the refresh, access tokens.
-        return {
+        response = Response(body={
             'refresh_token': data['refresh_token'],
             'access_token': data['access_token'],
             'expires_in': data['expires_in'],
             'token_type': data['token_type'],
             'message': 'Successfully authorized.'
-        }
+        }, status_code=200, headers={'Content-Type': 'application/json'})
     elif authorization_code is None and oauth_info['oauth2_tokens'] is None:
         #: Redirect to dexcom, get the authorization code.
         url = oauth_info['login_url']
@@ -484,7 +494,7 @@ def oauth2_dexcom(event, context):
             'scope': 'offline_access',
             'state': oauth_info['state']
         }
-        return Response(
+        response = Response(
             status_code=301,
             headers={'Location': url + '?' + urlparse.urlencode(payload)},
             body=''
@@ -504,13 +514,17 @@ def oauth2_dexcom(event, context):
             url, data=payload, timeout=10, headers=headers)
         data = response.json()
         oauth_info['oauth2_tokens'] = data
-        return {
+        response = Response(body={
             'refresh_token': data['refresh_token'],
             'access_token': data['access_token'],
             'expires_in': data['expires_in'],
             'token_type': data['token_type'],
             'message': 'Successfully refreshed token.'
-        }
+        }, status_code=200, headers={'Content-Type': 'application/json'})
+    else:
+        logging.warning("(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
+        response = Response(body='Unauthorized', status_code=401)
+    return json.dumps(response.to_dict())
 
 
 @app.route('/login-success', methods=['GET'])

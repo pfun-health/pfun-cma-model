@@ -69,7 +69,8 @@ class ChaliceApp(cdk.Stack):
             resources=[
                 'arn:aws:apigateway:*::/*',
                 'arn:aws:lambda:*:*:function:*',
-                'arn:aws:iam::*:role/pfun-cma-model-dev'
+                'arn:aws:iam::*:role/pfun-cma-model-dev',
+                'arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*'
             ]
         )
 
@@ -85,26 +86,41 @@ class ChaliceApp(cdk.Stack):
 
         trust_policy = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
-            actions=["sts:AssumeRole"],
+            actions=["sts:AssumeRole", "iam:AttachRolePolicy"],
             resources=["*"],
         )
 
+        sts_role = iam.LazyRole(
+            self, "PFunSTSLazyRole",
+            assumed_by=iam.ServicePrincipal("sts.amazonaws.com")
+        )
+        sts_role.add_to_policy(trust_policy)
+
         pfun_cma_model_dev_role = iam.Role(
-            self, "PFunCMAModelDevRole",
+            self, 'PFunDevSTSRole', role_name='pfun-cma-model-dev',
+            assumed_by=iam.ServicePrincipal("sts.amazonaws.com"),
+        )
+
+        sts_role.grant_assume_role(pfun_cma_model_dev_role)
+
+        pfun_cma_model_dev_lambda_role = iam.Role(
+            self, "PFunCMAModelDevLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
         )
 
-        pfun_cma_model_dev_role.add_to_policy(trust_policy)
+        pfun_cma_model_dev_lambda_role.add_to_policy(trust_policy)
 
         statements = json.loads(
             open(
                 os.path.join(
                     RUNTIME_SOURCE_DIR,
                     'gateway-assume-role-policy.json'), 'r').read())['Statement']
+        policy_effect = iam.Effect.ALLOW if statements[0]['Effect'] == 'Allow' \
+            else iam.Effect.DENY
         policy_doc = iam.PolicyDocument(statements=[
             iam.PolicyStatement(
                 actions=statements[0]['Action'],
-                effect=iam.Effect.ALLOW if statements[0]['Effect'] == 'Allow' else iam.Effect.DENY,
+                effect=policy_effect,
                 resources=statements[0]['Resource']
             )
         ])
@@ -113,8 +129,9 @@ class ChaliceApp(cdk.Stack):
                 self, id='PFunCMAModel-APIHandler-Policy',
                 document=policy_doc, force=True
             )
-        apihandler_policy.attach_to_role(iam_role)
+        apihandler_policy.attach_to_role(iam_role)  # type: ignore
 
         iam.CfnRolePolicy(self, 'PFunCMAModel-APIHandler-Policy-Role',
-                          role_name=iam_role.role_name, policy_name=apihandler_policy.policy_name,
+                          role_name=iam_role.role_name,
+                          policy_name=apihandler_policy.policy_name,
                           policy_document=apihandler_policy.document)
