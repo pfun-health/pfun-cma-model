@@ -76,10 +76,26 @@ class ChaliceApp(cdk.Stack):
         iam_role = iam.Role(
             self, 'PFunCMAModelRole',
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),)
-        iam_role.grant_assume_role(iam.ServicePrincipal('apigateway.amazonaws.com'))
-        iam_role.grant_assume_role(iam.ServicePrincipal('lambda.amazonaws.com'))
+        iam_role.grant_assume_role(
+            iam.ServicePrincipal('apigateway.amazonaws.com'))
+        iam_role.grant_assume_role(
+            iam.ServicePrincipal('lambda.amazonaws.com'))
         iam_role.grant_assume_role(iam.ServicePrincipal('iam.amazonaws.com'))
         iam_role.add_to_policy(attach_policy_statement)
+
+        trust_policy = iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=["sts:AssumeRole"],
+            principals=[iam.ServicePrincipal(
+                "pfun-cma-model-FakeAuthRole-1SJJOOAGJH9QL/pfun-cma-model-FakeAuth-2i8eJ1dgRc43")],
+        )
+
+        pfun_cma_model_dev_role = iam.Role(
+            self, "PFunCMAModelDevRole",
+            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+        )
+
+        pfun_cma_model_dev_role.add_to_policy(trust_policy)
 
         statements = json.loads(
             open(
