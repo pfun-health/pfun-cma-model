@@ -73,7 +73,6 @@ class ChaliceApp(cdk.Stack):
                 'arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*'
             ]
         )
-        
 
         iam_role = iam.Role(
             self, 'PFunCMAModelRole',
@@ -95,6 +94,20 @@ class ChaliceApp(cdk.Stack):
             self, "PFunSTSLazyRole",
             assumed_by=iam.ServicePrincipal("sts.amazonaws.com")
         )
+        iam_role = iam.LazyRole(self, 'PFunIAMRole',
+                                assumed_by=iam.ServicePrincipal(
+                                    "iam.amazonaws.com"),
+                                inline_policies={
+                                    'PFunIAMLazyPolicy':
+                                    iam.PolicyDocument(
+                                        statements=[
+                                            iam.PolicyStatement(
+                                                effect=iam.Effect.ALLOW,
+                                                actions=[
+                                                    "iam:AttachRolePolicy"],
+                                                resources=[
+                                                    "arn:aws:iam:860311922912:role/pfun-cma-model-dev1"],
+                                            )])})
         sts_role.add_to_policy(trust_policy)
 
         pfun_cma_model_dev_role = iam.Role(

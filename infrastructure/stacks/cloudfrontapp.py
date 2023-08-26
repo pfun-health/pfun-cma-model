@@ -10,11 +10,9 @@ class CloudFrontApp(cdk.Stack):
     def __init__(self, scope, id: str, chalice_stack, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        certificate = acm.Certificate(
-            self, id='44cae873-0fb0-44cf-8679-9534ba12b25b',
-            domain_name='dev.pfun.app',
-            certificate_name='dev.pfun.app',
-        )
+        existing_certificate_arn = 'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        certificate = acm.Certificate.from_certificate_arn(
+            self, "DevPFunCertificate", existing_certificate_arn)
 
         # Define the CloudFront distribution
         viewer_cert = cloudfront.ViewerCertificate.from_acm_certificate(

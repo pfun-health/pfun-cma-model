@@ -125,7 +125,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -158,7 +158,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -191,7 +191,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -224,7 +224,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -257,7 +257,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -290,7 +290,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -329,6 +329,100 @@
                             "https"
                           ],
                           "paths": {
+                            "/sdk": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
                             "/": {
                               "get": {
                                 "consumes": [
@@ -1159,7 +1253,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time_connect",
                         "layers": [
@@ -1192,7 +1286,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                          "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time_route",
                         "layers": [
@@ -1773,6 +1867,74 @@
               "version": "2.93.0"
             }
           },
+          "PFunIAMRole": {
+            "id": "PFunIAMRole",
+            "path": "pfun-cma-model/PFunIAMRole",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "pfun-cma-model/PFunIAMRole/Default",
+                "children": {
+                  "ImportDefault": {
+                    "id": "ImportDefault",
+                    "path": "pfun-cma-model/PFunIAMRole/Default/ImportDefault",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunIAMRole/Default/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "iam.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policies": [
+                          {
+                            "policyName": "PFunIAMLazyPolicy",
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "iam:AttachRolePolicy",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:iam:860311922912:role/pfun-cma-model-dev1"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
+              "version": "2.93.0"
+            }
+          },
           "PFunDevSTSRole": {
             "id": "PFunDevSTSRole",
             "path": "pfun-cma-model/PFunDevSTSRole",
@@ -1986,7 +2148,10 @@
                     "policyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
                     "roles": [
                       {
-                        "Ref": "PFunCMAModelRole4C9342EE"
+                        "Ref": "PFunIAMRole1DC387DA"
+                      },
+                      {
+                        "Ref": "PFunIAMRole1DC387DA"
                       }
                     ]
                   }
@@ -2029,7 +2194,7 @@
                 },
                 "policyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
                 "roleName": {
-                  "Ref": "PFunCMAModelRole4C9342EE"
+                  "Ref": "PFunIAMRole1DC387DA"
                 }
               }
             },
@@ -2090,40 +2255,11 @@
         "id": "PFunCMAEndpointDistribution",
         "path": "PFunCMAEndpointDistribution",
         "children": {
-          "44cae873-0fb0-44cf-8679-9534ba12b25b": {
-            "id": "44cae873-0fb0-44cf-8679-9534ba12b25b",
-            "path": "PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::CertificateManager::Certificate",
-                  "aws:cdk:cloudformation:props": {
-                    "domainName": "dev.pfun.app",
-                    "domainValidationOptions": [
-                      {
-                        "domainName": "dev.pfun.app",
-                        "validationDomain": "pfun.app"
-                      }
-                    ],
-                    "tags": [
-                      {
-                        "key": "Name",
-                        "value": "dev.pfun.app"
-                      }
-                    ],
-                    "validationMethod": "EMAIL"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_certificatemanager.CfnCertificate",
-                  "version": "2.93.0"
-                }
-              }
-            },
+          "DevPFunCertificate": {
+            "id": "DevPFunCertificate",
+            "path": "PFunCMAEndpointDistribution/DevPFunCertificate",
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_certificatemanager.Certificate",
+              "fqn": "aws-cdk-lib.Resource",
               "version": "2.93.0"
             }
           },
@@ -2217,9 +2353,7 @@
                         "dev.pfun.app"
                       ],
                       "viewerCertificate": {
-                        "acmCertificateArn": {
-                          "Ref": "44cae8730fb044cf86799534ba12b25b2AAE2826"
-                        },
+                        "acmCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6",
                         "sslSupportMethod": "sni-only",
                         "minimumProtocolVersion": "TLSv1"
                       }
@@ -2282,6 +2416,213 @@
           "CheckBootstrapVersion": {
             "id": "CheckBootstrapVersion",
             "path": "PFunCMAEndpointDistribution/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.93.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.93.0"
+        }
+      },
+      "PFunCMAGenerateSDK": {
+        "id": "PFunCMAGenerateSDK",
+        "path": "PFunCMAGenerateSDK",
+        "children": {
+          "SDKGenerationFunction": {
+            "id": "SDKGenerationFunction",
+            "path": "PFunCMAGenerateSDK/SDKGenerationFunction",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.SingletonFunction",
+              "version": "2.93.0"
+            }
+          },
+          "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f": {
+            "id": "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f",
+            "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole",
+                "children": {
+                  "ImportServiceRole": {
+                    "id": "ImportServiceRole",
+                    "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole/ImportServiceRole",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.93.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.93.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": {
+                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                      },
+                      "s3Key": "cb9c83c41f65fd644b638577141f6b0d05c75f32fd0289878a448b887adf4b2b.zip"
+                    },
+                    "handler": "index.handler",
+                    "role": {
+                      "Fn::GetAtt": [
+                        "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938",
+                        "Arn"
+                      ]
+                    },
+                    "runtime": "python3.9"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.93.0"
+            }
+          },
+          "SDKGenerationResource": {
+            "id": "SDKGenerationResource",
+            "path": "PFunCMAGenerateSDK/SDKGenerationResource",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::CloudFormation::CustomResource",
+              "aws:cdk:cloudformation:props": {
+                "serviceToken": {
+                  "Fn::GetAtt": [
+                    "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fC47F9250",
+                    "Arn"
+                  ]
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_cloudformation.CfnCustomResource",
+              "version": "2.93.0"
+            }
+          },
+          "SDK": {
+            "id": "SDK",
+            "path": "PFunCMAGenerateSDK/SDK",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.93.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "PFunCMAGenerateSDK/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "PFunCMAGenerateSDK/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.93.0"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "PFunCMAGenerateSDK/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnCondition",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "PFunCMAGenerateSDK/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.93.0"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "PFunCMAGenerateSDK/CheckBootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnRule",
               "version": "2.93.0"

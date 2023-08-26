@@ -3,6 +3,8 @@ PFun CMA Model API routes.
 """
 import os
 import json
+import shutil
+import subprocess
 import sys
 import uuid
 from chalice.app import Request, AuthRequest
@@ -76,7 +78,16 @@ cors_config = CORSConfig(
     expose_headers=['X-RapidAPI-Key',
                     'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host']
 )
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+file_handler = logging.FileHandler('/tmp/chalice-logs.log')
+file_handler.setFormatter(formatter)
+
+logger = logging.getLogger(__name__)
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 app = Chalice(app_name='PFun CMA Model Backend')
+app.log.setLevel(logging.INFO)
 
 app.api.cors = cors_config
 app.websocket_api.session = new_boto3_session()
@@ -89,7 +100,8 @@ PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/run',
     '/fit',
     '/run-at-time',
-    '/routes'
+    '/routes',
+    '/sdk'
 ]
 
 
@@ -206,12 +218,40 @@ def fake_auth(auth_request: AuthRequest):
     """
     authorized = auth_request.token in ['Bearer allow', 'allow']
     if not authorized:
+        app.log.warning(f'Unauthorized request: {str(auth_request)}')
+        logger.warning(f'Unauthorized request: {str(auth_request)}')
         return Response(body='Unauthorized', status_code=401)
     if authorized:
+        logger.info(f'Authorized request: {str(auth_request)}')
         return AuthResponse(routes=PUBLIC_ROUTES,
                             principal_id='user')
     else:
         return AuthResponse(routes=[], principal_id='user')
+
+
+@app.route('/sdk', methods=['GET'], authorizer=fake_auth)
+def generate_sdk():
+    logger.info('Generating SDK')
+    # Generate the Chalice SDK
+    subprocess.run(["chalice", "generate-sdk", "/tmp/sdk"], check=True)
+
+    # Zip the SDK directory
+    zip_path = "/tmp/sdk.zip"
+    shutil.make_archive("/tmp/sdk", "zip", "/tmp/sdk")
+
+    # Read the zipped SDK file as binary
+    with open(zip_path, "rb") as f:
+        sdk_zip_data = f.read()
+
+    # Remove the temporary SDK directory
+    shutil.rmtree("/tmp/sdk")
+
+    # Return the zipped SDK as binary response
+    return Response(
+        body=sdk_zip_data,
+        headers={'Content-Type': 'application/zip'},
+        status_code=200,
+    )
 
 
 @app.route("/")
@@ -235,9 +275,8 @@ def index():
     body = Path(pypath).joinpath('www', 'index.html') \
         .read_text(encoding='utf-8')
     ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item" href="{name}">{name}</a></li>'
-        for name, _ in app.routes.items() if name in PUBLIC_ROUTES
-    ])
+        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
+        for name in PUBLIC_ROUTES])
     body = body.format(
         SCRIPTS=SCRIPTS,
         ROUTES=ROUTES
@@ -291,7 +330,10 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
-def get_lambda_params(event, key: str) -> Dict | None:
+def get_lambda_params(event, key: str, context: Dict | None = None
+                      ) -> Dict | None:
+    if context is None:
+        context = {}
     http_method = event.get('httpMethod')
     query_params = event.get('queryStringParams', {})
     app.log.info('(lambda) http_method: %s', http_method)
@@ -299,18 +341,20 @@ def get_lambda_params(event, key: str) -> Dict | None:
     params = {}
     if body is not None:
         params = json.loads(body)
-    if key in params:
-        params = params[key]
+    params = params.get(key, params)
+    logging.debug(
+        '(lambda:%s) params:\n%s',
+        context.get('function_name', ''),
+        json.dumps(params, indent=2)
+    )
     params.update(query_params)
-    if len(params) == None:
-        return None
     return params
 
 
 @app.lambda_function(name="run_model")
 def run_model_with_config(event, context):
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    model_config = get_lambda_params(event, 'model_config')
+    model_config = get_lambda_params(event, 'model_config', context=context)
     model = CMASleepWakeModel(**model_config)
     df = model.run()
     output = df.to_json()
@@ -371,6 +415,8 @@ def run_at_time(event, context):
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
     model_config = get_lambda_params(event, 'model_config')
     calc_params = get_lambda_params(event, 'calc_params')
+    logger.info('model_config: %s', json.dumps(model_config))
+    logger.info('calc_params: %s', json.dumps(calc_params))
     model = CMASleepWakeModel(**model_config)
     output: np.ndarray | tuple = model.calc_Gt(**calc_params)
     output = pd.json_normalize(output).to_json()  # type: ignore
@@ -386,7 +432,7 @@ def fit_model_to_data(event, context):
         raise RuntimeError("no data was provided!")
     if isinstance(data, str):
         data = json.loads(data)
-    model_config = get_lambda_params(event, 'model_config')
+    model_config = get_lambda_params(event, 'model_config', context=context)
     if isinstance(model_config, str):
         model_config = json.loads(model_config)
     try:
@@ -461,7 +507,7 @@ def oauth2_dexcom(event, context):
         oauth_info = get_oauth_info(event)
 
     # Get the authorization code from the event.
-    authorization_code = get_lambda_params(event, 'authorization_code')
+    authorization_code = get_lambda_params(event, 'authorization_code', context=context)
     if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
         # Exchange the authorization code for an access token.
         url = oauth_info['token_url']
@@ -524,7 +570,7 @@ def oauth2_dexcom(event, context):
             'message': 'Successfully refreshed token.'
         }, status_code=200, headers={'Content-Type': 'application/json'})
     else:
-        logging.warning("(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
+        logger.warning("(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
         response = Response(body='Unauthorized', status_code=401)
     return json.dumps(response.to_dict())
 

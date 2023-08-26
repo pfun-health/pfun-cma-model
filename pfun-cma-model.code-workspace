@@ -4,5 +4,23 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.terminal.activateEnvironment": true,
+		"python.terminal.activateEnvInCurrentTerminal": true,
+		"python.defaultInterpreterPath": "./.venv/bin/python",
+		"pythonAutoImport.pythonInterpreterPath": "./.venv/bin/python"
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"runOptions": {
+					"runOn": "folderOpen"
+				},
+				"label": "activate pfun-cma-model python virtual environment",
+				"type": "shell",
+				"command": "source .envrc"
+			}
+		]
+	}
 }

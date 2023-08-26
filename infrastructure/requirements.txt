@@ -1,1 +1,2 @@
 aws-cdk-lib>2.0,<3.0
+chalice==1.29.0

@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/84b3198cf1403dd045bd900029815c096a3f8b988725aab1b4dbc07f37070247.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/daea1c4d674e8623ef6fa3db83ffa5f0f77981ca880b1237c93094575293a277.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -261,6 +261,12 @@
             "data": "PFunSTSLazyRoleDefaultPolicy6F2AE979"
           }
         ],
+        "/pfun-cma-model/PFunIAMRole/Default/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunIAMRole1DC387DA"
+          }
+        ],
         "/pfun-cma-model/PFunDevSTSRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -340,7 +346,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1b996b91233fea33e9a917f02e8e369572aaad44f0674702e9ee8e2d48b172fa.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/28bb998c22aea2e270e8801b314a8271b47eeae037383075533f4254dba654d9.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -356,12 +362,6 @@
         "PFunCMAEndpointDistribution.assets"
       ],
       "metadata": {
-        "/PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "44cae8730fb044cf86799534ba12b25b2AAE2826"
-          }
-        ],
         "/PFunCMAEndpointDistribution/PFunCMAEndpointDistribution/CFDistribution": [
           {
             "type": "aws:cdk:logicalId",
@@ -400,6 +400,89 @@
         ]
       },
       "displayName": "PFunCMAEndpointDistribution"
+    },
+    "PFunCMAGenerateSDK.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "PFunCMAGenerateSDK.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "PFunCMAGenerateSDK": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "PFunCMAGenerateSDK.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/aed5bb8dde206cbe5388d92bb09b7638db539246f62789ca4f12d813af3cdd24.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "PFunCMAGenerateSDK.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "PFunCMAGenerateSDK.assets"
+      ],
+      "metadata": {
+        "/PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938"
+          }
+        ],
+        "/PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fC47F9250"
+          }
+        ],
+        "/PFunCMAGenerateSDK/SDKGenerationResource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SDKGenerationResource"
+          }
+        ],
+        "/PFunCMAGenerateSDK/SDK": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SDK"
+          }
+        ],
+        "/PFunCMAGenerateSDK/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/PFunCMAGenerateSDK/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/PFunCMAGenerateSDK/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/PFunCMAGenerateSDK/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "PFunCMAGenerateSDK"
     },
     "Tree": {
       "type": "cdk:tree",

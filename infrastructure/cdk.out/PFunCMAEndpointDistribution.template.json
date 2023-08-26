@@ -1,27 +1,5 @@
 {
  "Resources": {
-  "44cae8730fb044cf86799534ba12b25b2AAE2826": {
-   "Type": "AWS::CertificateManager::Certificate",
-   "Properties": {
-    "DomainName": "dev.pfun.app",
-    "DomainValidationOptions": [
-     {
-      "DomainName": "dev.pfun.app",
-      "ValidationDomain": "pfun.app"
-     }
-    ],
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "dev.pfun.app"
-     }
-    ],
-    "ValidationMethod": "EMAIL"
-   },
-   "Metadata": {
-    "aws:cdk:path": "PFunCMAEndpointDistribution/44cae873-0fb0-44cf-8679-9534ba12b25b/Resource"
-   }
-  },
   "PFunCMAEndpointDistributionCFDistribution35384641": {
    "Type": "AWS::CloudFront::Distribution",
    "Properties": {
@@ -105,9 +83,7 @@
      ],
      "PriceClass": "PriceClass_100",
      "ViewerCertificate": {
-      "AcmCertificateArn": {
-       "Ref": "44cae8730fb044cf86799534ba12b25b2AAE2826"
-      },
+      "AcmCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6",
       "MinimumProtocolVersion": "TLSv1",
       "SslSupportMethod": "sni-only"
      }
@@ -120,7 +96,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02Muw6CQBBFv4V+GVEqaoytBgtLsy90BGbJ7myMIfy7rBRSzbkn984BqhKKTL5Drk2X96hgurLUnVjUfdLWM7aoJdtBknxYD1P9d6JuaRNnoXsXTesd8dJLfEp8s+qIgT2qyOgorbZ5npM5Rx4jJ2pscNHr9bsjg7+SuHz46WhXwr6AKnsFxNxHYhwsNOv9Ao54zHjNAAAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02MywrCMBBFv6X7ZKx21XXErVIXLqV5FMfWGUkmiBT/3YaCuLrnPrg7aBuoq/6VtPOjntDCfJbejaoLiXN0QS3d1U2c/RCZBGZT+FD4Euwek0S0WZBJmYH+/acExyzPLIV+hwsbJo/r5vSWG9OmgW0NbXVPiDpmEnwE6Fb9AkzyahekAAAA"
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAEndpointDistribution/CDKMetadata/Default"

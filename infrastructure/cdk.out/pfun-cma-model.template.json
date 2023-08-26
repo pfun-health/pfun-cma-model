@@ -24,7 +24,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -49,7 +49,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -74,7 +74,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -99,7 +99,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -124,7 +124,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -149,7 +149,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -180,6 +180,100 @@
       "https"
      ],
      "paths": {
+      "/sdk": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
       "/": {
        "get": {
         "consumes": [
@@ -986,7 +1080,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.run_at_time_connect",
     "Layers": [
@@ -1011,7 +1105,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+     "Key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
     },
     "Handler": "app.run_at_time_route",
     "Layers": [
@@ -1313,6 +1407,41 @@
     "aws:cdk:path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy/Resource"
    }
   },
+  "PFunIAMRole1DC387DA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "iam.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Policies": [
+     {
+      "PolicyDocument": {
+       "Statement": [
+        {
+         "Action": "iam:AttachRolePolicy",
+         "Effect": "Allow",
+         "Resource": "arn:aws:iam:860311922912:role/pfun-cma-model-dev1"
+        }
+       ],
+       "Version": "2012-10-17"
+      },
+      "PolicyName": "PFunIAMLazyPolicy"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunIAMRole/Default/Resource"
+   }
+  },
   "PFunDevSTSRole97E6D96D": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -1443,7 +1572,10 @@
     "PolicyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
     "Roles": [
      {
-      "Ref": "PFunCMAModelRole4C9342EE"
+      "Ref": "PFunIAMRole1DC387DA"
+     },
+     {
+      "Ref": "PFunIAMRole1DC387DA"
      }
     ]
    },
@@ -1475,7 +1607,7 @@
     },
     "PolicyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
     "RoleName": {
-     "Ref": "PFunCMAModelRole4C9342EE"
+     "Ref": "PFunIAMRole1DC387DA"
     }
    },
    "Metadata": {

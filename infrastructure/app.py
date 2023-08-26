@@ -11,15 +11,19 @@ try:
 except ImportError:
     import aws_cdk as cdk
 try:
-    from stacks.chaliceapp import ChaliceApp, CloudFrontApp
+    from stacks.chaliceapp import ChaliceApp
+    from stacks.cloudfrontapp import CloudFrontApp
+    from stacks.generatesdkapp import GenerateSDKApp
 except (ImportError, ModuleNotFoundError):
     import importlib
     ChaliceApp = importlib.import_module('.chaliceapp', package='infrastructure.stacks').ChaliceApp
     CloudFrontApp = importlib.import_module('.cloudfrontapp', package='infrastructure.stacks').CloudFrontApp
-    
+    GenerateSDKApp = importlib.import_module('.generatesdkapp', package='infrastructure.stacks').GenerateSDKApp
+
 
 app = cdk.App()
 chalice_stack = ChaliceApp(app, 'pfun-cma-model')
 cloudfront_stack = CloudFrontApp(app, 'PFunCMAEndpointDistribution', chalice_stack)
+generate_sdk_stack = GenerateSDKApp(app, 'PFunCMAGenerateSDK')
 
 app.synth()
