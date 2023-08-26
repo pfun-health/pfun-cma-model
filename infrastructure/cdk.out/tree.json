@@ -1543,6 +1543,88 @@
               "version": "2.93.0"
             }
           },
+          "PFunCMAModelDevRole": {
+            "id": "PFunCMAModelDevRole",
+            "path": "pfun-cma-model/PFunCMAModelDevRole",
+            "children": {
+              "ImportPFunCMAModelDevRole": {
+                "id": "ImportPFunCMAModelDevRole",
+                "path": "pfun-cma-model/PFunCMAModelDevRole/ImportPFunCMAModelDevRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.93.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunCMAModelDevRole/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.93.0"
+                }
+              },
+              "DefaultPolicy": {
+                "id": "DefaultPolicy",
+                "path": "pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "PFunCMAModelDevRoleDefaultPolicy920A2218",
+                        "roles": [
+                          {
+                            "Ref": "PFunCMAModelDevRole08739E26"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.93.0"
+            }
+          },
           "PFunCMAModel-APIHandler-Policy": {
             "id": "PFunCMAModel-APIHandler-Policy",
             "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy",

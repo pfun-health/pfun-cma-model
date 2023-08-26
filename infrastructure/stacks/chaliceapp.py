@@ -86,8 +86,7 @@ class ChaliceApp(cdk.Stack):
         trust_policy = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
             actions=["sts:AssumeRole"],
-            principals=[iam.ServicePrincipal(
-                "pfun-cma-model-FakeAuthRole-1SJJOOAGJH9QL/pfun-cma-model-FakeAuth-2i8eJ1dgRc43")],
+            resources=["*"],
         )
 
         pfun_cma_model_dev_role = iam.Role(
