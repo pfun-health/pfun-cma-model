@@ -24,7 +24,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -49,7 +49,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -74,7 +74,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -99,7 +99,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -124,7 +124,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -149,7 +149,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -979,6 +979,31 @@
     }
    }
   },
+  "WebsocketConnect": {
+   "Type": "AWS::Serverless::Function",
+   "Properties": {
+    "CodeUri": {
+     "Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+    },
+    "Handler": "app.run_at_time_connect",
+    "Layers": [
+     {
+      "Ref": "ManagedLayer"
+     },
+     "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+    ],
+    "MemorySize": 128,
+    "Runtime": "python3.10",
+    "Tags": {
+     "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+    },
+    "Timeout": 60,
+    "Tracing": "PassThrough"
+   }
+  },
   "WebsocketMessage": {
    "Type": "AWS::Serverless::Function",
    "Properties": {
@@ -986,7 +1011,7 @@
      "Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "Key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+     "Key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
     },
     "Handler": "app.run_at_time_route",
     "Layers": [
@@ -1010,6 +1035,47 @@
     "Name": "pfun-cma-model-pfun-cma-model-websocket-api",
     "ProtocolType": "WEBSOCKET",
     "RouteSelectionExpression": "$request.body.action"
+   }
+  },
+  "WebsocketConnectAPIIntegration": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    },
+    "ConnectionType": "INTERNET",
+    "ContentHandlingStrategy": "CONVERT_TO_TEXT",
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${WebsocketHandler}/invocations",
+      {
+       "WebsocketHandler": {
+        "Ref": "WebsocketConnect"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "WebsocketConnectInvokePermission": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "WebsocketConnect"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Sub": [
+      "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketAPIId}/*",
+      {
+       "WebsocketAPIId": {
+        "Ref": "WebsocketAPI"
+       }
+      }
+     ]
+    }
    }
   },
   "WebsocketMessageAPIIntegration": {
@@ -1053,6 +1119,26 @@
     }
    }
   },
+  "WebsocketConnectRoute": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "WebsocketAPI"
+    },
+    "RouteKey": "$connect",
+    "Target": {
+     "Fn::Join": [
+      "/",
+      [
+       "integrations",
+       {
+        "Ref": "WebsocketConnectAPIIntegration"
+       }
+      ]
+     ]
+    }
+   }
+  },
   "WebsocketMessageRoute": {
    "Type": "AWS::ApiGatewayV2::Route",
    "Properties": {
@@ -1081,6 +1167,7 @@
     }
    },
    "DependsOn": [
+    "WebsocketConnectRoute",
     "WebsocketMessageRoute"
    ]
   },
@@ -1179,7 +1266,112 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource"
    }
   },
-  "PFunCMAModelDevRole08739E26": {
+  "PFunSTSLazyRoleE0C010DC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sts.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunSTSLazyRole/Default/Resource"
+   }
+  },
+  "PFunSTSLazyRoleDefaultPolicy6F2AE979": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sts:AssumeRole",
+        "iam:AttachRolePolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PFunSTSLazyRoleDefaultPolicy6F2AE979",
+    "Roles": [
+     {
+      "Ref": "PFunSTSLazyRoleE0C010DC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy/Resource"
+   }
+  },
+  "PFunDevSTSRole97E6D96D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sts.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "RoleName": "pfun-cma-model-dev1"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunDevSTSRole/Resource"
+   }
+  },
+  "PFunDevSTSRoleDefaultPolicy50E23D17": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sts:AssumeRole",
+        "iam:AttachRolePolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "PFunSTSLazyRoleE0C010DC",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PFunDevSTSRoleDefaultPolicy50E23D17",
+    "Roles": [
+     {
+      "Ref": "PFunDevSTSRole97E6D96D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunDevSTSRole/DefaultPolicy/Resource"
+   }
+  },
+  "PFunCMAModelDevLambdaRoleF1F69BB2": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -1196,31 +1388,34 @@
     }
    },
    "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevRole/Resource"
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevLambdaRole/Resource"
    }
   },
-  "PFunCMAModelDevRoleDefaultPolicy920A2218": {
+  "PFunCMAModelDevLambdaRoleDefaultPolicyD48781AE": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
      "Statement": [
       {
-       "Action": "sts:AssumeRole",
+       "Action": [
+        "sts:AssumeRole",
+        "iam:AttachRolePolicy"
+       ],
        "Effect": "Allow",
        "Resource": "*"
       }
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "PFunCMAModelDevRoleDefaultPolicy920A2218",
+    "PolicyName": "PFunCMAModelDevLambdaRoleDefaultPolicyD48781AE",
     "Roles": [
      {
-      "Ref": "PFunCMAModelDevRole08739E26"
+      "Ref": "PFunCMAModelDevLambdaRoleF1F69BB2"
      }
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy/Resource"
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy/Resource"
    }
   },
   "PFunCMAModelAPIHandlerPolicy469B3EE0": {
@@ -1290,7 +1485,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/01Q0W7CMAz8Ft5DxugTj8C0adKkVUXaKzKpKV7TpIqdoQr135e0TOzJd8757pS13hR6tYArL03dLi2d9O0gYFqVVscbF0dgRmG9zUNxoXfRtCg7YFQMnb7tz+4DBgxfGJi8U4m/Rmfkjrc9jcpCd6pBJ1pi6IgnIfTUgOAVhp/1ZJOk+eLdCTYB/gwqHwUzeMHe+qFDJ5mlkg2OCqJ4NmDJNfcqKfuy9+5MTXyYbJPsMMvego/9qCh3r7zFOSPN0lsyQ6YPlB9mNo5q+oKcm1yUsT7WZx+6KeNIzthYo576TzCff0bpo6gK2cdg5qh/ONWsKZ+Pqhzk4t1ToZ9XerP4ZqJliE6oQ13N8xd+PXOTqgEAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/01Q0W7CMAz8Ft5DxugTj8C0aRLSUJH2ikxqitc0qWJnqEP99yUt03jynXW+u2SpV4VezODKc1M1c0snfTsImEal1fHGxRGYUViv81Bc6E00DcoGGBVDq2/bs9tBj+ETA5N3KvHX6Izc8bqjQVloTxXoRPcYWuJRCB3VIHiF/ns52iRpvnh3gnWAP4PSR8EMXrCzvm/RSWapZI2DgiieDVhy9b1Kyr5svTtTHf9N1kl2mGRvwcduUJS7l97ilJHm3lsyfaZ3tIOf/lExrYdBjX+RCyQ7ZayP1dmHdgw7kjM2VqjHh4wwn39E6aKoEtnHYCbHB5z6VpTPB7Xv5eLdU6GfF3o1+2KieYhOqEVdTvMXB7n32LMBAAA="
    },
    "Metadata": {
     "aws:cdk:path": "pfun-cma-model/CDKMetadata/Default"
@@ -1325,6 +1520,19 @@
   "WebsocketAPIId": {
    "Value": {
     "Ref": "WebsocketAPI"
+   }
+  },
+  "WebsocketConnectHandlerArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "WebsocketConnect",
+     "Arn"
+    ]
+   }
+  },
+  "WebsocketConnectHandlerName": {
+   "Value": {
+    "Ref": "WebsocketConnect"
    }
   },
   "WebsocketMessageHandlerArn": {

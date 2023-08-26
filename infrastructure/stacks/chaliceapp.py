@@ -73,6 +73,7 @@ class ChaliceApp(cdk.Stack):
                 'arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*'
             ]
         )
+        
 
         iam_role = iam.Role(
             self, 'PFunCMAModelRole',
@@ -97,10 +98,11 @@ class ChaliceApp(cdk.Stack):
         sts_role.add_to_policy(trust_policy)
 
         pfun_cma_model_dev_role = iam.Role(
-            self, 'PFunDevSTSRole', role_name='pfun-cma-model-dev',
+            self, 'PFunDevSTSRole', role_name='pfun-cma-model-dev1',
             assumed_by=iam.ServicePrincipal("sts.amazonaws.com"),
         )
 
+        pfun_cma_model_dev_role.add_to_policy(trust_policy)
         sts_role.grant_assume_role(pfun_cma_model_dev_role)
 
         pfun_cma_model_dev_lambda_role = iam.Role(

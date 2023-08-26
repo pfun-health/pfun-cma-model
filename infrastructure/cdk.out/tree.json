@@ -125,7 +125,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -158,7 +158,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -191,7 +191,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -224,7 +224,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -257,7 +257,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -290,7 +290,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -1149,6 +1149,39 @@
                       "version": "2.93.0"
                     }
                   },
+                  "WebsocketConnect": {
+                    "id": "WebsocketConnect",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
+                        },
+                        "handler": "app.run_at_time_connect",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=pfun-cma-model:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.93.0"
+                    }
+                  },
                   "WebsocketMessage": {
                     "id": "WebsocketMessage",
                     "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage",
@@ -1159,7 +1192,7 @@
                           "bucket": {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "key": "5d765f6213b8dfc21bc58bcafa8af35420d7ca086aedc925dbf3302b79b724e0.zip"
+                          "key": "4bf2e31e05b3192e8b435b8e9039d8253c08e42a0d3e332afd5690e5253b0740.zip"
                         },
                         "handler": "app.run_at_time_route",
                         "layers": [
@@ -1195,6 +1228,63 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnApi",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "WebsocketConnectAPIIntegration": {
+                    "id": "WebsocketConnectAPIIntegration",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Integration",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        },
+                        "connectionType": "INTERNET",
+                        "contentHandlingStrategy": "CONVERT_TO_TEXT",
+                        "integrationType": "AWS_PROXY",
+                        "integrationUri": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${WebsocketHandler}/invocations",
+                            {
+                              "WebsocketHandler": {
+                                "Ref": "WebsocketConnect"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnIntegration",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "WebsocketConnectInvokePermission": {
+                    "id": "WebsocketConnectInvokePermission",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunction",
+                        "functionName": {
+                          "Ref": "WebsocketConnect"
+                        },
+                        "principal": "apigateway.amazonaws.com",
+                        "sourceArn": {
+                          "Fn::Sub": [
+                            "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketAPIId}/*",
+                            {
+                              "WebsocketAPIId": {
+                                "Ref": "WebsocketAPI"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
                       "version": "2.93.0"
                     }
                   },
@@ -1252,6 +1342,34 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "WebsocketConnectRoute": {
+                    "id": "WebsocketConnectRoute",
+                    "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "apiId": {
+                          "Ref": "WebsocketAPI"
+                        },
+                        "routeKey": "$connect",
+                        "target": {
+                          "Fn::Join": [
+                            "/",
+                            [
+                              "integrations",
+                              {
+                                "Ref": "WebsocketConnectAPIIntegration"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnRoute",
                       "version": "2.93.0"
                     }
                   },
@@ -1366,6 +1484,22 @@
                       "WebsocketAPIId": {
                         "id": "WebsocketAPIId",
                         "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.93.0"
+                        }
+                      },
+                      "WebsocketConnectHandlerArn": {
+                        "id": "WebsocketConnectHandlerArn",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.CfnOutput",
+                          "version": "2.93.0"
+                        }
+                      },
+                      "WebsocketConnectHandlerName": {
+                        "id": "WebsocketConnectHandlerName",
+                        "path": "pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnOutput",
                           "version": "2.93.0"
@@ -1544,13 +1678,108 @@
               "version": "2.93.0"
             }
           },
-          "PFunCMAModelDevRole": {
-            "id": "PFunCMAModelDevRole",
-            "path": "pfun-cma-model/PFunCMAModelDevRole",
+          "PFunSTSLazyRole": {
+            "id": "PFunSTSLazyRole",
+            "path": "pfun-cma-model/PFunSTSLazyRole",
             "children": {
-              "ImportPFunCMAModelDevRole": {
-                "id": "ImportPFunCMAModelDevRole",
-                "path": "pfun-cma-model/PFunCMAModelDevRole/ImportPFunCMAModelDevRole",
+              "Default": {
+                "id": "Default",
+                "path": "pfun-cma-model/PFunSTSLazyRole/Default",
+                "children": {
+                  "ImportDefault": {
+                    "id": "ImportDefault",
+                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/ImportDefault",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "sts.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "sts:AssumeRole",
+                                    "iam:AttachRolePolicy"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": "*"
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "PFunSTSLazyRoleDefaultPolicy6F2AE979",
+                            "roles": [
+                              {
+                                "Ref": "PFunSTSLazyRoleE0C010DC"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "2.93.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevSTSRole": {
+            "id": "PFunDevSTSRole",
+            "path": "pfun-cma-model/PFunDevSTSRole",
+            "children": {
+              "ImportPFunDevSTSRole": {
+                "id": "ImportPFunDevSTSRole",
+                "path": "pfun-cma-model/PFunDevSTSRole/ImportPFunDevSTSRole",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.Resource",
                   "version": "2.93.0"
@@ -1558,7 +1787,103 @@
               },
               "Resource": {
                 "id": "Resource",
-                "path": "pfun-cma-model/PFunCMAModelDevRole/Resource",
+                "path": "pfun-cma-model/PFunDevSTSRole/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                  "aws:cdk:cloudformation:props": {
+                    "assumeRolePolicyDocument": {
+                      "Statement": [
+                        {
+                          "Action": "sts:AssumeRole",
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "sts.amazonaws.com"
+                          }
+                        }
+                      ],
+                      "Version": "2012-10-17"
+                    },
+                    "roleName": "pfun-cma-model-dev1"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                  "version": "2.93.0"
+                }
+              },
+              "DefaultPolicy": {
+                "id": "DefaultPolicy",
+                "path": "pfun-cma-model/PFunDevSTSRole/DefaultPolicy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunDevSTSRole/DefaultPolicy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": [
+                                "sts:AssumeRole",
+                                "iam:AttachRolePolicy"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": "*"
+                            },
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "PFunSTSLazyRoleE0C010DC",
+                                  "Arn"
+                                ]
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "policyName": "PFunDevSTSRoleDefaultPolicy50E23D17",
+                        "roles": [
+                          {
+                            "Ref": "PFunDevSTSRole97E6D96D"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Policy",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelDevLambdaRole": {
+            "id": "PFunCMAModelDevLambdaRole",
+            "path": "pfun-cma-model/PFunCMAModelDevLambdaRole",
+            "children": {
+              "ImportPFunCMAModelDevLambdaRole": {
+                "id": "ImportPFunCMAModelDevLambdaRole",
+                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/ImportPFunCMAModelDevLambdaRole",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.Resource",
+                  "version": "2.93.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                   "aws:cdk:cloudformation:props": {
@@ -1583,28 +1908,31 @@
               },
               "DefaultPolicy": {
                 "id": "DefaultPolicy",
-                "path": "pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy",
+                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy/Resource",
+                    "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                       "aws:cdk:cloudformation:props": {
                         "policyDocument": {
                           "Statement": [
                             {
-                              "Action": "sts:AssumeRole",
+                              "Action": [
+                                "sts:AssumeRole",
+                                "iam:AttachRolePolicy"
+                              ],
                               "Effect": "Allow",
                               "Resource": "*"
                             }
                           ],
                           "Version": "2012-10-17"
                         },
-                        "policyName": "PFunCMAModelDevRoleDefaultPolicy920A2218",
+                        "policyName": "PFunCMAModelDevLambdaRoleDefaultPolicyD48781AE",
                         "roles": [
                           {
-                            "Ref": "PFunCMAModelDevRole08739E26"
+                            "Ref": "PFunCMAModelDevLambdaRoleF1F69BB2"
                           }
                         ]
                       }

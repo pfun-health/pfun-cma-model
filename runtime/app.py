@@ -33,7 +33,7 @@ def new_boto3_session():
     client_ = session_.client('iam')
     try:
         client_.attach_role_policy(
-            RoleName='pfun-cma-model-dev',
+            RoleName='pfun-cma-model-dev1',
             PolicyArn='arn:aws:iam::860311922912:policy/pfun-cma-model-dev'
         )
     except ClientError as err:
@@ -346,6 +346,7 @@ def run_at_time_connect(event):
       'headers': {'Sec-WebSocket-Protocol': 'PFun-Model-Web-Socket-Protocol'},
     }
 
+
 @app.on_ws_message(name="run_at_time")
 def run_at_time_route(event):
     global LAMBDA_CLIENT
@@ -360,6 +361,7 @@ def run_at_time_route(event):
         .invoke(FunctionName='run_at_time', Payload=payload)
     lambda_response = response.get('body', b'[]').decode('utf-8')
     app.websocket_api.send(event.connection_id, lambda_response)
+
 
 
 @app.lambda_function(name='run_at_time')

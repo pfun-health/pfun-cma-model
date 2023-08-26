@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a18e56cd578d1cf5377e1ac8d2aa723b51862b97026a3d18b69c1ff331dacc1d.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/84b3198cf1403dd045bd900029815c096a3f8b988725aab1b4dbc07f37070247.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -99,6 +99,12 @@
             "data": "FakeAuthInvokePermission"
           }
         ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnect"
+          }
+        ],
         "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage": [
           {
             "type": "aws:cdk:logicalId",
@@ -111,6 +117,18 @@
             "data": "WebsocketAPI"
           }
         ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectAPIIntegration"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectInvokePermission"
+          }
+        ],
         "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration": [
           {
             "type": "aws:cdk:logicalId",
@@ -121,6 +139,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "WebsocketMessageInvokePermission"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectRoute"
           }
         ],
         "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute": [
@@ -171,6 +195,18 @@
             "data": "WebsocketAPIId"
           }
         ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectHandlerArn"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectHandlerName"
+          }
+        ],
         "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn": [
           {
             "type": "aws:cdk:logicalId",
@@ -213,16 +249,40 @@
             "data": "PFunCMAModelRoleDefaultPolicy0E341EE9"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelDevRole/Resource": [
+        "/pfun-cma-model/PFunSTSLazyRole/Default/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelDevRole08739E26"
+            "data": "PFunSTSLazyRoleE0C010DC"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelDevRole/DefaultPolicy/Resource": [
+        "/pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelDevRoleDefaultPolicy920A2218"
+            "data": "PFunSTSLazyRoleDefaultPolicy6F2AE979"
+          }
+        ],
+        "/pfun-cma-model/PFunDevSTSRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevSTSRole97E6D96D"
+          }
+        ],
+        "/pfun-cma-model/PFunDevSTSRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevSTSRoleDefaultPolicy50E23D17"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelDevLambdaRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelDevLambdaRoleF1F69BB2"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelDevLambdaRoleDefaultPolicyD48781AE"
           }
         ],
         "/pfun-cma-model/PFunCMAModel-APIHandler-Policy/Resource": [
