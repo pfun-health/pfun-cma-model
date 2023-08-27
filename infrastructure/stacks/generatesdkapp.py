@@ -10,13 +10,11 @@ class GenerateSDKApp(core.Stack):
         # Define the custom resource
         sdk_generation_resource = cfn.CfnCustomResource(
             self, "SDKGenerationResource",
-            service_token=lambda_.SingletonFunction(
+            service_token=PythonFunction(
                 self, "SDKGenerationFunction",
-                uuid="d4b8e4a9-3f7c-4d3a-bc22-eeb541558b5f",
-                code=lambda_.Code.from_asset("lambda"),
-                handler="index.handler",
-                runtime=lambda_.Runtime.PYTHON_3_10,
-            ).function_arn,
+                entry="lambda",
+                runtime=lambda_.Runtime.PYTHON_3_10
+            ).function_arn
         )
 
         # Output the generated SDK URL

@@ -1,6 +1,6 @@
 {
  "Resources": {
-  "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938": {
+  "SDKGenerationFunctionServiceRole6936ABE8": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -31,34 +31,34 @@
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole/Resource"
+    "aws:cdk:path": "PFunCMAGenerateSDK/SDKGenerationFunction/ServiceRole/Resource"
    }
   },
-  "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fC47F9250": {
+  "SDKGenerationFunctionD769E7CB": {
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05.zip"
+     "S3Key": "ac1cafa0c1fed77f3a826bac36e0ee678d6ba43be0795339452e7edf0b9b16e2.zip"
     },
     "Handler": "index.handler",
     "Role": {
      "Fn::GetAtt": [
-      "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938",
+      "SDKGenerationFunctionServiceRole6936ABE8",
       "Arn"
      ]
     },
     "Runtime": "python3.10"
    },
    "DependsOn": [
-    "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938"
+    "SDKGenerationFunctionServiceRole6936ABE8"
    ],
    "Metadata": {
-    "aws:cdk:path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Resource",
-    "aws:asset:path": "asset.63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05",
-    "aws:asset:is-bundled": false,
+    "aws:cdk:path": "PFunCMAGenerateSDK/SDKGenerationFunction/Resource",
+    "aws:asset:path": "asset.ac1cafa0c1fed77f3a826bac36e0ee678d6ba43be0795339452e7edf0b9b16e2",
+    "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
   },
@@ -67,7 +67,7 @@
    "Properties": {
     "ServiceToken": {
      "Fn::GetAtt": [
-      "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fC47F9250",
+      "SDKGenerationFunctionD769E7CB",
       "Arn"
      ]
     }
@@ -79,7 +79,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z2OwQ6CMBBEv8V7WVFOHJXEqwY/gJRStNJ2DbuNMYR/t4XgaWZfdnbnCGUB+U5+KFPdkFnTwnRnqQYRUTNZ6dpORmT8w2pGfwlesUEv/qbq/3AWRjqYarQ64aSzoKKRRJoJTkniDOegBs1nSVooi6HrcXQyHYCYqgIxuloThlHF/ObEEo/dHrFLOn8N/A68PNpWUhx9Z9Yyty8/0e8LOORQ7l5kTDYGz8ZpqFf9AQ10Msb+AAAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/zVPSQ7CMAx8S++JKfTEjUXiCioPQCYNEJqlqh0hVPXvJC09jccez9gb2FYwlAV+SKqmldbcYbgyqlak1m0w6GCog9Xi+PAZR0HVDYk0E+wzJA6HqFrNByQtLLp7g5DUp+gVm+CFsiE2j9A7zDSPjpE4uFpTiL1KlkslJscU/zT+mRPPkbvIU/YiyevBNyZ7jaKUaLsXQlns/i+sMs5XyO7Lr+D/kstElqtGMfNVBesStsWbjJF99GychnrGH8SeuPQdAQAA"
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAGenerateSDK/CDKMetadata/Default"

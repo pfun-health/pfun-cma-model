@@ -405,7 +405,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4c9445b85276d69b61df3f62050a6fd0710e2a7b1e7642d6150df0c4ecb3dc5c.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/dd47bbe15b23957e40c2ec951fb19f69ef924e3057bfa25a8f405528e77b020d.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -421,16 +421,16 @@
         "PFunCMAGenerateSDK.assets"
       ],
       "metadata": {
-        "/PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/ServiceRole/Resource": [
+        "/PFunCMAGenerateSDK/SDKGenerationFunction/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938"
+            "data": "SDKGenerationFunctionServiceRole6936ABE8"
           }
         ],
-        "/PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Resource": [
+        "/PFunCMAGenerateSDK/SDKGenerationFunction/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fC47F9250"
+            "data": "SDKGenerationFunctionD769E7CB"
           }
         ],
         "/PFunCMAGenerateSDK/SDKGenerationResource": [
