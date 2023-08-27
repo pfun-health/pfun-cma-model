@@ -1,5 +1,6 @@
 from aws_cdk import aws_cloudformation as cfn, aws_lambda as lambda_
 import aws_cdk as core
+from aws_cdk.aws_lambda_python_alpha import PythonFunction
 
 
 class GenerateSDKApp(core.Stack):
@@ -14,7 +15,7 @@ class GenerateSDKApp(core.Stack):
                 uuid="d4b8e4a9-3f7c-4d3a-bc22-eeb541558b5f",
                 code=lambda_.Code.from_asset("lambda"),
                 handler="index.handler",
-                runtime=lambda_.Runtime.PYTHON_3_9,
+                runtime=lambda_.Runtime.PYTHON_3_10,
             ).function_arn,
         )
 

@@ -21,7 +21,9 @@ class CloudFrontApp(cdk.Stack):
             ssl_method=cloudfront.SSLMethod.SNI
         )
         custom_origin_config = cloudfront.CustomOriginConfig(
-            domain_name=f"{chalice_stack.stack_name.lower()}.{cdk.Aws.REGION}.amazonaws.com"
+            domain_name=cdk.Fn.import_value(
+                'pfun-cma-model/EndpointURL'
+            ),
         )
         distribution = cloudfront.CloudFrontWebDistribution(
             self, 'PFunCMAEndpointDistribution',

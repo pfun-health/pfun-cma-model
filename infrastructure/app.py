@@ -20,10 +20,10 @@ except (ImportError, ModuleNotFoundError):
     CloudFrontApp = importlib.import_module('.cloudfrontapp', package='infrastructure.stacks').CloudFrontApp
     GenerateSDKApp = importlib.import_module('.generatesdkapp', package='infrastructure.stacks').GenerateSDKApp
 
-
+environment = cdk.Environment(account='860311922912', region='us-east-1')
 app = cdk.App()
-chalice_stack = ChaliceApp(app, 'pfun-cma-model')
-cloudfront_stack = CloudFrontApp(app, 'PFunCMAEndpointDistribution', chalice_stack)
+chalice_stack = ChaliceApp(app, 'pfun-cma-model', env=environment)
+cloudfront_stack = CloudFrontApp(app, 'PFunCMAEndpointDistribution', chalice_stack, env=environment)
 generate_sdk_stack = GenerateSDKApp(app, 'PFunCMAGenerateSDK')
 
 app.synth()

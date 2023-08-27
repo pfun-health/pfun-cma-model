@@ -106,7 +106,7 @@ class ChaliceApp(cdk.Stack):
                                                 actions=[
                                                     "iam:AttachRolePolicy"],
                                                 resources=[
-                                                    "arn:aws:iam:860311922912:role/pfun-cma-model-dev1"],
+                                                    "*"],
                                             )])})
         sts_role.add_to_policy(trust_policy)
 

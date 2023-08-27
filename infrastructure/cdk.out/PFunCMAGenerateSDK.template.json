@@ -41,7 +41,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "cb9c83c41f65fd644b638577141f6b0d05c75f32fd0289878a448b887adf4b2b.zip"
+     "S3Key": "63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05.zip"
     },
     "Handler": "index.handler",
     "Role": {
@@ -50,14 +50,14 @@
       "Arn"
      ]
     },
-    "Runtime": "python3.9"
+    "Runtime": "python3.10"
    },
    "DependsOn": [
     "SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5fServiceRole24245938"
    ],
    "Metadata": {
     "aws:cdk:path": "PFunCMAGenerateSDK/SingletonLambdad4b8e4a93f7c4d3abc22eeb541558b5f/Resource",
-    "aws:asset:path": "asset.cb9c83c41f65fd644b638577141f6b0d05c75f32fd0289878a448b887adf4b2b",
+    "aws:asset:path": "asset.63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }

@@ -102,9 +102,7 @@
                           "python3.10"
                         ],
                         "contentUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0cd9b2ab28271b48194ab41add1d9853a2d3d8d7590c8c78b76ae4974d97241a.zip"
                         },
                         "layerName": "pfun-cma-model-pfun-cma-model-managed-layer"
@@ -122,9 +120,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_model_with_config",
@@ -155,9 +151,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time",
@@ -188,9 +182,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.fit_model_to_data",
@@ -221,9 +213,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.oauth2_dexcom",
@@ -254,9 +244,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.fake_auth",
@@ -287,9 +275,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.app",
@@ -1250,9 +1236,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time_connect",
@@ -1283,9 +1267,7 @@
                       "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
-                          "bucket": {
-                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
-                          },
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                           "key": "0effb8508b252b86262cc7cfef45d4d15475c2239c7d3c9f4a7ead2f2115630c.zip"
                         },
                         "handler": "app.run_at_time_route",
@@ -1909,7 +1891,7 @@
                                 {
                                   "Action": "iam:AttachRolePolicy",
                                   "Effect": "Allow",
-                                  "Resource": "arn:aws:iam:860311922912:role/pfun-cma-model-dev1"
+                                  "Resource": "*"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -2214,14 +2196,6 @@
                   "fqn": "aws-cdk-lib.CfnResource",
                   "version": "2.93.0"
                 }
-              },
-              "Condition": {
-                "id": "Condition",
-                "path": "pfun-cma-model/CDKMetadata/Condition",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CfnCondition",
-                  "version": "2.93.0"
-                }
               }
             },
             "constructInfo": {
@@ -2283,16 +2257,7 @@
                         {
                           "id": "origin1",
                           "domainName": {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "pfun-cma-model.",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ".amazonaws.com"
-                              ]
-                            ]
+                            "Fn::ImportValue": "pfun-cma-model/EndpointURL"
                           },
                           "customOriginConfig": {
                             "httpPort": 80,
@@ -2388,14 +2353,6 @@
                 "path": "PFunCMAEndpointDistribution/CDKMetadata/Default",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnResource",
-                  "version": "2.93.0"
-                }
-              },
-              "Condition": {
-                "id": "Condition",
-                "path": "PFunCMAEndpointDistribution/CDKMetadata/Condition",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.CfnCondition",
                   "version": "2.93.0"
                 }
               }
@@ -2536,7 +2493,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "cb9c83c41f65fd644b638577141f6b0d05c75f32fd0289878a448b887adf4b2b.zip"
+                      "s3Key": "63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05.zip"
                     },
                     "handler": "index.handler",
                     "role": {
@@ -2545,7 +2502,7 @@
                         "Arn"
                       ]
                     },
-                    "runtime": "python3.9"
+                    "runtime": "python3.10"
                   }
                 },
                 "constructInfo": {

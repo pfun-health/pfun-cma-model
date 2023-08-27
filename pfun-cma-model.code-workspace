@@ -7,8 +7,8 @@
 	"settings": {
 		"python.terminal.activateEnvironment": true,
 		"python.terminal.activateEnvInCurrentTerminal": true,
-		"python.defaultInterpreterPath": "./.venv/bin/python",
-		"pythonAutoImport.pythonInterpreterPath": "./.venv/bin/python"
+		"python.defaultInterpreterPath": "/tmp/venv310/bin/python",
+		"pythonAutoImport.pythonInterpreterPath": "/tmp/venv310/bin/python"
 	},
 	"tasks": {
 		"version": "2.0.0",
