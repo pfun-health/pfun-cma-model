@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo 'deleting old venv'
 set +e
@@ -7,23 +7,25 @@ set -e
 
 echo 'creating new venv'
 # ! important (virtual environment)
-python3.10 -m venv /tmp/venv310
+$HOME/.pyenv/versions/3.10.9/bin/python -m venv /tmp/venv310
 
-echo 'activate venv'
-sleep 1s
 set +e
 # ! deactivate pyenv just in case
 pyenv deactivate
 set -e
+
 sleep 1s
-. /tmp/venv310/bin/activate
+echo 'activate venv'
+sleep 1s
+
+source /tmp/venv310/bin/activate
 sleep 1s
 echo -e "** python version: **\n$(which python)\n"
 sleep 1s
 
 echo 'installing from venv...'
 TMPDIR=/tmp/venv310/lib/python3.10/site-packages
-python3.10 -m pip install \
+/tmp/venv310/bin/python -m pip install \
 	--upgrade \
 	--platform manylinux2014_x86_64 \
 	--target $TMPDIR/ \

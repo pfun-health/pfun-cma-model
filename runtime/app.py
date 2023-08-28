@@ -232,23 +232,20 @@ def fake_auth(auth_request: AuthRequest):
 @app.route('/sdk', methods=['GET'], authorizer=fake_auth)
 def generate_sdk():
     logger.info('Generating SDK')
-    # Generate the Chalice SDK
-    subprocess.run(["chalice", "generate-sdk", "/tmp/sdk"], check=True)
-
-    # Zip the SDK directory
-    zip_path = "/tmp/sdk.zip"
-    shutil.make_archive("/tmp/sdk", "zip", "/tmp/sdk")
-
-    # Read the zipped SDK file as binary
-    with open(zip_path, "rb") as f:
-        sdk_zip_data = f.read()
-
-    # Remove the temporary SDK directory
-    shutil.rmtree("/tmp/sdk")
+    client = boto3.client('apigateway')
+    rest_api_id = next(item for item in client.get_rest_apis()['items']
+                       if item.get('name') == 'PFun CMA Model Backend')['id']
+    response = client.get_sdk(
+        restApiId=rest_api_id,
+        stageName='api',
+        sdkType='javascript',
+    )
+    sdk_stream = response['body']
+    sdk_bytes = sdk_stream.read()
 
     # Return the zipped SDK as binary response
     return Response(
-        body=sdk_zip_data,
+        body=sdk_bytes,
         headers={'Content-Type': 'application/zip'},
         status_code=200,
     )

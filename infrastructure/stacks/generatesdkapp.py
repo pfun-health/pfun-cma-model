@@ -1,24 +1,35 @@
-from aws_cdk import aws_cloudformation as cfn, aws_lambda as lambda_
 import aws_cdk as core
-from aws_cdk.aws_lambda_python_alpha import PythonFunction
+import boto3
+import sys
+from pathlib import Path
+import importlib
+root_path = Path(__file__).parents[2]
+for pth in [root_path, ]:
+    pth = str(pth)
+    if pth not in sys.path:
+        sys.path.insert(0, pth)
+get_output_value = \
+    importlib.import_module(
+        '.cloudfrontapp', package='infrastructure.stacks').get_output_value
 
 
 class GenerateSDKApp(core.Stack):
-    def __init__(self, scope, id: str, **kwargs) -> None:
+    def __init__(self, scope, id: str, chalice_stack, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
-        # Define the custom resource
-        sdk_generation_resource = cfn.CfnCustomResource(
-            self, "SDKGenerationResource",
-            service_token=PythonFunction(
-                self, "SDKGenerationFunction",
-                entry="lambda",
-                runtime=lambda_.Runtime.PYTHON_3_10
-            ).function_arn
+        
+        self.add_dependency(chalice_stack)
+        
+        rest_api_id = get_output_value(chalice_stack, 'RestAPIId')
+        response = boto3.client('apigateway').get_sdk(
+            restApiId=rest_api_id,
+            stageName='api',
+            sdkType='javascript',
         )
+        sdk_stream = response['body']
+        sdk_bytes = sdk_stream.read()
 
-        # Output the generated SDK URL
+        # Output the generated SDK
         core.CfnOutput(
             self, "SDK",
-            value=sdk_generation_resource.get_att("SDK").to_string(),
+            value=sdk_bytes
         )

@@ -29,14 +29,13 @@ class ChaliceApp(cdk.Stack):
             self, 'PFunCMAModelChaliceApp', source_dir=RUNTIME_SOURCE_DIR,
             stage_config={
                 'environment_variables': {
-                }
+                },
             }
         )
 
         self.chalice.source_repository = 'https://github.com/rocapp/pfun-cma-model'
-        self.chalice.stage_config['name'] = 'dev'
         self.chalice.stage_config['lambda_memory_size'] = 256
-        self.chalice.stage_config['lambda_timeout'] = 15
+        self.chalice.stage_config['lambda_timeout'] = 60
 
         launch_configuration = autoscaling.CfnLaunchConfiguration(
             self, "PFunCMAModelLaunchConfiguration",
@@ -110,7 +109,7 @@ class ChaliceApp(cdk.Stack):
                                             )])})
         sts_role.add_to_policy(trust_policy)
 
-        pfun_cma_model_dev_role = iam.Role(
+        pfun_cma_model_dev_role = iam.LazyRole(
             self, 'PFunDevSTSRole', role_name='pfun-cma-model-dev1',
             assumed_by=iam.ServicePrincipal("sts.amazonaws.com"),
         )

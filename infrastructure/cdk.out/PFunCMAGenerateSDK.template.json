@@ -41,7 +41,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
      },
-     "S3Key": "63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05.zip"
+     "S3Key": "ac1cafa0c1fed77f3a826bac36e0ee678d6ba43be0795339452e7edf0b9b16e2.zip"
     },
     "Handler": "index.handler",
     "Role": {
@@ -57,8 +57,8 @@
    ],
    "Metadata": {
     "aws:cdk:path": "PFunCMAGenerateSDK/SDKGenerationFunction/Resource",
-    "aws:asset:path": "asset.63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05",
-    "aws:asset:is-bundled": false,
+    "aws:asset:path": "asset.ac1cafa0c1fed77f3a826bac36e0ee678d6ba43be0795339452e7edf0b9b16e2",
+    "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
   },

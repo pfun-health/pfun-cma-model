@@ -1920,96 +1920,8 @@
           "PFunDevSTSRole": {
             "id": "PFunDevSTSRole",
             "path": "pfun-cma-model/PFunDevSTSRole",
-            "children": {
-              "ImportPFunDevSTSRole": {
-                "id": "ImportPFunDevSTSRole",
-                "path": "pfun-cma-model/PFunDevSTSRole/ImportPFunDevSTSRole",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.93.0"
-                }
-              },
-              "Resource": {
-                "id": "Resource",
-                "path": "pfun-cma-model/PFunDevSTSRole/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                  "aws:cdk:cloudformation:props": {
-                    "assumeRolePolicyDocument": {
-                      "Statement": [
-                        {
-                          "Action": "sts:AssumeRole",
-                          "Effect": "Allow",
-                          "Principal": {
-                            "Service": "sts.amazonaws.com"
-                          }
-                        }
-                      ],
-                      "Version": "2012-10-17"
-                    },
-                    "roleName": "pfun-cma-model-dev1"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                  "version": "2.93.0"
-                }
-              },
-              "DefaultPolicy": {
-                "id": "DefaultPolicy",
-                "path": "pfun-cma-model/PFunDevSTSRole/DefaultPolicy",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunDevSTSRole/DefaultPolicy/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                      "aws:cdk:cloudformation:props": {
-                        "policyDocument": {
-                          "Statement": [
-                            {
-                              "Action": [
-                                "sts:AssumeRole",
-                                "iam:AttachRolePolicy"
-                              ],
-                              "Effect": "Allow",
-                              "Resource": "*"
-                            },
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Resource": {
-                                "Fn::GetAtt": [
-                                  "PFunSTSLazyRoleE0C010DC",
-                                  "Arn"
-                                ]
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "policyName": "PFunDevSTSRoleDefaultPolicy50E23D17",
-                        "roles": [
-                          {
-                            "Ref": "PFunDevSTSRole97E6D96D"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Policy",
-                  "version": "2.93.0"
-                }
-              }
-            },
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.Role",
+              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
               "version": "2.93.0"
             }
           },
@@ -2256,9 +2168,7 @@
                       "origins": [
                         {
                           "id": "origin1",
-                          "domainName": {
-                            "Fn::ImportValue": "pfun-cma-model/EndpointURL"
-                          },
+                          "domainName": "https://7wh572hf2d.execute-api.us-east-1.amazonaws.com/api/",
                           "customOriginConfig": {
                             "httpPort": 80,
                             "httpsPort": 443,
@@ -2485,7 +2395,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "63cd1cf58aa3bbfedca6c790147693b6fae09239bb86fa31e0f762792aca7e05.zip"
+                      "s3Key": "ac1cafa0c1fed77f3a826bac36e0ee678d6ba43be0795339452e7edf0b9b16e2.zip"
                     },
                     "handler": "index.handler",
                     "role": {

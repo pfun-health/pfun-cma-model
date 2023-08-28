@@ -66,9 +66,7 @@
          "TLSv1.2"
         ]
        },
-       "DomainName": {
-        "Fn::ImportValue": "pfun-cma-model/EndpointURL"
-       },
+       "DomainName": "https://7wh572hf2d.execute-api.us-east-1.amazonaws.com/api/",
        "Id": "origin1"
       }
      ],

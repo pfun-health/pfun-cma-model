@@ -4,6 +4,14 @@ except ImportError:
     import aws_cdk as cdk
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_certificatemanager as acm
+import boto3
+
+
+def get_output_value(stack, output_key):
+    return next(out['OutputValue'] for out in
+                boto3.resource('cloudformation').
+                Stack(stack.stack_name).outputs
+                if out['OutputKey'] == output_key)
 
 
 class CloudFrontApp(cdk.Stack):
@@ -20,10 +28,15 @@ class CloudFrontApp(cdk.Stack):
             security_policy=cloudfront.SecurityPolicyProtocol.TLS_V1,  # default
             ssl_method=cloudfront.SSLMethod.SNI
         )
+
+        #: add dependency on chalice stack
+        self.add_dependency(chalice_stack)
+
+        #: get the origin URL from chalice stack
+        endpoint_url = get_output_value(chalice_stack, 'EndpointURL')
+
         custom_origin_config = cloudfront.CustomOriginConfig(
-            domain_name=cdk.Fn.import_value(
-                'pfun-cma-model/EndpointURL'
-            ),
+            domain_name=endpoint_url
         )
         distribution = cloudfront.CloudFrontWebDistribution(
             self, 'PFunCMAEndpointDistribution',
