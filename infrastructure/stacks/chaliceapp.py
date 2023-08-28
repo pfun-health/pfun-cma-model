@@ -54,6 +54,7 @@ class ChaliceApp(cdk.Stack):
         self.chalice.source_repository = 'https://github.com/rocapp/pfun-cma-model'
         self.chalice.stage_config['lambda_memory_size'] = 256
         self.chalice.stage_config['lambda_timeout'] = 60
+        self.chalice.stage_config['domain_name'] = 'dev.pfun.app'
 
         launch_configuration = autoscaling.CfnLaunchConfiguration(
             self, "PFunCMAModelLaunchConfiguration",
