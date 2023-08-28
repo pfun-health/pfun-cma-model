@@ -33,7 +33,8 @@ class CloudFrontApp(cdk.Stack):
         self.add_dependency(chalice_stack)
 
         #: get the origin URL from chalice stack
-        endpoint_url = get_output_value(chalice_stack, 'EndpointURL')
+        endpoint_url = get_output_value(chalice_stack, 'EndpointURL') \
+            .replace('https://', '').replace('/', '')
 
         custom_origin_config = cloudfront.CustomOriginConfig(
             domain_name=endpoint_url

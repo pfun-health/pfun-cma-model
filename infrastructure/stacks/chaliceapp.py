@@ -9,6 +9,7 @@ from aws_cdk import aws_autoscaling as autoscaling
 from aws_cdk import aws_iam as iam
 
 from chalice.cdk import Chalice
+import boto3
 
 import sys
 from pathlib import Path
@@ -32,6 +33,23 @@ class ChaliceApp(cdk.Stack):
                 },
             }
         )
+        
+        try:
+            boto3.client('iam').create_role(
+                RoleName='pfun-cma-model-dev1',
+                AssumeRolePolicyDocument=json.dumps({
+                    'Version': '2012-10-17',
+                    'Statement': [{
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'Service': 'lambda.amazonaws.com'
+                        },
+                        'Action': 'sts:AssumeRole'
+                    }]
+                }),
+            )
+        except Exception:
+            pass
 
         self.chalice.source_repository = 'https://github.com/rocapp/pfun-cma-model'
         self.chalice.stage_config['lambda_memory_size'] = 256

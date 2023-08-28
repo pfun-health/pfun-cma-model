@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/83acbd9118de3415fb1e25b3833aaf562fcaacdfa39f4785bbc7f1ee5ed4ec5b.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/8754c1f2697db767923ec015451056c348c23b713568a098075d01bb33aa6f11.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -328,7 +328,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/64b8915145ec864941c70824bb086190ba97775bc6651c3c5e02452044dcc743.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/c178ceafef1207e738b9e3a8e777c47a3b39a99b7072cf831dc7f0abefddc68d.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -377,89 +377,6 @@
         ]
       },
       "displayName": "PFunCMAEndpointDistribution"
-    },
-    "PFunCMAGenerateSDK.assets": {
-      "type": "cdk:asset-manifest",
-      "properties": {
-        "file": "PFunCMAGenerateSDK.assets.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-      }
-    },
-    "PFunCMAGenerateSDK": {
-      "type": "aws:cloudformation:stack",
-      "environment": "aws://unknown-account/unknown-region",
-      "properties": {
-        "templateFile": "PFunCMAGenerateSDK.template.json",
-        "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/dd47bbe15b23957e40c2ec951fb19f69ef924e3057bfa25a8f405528e77b020d.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
-        "additionalDependencies": [
-          "PFunCMAGenerateSDK.assets"
-        ],
-        "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
-          "requiresBootstrapStackVersion": 8,
-          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-        }
-      },
-      "dependencies": [
-        "PFunCMAGenerateSDK.assets"
-      ],
-      "metadata": {
-        "/PFunCMAGenerateSDK/SDKGenerationFunction/ServiceRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SDKGenerationFunctionServiceRole6936ABE8"
-          }
-        ],
-        "/PFunCMAGenerateSDK/SDKGenerationFunction/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SDKGenerationFunctionD769E7CB"
-          }
-        ],
-        "/PFunCMAGenerateSDK/SDKGenerationResource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SDKGenerationResource"
-          }
-        ],
-        "/PFunCMAGenerateSDK/SDK": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "SDK"
-          }
-        ],
-        "/PFunCMAGenerateSDK/CDKMetadata/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CDKMetadata"
-          }
-        ],
-        "/PFunCMAGenerateSDK/CDKMetadata/Condition": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CDKMetadataAvailable"
-          }
-        ],
-        "/PFunCMAGenerateSDK/BootstrapVersion": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "BootstrapVersion"
-          }
-        ],
-        "/PFunCMAGenerateSDK/CheckBootstrapVersion": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CheckBootstrapVersion"
-          }
-        ]
-      },
-      "displayName": "PFunCMAGenerateSDK"
     },
     "Tree": {
       "type": "cdk:tree",

@@ -13,12 +13,10 @@ except ImportError:
 try:
     from stacks.chaliceapp import ChaliceApp
     from stacks.cloudfrontapp import CloudFrontApp
-    from stacks.generatesdkapp import GenerateSDKApp
 except (ImportError, ModuleNotFoundError):
     import importlib
     ChaliceApp = importlib.import_module('.chaliceapp', package='infrastructure.stacks').ChaliceApp
     CloudFrontApp = importlib.import_module('.cloudfrontapp', package='infrastructure.stacks').CloudFrontApp
-    GenerateSDKApp = importlib.import_module('.generatesdkapp', package='infrastructure.stacks').GenerateSDKApp
 
 environment = cdk.Environment(account='860311922912', region='us-east-1')
 app = cdk.App()

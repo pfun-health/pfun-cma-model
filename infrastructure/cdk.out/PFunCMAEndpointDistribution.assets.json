@@ -1,7 +1,7 @@
 {
   "version": "33.0.0",
   "files": {
-    "64b8915145ec864941c70824bb086190ba97775bc6651c3c5e02452044dcc743": {
+    "c178ceafef1207e738b9e3a8e777c47a3b39a99b7072cf831dc7f0abefddc68d": {
       "source": {
         "path": "PFunCMAEndpointDistribution.template.json",
         "packaging": "file"
@@ -9,7 +9,7 @@
       "destinations": {
         "860311922912-us-east-1": {
           "bucketName": "cdk-hnb659fds-assets-860311922912-us-east-1",
-          "objectKey": "64b8915145ec864941c70824bb086190ba97775bc6651c3c5e02452044dcc743.json",
+          "objectKey": "c178ceafef1207e738b9e3a8e777c47a3b39a99b7072cf831dc7f0abefddc68d.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-file-publishing-role-860311922912-us-east-1"
         }
