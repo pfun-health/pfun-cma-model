@@ -32,14 +32,6 @@ logger = logging.getLogger(__name__)
 
 def new_boto3_session():
     session_ = boto3.Session()
-    client_ = session_.client('iam')
-    try:
-        client_.attach_role_policy(
-            RoleName='pfun-cma-model-dev1',
-            PolicyArn='arn:aws:iam::860311922912:policy/pfun-cma-model-dev'
-        )
-    except ClientError as err:
-        logging.warning('not authorized to attach role policy: %s', str(err))
     return session_
 
 
@@ -86,6 +78,7 @@ file_handler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
+
 app = Chalice(app_name='PFun CMA Model Backend')
 app.log.setLevel(logging.INFO)
 

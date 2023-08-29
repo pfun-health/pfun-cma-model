@@ -4,23 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {
-		"python.terminal.activateEnvironment": true,
-		"python.terminal.activateEnvInCurrentTerminal": true,
-		"python.defaultInterpreterPath": "/tmp/venv310/bin/python",
-		"pythonAutoImport.pythonInterpreterPath": "/tmp/venv310/bin/python"
-	},
 	"tasks": {
 		"version": "2.0.0",
 		"tasks": [
-			{
-				"runOptions": {
-					"runOn": "folderOpen"
-				},
-				"label": "activate pfun-cma-model python virtual environment",
-				"type": "shell",
-				"command": "source .envrc"
-			}
 		]
 	}
 }

@@ -121,7 +121,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -152,7 +152,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -183,7 +183,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -214,7 +214,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -245,7 +245,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -276,7 +276,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -1237,7 +1237,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.run_at_time_connect",
                         "layers": [
@@ -1268,7 +1268,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "ebc37592e593b39d950c75a2e2c40155650110ce3a28fcb03c7e37ae56415b9e.zip"
+                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
                         },
                         "handler": "app.run_at_time_route",
                         "layers": [
@@ -1616,6 +1616,46 @@
                   "fqn": "aws-cdk-lib.cloudformation_include.CfnInclude",
                   "version": "2.93.0"
                 }
+              },
+              "RunModel": {
+                "id": "RunModel",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/RunModel",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "FitModel": {
+                "id": "FitModel",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/FitModel",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "RunAtTime": {
+                "id": "RunAtTime",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/RunAtTime",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "FakeAuth": {
+                "id": "FakeAuth",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/FakeAuth",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "APIHandler": {
+                "id": "APIHandler",
+                "path": "pfun-cma-model/PFunCMAModelChaliceApp/APIHandler",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
               }
             },
             "constructInfo": {
@@ -1623,477 +1663,593 @@
               "version": "10.2.69"
             }
           },
-          "PFunCMAModelLaunchConfiguration": {
-            "id": "PFunCMAModelLaunchConfiguration",
-            "path": "pfun-cma-model/PFunCMAModelLaunchConfiguration",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::AutoScaling::LaunchConfiguration",
-              "aws:cdk:cloudformation:props": {
-                "imageId": "ami-02675d30b814d1daa",
-                "instanceType": "m5.large"
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_autoscaling.CfnLaunchConfiguration",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelScalingGroup": {
-            "id": "PFunCMAModelScalingGroup",
-            "path": "pfun-cma-model/PFunCMAModelScalingGroup",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::AutoScaling::AutoScalingGroup",
-              "aws:cdk:cloudformation:props": {
-                "availabilityZones": [
-                  "us-east-1a",
-                  "us-east-1b",
-                  "us-east-1c"
-                ],
-                "desiredCapacity": "5",
-                "launchConfigurationName": {
-                  "Ref": "PFunCMAModelLaunchConfiguration"
-                },
-                "maxSize": "10",
-                "minSize": "1"
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_autoscaling.CfnAutoScalingGroup",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelRole": {
-            "id": "PFunCMAModelRole",
-            "path": "pfun-cma-model/PFunCMAModelRole",
-            "children": {
-              "ImportPFunCMAModelRole": {
-                "id": "ImportPFunCMAModelRole",
-                "path": "pfun-cma-model/PFunCMAModelRole/ImportPFunCMAModelRole",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.93.0"
-                }
-              },
-              "Resource": {
-                "id": "Resource",
-                "path": "pfun-cma-model/PFunCMAModelRole/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                  "aws:cdk:cloudformation:props": {
-                    "assumeRolePolicyDocument": {
-                      "Statement": [
-                        {
-                          "Action": "sts:AssumeRole",
-                          "Effect": "Allow",
-                          "Principal": {
-                            "Service": "lambda.amazonaws.com"
-                          }
-                        }
-                      ],
-                      "Version": "2012-10-17"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                  "version": "2.93.0"
-                }
-              },
-              "DefaultPolicy": {
-                "id": "DefaultPolicy",
-                "path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunCMAModelRole/DefaultPolicy/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                      "aws:cdk:cloudformation:props": {
-                        "policyDocument": {
-                          "Statement": [
-                            {
-                              "Action": [
-                                "apigateway:POST",
-                                "lambda:CreateFunction",
-                                "lambda:CreateAlias",
-                                "iam:AttachRolePolicy"
-                              ],
-                              "Effect": "Allow",
-                              "Resource": [
-                                "arn:aws:apigateway:*::/*",
-                                "arn:aws:lambda:*:*:function:*",
-                                "arn:aws:iam::*:role/pfun-cma-model-dev",
-                                "arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*"
-                              ]
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "policyName": "PFunCMAModelRoleDefaultPolicy0E341EE9",
-                        "roles": [
-                          {
-                            "Ref": "PFunCMAModelRole4C9342EE"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Policy",
-                  "version": "2.93.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.Role",
-              "version": "2.93.0"
-            }
-          },
-          "PFunSTSLazyRole": {
-            "id": "PFunSTSLazyRole",
-            "path": "pfun-cma-model/PFunSTSLazyRole",
-            "children": {
-              "Default": {
-                "id": "Default",
-                "path": "pfun-cma-model/PFunSTSLazyRole/Default",
-                "children": {
-                  "ImportDefault": {
-                    "id": "ImportDefault",
-                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/ImportDefault",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.Resource",
-                      "version": "2.93.0"
-                    }
-                  },
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": "sts.amazonaws.com"
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.93.0"
-                    }
-                  },
-                  "DefaultPolicy": {
-                    "id": "DefaultPolicy",
-                    "path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy",
-                    "children": {
-                      "Resource": {
-                        "id": "Resource",
-                        "path": "pfun-cma-model/PFunSTSLazyRole/Default/DefaultPolicy/Resource",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                          "aws:cdk:cloudformation:props": {
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": [
-                                    "sts:AssumeRole",
-                                    "iam:AttachRolePolicy"
-                                  ],
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            },
-                            "policyName": "PFunSTSLazyRoleDefaultPolicy6F2AE979",
-                            "roles": [
-                              {
-                                "Ref": "PFunSTSLazyRoleE0C010DC"
-                              }
-                            ]
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                          "version": "2.93.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.Policy",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.93.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
-              "version": "2.93.0"
-            }
-          },
-          "PFunIAMRole": {
-            "id": "PFunIAMRole",
-            "path": "pfun-cma-model/PFunIAMRole",
-            "children": {
-              "Default": {
-                "id": "Default",
-                "path": "pfun-cma-model/PFunIAMRole/Default",
-                "children": {
-                  "ImportDefault": {
-                    "id": "ImportDefault",
-                    "path": "pfun-cma-model/PFunIAMRole/Default/ImportDefault",
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.Resource",
-                      "version": "2.93.0"
-                    }
-                  },
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunIAMRole/Default/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                      "aws:cdk:cloudformation:props": {
-                        "assumeRolePolicyDocument": {
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Effect": "Allow",
-                              "Principal": {
-                                "Service": "iam.amazonaws.com"
-                              }
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "policies": [
-                          {
-                            "policyName": "PFunIAMLazyPolicy",
-                            "policyDocument": {
-                              "Statement": [
-                                {
-                                  "Action": "iam:AttachRolePolicy",
-                                  "Effect": "Allow",
-                                  "Resource": "*"
-                                }
-                              ],
-                              "Version": "2012-10-17"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Role",
-                  "version": "2.93.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
-              "version": "2.93.0"
-            }
-          },
-          "PFunDevSTSRole": {
-            "id": "PFunDevSTSRole",
-            "path": "pfun-cma-model/PFunDevSTSRole",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.LazyRole",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelDevLambdaRole": {
-            "id": "PFunCMAModelDevLambdaRole",
-            "path": "pfun-cma-model/PFunCMAModelDevLambdaRole",
-            "children": {
-              "ImportPFunCMAModelDevLambdaRole": {
-                "id": "ImportPFunCMAModelDevLambdaRole",
-                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/ImportPFunCMAModelDevLambdaRole",
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.Resource",
-                  "version": "2.93.0"
-                }
-              },
-              "Resource": {
-                "id": "Resource",
-                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::Role",
-                  "aws:cdk:cloudformation:props": {
-                    "assumeRolePolicyDocument": {
-                      "Statement": [
-                        {
-                          "Action": "sts:AssumeRole",
-                          "Effect": "Allow",
-                          "Principal": {
-                            "Service": "lambda.amazonaws.com"
-                          }
-                        }
-                      ],
-                      "Version": "2012-10-17"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnRole",
-                  "version": "2.93.0"
-                }
-              },
-              "DefaultPolicy": {
-                "id": "DefaultPolicy",
-                "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunCMAModelDevLambdaRole/DefaultPolicy/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
-                      "aws:cdk:cloudformation:props": {
-                        "policyDocument": {
-                          "Statement": [
-                            {
-                              "Action": [
-                                "sts:AssumeRole",
-                                "iam:AttachRolePolicy"
-                              ],
-                              "Effect": "Allow",
-                              "Resource": "*"
-                            }
-                          ],
-                          "Version": "2012-10-17"
-                        },
-                        "policyName": "PFunCMAModelDevLambdaRoleDefaultPolicyD48781AE",
-                        "roles": [
-                          {
-                            "Ref": "PFunCMAModelDevLambdaRoleF1F69BB2"
-                          }
-                        ]
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.Policy",
-                  "version": "2.93.0"
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.Role",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModel-APIHandler-Policy": {
-            "id": "PFunCMAModel-APIHandler-Policy",
-            "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy",
+          "PFunCMAModelVPC": {
+            "id": "PFunCMAModelVPC",
+            "path": "pfun-cma-model/PFunCMAModelVPC",
             "children": {
               "Resource": {
                 "id": "Resource",
-                "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy/Resource",
+                "path": "pfun-cma-model/PFunCMAModelVPC/Resource",
                 "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                  "aws:cdk:cloudformation:type": "AWS::EC2::VPC",
                   "aws:cdk:cloudformation:props": {
-                    "policyDocument": {
-                      "Statement": [
-                        {
-                          "Action": [
-                            "apigateway:POST",
-                            "lambda:CreateFunction",
-                            "lambda:CreateAlias",
-                            "iam:AttachRolePolicy"
-                          ],
-                          "Effect": "Allow",
-                          "Resource": [
-                            "arn:aws:apigateway:*::/*",
-                            "arn:aws:lambda:*:*:function:*",
-                            "arn:aws:iam::*:role/pfun-cma-model-dev"
-                          ]
-                        }
-                      ],
-                      "Version": "2012-10-17"
-                    },
-                    "policyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
-                    "roles": [
+                    "cidrBlock": "10.1.0.0/16",
+                    "enableDnsHostnames": true,
+                    "enableDnsSupport": true,
+                    "instanceTenancy": "default",
+                    "tags": [
                       {
-                        "Ref": "PFunIAMRole1DC387DA"
-                      },
-                      {
-                        "Ref": "PFunIAMRole1DC387DA"
+                        "key": "Name",
+                        "value": "pfun-cma-model/PFunCMAModelVPC"
                       }
                     ]
                   }
                 },
                 "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnVPC",
+                  "version": "2.93.0"
+                }
+              },
+              "publicSubnet1": {
+                "id": "publicSubnet1",
+                "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "availabilityZone": "us-east-1a",
+                        "cidrBlock": "10.1.0.0/17",
+                        "mapPublicIpOnLaunch": true,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "public"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet1RouteTableA470CB3E"
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "gatewayId": {
+                          "Ref": "PFunCMAModelVPCIGW41DFF152"
+                        },
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet1RouteTableA470CB3E"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "EIP": {
+                    "id": "EIP",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/EIP",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
+                      "aws:cdk:cloudformation:props": {
+                        "domain": "vpc",
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "NATGateway": {
+                    "id": "NATGateway",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1/NATGateway",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::NatGateway",
+                      "aws:cdk:cloudformation:props": {
+                        "allocationId": {
+                          "Fn::GetAtt": [
+                            "PFunCMAModelVPCpublicSubnet1EIP7E238277",
+                            "AllocationId"
+                          ]
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+                        },
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet1"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnNatGateway",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
+                  "version": "2.93.0"
+                }
+              },
+              "publicSubnet2": {
+                "id": "publicSubnet2",
+                "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "availabilityZone": "us-east-1b",
+                        "cidrBlock": "10.1.128.0/17",
+                        "mapPublicIpOnLaunch": true,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "public"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Public"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet2RouteTableA662863B"
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "pfun-cma-model/PFunCMAModelVPC/publicSubnet2/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "gatewayId": {
+                          "Ref": "PFunCMAModelVPCIGW41DFF152"
+                        },
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet2RouteTableA662863B"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
+                  "version": "2.93.0"
+                }
+              },
+              "IGW": {
+                "id": "IGW",
+                "path": "pfun-cma-model/PFunCMAModelVPC/IGW",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::InternetGateway",
+                  "aws:cdk:cloudformation:props": {
+                    "tags": [
+                      {
+                        "key": "Name",
+                        "value": "pfun-cma-model/PFunCMAModelVPC"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnInternetGateway",
+                  "version": "2.93.0"
+                }
+              },
+              "VPCGW": {
+                "id": "VPCGW",
+                "path": "pfun-cma-model/PFunCMAModelVPC/VPCGW",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::VPCGatewayAttachment",
+                  "aws:cdk:cloudformation:props": {
+                    "internetGatewayId": {
+                      "Ref": "PFunCMAModelVPCIGW41DFF152"
+                    },
+                    "vpcId": {
+                      "Ref": "PFunCMAModelVPC45F492DB"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnVPCGatewayAttachment",
                   "version": "2.93.0"
                 }
               }
             },
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.Policy",
+              "fqn": "aws-cdk-lib.aws_ec2.Vpc",
               "version": "2.93.0"
             }
           },
-          "PFunCMAModel-APIHandler-Policy-Role": {
-            "id": "PFunCMAModel-APIHandler-Policy-Role",
-            "path": "pfun-cma-model/PFunCMAModel-APIHandler-Policy-Role",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::IAM::RolePolicy",
-              "aws:cdk:cloudformation:props": {
-                "policyDocument": {
-                  "Statement": [
-                    {
-                      "Action": [
-                        "apigateway:POST",
-                        "lambda:CreateFunction",
-                        "lambda:CreateAlias",
-                        "iam:AttachRolePolicy"
-                      ],
-                      "Effect": "Allow",
-                      "Resource": [
-                        "arn:aws:apigateway:*::/*",
-                        "arn:aws:lambda:*:*:function:*",
-                        "arn:aws:iam::*:role/pfun-cma-model-dev"
-                      ]
-                    }
-                  ],
-                  "Version": "2012-10-17"
+          "PFunCMAModelLoadBalancer": {
+            "id": "PFunCMAModelLoadBalancer",
+            "path": "pfun-cma-model/PFunCMAModelLoadBalancer",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+                  "aws:cdk:cloudformation:props": {
+                    "loadBalancerAttributes": [
+                      {
+                        "key": "deletion_protection.enabled",
+                        "value": "false"
+                      }
+                    ],
+                    "scheme": "internet-facing",
+                    "securityGroups": [
+                      {
+                        "Fn::GetAtt": [
+                          "PFunCMAModelLoadBalancerSecurityGroupE55A7C00",
+                          "GroupId"
+                        ]
+                      }
+                    ],
+                    "subnets": [
+                      {
+                        "Ref": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+                      },
+                      {
+                        "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+                      }
+                    ],
+                    "type": "application"
+                  }
                 },
-                "policyName": "PFunCMAModelAPIHandlerPolicy469B3EE0",
-                "roleName": {
-                  "Ref": "PFunIAMRole1DC387DA"
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnLoadBalancer",
+                  "version": "2.93.0"
+                }
+              },
+              "SecurityGroup": {
+                "id": "SecurityGroup",
+                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/SecurityGroup",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/SecurityGroup/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                      "aws:cdk:cloudformation:props": {
+                        "groupDescription": "Automatically created Security Group for ELB pfuncmamodelPFunCMAModelLoadBalancer907EB3CB",
+                        "securityGroupEgress": [
+                          {
+                            "cidrIp": "255.255.255.255/32",
+                            "description": "Disallow all traffic",
+                            "ipProtocol": "icmp",
+                            "fromPort": 252,
+                            "toPort": 86
+                          }
+                        ],
+                        "securityGroupIngress": [
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "ipProtocol": "tcp",
+                            "fromPort": 443,
+                            "toPort": 443,
+                            "description": "Allow from anyone on port 443"
+                          },
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "ipProtocol": "tcp",
+                            "fromPort": 80,
+                            "toPort": 80,
+                            "description": "Allow from anyone on port 80"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+                  "version": "2.93.0"
+                }
+              },
+              "Redirect443To80": {
+                "id": "Redirect443To80",
+                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
+                      "aws:cdk:cloudformation:props": {
+                        "defaultActions": [
+                          {
+                            "type": "redirect",
+                            "redirectConfig": {
+                              "statusCode": "HTTP_301",
+                              "port": "80",
+                              "protocol": "HTTPS"
+                            }
+                          }
+                        ],
+                        "loadBalancerArn": {
+                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
+                        },
+                        "port": 443,
+                        "protocol": "HTTP"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
+                  "version": "2.93.0"
+                }
+              },
+              "PFunCMAModelListener": {
+                "id": "PFunCMAModelListener",
+                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
+                      "aws:cdk:cloudformation:props": {
+                        "defaultActions": [
+                          {
+                            "type": "forward",
+                            "targetGroupArn": {
+                              "Ref": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
+                            }
+                          }
+                        ],
+                        "loadBalancerArn": {
+                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
+                        },
+                        "port": 80,
+                        "protocol": "HTTP"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "PFunCMAModelAPIHandlerTargetGroup": {
+                    "id": "PFunCMAModelAPIHandlerTargetGroup",
+                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+                          "aws:cdk:cloudformation:props": {
+                            "healthCheckIntervalSeconds": 300,
+                            "targets": [
+                              {
+                                "id": {
+                                  "Fn::GetAtt": [
+                                    "APIHandler",
+                                    "Arn"
+                                  ]
+                                }
+                              }
+                            ],
+                            "targetType": "lambda"
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnTargetGroup",
+                          "version": "2.93.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationTargetGroup",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
+                  "version": "2.93.0"
                 }
               }
             },
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_iam.CfnRolePolicy",
+              "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationLoadBalancer",
+              "version": "2.93.0"
+            }
+          },
+          "pfun-cma-model--PFunCMAModelChaliceApp--APIHandler": {
+            "id": "pfun-cma-model--PFunCMAModelChaliceApp--APIHandler",
+            "path": "pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler",
+            "children": {
+              "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": {
+                "id": "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
+                "path": "pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                  "aws:cdk:cloudformation:props": {
+                    "action": "lambda:InvokeFunction",
+                    "functionName": {
+                      "Fn::GetAtt": [
+                        "APIHandler",
+                        "Arn"
+                      ]
+                    },
+                    "principal": "elasticloadbalancing.amazonaws.com"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+              "version": "2.93.0"
+            }
+          },
+          "PFunAlbDNSName": {
+            "id": "PFunAlbDNSName",
+            "path": "pfun-cma-model/PFunAlbDNSName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
               "version": "2.93.0"
             }
           },

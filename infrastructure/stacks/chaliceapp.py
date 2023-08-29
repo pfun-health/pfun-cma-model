@@ -7,9 +7,16 @@ except ImportError:
     import aws_cdk as cdk
 from aws_cdk import aws_autoscaling as autoscaling
 from aws_cdk import aws_iam as iam
+from aws_cdk import aws_elasticloadbalancingv2 as elbv2
+from aws_cdk import (
+    aws_ec2 as ec2,
+    aws_route53_targets as targets,
+    aws_route53 as route53,
+    aws_elasticloadbalancingv2_targets as elbv2_targets,
+    aws_lambda as lambda_
+)
 
 from chalice.cdk import Chalice
-import boto3
 
 import sys
 from pathlib import Path
@@ -22,149 +29,90 @@ RUNTIME_SOURCE_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), os.pardir, 'runtime')
 
 
+def get_lambda_function(stack, name):
+    """get lambda functions from chalice"""
+    fun = stack.chalice.get_function(name)
+    return lambda_.Function.from_function_attributes(
+        stack, fun.node.path, function_arn=fun.function_arn,
+        same_environment=True)
+
+
 class ChaliceApp(cdk.Stack):
 
     def __init__(self, scope, id, **kwargs):
         super().__init__(scope, id, **kwargs)
         self.chalice = Chalice(
             self, 'PFunCMAModelChaliceApp', source_dir=RUNTIME_SOURCE_DIR,
-            stage_config={
-                'environment_variables': {
-                },
-            }
         )
-        
-        try:
-            boto3.client('iam').create_role(
-                RoleName='pfun-cma-model-dev1',
-                AssumeRolePolicyDocument=json.dumps({
-                    'Version': '2012-10-17',
-                    'Statement': [{
-                        'Effect': 'Allow',
-                        'Principal': {
-                            'Service': 'lambda.amazonaws.com'
-                        },
-                        'Action': 'sts:AssumeRole'
-                    }]
-                }),
-            )
-        except Exception:
-            pass
-
         self.chalice.source_repository = 'https://github.com/rocapp/pfun-cma-model'
-        self.chalice.stage_config['lambda_memory_size'] = 256
-        self.chalice.stage_config['lambda_timeout'] = 60
-        self.chalice.stage_config['domain_name'] = 'dev.pfun.app'
 
-        launch_configuration = autoscaling.CfnLaunchConfiguration(
-            self, "PFunCMAModelLaunchConfiguration",
-            image_id='ami-02675d30b814d1daa',
-            instance_type='m5.large',
-            # other configuration options
-        )
+        # Create a VPC
+        vpc = ec2.Vpc(self, "PFunCMAModelVPC",
+                      cidr="10.0.0.3/16",
+                      max_azs=2,
+                      nat_gateways=1,
+                      subnet_configuration=[
+                          ec2.SubnetConfiguration(
+                              name="public",
+                              subnet_type=ec2.SubnetType.PUBLIC
+                          )
+                      ]
+                      )
 
-        autoscaling_group = autoscaling.CfnAutoScalingGroup(
-            self, "PFunCMAModelScalingGroup",
-            min_size='1',
-            max_size='10',
-            desired_capacity='5',
-            launch_configuration_name=launch_configuration.ref,
-            availability_zones=[
-                'us-east-1a',
-                'us-east-1b',
-                'us-east-1c',
-            ]
-        )
+        al_image = ec2.AmazonLinuxImage(
+            generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2)
+        al_inst = ec2.InstanceType.of(
+            ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM)
 
-        attach_policy_statement = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=[
-                'apigateway:POST',
-                'lambda:CreateFunction',
-                'lambda:CreateAlias',
-                'iam:AttachRolePolicy'
-            ],
-            resources=[
-                'arn:aws:apigateway:*::/*',
-                'arn:aws:lambda:*:*:function:*',
-                'arn:aws:iam::*:role/pfun-cma-model-dev',
-                'arn:aws:sts::860311922912:assumed-role/pfun-cma-model-*'
-            ]
-        )
+        # Configure the ASG as a target for the ALB
+        alb = elbv2.ApplicationLoadBalancer(
+            self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=True)
+        alb.add_redirect(source_port=443, target_port=80)
 
-        iam_role = iam.Role(
-            self, 'PFunCMAModelRole',
-            assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),)
-        iam_role.grant_assume_role(
-            iam.ServicePrincipal('apigateway.amazonaws.com'))
-        iam_role.grant_assume_role(
-            iam.ServicePrincipal('lambda.amazonaws.com'))
-        iam_role.grant_assume_role(iam.ServicePrincipal('iam.amazonaws.com'))
-        iam_role.add_to_policy(attach_policy_statement)
+        listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
 
-        trust_policy = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=["sts:AssumeRole", "iam:AttachRolePolicy"],
-            resources=["*"],
-        )
+        #: lambda function targets
+        chalice_lambda_functions = (
+            'RunModel', 'FitModel', 'RunAtTime', 'FakeAuth', 'APIHandler')
 
-        sts_role = iam.LazyRole(
-            self, "PFunSTSLazyRole",
-            assumed_by=iam.ServicePrincipal("sts.amazonaws.com")
-        )
-        iam_role = iam.LazyRole(self, 'PFunIAMRole',
-                                assumed_by=iam.ServicePrincipal(
-                                    "iam.amazonaws.com"),
-                                inline_policies={
-                                    'PFunIAMLazyPolicy':
-                                    iam.PolicyDocument(
-                                        statements=[
-                                            iam.PolicyStatement(
-                                                effect=iam.Effect.ALLOW,
-                                                actions=[
-                                                    "iam:AttachRolePolicy"],
-                                                resources=[
-                                                    "*"],
-                                            )])})
-        sts_role.add_to_policy(trust_policy)
-
-        pfun_cma_model_dev_role = iam.LazyRole(
-            self, 'PFunDevSTSRole', role_name='pfun-cma-model-dev1',
-            assumed_by=iam.ServicePrincipal("sts.amazonaws.com"),
-        )
-
-        pfun_cma_model_dev_role.add_to_policy(trust_policy)
-        sts_role.grant_assume_role(pfun_cma_model_dev_role)
-
-        pfun_cma_model_dev_lambda_role = iam.Role(
-            self, "PFunCMAModelDevLambdaRole",
-            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
-        )
-
-        pfun_cma_model_dev_lambda_role.add_to_policy(trust_policy)
-
-        statements = json.loads(
-            open(
-                os.path.join(
-                    RUNTIME_SOURCE_DIR,
-                    'gateway-assume-role-policy.json'), 'r').read())['Statement']
-        policy_effect = iam.Effect.ALLOW if statements[0]['Effect'] == 'Allow' \
-            else iam.Effect.DENY
-        policy_doc = iam.PolicyDocument(statements=[
+        # Configure permissions
+        for function_name in chalice_lambda_functions:
+            func = self.chalice.get_function(function_name)
+            func.add_permission(
+                f'Invoke{function_name}FromLoadBalancer',
+                principal=iam.ServicePrincipal(
+                    'elasticloadbalancing.amazonaws.com'),
+                action='lambda:InvokeFunction',
+                source_arn=alb.load_balancer_arn
+            )
+            func.add_permission(
+                f'Invoke{function_name}APIHandler',
+                principal=iam.ServicePrincipal('apigateway.amazonaws.com'),
+                action='lambda:InvokeFunction')
+            func.add_permission(
+                f'Invoke{function_name}APIHandler',
+                principal=iam.ServicePrincipal(
+                    'apigatewayv2.amazonaws.com'),
+                action='lambda:InvokeFunction')
+        fake_auth = self.chalice.get_function('FakeAuth')
+        fake_auth.add_to_role_policy(
             iam.PolicyStatement(
-                actions=statements[0]['Action'],
-                effect=policy_effect,
-                resources=statements[0]['Resource']
+                effect=iam.Effect.ALLOW,
+                actions=['sts:AssumeRole', 'sts:GetCallerIdentity',
+                         'secretsmanager:GetSecretValue'],
+                resources=['*']
             )
-        ])
-        apihandler_policy = \
-            iam.Policy(
-                self, id='PFunCMAModel-APIHandler-Policy',
-                document=policy_doc, force=True
-            )
-        apihandler_policy.attach_to_role(iam_role)  # type: ignore
+        )
 
-        iam.CfnRolePolicy(self, 'PFunCMAModel-APIHandler-Policy-Role',
-                          role_name=iam_role.role_name,
-                          policy_name=apihandler_policy.policy_name,
-                          policy_document=apihandler_policy.document)
+        # Create a listener rule to forward requests to the Chalice API
+        listener.add_targets("PFunCMAModelAPIHandlerTarget",
+                             targets=[
+                                 elbv2_targets.LambdaTarget(
+                                     get_lambda_function(self, 'APIHandler')),
+                             ],
+                             health_check=elbv2.HealthCheck(
+                                 interval=cdk.Duration.minutes(5)),
+                             )
+
+        # Output the ALB DNS name
+        cdk.CfnOutput(self, "PFunAlbDNSName", value=alb.load_balancer_dns_name)

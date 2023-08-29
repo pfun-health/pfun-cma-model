@@ -8,10 +8,8 @@ api_key=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapidap
 sleep 1s
 
 endpoint=${1:-run}
-set +e
-default_url=https://n73klof2k8.execute-api.us-east-1.amazonaws.com/api/
-set -e
-base_url=${base_url:-${default_url}}
+
+base_url=${base_url:-https://$(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text).execute-api.us-east-1.amazonaws.com/api/}
 url="${base_url}${endpoint}"
 echo "URL=${url}"
 
