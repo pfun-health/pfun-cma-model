@@ -9,7 +9,7 @@ sleep 1s
 
 endpoint=${1:-run}
 set +e
-default_url=$(chalice url)
+default_url=https://n73klof2k8.execute-api.us-east-1.amazonaws.com/api/
 set -e
 base_url=${base_url:-${default_url}}
 url="${base_url}${endpoint}"

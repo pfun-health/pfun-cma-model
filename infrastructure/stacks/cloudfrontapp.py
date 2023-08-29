@@ -17,7 +17,8 @@ def get_output_value(stack, output_key):
 class CloudFrontApp(cdk.Stack):
     def __init__(self, scope, id: str, chalice_stack, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
+        self.node.add_dependency(chalice_stack)
+        
         existing_certificate_arn = 'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
         certificate = acm.Certificate.from_certificate_arn(
             self, "DevPFunCertificate", existing_certificate_arn)
@@ -29,13 +30,7 @@ class CloudFrontApp(cdk.Stack):
             ssl_method=cloudfront.SSLMethod.SNI
         )
 
-        #: add dependency on chalice stack
-        self.add_dependency(chalice_stack)
-
-        #: get the origin URL from chalice stack
-        endpoint_url = get_output_value(chalice_stack, 'EndpointURL') \
-            .replace('https://', '').replace('/', '')
-
+        endpoint_url = get_output_value(chalice_stack, 'EndpointURL')
         custom_origin_config = cloudfront.CustomOriginConfig(
             domain_name=endpoint_url
         )

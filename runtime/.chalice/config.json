@@ -11,14 +11,6 @@
   "stages": {
     "dev": {
       "api_gateway_stage": "api",
-      "api_gateway_custom_domain": {
-        "domain_name": "dev.pfun.app",
-        "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/2a3d9c7f-3a5d-4a7d-8a9d-9e0a0b0c0d0e",
-        "tags": [
-          "pfun-app",
-          "dev"
-        ]
-      },
       "lambda_functions": {
         "run_at_time": {
           "lambda_timeout": 120,

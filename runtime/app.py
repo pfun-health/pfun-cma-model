@@ -339,11 +339,6 @@ def get_lambda_params(event, key: str, context: Dict | None = None
     if body is not None:
         params = json.loads(body)
     params = params.get(key, params)
-    logging.debug(
-        '(lambda:%s) params:\n%s',
-        context.get('function_name', ''),
-        json.dumps(params, indent=2)
-    )
     params.update(query_params)
     return params
 
@@ -366,7 +361,7 @@ def run_model_route():
     A function that returns a message containing the welcome message and the
     routes of the PFun CMA Model API.
     """
-    global LAMBDA_CLIENT  # type: ignore
+    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
     request: Request | None = app.current_request
     if request is None:
         raise RuntimeError("No request was provided!")
@@ -374,10 +369,9 @@ def run_model_route():
     if not authorized:
         return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    payload = json.dumps(model_config).encode('utf-8')
-    response = LAMBDA_CLIENT \
-        .invoke(FunctionName='run_model', Payload=payload)
-    return json.loads(response.get('body', b'[]'))
+    model = CMASleepWakeModel(**model_config)
+    df = model.run()
+    return Response(body=df.to_json(), status_code=200, headers={'Content-Type': 'application/json'})
 
 
 @app.on_ws_connect(name="run_at_time")
