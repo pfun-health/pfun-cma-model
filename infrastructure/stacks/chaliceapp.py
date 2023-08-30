@@ -67,7 +67,6 @@ class ChaliceApp(cdk.Stack):
         # Configure the ASG as a target for the ALB
         alb = elbv2.ApplicationLoadBalancer(
             self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=True)
-        alb.add_redirect(source_port=443, target_port=80)
 
         listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
 

@@ -5,19 +5,31 @@ source ${HOME}/Git/pfun-cma-model/.envrc
 unset AWS_ENDPOINT_URL
 proxy_secret=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapid-api-proxy-secret --region us-east-1 | jq -r '.SecretString')
 api_key=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapidapi-key --region us-east-1 | jq -r '.SecretString')
-sleep 1s
+
+sleep 0.1s
 
 endpoint=${1:-run}
+
+extra_params=${2:-}
 
 base_url=${base_url:-https://$(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text).execute-api.us-east-1.amazonaws.com/api/}
 url="${base_url}${endpoint}"
 echo "URL=${url}"
 
-curl --request POST --url ${url} \
-	--header "X-RapidAPI-Proxy-Secret: $proxy_secret" \
-	--header "X-RapidAPI-Host: pfun-cma-model-api.p.rapidapi.com" \
-	--header "X-RapidAPI-Key: $api_key" \
-	--header "Content-Type: application/json" \
-	--header "Authorization: Bearer allow" \
-	--data '{}'
-sleep 1s
+CMD_ARGS=$(
+	cat <<EOF
+curl \
+--url "${url}" \
+--header "X-RapidAPI-Proxy-Secret: $proxy_secret" \
+--header "X-RapidAPI-Host: pfun-cma-model-api.p.rapidapi.com" \
+--header "X-RapidAPI-Key: $api_key" \
+--header "Authorization: Bearer allow" \
+${extra_params}
+EOF
+)
+
+echo -e "command:\n${CMD_ARGS}\n"
+
+eval "${CMD_ARGS}"
+
+sleep 0.1s

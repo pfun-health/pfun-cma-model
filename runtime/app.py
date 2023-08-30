@@ -1,18 +1,18 @@
 """
 PFun CMA Model API routes.
 """
+import difflib
 import os
 import json
-import shutil
-import subprocess
 import sys
 import uuid
 from chalice.app import Request, AuthRequest
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
-from typing import Dict, Literal
-from botocore.exceptions import ClientError
+from typing import (
+    Any, Callable, Dict, Literal
+)
 from botocore.client import BaseClient
 from botocore.config import Config as ConfigCore
 import boto3
@@ -46,6 +46,36 @@ def new_boto3_client(service_name, session=None, *args, **kwds):
 
 
 LAMBDA_CLIENT = new_boto3_client('lambda')
+LAMBDA_FUNCTIONS = \
+    list(map(lambda x: x.get('FunctionName'),
+             list(filter(lambda x: 'pfun-cma-model' in x['FunctionName'],
+                         LAMBDA_CLIENT.list_functions()['Functions']))))
+
+
+def lambda_invoke(function_name: str, payload: Any):
+    """
+    Invokes an AWS Lambda function with the given function name and payload.
+    
+    :param function_name: The name of the Lambda function to invoke (str).
+    :param payload: The payload to pass to the Lambda function (Any).
+    :return: The response from the Lambda function as a deserialized JSON object (Any).
+    """
+    actual_function_names = difflib.get_close_matches(
+        function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.3
+    )
+    if len(actual_function_names) == 0:
+        actual_function_names = difflib.get_close_matches(
+            function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.0
+        )
+    if len(actual_function_names) == 0:
+        raise RuntimeError(f'Could not find function {function_name}')
+    function_name = actual_function_names[0]
+    response = LAMBDA_CLIENT.invoke(
+        FunctionName=function_name,
+        Payload=json.dumps(payload).encode('utf-8')
+    )
+    return json.loads(response['Payload'].read())
+
 
 #: pfun imports (relative)
 root_path = Path(__file__).parents[2]
@@ -68,9 +98,13 @@ cors_config = CORSConfig(
     allow_credentials=True,
     max_age=300,
     expose_headers=['X-RapidAPI-Key',
-                    'X-RapidAPI-Proxy-Secret', 'X-RapidAPI-Host']
+                    'X-RapidAPI-Proxy-Secret',
+                    'X-RapidAPI-Host',
+                    'X-API-Key',
+                    'Authorization']
 )
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 file_handler = logging.FileHandler('/tmp/chalice-logs.log')
 file_handler.setFormatter(formatter)
@@ -133,12 +167,6 @@ class SecretsWrapper(threading.Thread):
         Returns:
             BaseClient: _description_
         """
-        def test_client(client_):
-            try:
-                client_.get_secret_value()
-                return True
-            except ClientError:
-                return False
         with self._secrets_lock:
             if self._secrets_manager is None:
                 self._secrets_manager = \
@@ -146,6 +174,15 @@ class SecretsWrapper(threading.Thread):
             return self._secrets_manager
 
     def authorize(self, request: Request):
+        """
+        Authorizes a request based on the provided headers.
+
+        Args:
+            request (Request): The request object containing the headers.
+
+        Returns:
+            bool: True if the request is authorized, False otherwise.
+        """
         try:
             authorized = all([
                 request.headers['Authorization'] == 'Bearer allow',
@@ -246,20 +283,36 @@ def generate_sdk():
 
 @app.route("/")
 def index():
+    """
+    Generates the index page for the web application.
+
+    Returns:
+        Response: The HTTP response object containing the index page.
+    """
+    # pylint: disable=consider-using-f-string
     SCRIPTS = '''
-    <script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
-    <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
-    <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
-    <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
-    <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
-    <script type="text/javascript" src="lib/url-template/url-template.js"></script>
-    <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
-    <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
-    <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
-    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
-    <script type="text/javascript" src="apigClient.js"></script>
-    '''
-    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % sys.version_info[:2]
+<script type="text/javascript" src="lib/axios/dist/axios.standalone.js">
+</script>
+<script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js">
+</script>
+<script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js">
+</script>
+<script type="text/javascript" src="lib/CryptoJS/components/hmac.js">
+</script>
+<script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js">
+</script>
+<script type="text/javascript" src="lib/url-template/url-template.js">
+</script>
+<script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js">
+</script>
+<script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js">
+</script>
+<script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js">
+</script>
+<script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+<script type="text/javascript" src="apigClient.js"></script>'''
+    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
+        sys.version_info[:2]
     if not Path(pypath).exists():
         pypath = Path(__file__).parent.joinpath("chalicelib")
     body = Path(pypath).joinpath('www', 'index.html') \
@@ -321,7 +374,7 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
 
 
 def get_lambda_params(event, key: str, context: Dict | None = None
-                      ) -> Dict | None:
+                      ) -> Dict[str, Any] | None:
     if context is None:
         context = {}
     http_method = event.get('httpMethod')
@@ -338,8 +391,22 @@ def get_lambda_params(event, key: str, context: Dict | None = None
 
 @app.lambda_function(name="run_model")
 def run_model_with_config(event, context):
+    """
+    This function runs a model with a given configuration.
+    
+    Args:
+        event (Any): The event object passed to the Lambda function.
+        context (Any): The context object passed to the Lambda function.
+        
+    Returns:
+        str: A JSON string representing the response from the model execution.
+    """
+    # pylint: disable=import-outside-toplevel
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    model_config = get_lambda_params(event, 'model_config', context=context)
+    model_config: Dict[str, Any] | None = \
+        get_lambda_params(event, 'model_config', context=context)
+    if model_config is None:
+        model_config = {}
     model = CMASleepWakeModel(**model_config)
     df = model.run()
     output = df.to_json()
@@ -354,7 +421,7 @@ def run_model_route():
     A function that returns a message containing the welcome message and the
     routes of the PFun CMA Model API.
     """
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    global LAMBDA_CLIENT  # type: ignore
     request: Request | None = app.current_request
     if request is None:
         raise RuntimeError("No request was provided!")
@@ -362,21 +429,16 @@ def run_model_route():
     if not authorized:
         return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    model = CMASleepWakeModel(**model_config)
-    df = model.run()
-    return Response(body=df.to_json(), status_code=200, headers={'Content-Type': 'application/json'})
+    return lambda_invoke('RunModel', payload=model_config)
 
 
 @app.on_ws_connect(name="run_at_time")
 def run_at_time_connect(event):
     print('New connection: %s' % event.connection_id)
-    return {
-      'headers': {'Sec-WebSocket-Protocol': 'PFun-Model-Web-Socket-Protocol'},
-    }
 
 
 @app.on_ws_message(name="run_at_time")
-def run_at_time_route(event):
+def run_at_time_ws(event):
     global LAMBDA_CLIENT
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
@@ -384,24 +446,43 @@ def run_at_time_route(event):
         "model_config": model_config,
         "calc_params": calc_params
     }
-    payload = json.dumps(params).encode('utf-8')
-    response = LAMBDA_CLIENT \
-        .invoke(FunctionName='run_at_time', Payload=payload)
-    lambda_response = response.get('body', b'[]').decode('utf-8')
+    lambda_response = lambda_invoke(
+        'RunAtTime', payload=params
+    )
     app.websocket_api.send(event.connection_id, lambda_response)
 
+
+@app.route('/run_at_time', methods=["GET", "POST"], authorizer=fake_auth)
+def run_at_time_route(event):
+    model_config = get_model_config(app)
+    calc_params = get_params(app, 'calc_params')
+    params = {
+        "model_config": model_config,
+        "calc_params": calc_params
+    }
+    lambda_response = lambda_invoke(
+        'RunAtTime', payload=params
+    )
+    return lambda_response
 
 
 @app.lambda_function(name='run_at_time')
 def run_at_time(event, context):
+    # pylint-disable=import-outside-toplevel
     import numpy as np
+    # pylint-disable=import-outside-toplevel
     import pandas as pd
+    # pylint-disable=import-outside-toplevel
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
     model_config = get_lambda_params(event, 'model_config')
     calc_params = get_lambda_params(event, 'calc_params')
     logger.info('model_config: %s', json.dumps(model_config))
     logger.info('calc_params: %s', json.dumps(calc_params))
+    if model_config is None:
+        model_config = {}
     model = CMASleepWakeModel(**model_config)
+    if calc_params is None:
+        calc_params = {}
     output: np.ndarray | tuple = model.calc_Gt(**calc_params)
     output = pd.json_normalize(output).to_json()  # type: ignore
     return output
@@ -425,7 +506,8 @@ def fit_model_to_data(event, context):
         output = fit_result.model_dump_json()
     except Exception:
         app.log.error('failed to fit to data.', exc_info=True)
-        error_response = Response(body={"error": "failed to fit data. See error message on server log."}, status_code=500, headers={'Content-Type': 'application/json'})
+        error_response = Response(body={"error": "failed to fit data. See error message on server log."},
+                                  status_code=500, headers={'Content-Type': 'application/json'})
         return json.dumps(error_response.to_dict())
     response = Response(body={"output": output}, status_code=200,
                         headers={'Content-Type': 'application/json'})
@@ -434,14 +516,12 @@ def fit_model_to_data(event, context):
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
-    global LAMBDA_CLIENT
     authorized = secman.authorize(app.current_request)
     if not authorized:
         return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
-    response = LAMBDA_CLIENT.invoke(
-        FunctionName='fit_model', Payload=json.dumps(model_config).encode('utf-8'))
-    return json.loads(response.get('body', b'[]'))
+    response = lambda_invoke('FitModel', payload=model_config)
+    return response
 
 
 DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
@@ -491,7 +571,8 @@ def oauth2_dexcom(event, context):
         oauth_info = get_oauth_info(event)
 
     # Get the authorization code from the event.
-    authorization_code = get_lambda_params(event, 'authorization_code', context=context)
+    authorization_code = get_lambda_params(
+        event, 'authorization_code', context=context)
     if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
         # Exchange the authorization code for an access token.
         url = oauth_info['token_url']
@@ -554,7 +635,8 @@ def oauth2_dexcom(event, context):
             'message': 'Successfully refreshed token.'
         }, status_code=200, headers={'Content-Type': 'application/json'})
     else:
-        logger.warning("(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
+        logger.warning(
+            "(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
         response = Response(body='Unauthorized', status_code=401)
     return json.dumps(response.to_dict())
 
@@ -566,10 +648,5 @@ def login_success():
 
 @app.route('/login-dexcom', methods=['GET'])
 def login_dexcom():
-    global LAMBDA_CLIENT
     payload = app.current_request.to_dict()
-    response = LAMBDA_CLIENT.invoke(
-        FunctionName='oauth2_dexcom',
-        Payload=json.dumps(payload).encode('utf-8')
-    )
-    return json.loads(response.get('body', b'[]'))
+    return lambda_invoke('Oauth2Dexcom', payload=payload)
