@@ -14,4 +14,4 @@ export AUTH_HEADERS="$(
 EOM
 )" >headers.json
 
-echo -e "\n$AUTH_HEADERS\n"
+echo "${AUTH_HEADERS}" | jq

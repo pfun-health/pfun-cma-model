@@ -1,6 +1,9 @@
 #!/bin/bash
 
-api_id=$(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text)
-api_endpoint_url="https://${api_id}.execute-api.us-east-1.amazonaws.com/api"
+export api_id=$(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text)
+export api_endpoint_url="https://${api_id}.execute-api.us-east-1.amazonaws.com/api"
+export run_resource_id=$(aws apigateway get-resources --rest-api-id $(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text) --query "items[?pathPart=='run'].id" --output text)
 
-echo $api_endpoint_url
+echo "endpoint URL: $api_endpoint_url"
+echo "API ID: $api_id"
+echo "/run Resource ID: $run_resource_id"
