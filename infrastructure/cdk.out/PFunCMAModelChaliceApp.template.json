@@ -1642,7 +1642,7 @@
       "Value": "false"
      }
     ],
-    "Scheme": "internet-facing",
+    "Scheme": "internal",
     "SecurityGroups": [
      {
       "Fn::GetAtt": [
@@ -1667,12 +1667,6 @@
     ],
     "Type": "application"
    },
-   "DependsOn": [
-    "PFunCMAModelVPCpublicSubnet1DefaultRouteDE76B87D",
-    "PFunCMAModelVPCpublicSubnet1RouteTableAssociation1E3CE604",
-    "PFunCMAModelVPCpublicSubnet2DefaultRoute6684FA33",
-    "PFunCMAModelVPCpublicSubnet2RouteTableAssociation80285FB0"
-   ],
    "Metadata": {
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Resource"
    }
@@ -1693,13 +1687,6 @@
     "SecurityGroupIngress": [
      {
       "CidrIp": "0.0.0.0/0",
-      "Description": "Allow from anyone on port 443",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
       "Description": "Allow from anyone on port 80",
       "FromPort": 80,
       "IpProtocol": "tcp",
@@ -1717,11 +1704,6 @@
   "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB": {
    "Type": "AWS::ElasticLoadBalancingV2::Listener",
    "Properties": {
-    "Certificates": [
-     {
-      "CertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
-     }
-    ],
     "DefaultActions": [
      {
       "TargetGroupArn": {
@@ -1733,8 +1715,8 @@
     "LoadBalancerArn": {
      "Ref": "PFunCMAModelLoadBalancer930A86BD"
     },
-    "Port": 443,
-    "Protocol": "HTTPS"
+    "Port": 80,
+    "Protocol": "HTTP"
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource"
@@ -1800,13 +1782,6 @@
     "SecurityGroupIngress": [
      {
       "CidrIp": "0.0.0.0/0",
-      "Description": "Allow from anyone on port 443",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
       "Description": "Allow from anyone on port 80",
       "FromPort": 80,
       "IpProtocol": "tcp",
@@ -1837,26 +1812,42 @@
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y="
    }
   },
-  "PFunDevCMAModelHttpApiMapping": {
-   "Type": "AWS::ApiGatewayV2::ApiMapping",
+  "pfuncmamodeldevcustomdomain577DCF5B": {
+   "Type": "AWS::ApiGateway::DomainName",
    "Properties": {
-    "ApiId": {
+    "DomainName": "dev.pfun.app",
+    "EndpointConfiguration": {
+     "Types": [
+      "REGIONAL"
+     ]
+    },
+    "RegionalCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Resource"
+   }
+  },
+  "pfuncmamodeldevcustomdomainMapPFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43CE4342FEC": {
+   "Type": "AWS::ApiGateway::BasePathMapping",
+   "Properties": {
+    "DomainName": {
+     "Ref": "pfuncmamodeldevcustomdomain577DCF5B"
+    },
+    "RestApiId": {
      "Fn::GetAtt": [
       "RestAPI",
       "RestApiId"
      ]
-    },
-    "DomainName": "dev.pfun.app",
-    "Stage": "api"
+    }
    },
    "Metadata": {
-    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunDevCMAModelHttpApiMapping"
+    "aws:cdk:path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C/Resource"
    }
   },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VS207DMAz9Ft6zcNkTjxs3TRpQbWivk5t6JSxNosQBVdP+HSdboQipku1j+/jY6Y28ncqrC/iKE9XsJ0bX8rAmUHvB0PYQp1uIESnKWTYiTuU8qT3SHCKKCJ083O3sEnoMGwxROys4fkxW0dmfeX0UBrq6gVJbYeh0LJVDWeY6CvC6BcIv6D9vSiV3ZoKFJWwDDHwrlwizc4/euL5DSzlizS2e5z2D99q2R4GKmTZeZXxT3Ykq1Uardaotnpp+vML6BrXBX/wX492d0v8lPCyqbF6Ank7KB72B20cQzz5HM+LbvhfRa1QpaOqfgku+TB0DLN5AJK2Mg6YGA1bxSvkyM+95iSJmybl5yWHIDH/icZ2OhPZcM/ij/BuElgUPQkbh+FnkCiPxeU/PVf6HfHWWJVhlanYudIVuq60yqUFZrlHcTPuayCcSzOJSUAUa/KOoenp39nIqr6/4m1x8RK0nIVnSHcrVyX4DtQTAgKwCAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VSwW7bMAz9lt4VrW1OPSZtVxTIOiMpcg1omXW0yJIgUQuMwP9eSokbrwMMiHx8enokfS8f5vL2Bo5xpprDzOhanjYE6iAY2p3ifAcxIkW5yIeIc7lM6oC0hIgiQidPjx92BT2GLYaonRWc/0xW0SVeeD0IA13dQOFWGDodC3OkZa1BgNctEB6h/3tfmHwzC7xawjbAqLd2iTAHT+iN6zu0lDP23LIIKr679SpD2+pRVKk2Wm1SbfFM+4qKzjvUBq/4FeNundL/P/r8WuXjDejl7HV0GPj6BOK3L9mCeJr7YnODKgVN/UtwyZdXpwCbNxBJK+OgqcGAVdq2eRYL77mJYmbFtWWpYcgK/+RTno6E9sIZ40n9HULLhkcjk3S6CHlaYyTeQ9n2k+tAc+vdefzXLFcroP0v8J4t5+o3aBhE+X/yljKDe0zNhwtdMbPTVpnUoCyzLGHW+J3IJxJswaWgCjTGg6h62jv7Yy7vbvmb3fyJWs9CsqQ7lOvz+QmRMgiR3AIAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAModelChaliceApp/CDKMetadata/Default"

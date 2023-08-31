@@ -2154,7 +2154,7 @@
                         "value": "false"
                       }
                     ],
-                    "scheme": "internet-facing",
+                    "scheme": "internal",
                     "securityGroups": [
                       {
                         "Fn::GetAtt": [
@@ -2209,13 +2209,6 @@
                           {
                             "cidrIp": "0.0.0.0/0",
                             "ipProtocol": "tcp",
-                            "fromPort": 443,
-                            "toPort": 443,
-                            "description": "Allow from anyone on port 443"
-                          },
-                          {
-                            "cidrIp": "0.0.0.0/0",
-                            "ipProtocol": "tcp",
                             "fromPort": 80,
                             "toPort": 80,
                             "description": "Allow from anyone on port 80"
@@ -2247,11 +2240,6 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
                       "aws:cdk:cloudformation:props": {
-                        "certificates": [
-                          {
-                            "certificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
-                          }
-                        ],
                         "defaultActions": [
                           {
                             "type": "forward",
@@ -2263,8 +2251,8 @@
                         "loadBalancerArn": {
                           "Ref": "PFunCMAModelLoadBalancer930A86BD"
                         },
-                        "port": 443,
-                        "protocol": "HTTPS"
+                        "port": 80,
+                        "protocol": "HTTP"
                       }
                     },
                     "constructInfo": {
@@ -2379,13 +2367,6 @@
                       {
                         "cidrIp": "0.0.0.0/0",
                         "ipProtocol": "tcp",
-                        "fromPort": 443,
-                        "toPort": 443,
-                        "description": "Allow from anyone on port 443"
-                      },
-                      {
-                        "cidrIp": "0.0.0.0/0",
-                        "ipProtocol": "tcp",
                         "fromPort": 80,
                         "toPort": 80,
                         "description": "Allow from anyone on port 80"
@@ -2404,14 +2385,6 @@
             },
             "constructInfo": {
               "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelListenerCert": {
-            "id": "PFunCMAModelListenerCert",
-            "path": "PFunCMAModelChaliceApp/PFunCMAModelListenerCert",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
               "version": "2.93.0"
             }
           },
@@ -2462,24 +2435,73 @@
               "version": "2.93.0"
             }
           },
-          "PFunDevCMAModelHttpApiMapping": {
-            "id": "PFunDevCMAModelHttpApiMapping",
-            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelHttpApiMapping",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::ApiMapping",
-              "aws:cdk:cloudformation:props": {
-                "apiId": {
-                  "Fn::GetAtt": [
-                    "RestAPI",
-                    "RestApiId"
-                  ]
+          "PFunCMAModelListenerCert": {
+            "id": "PFunCMAModelListenerCert",
+            "path": "PFunCMAModelChaliceApp/PFunCMAModelListenerCert",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.93.0"
+            }
+          },
+          "pfun-cma-model-dev-custom-domain": {
+            "id": "pfun-cma-model-dev-custom-domain",
+            "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::DomainName",
+                  "aws:cdk:cloudformation:props": {
+                    "domainName": "dev.pfun.app",
+                    "endpointConfiguration": {
+                      "types": [
+                        "REGIONAL"
+                      ]
+                    },
+                    "regionalCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+                  }
                 },
-                "domainName": "dev.pfun.app",
-                "stage": "api"
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.CfnDomainName",
+                  "version": "2.93.0"
+                }
+              },
+              "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C": {
+                "id": "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C",
+                "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGateway::BasePathMapping",
+                      "aws:cdk:cloudformation:props": {
+                        "domainName": {
+                          "Ref": "pfuncmamodeldevcustomdomain577DCF5B"
+                        },
+                        "restApiId": {
+                          "Fn::GetAtt": [
+                            "RestAPI",
+                            "RestApiId"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.CfnBasePathMapping",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.BasePathMapping",
+                  "version": "2.93.0"
+                }
               }
             },
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnApiMapping",
+              "fqn": "aws-cdk-lib.aws_apigateway.DomainName",
               "version": "2.93.0"
             }
           },

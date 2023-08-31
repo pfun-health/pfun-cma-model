@@ -69,19 +69,14 @@ class ChaliceApp(cdk.Stack):
 
         # Configure the ASG as a target for the ALB
         alb = elbv2.ApplicationLoadBalancer(
-            self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=True,
+            self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=False,
             ip_address_type=elbv2.IpAddressType.IPV4)
         alb.add_security_group(ec2.SecurityGroup(
             self, "PFunAlbSecurityGroup", vpc=vpc,
             allow_all_outbound=True,
         ))
-        certificate = acm.Certificate.from_certificate_arn(
-            self, 'PFunCMAModelListenerCert',
-            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
-        )
-        listener = alb.add_listener("PFunCMAModelListener", port=443, open=True)
-        listener.add_certificates("PFunCMAModelListenerCert", certificates=[
-            certificate])
+
+        listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
 
         #: lambda function targets
         chalice_lambda_functions = (
@@ -154,11 +149,18 @@ class ChaliceApp(cdk.Stack):
             rest_api_id=rest_api.get_att('RestApiId').to_string()
         )
 
-        # Create the HttpApiMapping
-        apigwv2.CfnApiMapping(self, 'PFunDevCMAModelHttpApiMapping',
-                              api_id=http_api.rest_api_id,
-                              domain_name=domain_name_raw,
-                              stage='api')
+        # # Create the domain -> api map.
+        certificate = acm.Certificate.from_certificate_arn(
+            self, 'PFunCMAModelListenerCert',
+            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        )
+        domain = apigw.DomainName(self, "pfun-cma-model-dev-custom-domain",
+                                  domain_name=domain_name_raw,
+                                  certificate=certificate
+                                  )
+        domain.add_base_path_mapping(
+            target_api=http_api
+        )
 
         # Output the Custom Domain Name
         cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameOutput',

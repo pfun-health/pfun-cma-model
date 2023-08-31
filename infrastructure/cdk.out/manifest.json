@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/4c7c9f0fae23250db5ad8d6480660f7aedf1bec04539601c54e383d21b4fe4f4.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/1bce5941cc5ac35a3948876c42ec424fb3cc13207f09ac24793dedcf069c95bf.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -351,10 +351,16 @@
             "data": "PFunAlbDNSName"
           }
         ],
-        "/PFunCMAModelChaliceApp/PFunDevCMAModelHttpApiMapping": [
+        "/PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunDevCMAModelHttpApiMapping"
+            "data": "pfuncmamodeldevcustomdomain577DCF5B"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "pfuncmamodeldevcustomdomainMapPFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43CE4342FEC"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameOutput": [
