@@ -147,9 +147,11 @@ class ChaliceApp(cdk.Stack):
 
         # Associate the Custom Domain Name with the HTTP API
         rest_api = self.chalice.get_resource('RestAPI')
+        #: ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html#aws-resource-apigateway-restapi-return-values
+        #: ref: https://stackoverflow.com/a/65709106/1871569
         http_api = apigw.RestApi.from_rest_api_id(
             self, 'PFunDevCMAModelHttpApi',
-            rest_api_id=rest_api.get_att('ApiId').to_string()
+            rest_api_id=rest_api.get_att('RestApiId').to_string()
         )
 
         # Create the HttpApiMapping
