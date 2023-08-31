@@ -140,12 +140,13 @@ def fix_headers(func):
         if isinstance(func, LambdaFunction) or len(args) > 0:
             return response
         request = app.current_request
+        response.headers['Access-Control-Allow-Origin'] = '*'
         if not hasattr(request, 'headers'):
+            return response
+        if 'Host' not in request.headers:
             return response
         if request.headers['Host'].split(':')[0] == '127.0.0.1':
             response.headers['Access-Control-Allow-Origin'] = request.headers['Host']
-        else:
-            response.headers['Access-Control-Allow-Origin'] = '*.amazonaws.com'
         return response
     return wrapper
 

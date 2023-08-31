@@ -6,6 +6,7 @@ export STACK_NAME=PFunCMAModelChaliceApp
 export TEMPLATE_FILEPATH=$CDK_OUT_DIR/$STACK_NAME.template.json
 
 get_Function_Id() {
+    cd $CDK_OUT_DIR || exit 1
     JSON_OUTPUT=$(sam list resources --stack-name $STACK_NAME --output json) ||
         exit 1
     LAMBDA_TEST_FUNCTION_ID=$(
@@ -16,6 +17,7 @@ get_Function_Id() {
     ) || exit 1
     export LAMBDA_TEST_FUNCTION_ID=${LAMBDA_TEST_FUNCTION_ID//\"/} ||
         exit 1
+    cd - || exit 1
 }
 
 synthesize_local() {
