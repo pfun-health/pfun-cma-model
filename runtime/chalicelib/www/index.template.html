@@ -19,6 +19,8 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
             integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
             crossorigin="anonymous"></script>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript"
             src="http://pfun-cma-model-www.s3-website.us-east-1.amazonaws.com/apiGateway-js-sdk/lib/axios/dist/axios.standalone.js"></script>
     <script type="text/javascript"
@@ -64,11 +66,14 @@
   </head>
   <body>
     <main class="container">
-      <div class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
+      <div id="header" class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
         <img class="mr-3" src="{PFUN_ICON_BLOB}" alt="" width="48" height="48">
         <div class="lh-1">
           <h6 class="mb-1 text-dark lh-2">PFun CMA Model API</h6>
         </div>
+      </div>
+      <div id="content" class="my-3 p-3 bg-white rounded shadow-sm">
+        <!-- CONTENT HERE -->
       </div>
     </main>
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">

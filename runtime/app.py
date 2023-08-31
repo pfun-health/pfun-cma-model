@@ -7,7 +7,7 @@ import os
 import json
 import sys
 import uuid
-from chalice.app import Request, AuthRequest
+from chalice.app import LambdaFunction, ConvertToMiddleware, Request, AuthRequest
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
@@ -25,6 +25,9 @@ from chalice import (
     AuthResponse,
     Response,
     Chalice,
+)
+from chalice.local import (
+    LocalChalice,
 )
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -96,7 +99,7 @@ get_secret_func = importlib.import_module(
 
 #: init app, set cors
 cors_config = CORSConfig(
-    allow_origin='pfun-cma-model-api.p.rapidapi.com',
+    allow_origin='*',
     allow_headers=['X-RapidAPI-Key',
                    'X-RapidAPI-Proxy-Secret',
                    'X-RapidAPI-Host',
@@ -131,6 +134,26 @@ app.websocket_api.session = new_boto3_session()
 app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
+
+
+def fix_headers(func):
+    def wrapper(*args, **kwargs):
+        print('wrapper access')
+        response = func(*args, **kwargs)
+        if isinstance(func, LambdaFunction) or len(args) > 0:
+            return response
+        request = app.current_request
+        if not hasattr(request, 'headers'):
+            return response
+        if request.headers['Host'].split(':')[0] == '127.0.0.1':
+            response.headers['Access-Control-Allow-Origin'] = request.headers['Host']
+        else:
+            response.headers['Access-Control-Allow-Origin'] = '*.amazonaws.com'
+        return response
+    return wrapper
+
+
+app.register_middleware(ConvertToMiddleware(fix_headers), event_type='all')
 
 PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
@@ -196,8 +219,6 @@ class SecretsWrapper(threading.Thread):
         try:
             authorized = all([
                 request.headers['Authorization'] == 'Bearer allow',
-                request.headers.get(
-                    'X-RapidAPI-Host') == 'pfun-cma-model-api.p.rapidapi.com',
                 request.headers.get('X-RapidAPI-Key') ==
                 self.aws_get_rapidapi_key(),
                 request.headers.get('X-RapidAPI-Proxy-Secret') ==
@@ -278,24 +299,29 @@ secman = SecretsManagerContainer()
 def fake_auth(auth_request: AuthRequest):
     """Temporary authorizer for testing purposes.
     """
-    print(app)
-    current_request = app.current_request
-    logger.info(
+    authorized = False
+    try:
+        current_request = app.current_request
+    except AttributeError:
+        logger.error("Can't authenticate because this is a local instance.")
+        logger.info('Current app type: %s', type(app))
+        if isinstance(app, LocalChalice):
+            authorized = True
+    else:
+        logger.info(
         '(Authorizer) Request method: %s', current_request.method.lower())
-    authorized = all([
-        auth_request.token in ['Bearer allow', 'allow'],
-        secman.authorize(current_request)
-    ])
-    if not authorized:
-        app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
-        logger.warning('Unauthorized request: %s', str(vars(auth_request)))
-        return Response(body='Unauthorized.', status_code=401)
+        authorized = all([
+            auth_request.token in ['Bearer allow', 'allow'],
+            secman.authorize(current_request)
+        ])
     if authorized:
         logger.info('Authorized request: %s', str(vars(auth_request)))
         return AuthResponse(routes=PUBLIC_ROUTES,
                             principal_id='user')
-    else:
-        return AuthResponse(routes=[], principal_id='user')
+    #: ! Unauthorized
+    app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
+    logger.warning('Unauthorized request: %s', str(vars(auth_request)))
+    return AuthResponse(routes=[], principal_id='user')
 
 
 @app.route('/sdk', methods=['GET'], authorizer=fake_auth)

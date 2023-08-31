@@ -1,6 +1,6 @@
 
 var apigClient = null;
-var app = null;
+var app = {};
 
 async function initializeAPI(apiKey) {
     try {
@@ -12,18 +12,6 @@ async function initializeAPI(apiKey) {
         console.error('Failed to create api client because: ' + err);
         return;
     }
-}
-
-app = {
-    'sdk': apigClient.sdkGet,
-    'log': apigClient.logGet,
-    'run': apigClient.runGet,
-    'root': apigClient.rootGet,
-    'run': apigClient.runPost,
-    'log': apigClient.logPost,
-    'fit': apigClient.fitPost,
-    'routes': apigClient.routesGet,
-    'runOptions': apigClient.runOptions
 }
 
 app.initializeApp = async () => {
@@ -63,6 +51,7 @@ app.initializeApp = async () => {
     <button type="submit">Submit</button>
   </form>
     `);
+  $('#content').append(app.formCode);
 
     // Add event listeners to handle form submission.
     document.getElementById('apiForm').addEventListener('submit', async function (event) {
@@ -76,9 +65,22 @@ app.initializeApp = async () => {
         var selectedMethod = document.getElementById('method').value;
 
         // Validate the input values
+      // ... (TODO)
 
         // initialize the API using the provided apiKey
         await initializeAPI(apiKey);
+
+      app = Object.assign(app, {
+        'sdkGet': apigClient.sdkGet,
+        'logGet': apigClient.logGet,
+        'runGet': apigClient.runGet,
+        'rootGet': apigClient.rootGet,
+        'runPost': apigClient.runPost,
+        'logPost': apigClient.logPost,
+        'fitPost': apigClient.fitPost,
+        'routesGet': apigClient.routesGet,
+        'runOptions': apigClient.runOptions
+      });
 
         // Handle WebSocket and HTTP endpoints based on the selected method and function
         // Call the appropriate function with the provided input values.
@@ -87,4 +89,6 @@ app.initializeApp = async () => {
     });
 };
 
-app.initializeApp();
+document.addEventListener('DOMContentLoaded', async function () {
+  await app.initializeApp();
+});

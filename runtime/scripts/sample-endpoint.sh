@@ -39,7 +39,7 @@ eval "${CMD_ARGS}"
 sleep 0.1s
 
 if [ "$endpoint" == "sdk" ]; then
-	python $HOME/Git/pfun-cma-model/runtime/scripts/extract-sdk.py
+	python $HOME/Git/pfun-cma-model/runtime/scripts/extract-sdk.py || exit 1
 	sleep 0.1s
 	echo "...updated SDK"
 fi

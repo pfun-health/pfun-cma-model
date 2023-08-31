@@ -2,11 +2,11 @@
 
 echo 'generating sdk...'
 
-./runtime/scripts/sample-endpoint.sh sdk "-O"
+$HOME/Git/pfun-cma-model/runtime/scripts/sample-endpoint.sh sdk "-O" || exit
 sleep 0.1s
 
 cd $HOME/Git/pfun-cma-model/runtime &&
-    chalice generate-models >./chalicelib/www/openapi.json &&
+    chalice generate-models >./chalicelib/www/openapi.json || exit &&
     cd - || exit
 sleep 0.1s
 
