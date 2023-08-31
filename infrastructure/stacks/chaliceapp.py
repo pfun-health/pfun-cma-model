@@ -160,9 +160,6 @@ class ChaliceApp(cdk.Stack):
             domain_name_alias_hosted_zone_id='Z2FDTNDATAQYW2',
             domain_name_alias_target=alb.load_balancer_dns_name
         )
-        domain.add_base_path_mapping(
-            target_api=http_api
-        )
 
         # Output the Custom Domain Name
         cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameOutput',
