@@ -154,10 +154,12 @@ class ChaliceApp(cdk.Stack):
             self, 'PFunCMAModelListenerCert',
             'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
         )
-        domain = apigw.DomainName(self, "pfun-cma-model-dev-custom-domain",
-                                  domain_name=domain_name_raw,
-                                  certificate=certificate
-                                  )
+        domain = apigw.DomainName.from_domain_name_attributes(
+            self, "CustomDomainNamePFunCMAModelDev",
+            domain_name=domain_name_raw,
+            domain_name_alias_hosted_zone_id='Z2FDTNDATAQYW2',
+            domain_name_alias_target=alb.load_balancer_dns_name
+        )
         domain.add_base_path_mapping(
             target_api=http_api
         )
