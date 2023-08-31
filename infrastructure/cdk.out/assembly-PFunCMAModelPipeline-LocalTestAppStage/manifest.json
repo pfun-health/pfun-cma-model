@@ -1,0 +1,389 @@
+{
+  "version": "33.0.0",
+  "artifacts": {
+    "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://860311922912/us-east-1",
+      "properties": {
+        "templateFile": "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252.template.json",
+        "validateOnSynth": true,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/3a5bbf218edf8483fd8fc2859a2f1ab3dfd130a2f730a743738991ecb851f562.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-lookup-role-860311922912-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        },
+        "stackName": "LocalTestAppStage-ChaliceApp"
+      },
+      "dependencies": [
+        "PFunCMAModelPipelineLocalTestAppStageChaliceApp7C1DA252.assets"
+      ],
+      "metadata": {
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelChaliceAppD89E4244"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ManagedLayer"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunModel": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RunModel"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RunAtTime"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FitModel": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FitModel"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/Oauth2Dexcom": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Oauth2Dexcom"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FakeAuth"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandler"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RestAPI": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RestAPI"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerInvokePermission"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FakeAuthInvokePermission"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnect"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessage"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPI"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectAPIIntegration"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectInvokePermission"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageAPIIntegration"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageInvokePermission"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectRoute"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageRoute"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIDeployment"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIStage"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RestAPIId"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerName"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "APIHandlerArn"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EndpointURL"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketAPIId"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectHandlerArn"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectHandlerName"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageHandlerArn"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketMessageHandlerName"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsocketConnectEndpointURL"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPC45F492DB"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1RouteTableA470CB3E"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1RouteTableAssociation1E3CE604"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1DefaultRouteDE76B87D"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1EIP7E238277"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet1NATGatewayEE43DF7C"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2RouteTableA662863B"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2RouteTableAssociation80285FB0"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2DefaultRoute6684FA33"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/IGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCIGW41DFF152"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelVPC/VPCGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCVPCGWB5B9A62D"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelLoadBalancer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancer930A86BD"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerSecurityGroupE55A7C00"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerRedirect80To443F9B8C7FE"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunAlbSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunAlbSecurityGroupDA3A5D19"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunCMAModelPipeline--LocalTestAppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelPipelineLocalTestAppStageChaliceAppPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HY47B2C335"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunAlbDNSName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunAlbDNSName"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunDevCMAModelHttpApiMapping": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelHttpApiMapping"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/PFunDevCMAModelCustomDomainNameOutput": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelCustomDomainNameOutput"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "PFunCMAModelPipeline/LocalTestAppStage/ChaliceApp"
+    }
+  }
+}

@@ -1,27 +1,34 @@
 {
   "version": "33.0.0",
   "artifacts": {
-    "pfun-cma-model.assets": {
+    "assembly-PFunCMAModelPipeline-LocalTestAppStage": {
+      "type": "cdk:cloud-assembly",
+      "properties": {
+        "directoryName": "assembly-PFunCMAModelPipeline-LocalTestAppStage",
+        "displayName": "PFunCMAModelPipeline/LocalTestAppStage"
+      }
+    },
+    "PFunCMAModelPipeline.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "pfun-cma-model.assets.json",
+        "file": "PFunCMAModelPipeline.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "pfun-cma-model": {
+    "PFunCMAModelPipeline": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://860311922912/us-east-1",
       "properties": {
-        "templateFile": "pfun-cma-model.template.json",
+        "templateFile": "PFunCMAModelPipeline.template.json",
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/3602c703c91e3a9f2a00b12a648c9cd9dd6eea6d0eccb7636c9d842656ad7098.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/32c93024f42b8f5049bd0ddc4ca8a66e168e0e3383740430d249318a53cb2b2f.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "pfun-cma-model.assets"
+          "PFunCMAModelPipeline.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-lookup-role-860311922912-us-east-1",
@@ -30,359 +37,161 @@
         }
       },
       "dependencies": [
-        "pfun-cma-model.assets"
+        "PFunCMAModelPipeline.assets"
       ],
       "metadata": {
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelChaliceAppD89E4244"
+            "data": "PipelineArtifactsBucketAEA9A052"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ManagedLayer"
+            "data": "PipelineArtifactsBucketPolicyF53CCC52"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunModel": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "RunModel"
+            "data": "PipelineRoleB27FAA37"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "RunAtTime"
+            "data": "PipelineRoleDefaultPolicy7BDC1ABB"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FitModel": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "FitModel"
+            "data": "Pipeline9850B417"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/Oauth2Dexcom": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Source/rocapp_pfun-cma-model/WebhookResource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "Oauth2Dexcom"
+            "data": "PipelineSourcerocapppfuncmamodelWebhookResourceD672927E"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "FakeAuth"
+            "data": "PipelineBuildSynthCdkBuildProjectRole231EEA2A"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandler": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "APIHandler"
+            "data": "PipelineBuildSynthCdkBuildProjectRoleDefaultPolicyFB6C941C"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/RestAPI": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "RestAPI"
+            "data": "PipelineBuildSynthCdkBuildProject6BEFA8E6"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/ApproveLocalTest/CodePipelineActionRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "APIHandlerInvokePermission"
+            "data": "PipelineLocalTestApproveLocalTestCodePipelineActionRole11A3482C"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "FakeAuthInvokePermission"
+            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDKRoleE2BEE353"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnect"
+            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDKRoleDefaultPolicyFD6A2A48"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage": [
+        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessage"
+            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDK64F96839"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI": [
+        "/PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketAPI"
+            "data": "PipelineCodeBuildActionRole226DB0CB"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration": [
+        "/PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectAPIIntegration"
+            "data": "PipelineCodeBuildActionRoleDefaultPolicy1D62A6FE"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission": [
+        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectInvokePermission"
+            "data": "PipelineUpdatePipelineSelfMutationRole57E559E8"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration": [
+        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessageAPIIntegration"
+            "data": "PipelineUpdatePipelineSelfMutationRoleDefaultPolicyA225DA4E"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission": [
+        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessageInvokePermission"
+            "data": "PipelineUpdatePipelineSelfMutationDAA41400"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute": [
+        "/PFunCMAModelPipeline/Pipeline/Assets/FileRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectRoute"
+            "data": "PipelineAssetsFileRole59943A77"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute": [
+        "/PFunCMAModelPipeline/Pipeline/Assets/FileRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessageRoute"
+            "data": "PipelineAssetsFileRoleDefaultPolicy14DB8755"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment": [
+        "/PFunCMAModelPipeline/Pipeline/Assets/FileAsset1/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketAPIDeployment"
+            "data": "PipelineAssetsFileAsset185A67CB4"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage": [
+        "/PFunCMAModelPipeline/Pipeline/Assets/FileAsset2/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "WebsocketAPIStage"
+            "data": "PipelineAssetsFileAsset24D2D639B"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "RestAPIId"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "APIHandlerName"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "APIHandlerArn"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "EndpointURL"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketAPIId"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectHandlerArn"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectHandlerName"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessageHandlerArn"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketMessageHandlerName"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "WebsocketConnectEndpointURL"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPC45F492DB"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1RouteTableA470CB3E"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1RouteTableAssociation1E3CE604"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1DefaultRouteDE76B87D"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/EIP": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1EIP7E238277"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet1/NATGateway": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet1NATGatewayEE43DF7C"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet2/Subnet": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet2/RouteTable": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet2RouteTableA662863B"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet2/RouteTableAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet2RouteTableAssociation80285FB0"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/publicSubnet2/DefaultRoute": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCpublicSubnet2DefaultRoute6684FA33"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/IGW": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCIGW41DFF152"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelVPC/VPCGW": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelVPCVPCGWB5B9A62D"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancer930A86BD"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/SecurityGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerSecurityGroupE55A7C00"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/Redirect80To443/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerRedirect80To443F9B8C7FE"
-          }
-        ],
-        "/pfun-cma-model/PFunAlbSecurityGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunAlbSecurityGroupDA3A5D19"
-          }
-        ],
-        "/pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "pfuncmamodelPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HYA41D19B3"
-          }
-        ],
-        "/pfun-cma-model/PFunAlbDNSName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunAlbDNSName"
-          }
-        ],
-        "/pfun-cma-model/PFunDevCMAModelHttpApiMapping": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunDevCMAModelHttpApiMapping"
-          }
-        ],
-        "/pfun-cma-model/PFunDevCMAModelCustomDomainNameOutput": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunDevCMAModelCustomDomainNameOutput"
-          }
-        ],
-        "/pfun-cma-model/CDKMetadata/Default": [
+        "/PFunCMAModelPipeline/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/pfun-cma-model/BootstrapVersion": [
+        "/PFunCMAModelPipeline/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/pfun-cma-model/CheckBootstrapVersion": [
+        "/PFunCMAModelPipeline/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "pfun-cma-model"
+      "displayName": "PFunCMAModelPipeline"
     },
     "Tree": {
       "type": "cdk:tree",

@@ -1,0 +1,59 @@
+digraph G {
+  # Arrows represent an "unlocks" relationship (opposite of dependency). So chosen
+  # because the layout looks more natural that way.
+  # To represent subgraph dependencies, subgraphs are represented by BEGIN/END nodes.
+  # To render: `dot -Tsvg PFunCMAModelPipeline60AA5A23.dot > graph.svg`, open in a browser.
+  node [shape="box"];
+"BEGIN Build" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END Build" [shape="cds", style="filled", fillcolor="#b7deff"];
+"Build.Synth";
+"Source.rocapp/pfun-cma-model" -> "Build.Synth";
+"BEGIN Build" -> "Build.Synth";
+"Build.Synth" -> "END Build";
+"BEGIN UpdatePipeline" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END UpdatePipeline" [shape="cds", style="filled", fillcolor="#b7deff"];
+"UpdatePipeline.SelfMutate";
+"Build.Synth" -> "UpdatePipeline.SelfMutate";
+"BEGIN UpdatePipeline" -> "UpdatePipeline.SelfMutate";
+"UpdatePipeline.SelfMutate" -> "END UpdatePipeline";
+"BEGIN Assets" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END Assets" [shape="cds", style="filled", fillcolor="#b7deff"];
+"Assets.FileAsset1";
+"UpdatePipeline.SelfMutate" -> "Assets.FileAsset1";
+"Assets.FileAsset2";
+"UpdatePipeline.SelfMutate" -> "Assets.FileAsset2";
+"BEGIN Assets" -> "Assets.FileAsset1";
+"BEGIN Assets" -> "Assets.FileAsset2";
+"Assets.FileAsset1" -> "END Assets";
+"Assets.FileAsset2" -> "END Assets";
+"BEGIN LocalTestAppStage" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END LocalTestAppStage" [shape="cds", style="filled", fillcolor="#b7deff"];
+"UpdatePipeline.SelfMutate" -> "BEGIN LocalTestAppStage";
+"BEGIN LocalTestAppStage.ChaliceApp" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END LocalTestAppStage.ChaliceApp" [shape="cds", style="filled", fillcolor="#b7deff"];
+"LocalTestAppStage.ChaliceApp.Deploy";
+"LocalTestAppStage.ChaliceApp.Prepare" -> "LocalTestAppStage.ChaliceApp.Deploy";
+"LocalTestAppStage.ChaliceApp.Prepare";
+"Build.Synth" -> "LocalTestAppStage.ChaliceApp.Prepare";
+"Assets.FileAsset1" -> "LocalTestAppStage.ChaliceApp.Prepare";
+"Assets.FileAsset2" -> "LocalTestAppStage.ChaliceApp.Prepare";
+"BEGIN LocalTestAppStage.ChaliceApp" -> "LocalTestAppStage.ChaliceApp.Prepare";
+"LocalTestAppStage.ChaliceApp.Deploy" -> "END LocalTestAppStage.ChaliceApp";
+"BEGIN LocalTestAppStage" -> "BEGIN LocalTestAppStage.ChaliceApp";
+"END LocalTestAppStage.ChaliceApp" -> "END LocalTestAppStage";
+"BEGIN LocalTest" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END LocalTest" [shape="cds", style="filled", fillcolor="#b7deff"];
+"UpdatePipeline.SelfMutate" -> "BEGIN LocalTest";
+"END LocalTestAppStage" -> "BEGIN LocalTest";
+"LocalTest.PreLocalTestShellStep-GenerateSDK";
+"LocalTest.ApproveLocalTest";
+"BEGIN LocalTest" -> "LocalTest.ApproveLocalTest";
+"BEGIN LocalTest" -> "LocalTest.PreLocalTestShellStep-GenerateSDK";
+"LocalTest.ApproveLocalTest" -> "END LocalTest";
+"LocalTest.PreLocalTestShellStep-GenerateSDK" -> "END LocalTest";
+"BEGIN Source" [shape="cds", style="filled", fillcolor="#b7deff"];
+"END Source" [shape="cds", style="filled", fillcolor="#b7deff"];
+"Source.rocapp/pfun-cma-model";
+"BEGIN Source" -> "Source.rocapp/pfun-cma-model";
+"Source.rocapp/pfun-cma-model" -> "END Source";
+}

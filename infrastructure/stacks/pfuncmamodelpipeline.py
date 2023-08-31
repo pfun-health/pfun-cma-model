@@ -32,14 +32,6 @@ class PFunCMAModelPipelineStack(cdk.Stack):
 
         localTestWave.add_pre(
             ShellStep(
-                "PreLocalTestShellStep",
-                commands=[
-                    "cd ${CODEBUILD_SRC_DIR}",
-                    "chalice local &",
-                    "bg"
-                ]
-            ),
-            ShellStep(
                 "PreLocalTestShellStep-GenerateSDK",
                 commands=[
                     "cd ${CODEBUILD_SRC_DIR}",
@@ -49,12 +41,5 @@ class PFunCMAModelPipelineStack(cdk.Stack):
         )
 
         localTestWave.add_post(
-            ShellStep(
-                "PostLocalTestShellStep",
-                commands=[
-                    "cd ${CODEBUILD_SRC_DIR}",
-                    "kill $(lsof -t -i:8000)"
-                ]
-            ),
             ManualApprovalStep('ApproveLocalTest')
         )

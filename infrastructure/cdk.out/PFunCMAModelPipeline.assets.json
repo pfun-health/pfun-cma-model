@@ -1,0 +1,20 @@
+{
+  "version": "33.0.0",
+  "files": {
+    "32c93024f42b8f5049bd0ddc4ca8a66e168e0e3383740430d249318a53cb2b2f": {
+      "source": {
+        "path": "PFunCMAModelPipeline.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "860311922912-us-east-1": {
+          "bucketName": "cdk-hnb659fds-assets-860311922912-us-east-1",
+          "objectKey": "32c93024f42b8f5049bd0ddc4ca8a66e168e0e3383740430d249318a53cb2b2f.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-file-publishing-role-860311922912-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
