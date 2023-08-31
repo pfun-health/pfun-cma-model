@@ -1,11 +1,11 @@
 {
   "version": "33.0.0",
   "artifacts": {
-    "assembly-PFunCMAModelPipeline-LocalTestAppStage": {
+    "assembly-PFunCMAModelPipeline-AppStage": {
       "type": "cdk:cloud-assembly",
       "properties": {
-        "directoryName": "assembly-PFunCMAModelPipeline-LocalTestAppStage",
-        "displayName": "PFunCMAModelPipeline/LocalTestAppStage"
+        "directoryName": "assembly-PFunCMAModelPipeline-AppStage",
+        "displayName": "PFunCMAModelPipeline/AppStage"
       }
     },
     "PFunCMAModelPipeline.assets": {
@@ -24,7 +24,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/32c93024f42b8f5049bd0ddc4ca8a66e168e0e3383740430d249318a53cb2b2f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/af7dc365a3a0a980f95a8346e138a6906514fec45224745ec4236337258f0128.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -92,30 +92,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineBuildSynthCdkBuildProject6BEFA8E6"
-          }
-        ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/ApproveLocalTest/CodePipelineActionRole/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PipelineLocalTestApproveLocalTestCodePipelineActionRole11A3482C"
-          }
-        ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Role/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDKRoleE2BEE353"
-          }
-        ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Role/DefaultPolicy/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDKRoleDefaultPolicyFD6A2A48"
-          }
-        ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/LocalTest/PreLocalTestShellStep-GenerateSDK/PreLocalTestShellStep-GenerateSDK/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PipelineLocalTestPreLocalTestShellStepGenerateSDK64F96839"
           }
         ],
         "/PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/Resource": [

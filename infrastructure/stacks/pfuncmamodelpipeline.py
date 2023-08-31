@@ -25,21 +25,5 @@ class PFunCMAModelPipelineStack(cdk.Stack):
                                 )
         pipeline.add_stage(
             PFuncMAModelPipelineAppStage(
-                self, "LocalTestAppStage", env=kwargs['env'])
-        )
-
-        localTestWave = pipeline.add_wave("LocalTest")
-
-        localTestWave.add_pre(
-            ShellStep(
-                "PreLocalTestShellStep-GenerateSDK",
-                commands=[
-                    "cd ${CODEBUILD_SRC_DIR}",
-                    "./runtime/scripts/generate-sdk.sh"
-                ]
-            )
-        )
-
-        localTestWave.add_post(
-            ManualApprovalStep('ApproveLocalTest')
+                self, "AppStage", env=kwargs['env'])
         )
