@@ -1,34 +1,34 @@
 {
   "version": "33.0.0",
   "artifacts": {
-    "assembly-PFunCMAModelPipeline-AppStage": {
+    "assembly-PFunCMAModelPipelineStack-AppStage": {
       "type": "cdk:cloud-assembly",
       "properties": {
-        "directoryName": "assembly-PFunCMAModelPipeline-AppStage",
-        "displayName": "PFunCMAModelPipeline/AppStage"
+        "directoryName": "assembly-PFunCMAModelPipelineStack-AppStage",
+        "displayName": "PFunCMAModelPipelineStack/AppStage"
       }
     },
-    "PFunCMAModelPipeline.assets": {
+    "PFunCMAModelPipelineStack.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "PFunCMAModelPipeline.assets.json",
+        "file": "PFunCMAModelPipelineStack.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "PFunCMAModelPipeline": {
+    "PFunCMAModelPipelineStack": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://860311922912/us-east-1",
       "properties": {
-        "templateFile": "PFunCMAModelPipeline.template.json",
+        "templateFile": "PFunCMAModelPipelineStack.template.json",
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/af7dc365a3a0a980f95a8346e138a6906514fec45224745ec4236337258f0128.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/85caaf718c7a71eb8e71e38c0b9bae2c52e1b9e48b8c240a27f9263053f4e3be.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "PFunCMAModelPipeline.assets"
+          "PFunCMAModelPipelineStack.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-lookup-role-860311922912-us-east-1",
@@ -37,137 +37,137 @@
         }
       },
       "dependencies": [
-        "PFunCMAModelPipeline.assets"
+        "PFunCMAModelPipelineStack.assets"
       ],
       "metadata": {
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineArtifactsBucketAEA9A052"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineArtifactsBucketPolicyF53CCC52"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Role/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineRoleB27FAA37"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Role/DefaultPolicy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineRoleDefaultPolicy7BDC1ABB"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "Pipeline9850B417"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Source/rocapp_pfun-cma-model/WebhookResource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Source/rocapp_pfun-cma-model/WebhookResource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineSourcerocapppfuncmamodelWebhookResourceD672927E"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineBuildSynthCdkBuildProjectRole231EEA2A"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineBuildSynthCdkBuildProjectRoleDefaultPolicyFB6C941C"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineBuildSynthCdkBuildProject6BEFA8E6"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineCodeBuildActionRole226DB0CB"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineCodeBuildActionRoleDefaultPolicy1D62A6FE"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineUpdatePipelineSelfMutationRole57E559E8"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineUpdatePipelineSelfMutationRoleDefaultPolicyA225DA4E"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineUpdatePipelineSelfMutationDAA41400"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Assets/FileRole/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineAssetsFileRole59943A77"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Assets/FileRole/DefaultPolicy/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineAssetsFileRoleDefaultPolicy14DB8755"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Assets/FileAsset1/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset1/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineAssetsFileAsset185A67CB4"
           }
         ],
-        "/PFunCMAModelPipeline/Pipeline/Assets/FileAsset2/Resource": [
+        "/PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset2/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PipelineAssetsFileAsset24D2D639B"
           }
         ],
-        "/PFunCMAModelPipeline/CDKMetadata/Default": [
+        "/PFunCMAModelPipelineStack/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/PFunCMAModelPipeline/BootstrapVersion": [
+        "/PFunCMAModelPipelineStack/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/PFunCMAModelPipeline/CheckBootstrapVersion": [
+        "/PFunCMAModelPipelineStack/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "PFunCMAModelPipeline"
+      "displayName": "PFunCMAModelPipelineStack"
     },
     "Tree": {
       "type": "cdk:tree",

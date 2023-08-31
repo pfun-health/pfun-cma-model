@@ -4,25 +4,25 @@
     "id": "App",
     "path": "",
     "children": {
-      "PFunCMAModelPipeline": {
-        "id": "PFunCMAModelPipeline",
-        "path": "PFunCMAModelPipeline",
+      "PFunCMAModelPipelineStack": {
+        "id": "PFunCMAModelPipelineStack",
+        "path": "PFunCMAModelPipelineStack",
         "children": {
           "Pipeline": {
             "id": "Pipeline",
-            "path": "PFunCMAModelPipeline/Pipeline",
+            "path": "PFunCMAModelPipelineStack/Pipeline",
             "children": {
               "Pipeline": {
                 "id": "Pipeline",
-                "path": "PFunCMAModelPipeline/Pipeline/Pipeline",
+                "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline",
                 "children": {
                   "ArtifactsBucket": {
                     "id": "ArtifactsBucket",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
                           "aws:cdk:cloudformation:props": {
@@ -50,11 +50,11 @@
                       },
                       "Policy": {
                         "id": "Policy",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Policy",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket/Policy",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::S3::BucketPolicy",
                               "aws:cdk:cloudformation:props": {
@@ -165,11 +165,11 @@
                   },
                   "Role": {
                     "id": "Role",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Role",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Role",
                     "children": {
                       "ImportRole": {
                         "id": "ImportRole",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Role/ImportRole",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/ImportRole",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.Resource",
                           "version": "2.93.0"
@@ -177,7 +177,7 @@
                       },
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Role/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                           "aws:cdk:cloudformation:props": {
@@ -202,11 +202,11 @@
                       },
                       "DefaultPolicy": {
                         "id": "DefaultPolicy",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Role/DefaultPolicy",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/DefaultPolicy",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Role/DefaultPolicy/Resource",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Role/DefaultPolicy/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                               "aws:cdk:cloudformation:props": {
@@ -305,7 +305,7 @@
                   },
                   "Resource": {
                     "id": "Resource",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Resource",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::CodePipeline::Pipeline",
                       "aws:cdk:cloudformation:props": {
@@ -376,7 +376,7 @@
                                   "ProjectName": {
                                     "Ref": "PipelineBuildSynthCdkBuildProject6BEFA8E6"
                                   },
-                                  "EnvironmentVariables": "[{\"name\":\"_PROJECT_CONFIG_HASH\",\"type\":\"PLAINTEXT\",\"value\":\"6852e394e7017f8001c5df61294efe115b364fd0ca1363cb216ce8fb83297f35\"}]"
+                                  "EnvironmentVariables": "[{\"name\":\"_PROJECT_CONFIG_HASH\",\"type\":\"PLAINTEXT\",\"value\":\"5107b9c1e1d0f136c4a6e8656ef892ba4cf2f66083de7d30bcf7a700d886d522\"}]"
                                 },
                                 "runOrder": 1,
                                 "roleArn": {
@@ -408,7 +408,7 @@
                                   "ProjectName": {
                                     "Ref": "PipelineUpdatePipelineSelfMutationDAA41400"
                                   },
-                                  "EnvironmentVariables": "[{\"name\":\"_PROJECT_CONFIG_HASH\",\"type\":\"PLAINTEXT\",\"value\":\"3e019a110a81ba93debb6771294feea70d2ab42517a59a9da4ad1c2eea9043d1\"}]"
+                                  "EnvironmentVariables": "[{\"name\":\"_PROJECT_CONFIG_HASH\",\"type\":\"PLAINTEXT\",\"value\":\"7d8e0a65f6dc4756b182126fad7f5417d2fffc6021e2892d2bd8845f2d223969\"}]"
                                 },
                                 "runOrder": 1,
                                 "roleArn": {
@@ -510,7 +510,7 @@
                                   },
                                   "ActionMode": "CHANGE_SET_REPLACE",
                                   "ChangeSetName": "PipelineChange",
-                                  "TemplatePath": "Synth_Output::assembly-PFunCMAModelPipeline-AppStage/PFunCMAModelPipelineAppStageChaliceApp10A8946F.template.json"
+                                  "TemplatePath": "Synth_Output::assembly-PFunCMAModelPipelineStack-AppStage/PFunCMAModelPipelineStackAppStageChaliceApp9328699E.template.json"
                                 },
                                 "runOrder": 1,
                                 "roleArn": {
@@ -565,15 +565,15 @@
                   },
                   "Source": {
                     "id": "Source",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Source",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Source",
                     "children": {
                       "rocapp_pfun-cma-model": {
                         "id": "rocapp_pfun-cma-model",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Source/rocapp_pfun-cma-model",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Source/rocapp_pfun-cma-model",
                         "children": {
                           "WebhookResource": {
                             "id": "WebhookResource",
-                            "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Source/rocapp_pfun-cma-model/WebhookResource",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Source/rocapp_pfun-cma-model/WebhookResource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::CodePipeline::Webhook",
                               "aws:cdk:cloudformation:props": {
@@ -614,23 +614,23 @@
                   },
                   "Build": {
                     "id": "Build",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build",
                     "children": {
                       "Synth": {
                         "id": "Synth",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth",
                         "children": {
                           "CdkBuildProject": {
                             "id": "CdkBuildProject",
-                            "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject",
                             "children": {
                               "Role": {
                                 "id": "Role",
-                                "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role",
+                                "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role",
                                 "children": {
                                   "ImportRole": {
                                     "id": "ImportRole",
-                                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/ImportRole",
+                                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/ImportRole",
                                     "constructInfo": {
                                       "fqn": "aws-cdk-lib.Resource",
                                       "version": "2.93.0"
@@ -638,7 +638,7 @@
                                   },
                                   "Resource": {
                                     "id": "Resource",
-                                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource",
+                                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource",
                                     "attributes": {
                                       "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                                       "aws:cdk:cloudformation:props": {
@@ -663,11 +663,11 @@
                                   },
                                   "DefaultPolicy": {
                                     "id": "DefaultPolicy",
-                                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy",
+                                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy",
                                     "children": {
                                       "Resource": {
                                         "id": "Resource",
-                                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource",
+                                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource",
                                         "attributes": {
                                           "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                                           "aws:cdk:cloudformation:props": {
@@ -807,7 +807,7 @@
                               },
                               "Resource": {
                                 "id": "Resource",
-                                "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource",
+                                "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource",
                                 "attributes": {
                                   "aws:cdk:cloudformation:type": "AWS::CodeBuild::Project",
                                   "aws:cdk:cloudformation:props": {
@@ -817,7 +817,7 @@
                                     "cache": {
                                       "type": "NO_CACHE"
                                     },
-                                    "description": "Pipeline step PFunCMAModelPipeline/Pipeline/Build/Synth",
+                                    "description": "Pipeline step PFunCMAModelPipelineStack/Pipeline/Build/Synth",
                                     "encryptionKey": "alias/aws/s3",
                                     "environment": {
                                       "type": "LINUX_CONTAINER",
@@ -834,7 +834,7 @@
                                     },
                                     "source": {
                                       "type": "CODEPIPELINE",
-                                      "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"cd ${CODEBUILD_SRC_DIR}\",\n        \"npm install -g aws-cdk\",\n        \"pip install -r requirements.txt\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk synth\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"cdk.out\",\n    \"files\": \"**/*\"\n  }\n}"
+                                      "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g aws-cdk\",\n        \"pip install -r requirements.txt\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk synth\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"cdk.out\",\n    \"files\": \"**/*\"\n  }\n}"
                                     }
                                   }
                                 },
@@ -863,11 +863,11 @@
                   },
                   "UpdatePipeline": {
                     "id": "UpdatePipeline",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/UpdatePipeline",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/UpdatePipeline",
                     "children": {
                       "SelfMutate": {
                         "id": "SelfMutate",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/UpdatePipeline/SelfMutate",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/UpdatePipeline/SelfMutate",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -881,11 +881,11 @@
                   },
                   "Assets": {
                     "id": "Assets",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Assets",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Assets",
                     "children": {
                       "FileAsset1": {
                         "id": "FileAsset1",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Assets/FileAsset1",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Assets/FileAsset1",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -893,7 +893,7 @@
                       },
                       "FileAsset2": {
                         "id": "FileAsset2",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/Assets/FileAsset2",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/Assets/FileAsset2",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -907,11 +907,11 @@
                   },
                   "AppStage": {
                     "id": "AppStage",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/AppStage",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/AppStage",
                     "children": {
                       "Prepare": {
                         "id": "Prepare",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/AppStage/Prepare",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/AppStage/Prepare",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -919,7 +919,7 @@
                       },
                       "Deploy": {
                         "id": "Deploy",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/AppStage/Deploy",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/AppStage/Deploy",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -933,7 +933,7 @@
                   },
                   "MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1": {
                     "id": "MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.Resource",
                       "version": "2.93.0"
@@ -941,11 +941,11 @@
                   },
                   "arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1": {
                     "id": "arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1",
                     "children": {
                       "8389e75f-0810-4838-bf64-d6f85a95cf83": {
                         "id": "8389e75f-0810-4838-bf64-d6f85a95cf83",
-                        "path": "PFunCMAModelPipeline/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1/8389e75f-0810-4838-bf64-d6f85a95cf83",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-deploy-role-860311922912-us-east-1/8389e75f-0810-4838-bf64-d6f85a95cf83",
                         "constructInfo": {
                           "fqn": "constructs.Construct",
                           "version": "10.2.69"
@@ -959,7 +959,7 @@
                   },
                   "MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1": {
                     "id": "MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/MutableRolearn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.Resource",
                       "version": "2.93.0"
@@ -967,7 +967,7 @@
                   },
                   "arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1": {
                     "id": "arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-                    "path": "PFunCMAModelPipeline/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Pipeline/arn:${AWS::Partition}:iam::860311922912:role--cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.Resource",
                       "version": "2.93.0"
@@ -981,11 +981,11 @@
               },
               "CodeBuildActionRole": {
                 "id": "CodeBuildActionRole",
-                "path": "PFunCMAModelPipeline/Pipeline/CodeBuildActionRole",
+                "path": "PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole",
                 "children": {
                   "ImportCodeBuildActionRole": {
                     "id": "ImportCodeBuildActionRole",
-                    "path": "PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/ImportCodeBuildActionRole",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/ImportCodeBuildActionRole",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.Resource",
                       "version": "2.93.0"
@@ -993,7 +993,7 @@
                   },
                   "Resource": {
                     "id": "Resource",
-                    "path": "PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/Resource",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                       "aws:cdk:cloudformation:props": {
@@ -1023,11 +1023,11 @@
                   },
                   "DefaultPolicy": {
                     "id": "DefaultPolicy",
-                    "path": "PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/DefaultPolicy",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/DefaultPolicy",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                           "aws:cdk:cloudformation:props": {
@@ -1119,19 +1119,19 @@
               },
               "UpdatePipeline": {
                 "id": "UpdatePipeline",
-                "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline",
+                "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline",
                 "children": {
                   "SelfMutation": {
                     "id": "SelfMutation",
-                    "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation",
                     "children": {
                       "Role": {
                         "id": "Role",
-                        "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role",
                         "children": {
                           "ImportRole": {
                             "id": "ImportRole",
-                            "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/ImportRole",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/ImportRole",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.Resource",
                               "version": "2.93.0"
@@ -1139,7 +1139,7 @@
                           },
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/Resource",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                               "aws:cdk:cloudformation:props": {
@@ -1164,11 +1164,11 @@
                           },
                           "DefaultPolicy": {
                             "id": "DefaultPolicy",
-                            "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy",
                             "children": {
                               "Resource": {
                                 "id": "Resource",
-                                "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource",
+                                "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource",
                                 "attributes": {
                                   "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                                   "aws:cdk:cloudformation:props": {
@@ -1325,7 +1325,7 @@
                       },
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutation/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutation/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::CodeBuild::Project",
                           "aws:cdk:cloudformation:props": {
@@ -1335,7 +1335,7 @@
                             "cache": {
                               "type": "NO_CACHE"
                             },
-                            "description": "Pipeline step PFunCMAModelPipeline/Pipeline/UpdatePipeline/SelfMutate",
+                            "description": "Pipeline step PFunCMAModelPipelineStack/Pipeline/UpdatePipeline/SelfMutate",
                             "encryptionKey": "alias/aws/s3",
                             "environment": {
                               "type": "LINUX_CONTAINER",
@@ -1353,7 +1353,7 @@
                             },
                             "source": {
                               "type": "CODEPIPELINE",
-                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g aws-cdk@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk -a . deploy PFunCMAModelPipeline --require-approval=never --verbose\"\n      ]\n    }\n  }\n}"
+                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g aws-cdk@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk -a . deploy PFunCMAModelPipelineStack --require-approval=never --verbose\"\n      ]\n    }\n  }\n}"
                             }
                           }
                         },
@@ -1376,15 +1376,15 @@
               },
               "Assets": {
                 "id": "Assets",
-                "path": "PFunCMAModelPipeline/Pipeline/Assets",
+                "path": "PFunCMAModelPipelineStack/Pipeline/Assets",
                 "children": {
                   "FileRole": {
                     "id": "FileRole",
-                    "path": "PFunCMAModelPipeline/Pipeline/Assets/FileRole",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileRole",
                     "children": {
                       "ImportFileRole": {
                         "id": "ImportFileRole",
-                        "path": "PFunCMAModelPipeline/Pipeline/Assets/FileRole/ImportFileRole",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/ImportFileRole",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.Resource",
                           "version": "2.93.0"
@@ -1392,7 +1392,7 @@
                       },
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/Assets/FileRole/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                           "aws:cdk:cloudformation:props": {
@@ -1435,11 +1435,11 @@
                       },
                       "DefaultPolicy": {
                         "id": "DefaultPolicy",
-                        "path": "PFunCMAModelPipeline/Pipeline/Assets/FileRole/DefaultPolicy",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/DefaultPolicy",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/Pipeline/Assets/FileRole/DefaultPolicy/Resource",
+                            "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileRole/DefaultPolicy/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                               "aws:cdk:cloudformation:props": {
@@ -1563,11 +1563,11 @@
                   },
                   "FileAsset1": {
                     "id": "FileAsset1",
-                    "path": "PFunCMAModelPipeline/Pipeline/Assets/FileAsset1",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset1",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/Assets/FileAsset1/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset1/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::CodeBuild::Project",
                           "aws:cdk:cloudformation:props": {
@@ -1577,7 +1577,7 @@
                             "cache": {
                               "type": "NO_CACHE"
                             },
-                            "description": "Pipeline step PFunCMAModelPipeline/Pipeline/Assets/FileAsset1",
+                            "description": "Pipeline step PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset1",
                             "encryptionKey": "alias/aws/s3",
                             "environment": {
                               "type": "LINUX_CONTAINER",
@@ -1594,7 +1594,7 @@
                             },
                             "source": {
                               "type": "CODEPIPELINE",
-                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g cdk-assets@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk-assets --path \\\"assembly-PFunCMAModelPipeline-AppStage/PFunCMAModelPipelineAppStageChaliceApp10A8946F.assets.json\\\" --verbose publish \\\"416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852:860311922912-us-east-1\\\"\"\n      ]\n    }\n  }\n}"
+                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g cdk-assets@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk-assets --path \\\"assembly-PFunCMAModelPipelineStack-AppStage/PFunCMAModelPipelineStackAppStageChaliceApp9328699E.assets.json\\\" --verbose publish \\\"416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852:860311922912-us-east-1\\\"\"\n      ]\n    }\n  }\n}"
                             }
                           }
                         },
@@ -1611,11 +1611,11 @@
                   },
                   "FileAsset2": {
                     "id": "FileAsset2",
-                    "path": "PFunCMAModelPipeline/Pipeline/Assets/FileAsset2",
+                    "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset2",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/Pipeline/Assets/FileAsset2/Resource",
+                        "path": "PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset2/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::CodeBuild::Project",
                           "aws:cdk:cloudformation:props": {
@@ -1625,7 +1625,7 @@
                             "cache": {
                               "type": "NO_CACHE"
                             },
-                            "description": "Pipeline step PFunCMAModelPipeline/Pipeline/Assets/FileAsset2",
+                            "description": "Pipeline step PFunCMAModelPipelineStack/Pipeline/Assets/FileAsset2",
                             "encryptionKey": "alias/aws/s3",
                             "environment": {
                               "type": "LINUX_CONTAINER",
@@ -1642,7 +1642,7 @@
                             },
                             "source": {
                               "type": "CODEPIPELINE",
-                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g cdk-assets@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk-assets --path \\\"assembly-PFunCMAModelPipeline-AppStage/PFunCMAModelPipelineAppStageChaliceApp10A8946F.assets.json\\\" --verbose publish \\\"937ac23990892c4f13d19b27c881ca206e743357c724556fe16b427d9506f5d7:860311922912-us-east-1\\\"\"\n      ]\n    }\n  }\n}"
+                              "buildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": [\n        \"npm install -g cdk-assets@2\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk-assets --path \\\"assembly-PFunCMAModelPipelineStack-AppStage/PFunCMAModelPipelineStackAppStageChaliceApp9328699E.assets.json\\\" --verbose publish \\\"937ac23990892c4f13d19b27c881ca206e743357c724556fe16b427d9506f5d7:860311922912-us-east-1\\\"\"\n      ]\n    }\n  }\n}"
                             }
                           }
                         },
@@ -1671,23 +1671,23 @@
           },
           "AppStage": {
             "id": "AppStage",
-            "path": "PFunCMAModelPipeline/AppStage",
+            "path": "PFunCMAModelPipelineStack/AppStage",
             "children": {
               "ChaliceApp": {
                 "id": "ChaliceApp",
-                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp",
+                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp",
                 "children": {
                   "PFunCMAModelChaliceApp": {
                     "id": "PFunCMAModelChaliceApp",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp",
                     "children": {
                       "ChaliceAppCode": {
                         "id": "ChaliceAppCode",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode",
                         "children": {
                           "Stage": {
                             "id": "Stage",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode/Stage",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode/Stage",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.AssetStaging",
                               "version": "2.93.0"
@@ -1695,7 +1695,7 @@
                           },
                           "AssetBucket": {
                             "id": "AssetBucket",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode/AssetBucket",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceAppCode/AssetBucket",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                               "version": "2.93.0"
@@ -1709,11 +1709,11 @@
                       },
                       "ChaliceManagedLayer": {
                         "id": "ChaliceManagedLayer",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer",
                         "children": {
                           "Stage": {
                             "id": "Stage",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer/Stage",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer/Stage",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.AssetStaging",
                               "version": "2.93.0"
@@ -1721,7 +1721,7 @@
                           },
                           "AssetBucket": {
                             "id": "AssetBucket",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer/AssetBucket",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceManagedLayer/AssetBucket",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                               "version": "2.93.0"
@@ -1735,11 +1735,11 @@
                       },
                       "ChaliceApp": {
                         "id": "ChaliceApp",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp",
                         "children": {
                           "$Mappings": {
                             "id": "$Mappings",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Mappings",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Mappings",
                             "constructInfo": {
                               "fqn": "constructs.Construct",
                               "version": "10.2.69"
@@ -1747,7 +1747,7 @@
                           },
                           "$Conditions": {
                             "id": "$Conditions",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Conditions",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Conditions",
                             "constructInfo": {
                               "fqn": "constructs.Construct",
                               "version": "10.2.69"
@@ -1755,7 +1755,7 @@
                           },
                           "$Rules": {
                             "id": "$Rules",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Rules",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Rules",
                             "constructInfo": {
                               "fqn": "constructs.Construct",
                               "version": "10.2.69"
@@ -1763,7 +1763,7 @@
                           },
                           "ManagedLayer": {
                             "id": "ManagedLayer",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/ManagedLayer",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::LayerVersion",
                               "aws:cdk:cloudformation:props": {
@@ -1774,7 +1774,7 @@
                                   "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
                                   "key": "937ac23990892c4f13d19b27c881ca206e743357c724556fe16b427d9506f5d7.zip"
                                 },
-                                "layerName": "pfun-cma-model-PFunCMAModelPipeline/AppStage/ChaliceApp-managed-layer"
+                                "layerName": "pfun-cma-model-PFunCMAModelPipelineStack/AppStage/ChaliceApp-managed-layer"
                               }
                             },
                             "constructInfo": {
@@ -1784,7 +1784,7 @@
                           },
                           "RunModel": {
                             "id": "RunModel",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunModel",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunModel",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1802,7 +1802,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1815,7 +1815,7 @@
                           },
                           "RunAtTime": {
                             "id": "RunAtTime",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunAtTime",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1833,7 +1833,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1846,7 +1846,7 @@
                           },
                           "FitModel": {
                             "id": "FitModel",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FitModel",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FitModel",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1864,7 +1864,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1877,7 +1877,7 @@
                           },
                           "Oauth2Dexcom": {
                             "id": "Oauth2Dexcom",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/Oauth2Dexcom",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/Oauth2Dexcom",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1895,7 +1895,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1908,7 +1908,7 @@
                           },
                           "FakeAuth": {
                             "id": "FakeAuth",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuth",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1926,7 +1926,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1939,7 +1939,7 @@
                           },
                           "APIHandler": {
                             "id": "APIHandler",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandler",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandler",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -1957,7 +1957,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -1970,7 +1970,7 @@
                           },
                           "RestAPI": {
                             "id": "RestAPI",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RestAPI",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RestAPI",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Api",
                               "aws:cdk:cloudformation:props": {
@@ -2972,7 +2972,7 @@
                           },
                           "APIHandlerInvokePermission": {
                             "id": "APIHandlerInvokePermission",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/APIHandlerInvokePermission",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
                               "aws:cdk:cloudformation:props": {
@@ -3000,7 +3000,7 @@
                           },
                           "FakeAuthInvokePermission": {
                             "id": "FakeAuthInvokePermission",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/FakeAuthInvokePermission",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
                               "aws:cdk:cloudformation:props": {
@@ -3031,7 +3031,7 @@
                           },
                           "WebsocketConnect": {
                             "id": "WebsocketConnect",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnect",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -3049,7 +3049,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -3062,7 +3062,7 @@
                           },
                           "WebsocketMessage": {
                             "id": "WebsocketMessage",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessage",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
                               "aws:cdk:cloudformation:props": {
@@ -3080,7 +3080,7 @@
                                 "memorySize": 128,
                                 "runtime": "python3.10",
                                 "tags": {
-                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipeline/AppStage/ChaliceApp:app=pfun-cma-model"
+                                  "aws-chalice": "version=1.29.0:stage=PFunCMAModelPipelineStack/AppStage/ChaliceApp:app=pfun-cma-model"
                                 },
                                 "timeout": 60,
                                 "tracing": "PassThrough"
@@ -3093,11 +3093,11 @@
                           },
                           "WebsocketAPI": {
                             "id": "WebsocketAPI",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPI",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Api",
                               "aws:cdk:cloudformation:props": {
-                                "name": "pfun-cma-model-PFunCMAModelPipeline/AppStage/ChaliceApp-websocket-api",
+                                "name": "pfun-cma-model-PFunCMAModelPipelineStack/AppStage/ChaliceApp-websocket-api",
                                 "protocolType": "WEBSOCKET",
                                 "routeSelectionExpression": "$request.body.action"
                               }
@@ -3109,7 +3109,7 @@
                           },
                           "WebsocketConnectAPIIntegration": {
                             "id": "WebsocketConnectAPIIntegration",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectAPIIntegration",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Integration",
                               "aws:cdk:cloudformation:props": {
@@ -3138,7 +3138,7 @@
                           },
                           "WebsocketConnectInvokePermission": {
                             "id": "WebsocketConnectInvokePermission",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectInvokePermission",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
                               "aws:cdk:cloudformation:props": {
@@ -3166,7 +3166,7 @@
                           },
                           "WebsocketMessageAPIIntegration": {
                             "id": "WebsocketMessageAPIIntegration",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageAPIIntegration",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Integration",
                               "aws:cdk:cloudformation:props": {
@@ -3195,7 +3195,7 @@
                           },
                           "WebsocketMessageInvokePermission": {
                             "id": "WebsocketMessageInvokePermission",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageInvokePermission",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
                               "aws:cdk:cloudformation:props": {
@@ -3223,7 +3223,7 @@
                           },
                           "WebsocketConnectRoute": {
                             "id": "WebsocketConnectRoute",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketConnectRoute",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Route",
                               "aws:cdk:cloudformation:props": {
@@ -3251,7 +3251,7 @@
                           },
                           "WebsocketMessageRoute": {
                             "id": "WebsocketMessageRoute",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketMessageRoute",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Route",
                               "aws:cdk:cloudformation:props": {
@@ -3279,7 +3279,7 @@
                           },
                           "WebsocketAPIDeployment": {
                             "id": "WebsocketAPIDeployment",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIDeployment",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Deployment",
                               "aws:cdk:cloudformation:props": {
@@ -3295,7 +3295,7 @@
                           },
                           "WebsocketAPIStage": {
                             "id": "WebsocketAPIStage",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/WebsocketAPIStage",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::Stage",
                               "aws:cdk:cloudformation:props": {
@@ -3315,7 +3315,7 @@
                           },
                           "$Hooks": {
                             "id": "$Hooks",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Hooks",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Hooks",
                             "constructInfo": {
                               "fqn": "constructs.Construct",
                               "version": "10.2.69"
@@ -3323,11 +3323,11 @@
                           },
                           "$Ouputs": {
                             "id": "$Ouputs",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs",
                             "children": {
                               "RestAPIId": {
                                 "id": "RestAPIId",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/RestAPIId",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3335,7 +3335,7 @@
                               },
                               "APIHandlerName": {
                                 "id": "APIHandlerName",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerName",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3343,7 +3343,7 @@
                               },
                               "APIHandlerArn": {
                                 "id": "APIHandlerArn",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/APIHandlerArn",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3351,7 +3351,7 @@
                               },
                               "EndpointURL": {
                                 "id": "EndpointURL",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/EndpointURL",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3359,7 +3359,7 @@
                               },
                               "WebsocketAPIId": {
                                 "id": "WebsocketAPIId",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketAPIId",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3367,7 +3367,7 @@
                               },
                               "WebsocketConnectHandlerArn": {
                                 "id": "WebsocketConnectHandlerArn",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerArn",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3375,7 +3375,7 @@
                               },
                               "WebsocketConnectHandlerName": {
                                 "id": "WebsocketConnectHandlerName",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectHandlerName",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3383,7 +3383,7 @@
                               },
                               "WebsocketMessageHandlerArn": {
                                 "id": "WebsocketMessageHandlerArn",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerArn",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3391,7 +3391,7 @@
                               },
                               "WebsocketMessageHandlerName": {
                                 "id": "WebsocketMessageHandlerName",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketMessageHandlerName",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3399,7 +3399,7 @@
                               },
                               "WebsocketConnectEndpointURL": {
                                 "id": "WebsocketConnectEndpointURL",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/$Ouputs/WebsocketConnectEndpointURL",
                                 "constructInfo": {
                                   "fqn": "aws-cdk-lib.CfnOutput",
                                   "version": "2.93.0"
@@ -3419,7 +3419,7 @@
                       },
                       "RunModel": {
                         "id": "RunModel",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/RunModel",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/RunModel",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                           "version": "2.93.0"
@@ -3427,7 +3427,7 @@
                       },
                       "FitModel": {
                         "id": "FitModel",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/FitModel",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/FitModel",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                           "version": "2.93.0"
@@ -3435,7 +3435,7 @@
                       },
                       "RunAtTime": {
                         "id": "RunAtTime",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/RunAtTime",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/RunAtTime",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                           "version": "2.93.0"
@@ -3443,7 +3443,7 @@
                       },
                       "FakeAuth": {
                         "id": "FakeAuth",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/FakeAuth",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/FakeAuth",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                           "version": "2.93.0"
@@ -3451,7 +3451,7 @@
                       },
                       "APIHandler": {
                         "id": "APIHandler",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelChaliceApp/APIHandler",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelChaliceApp/APIHandler",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                           "version": "2.93.0"
@@ -3465,11 +3465,11 @@
                   },
                   "PFunCMAModelVPC": {
                     "id": "PFunCMAModelVPC",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/Resource",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::EC2::VPC",
                           "aws:cdk:cloudformation:props": {
@@ -3480,7 +3480,7 @@
                             "tags": [
                               {
                                 "key": "Name",
-                                "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC"
+                                "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC"
                               }
                             ]
                           }
@@ -3492,11 +3492,11 @@
                       },
                       "publicSubnet1": {
                         "id": "publicSubnet1",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1",
                         "children": {
                           "Subnet": {
                             "id": "Subnet",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/Subnet",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/Subnet",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                               "aws:cdk:cloudformation:props": {
@@ -3514,7 +3514,7 @@
                                   },
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
                                   }
                                 ],
                                 "vpcId": {
@@ -3529,7 +3529,7 @@
                           },
                           "Acl": {
                             "id": "Acl",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/Acl",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/Acl",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.Resource",
                               "version": "2.93.0"
@@ -3537,14 +3537,14 @@
                           },
                           "RouteTable": {
                             "id": "RouteTable",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTable",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTable",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
                               "aws:cdk:cloudformation:props": {
                                 "tags": [
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
                                   }
                                 ],
                                 "vpcId": {
@@ -3559,7 +3559,7 @@
                           },
                           "RouteTableAssociation": {
                             "id": "RouteTableAssociation",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTableAssociation",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/RouteTableAssociation",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
                               "aws:cdk:cloudformation:props": {
@@ -3578,7 +3578,7 @@
                           },
                           "DefaultRoute": {
                             "id": "DefaultRoute",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/DefaultRoute",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/DefaultRoute",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::Route",
                               "aws:cdk:cloudformation:props": {
@@ -3598,7 +3598,7 @@
                           },
                           "EIP": {
                             "id": "EIP",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/EIP",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/EIP",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
                               "aws:cdk:cloudformation:props": {
@@ -3606,7 +3606,7 @@
                                 "tags": [
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
                                   }
                                 ]
                               }
@@ -3618,7 +3618,7 @@
                           },
                           "NATGateway": {
                             "id": "NATGateway",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/NATGateway",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1/NATGateway",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::NatGateway",
                               "aws:cdk:cloudformation:props": {
@@ -3634,7 +3634,7 @@
                                 "tags": [
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet1"
                                   }
                                 ]
                               }
@@ -3652,11 +3652,11 @@
                       },
                       "publicSubnet2": {
                         "id": "publicSubnet2",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2",
                         "children": {
                           "Subnet": {
                             "id": "Subnet",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/Subnet",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/Subnet",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                               "aws:cdk:cloudformation:props": {
@@ -3674,7 +3674,7 @@
                                   },
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2"
                                   }
                                 ],
                                 "vpcId": {
@@ -3689,7 +3689,7 @@
                           },
                           "Acl": {
                             "id": "Acl",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/Acl",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/Acl",
                             "constructInfo": {
                               "fqn": "aws-cdk-lib.Resource",
                               "version": "2.93.0"
@@ -3697,14 +3697,14 @@
                           },
                           "RouteTable": {
                             "id": "RouteTable",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTable",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTable",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
                               "aws:cdk:cloudformation:props": {
                                 "tags": [
                                   {
                                     "key": "Name",
-                                    "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2"
+                                    "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2"
                                   }
                                 ],
                                 "vpcId": {
@@ -3719,7 +3719,7 @@
                           },
                           "RouteTableAssociation": {
                             "id": "RouteTableAssociation",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTableAssociation",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/RouteTableAssociation",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
                               "aws:cdk:cloudformation:props": {
@@ -3738,7 +3738,7 @@
                           },
                           "DefaultRoute": {
                             "id": "DefaultRoute",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/DefaultRoute",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/publicSubnet2/DefaultRoute",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::Route",
                               "aws:cdk:cloudformation:props": {
@@ -3764,14 +3764,14 @@
                       },
                       "IGW": {
                         "id": "IGW",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/IGW",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/IGW",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::EC2::InternetGateway",
                           "aws:cdk:cloudformation:props": {
                             "tags": [
                               {
                                 "key": "Name",
-                                "value": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC"
+                                "value": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC"
                               }
                             ]
                           }
@@ -3783,7 +3783,7 @@
                       },
                       "VPCGW": {
                         "id": "VPCGW",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelVPC/VPCGW",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelVPC/VPCGW",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::EC2::VPCGatewayAttachment",
                           "aws:cdk:cloudformation:props": {
@@ -3808,11 +3808,11 @@
                   },
                   "PFunCMAModelLoadBalancer": {
                     "id": "PFunCMAModelLoadBalancer",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Resource",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
                           "aws:cdk:cloudformation:props": {
@@ -3856,15 +3856,15 @@
                       },
                       "SecurityGroup": {
                         "id": "SecurityGroup",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup/Resource",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
                               "aws:cdk:cloudformation:props": {
-                                "groupDescription": "Automatically created Security Group for ELB PFunCMAModelPipelineAppStageChaliceAppPFunCMAModelLoadBalancer7D5F47EF",
+                                "groupDescription": "Automatically created Security Group for ELB PFunCMAModelPipelineStackAppStageChaliceAppPFunCMAModelLoadBalancer751B9A6F",
                                 "securityGroupEgress": [
                                   {
                                     "cidrIp": "255.255.255.255/32",
@@ -3908,11 +3908,11 @@
                       },
                       "PFunCMAModelListener": {
                         "id": "PFunCMAModelListener",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
                               "aws:cdk:cloudformation:props": {
@@ -3943,11 +3943,11 @@
                           },
                           "PFunCMAModelAPIHandlerTargetGroup": {
                             "id": "PFunCMAModelAPIHandlerTargetGroup",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup",
                             "children": {
                               "Resource": {
                                 "id": "Resource",
-                                "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource",
+                                "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource",
                                 "attributes": {
                                   "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::TargetGroup",
                                   "aws:cdk:cloudformation:props": {
@@ -3984,11 +3984,11 @@
                       },
                       "Redirect80To443": {
                         "id": "Redirect80To443",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443",
                         "children": {
                           "Resource": {
                             "id": "Resource",
-                            "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource",
+                            "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource",
                             "attributes": {
                               "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
                               "aws:cdk:cloudformation:props": {
@@ -4028,15 +4028,15 @@
                   },
                   "PFunAlbSecurityGroup": {
                     "id": "PFunAlbSecurityGroup",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunAlbSecurityGroup",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunAlbSecurityGroup",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunAlbSecurityGroup/Resource",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunAlbSecurityGroup/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
                           "aws:cdk:cloudformation:props": {
-                            "groupDescription": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunAlbSecurityGroup",
+                            "groupDescription": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunAlbSecurityGroup",
                             "securityGroupEgress": [
                               {
                                 "cidrIp": "0.0.0.0/0",
@@ -4078,19 +4078,19 @@
                   },
                   "PFunCMAModelListenerCert": {
                     "id": "PFunCMAModelListenerCert",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelListenerCert",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelListenerCert",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.Resource",
                       "version": "2.93.0"
                     }
                   },
-                  "PFunCMAModelPipeline--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler": {
-                    "id": "PFunCMAModelPipeline--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelPipeline--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler",
+                  "PFunCMAModelPipelineStack--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler": {
+                    "id": "PFunCMAModelPipelineStack--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelPipelineStack--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler",
                     "children": {
                       "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": {
                         "id": "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunCMAModelPipeline--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunCMAModelPipelineStack--AppStage--ChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
                           "aws:cdk:cloudformation:props": {
@@ -4117,7 +4117,7 @@
                   },
                   "PFunAlbDNSName": {
                     "id": "PFunAlbDNSName",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunAlbDNSName",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunAlbDNSName",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.CfnOutput",
                       "version": "2.93.0"
@@ -4125,7 +4125,7 @@
                   },
                   "PFunDevCMAModelHttpApi": {
                     "id": "PFunDevCMAModelHttpApi",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunDevCMAModelHttpApi",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunDevCMAModelHttpApi",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_apigateway.RestApiBase",
                       "version": "2.93.0"
@@ -4133,7 +4133,7 @@
                   },
                   "PFunDevCMAModelHttpApiMapping": {
                     "id": "PFunDevCMAModelHttpApiMapping",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunDevCMAModelHttpApiMapping",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunDevCMAModelHttpApiMapping",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::ApiMapping",
                       "aws:cdk:cloudformation:props": {
@@ -4154,7 +4154,7 @@
                   },
                   "PFunDevCMAModelCustomDomainNameOutput": {
                     "id": "PFunDevCMAModelCustomDomainNameOutput",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/PFunDevCMAModelCustomDomainNameOutput",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/PFunDevCMAModelCustomDomainNameOutput",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.CfnOutput",
                       "version": "2.93.0"
@@ -4162,11 +4162,11 @@
                   },
                   "CDKMetadata": {
                     "id": "CDKMetadata",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/CDKMetadata",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/CDKMetadata",
                     "children": {
                       "Default": {
                         "id": "Default",
-                        "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/CDKMetadata/Default",
+                        "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/CDKMetadata/Default",
                         "constructInfo": {
                           "fqn": "aws-cdk-lib.CfnResource",
                           "version": "2.93.0"
@@ -4180,7 +4180,7 @@
                   },
                   "BootstrapVersion": {
                     "id": "BootstrapVersion",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/BootstrapVersion",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/BootstrapVersion",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.CfnParameter",
                       "version": "2.93.0"
@@ -4188,7 +4188,7 @@
                   },
                   "CheckBootstrapVersion": {
                     "id": "CheckBootstrapVersion",
-                    "path": "PFunCMAModelPipeline/AppStage/ChaliceApp/CheckBootstrapVersion",
+                    "path": "PFunCMAModelPipelineStack/AppStage/ChaliceApp/CheckBootstrapVersion",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.CfnRule",
                       "version": "2.93.0"
@@ -4208,11 +4208,11 @@
           },
           "CDKMetadata": {
             "id": "CDKMetadata",
-            "path": "PFunCMAModelPipeline/CDKMetadata",
+            "path": "PFunCMAModelPipelineStack/CDKMetadata",
             "children": {
               "Default": {
                 "id": "Default",
-                "path": "PFunCMAModelPipeline/CDKMetadata/Default",
+                "path": "PFunCMAModelPipelineStack/CDKMetadata/Default",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.CfnResource",
                   "version": "2.93.0"
@@ -4226,7 +4226,7 @@
           },
           "BootstrapVersion": {
             "id": "BootstrapVersion",
-            "path": "PFunCMAModelPipeline/BootstrapVersion",
+            "path": "PFunCMAModelPipelineStack/BootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnParameter",
               "version": "2.93.0"
@@ -4234,7 +4234,7 @@
           },
           "CheckBootstrapVersion": {
             "id": "CheckBootstrapVersion",
-            "path": "PFunCMAModelPipeline/CheckBootstrapVersion",
+            "path": "PFunCMAModelPipelineStack/CheckBootstrapVersion",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnRule",
               "version": "2.93.0"
