@@ -12,12 +12,15 @@ except ImportError:
     import aws_cdk as cdk
 try:
     from stacks.chaliceapp import ChaliceApp
+    from stacks.pfuncmamodelpipeline import PFunCMAModelPipelineStack
 except (ImportError, ModuleNotFoundError):
     import importlib
     ChaliceApp = importlib.import_module('.chaliceapp', package='infrastructure.stacks').ChaliceApp
+    PFunCMAModelPipelineStack = importlib.import_module(
+        '.pfuncmamodelpipeline', package='infrastructure.stacks').PFunCMAModelPipelineStack
 
 
 environment = cdk.Environment(account='860311922912', region='us-east-1')
 app = cdk.App()
-chalice_stack = ChaliceApp(app, 'pfun-cma-model', env=environment)
+PFunCMAModelPipelineStack(app, 'PFunCMAModelPipeline', env=environment)
 app.synth()

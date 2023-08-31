@@ -53,7 +53,7 @@ class ChaliceApp(cdk.Stack):
 
         # Create a VPC
         vpc = ec2.Vpc(self, "PFunCMAModelVPC",
-                      cidr="10.0.0.3/16",
+                      cidr="10.0.0.0/16",
                       enable_dns_hostnames=True,
                       enable_dns_support=True,
                       create_internet_gateway=True,
