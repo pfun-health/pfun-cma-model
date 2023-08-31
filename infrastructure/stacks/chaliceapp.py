@@ -13,7 +13,12 @@ from aws_cdk import (
     aws_route53_targets as targets,
     aws_route53 as route53,
     aws_elasticloadbalancingv2_targets as elbv2_targets,
-    aws_lambda as lambda_
+    aws_lambda as lambda_,
+    aws_s3 as s3,
+    aws_cloudfront as cloudfront,
+    aws_certificatemanager as acm,
+    aws_apigateway as apigw,
+    aws_apigatewayv2 as apigwv2,
 )
 
 from chalice.cdk import Chalice
@@ -49,6 +54,9 @@ class ChaliceApp(cdk.Stack):
         # Create a VPC
         vpc = ec2.Vpc(self, "PFunCMAModelVPC",
                       cidr="10.0.0.3/16",
+                      enable_dns_hostnames=True,
+                      enable_dns_support=True,
+                      create_internet_gateway=True,
                       max_azs=2,
                       nat_gateways=1,
                       subnet_configuration=[
@@ -59,16 +67,21 @@ class ChaliceApp(cdk.Stack):
                       ]
                       )
 
-        al_image = ec2.AmazonLinuxImage(
-            generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2)
-        al_inst = ec2.InstanceType.of(
-            ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM)
-
         # Configure the ASG as a target for the ALB
         alb = elbv2.ApplicationLoadBalancer(
-            self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=True)
-
+            self, "PFunCMAModelLoadBalancer", vpc=vpc, internet_facing=True,
+            ip_address_type=elbv2.IpAddressType.IPV4)
+        alb.add_security_group(ec2.SecurityGroup(
+            self, "PFunAlbSecurityGroup", vpc=vpc,
+            allow_all_outbound=True,
+        ))
+        certificate = acm.Certificate.from_certificate_arn(
+            self, 'PFunCMAModelListenerCert',
+            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        )
         listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
+        listener.add_certificates("PFunCMAModelListenerCert", certificates=[
+            certificate])
 
         #: lambda function targets
         chalice_lambda_functions = (
@@ -93,6 +106,16 @@ class ChaliceApp(cdk.Stack):
                 principal=iam.ServicePrincipal(
                     'apigatewayv2.amazonaws.com'),
                 action='lambda:InvokeFunction')
+            func.add_to_role_policy(
+                iam.PolicyStatement(
+                    effect=iam.Effect.ALLOW,
+                    actions=[
+                        's3:Get*',
+                        's3:List*',
+                    ],
+                    resources=['*']
+                )
+            )
         fake_auth = self.chalice.get_function('FakeAuth')
         fake_auth.add_to_role_policy(
             iam.PolicyStatement(
@@ -113,5 +136,41 @@ class ChaliceApp(cdk.Stack):
                                  interval=cdk.Duration.minutes(5)),
                              )
 
+        # Allocate an Elastic IP address
+        eip = ec2.CfnEIP(self, 'PFunCMAModelDevEIP')
+
+        # Associate the Elastic IP address with the load balancer
+        eip_association = ec2.CfnEIPAssociation(self, 'PFunCMAModelEIPAssociation',
+                                                eip=eip.ref,
+                                                instance_id=alb.load_balancer_canonical_hosted_zone_id)
+
+        # Output the Elastic IP address
+        cdk.CfnOutput(self, 'PFunCMAModelEIP', value=eip.ref)
+
         # Output the ALB DNS name
         cdk.CfnOutput(self, "PFunAlbDNSName", value=alb.load_balancer_dns_name)
+
+        # Create the Custom Domain Name
+        domain_name_raw = 'dev.pfun.app'
+        domain_name = apigw.CfnDomainName(
+            self,
+            "PFunDevCMAModelCustomDomainName",
+            domain_name=domain_name_raw,
+        )
+
+        # Associate the Custom Domain Name with the HTTP API
+        rest_api = self.chalice.get_resource('RestAPI')
+        http_api = apigw.RestApi.from_rest_api_id(
+            self, 'PFunDevCMAModelHttpApi',
+            rest_api_id=rest_api.node.id
+        )
+        
+        # Create the HttpApiMapping
+        apigwv2.CfnApiMapping(self, 'PFunDevCMAModelHttpApiMapping',
+                              api_id=http_api.rest_api_id,
+                              domain_name=domain_name_raw,
+                              stage='api')
+
+        # Output the Custom Domain Name
+        cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainName',
+                      value=domain_name.ref)

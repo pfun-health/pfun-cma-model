@@ -1,6 +1,7 @@
 """
 PFun CMA Model API routes.
 """
+import base64
 import difflib
 import os
 import json
@@ -11,7 +12,7 @@ import requests
 from pathlib import Path
 import urllib.parse as urlparse
 from typing import (
-    Any, Callable, Dict, Literal
+    Any, Dict, Literal
 )
 from botocore.client import BaseClient
 from botocore.config import Config as ConfigCore
@@ -54,11 +55,17 @@ LAMBDA_FUNCTIONS = \
 
 def lambda_invoke(function_name: str, payload: Any):
     """
-    Invokes an AWS Lambda function with the given function name and payload.
-    
-    :param function_name: The name of the Lambda function to invoke (str).
-    :param payload: The payload to pass to the Lambda function (Any).
-    :return: The response from the Lambda function as a deserialized JSON object (Any).
+    Invokes a Lambda function with the given function name and payload.
+
+    Args:
+        function_name (str): The name of the Lambda function to invoke.
+        payload (Any): The payload to pass to the Lambda function.
+
+    Returns:
+        Any: The response from the Lambda function.
+
+    Raises:
+        RuntimeError: If the function name cannot be found in the list of Lambda functions.
     """
     actual_function_names = difflib.get_close_matches(
         function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.3
@@ -114,7 +121,10 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
 app = Chalice(app_name='PFun CMA Model Backend')
+app.log = logger
 app.log.setLevel(logging.INFO)
+local_environ = {k: v for k, v in dict(os.environ).items() if 'AWS' in k}
+logger.info('app environment: %s', json.dumps(local_environ, indent=2))
 
 app.api.cors = cors_config
 app.websocket_api.session = new_boto3_session()
@@ -218,6 +228,14 @@ class SecretsWrapper(threading.Thread):
         key = str(self.secrets_manager.get_secret_value(
             SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
         return key
+    
+    def aws_get_aws_api_key(self):
+        """
+        Retrieves the AWS API key from the AWS Secrets Manager.
+        """
+        key = str(self.secrets_manager.get_secret_value(
+            SecretId='pfun-cma-model-aws-api-key')['SecretString'])
+        return key
 
 
 class SecretsManagerContainer:
@@ -235,8 +253,22 @@ class SecretsManagerContainer:
     def __del__(self):
         self._secrets.join(timeout=1.0)
 
-    def authorize(self, *args, **kwargs):
-        return self._secrets.authorize(*args, **kwargs)
+    def authorize(self, request, *args, **kwargs):
+        """
+        Authorizes the request by checking if the secret is authorized or if the API key is valid.
+
+        Args:
+            request (object): The request object containing the headers.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            bool: True if the request is authorized, False otherwise.
+        """
+        secret_authorized = self._secrets.authorize(request, *args, **kwargs)
+        apikey_authorized = request.headers['X-API-Key'] == \
+            self._secrets.aws_get_aws_api_key()
+        return secret_authorized or apikey_authorized
 
 
 secman = SecretsManagerContainer()
@@ -246,13 +278,20 @@ secman = SecretsManagerContainer()
 def fake_auth(auth_request: AuthRequest):
     """Temporary authorizer for testing purposes.
     """
-    authorized = auth_request.token in ['Bearer allow', 'allow']
+    print(app)
+    current_request = app.current_request
+    logger.info(
+        '(Authorizer) Request method: %s', current_request.method.lower())
+    authorized = all([
+        auth_request.token in ['Bearer allow', 'allow'],
+        secman.authorize(current_request)
+    ])
     if not authorized:
-        app.log.warning(f'Unauthorized request: {str(auth_request)}')
-        logger.warning(f'Unauthorized request: {str(auth_request)}')
-        return Response(body='Unauthorized', status_code=401)
+        app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
+        logger.warning('Unauthorized request: %s', str(vars(auth_request)))
+        return Response(body='Unauthorized.', status_code=401)
     if authorized:
-        logger.info(f'Authorized request: {str(auth_request)}')
+        logger.info('Authorized request: %s', str(vars(auth_request)))
         return AuthResponse(routes=PUBLIC_ROUTES,
                             principal_id='user')
     else:
@@ -290,38 +329,21 @@ def index():
         Response: The HTTP response object containing the index page.
     """
     # pylint: disable=consider-using-f-string
-    SCRIPTS = '''
-<script type="text/javascript" src="lib/axios/dist/axios.standalone.js">
-</script>
-<script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js">
-</script>
-<script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js">
-</script>
-<script type="text/javascript" src="lib/CryptoJS/components/hmac.js">
-</script>
-<script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js">
-</script>
-<script type="text/javascript" src="lib/url-template/url-template.js">
-</script>
-<script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js">
-</script>
-<script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js">
-</script>
-<script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js">
-</script>
-<script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
-<script type="text/javascript" src="apigClient.js"></script>'''
     pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
         sys.version_info[:2]
     if not Path(pypath).exists():
         pypath = Path(__file__).parent.joinpath("chalicelib")
-    body = Path(pypath).joinpath('www', 'index.html') \
+    body = Path(pypath).joinpath('www', 'index.template.html') \
         .read_text(encoding='utf-8')
     ROUTES = '\n'.join([
         f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
         for name in PUBLIC_ROUTES])
+    PFUN_ICON_BLOB = base64.b64encode(Path(pypath).joinpath(
+        'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
+        .decode('utf-8')
+    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
     body = body.format(
-        SCRIPTS=SCRIPTS,
+        PFUN_ICON_BLOB=PFUN_ICON_BLOB,
         ROUTES=ROUTES
     )
     return Response(
@@ -425,16 +447,14 @@ def run_model_route():
     request: Request | None = app.current_request
     if request is None:
         raise RuntimeError("No request was provided!")
-    authorized = secman.authorize(request)
-    if not authorized:
-        return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
     return lambda_invoke('RunModel', payload=model_config)
 
 
 @app.on_ws_connect(name="run_at_time")
 def run_at_time_connect(event):
-    print('New connection: %s' % event.connection_id)
+    logger.info('New connection: %s' % event.connection_id)
+    app.websocket_api.send(event.connection_id, "Connected")
 
 
 @app.on_ws_message(name="run_at_time")
@@ -452,8 +472,8 @@ def run_at_time_ws(event):
     app.websocket_api.send(event.connection_id, lambda_response)
 
 
-@app.route('/run_at_time', methods=["GET", "POST"], authorizer=fake_auth)
-def run_at_time_route(event):
+@app.route('/run-at-time', methods=["GET", "POST"], authorizer=fake_auth)
+def run_at_time_route():
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     params = {
@@ -516,9 +536,6 @@ def fit_model_to_data(event, context):
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)
 def fit_model_route():
-    authorized = secman.authorize(app.current_request)
-    if not authorized:
-        return Response(body='Unauthorized', status_code=401)
     model_config = get_model_config(app)
     response = lambda_invoke('FitModel', payload=model_config)
     return response

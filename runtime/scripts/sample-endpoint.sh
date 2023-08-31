@@ -12,6 +12,10 @@ endpoint=${1:-run}
 
 extra_params=${2:-}
 
+if [ "$endpoint" == "sdk" ]; then
+	extra_params="-O"
+fi
+
 base_url=${base_url:-https://$(aws apigateway get-rest-apis --query "items[?name=='PFun CMA Model Backend'].id" --output text).execute-api.us-east-1.amazonaws.com/api/}
 url="${base_url}${endpoint}"
 echo "URL=${url}"
@@ -33,3 +37,9 @@ echo -e "command:\n${CMD_ARGS}\n"
 eval "${CMD_ARGS}"
 
 sleep 0.1s
+
+if [ "$endpoint" == "sdk" ]; then
+	python $HOME/Git/pfun-cma-model/runtime/scripts/extract-sdk.py
+	sleep 0.1s
+	echo "...updated SDK"
+fi

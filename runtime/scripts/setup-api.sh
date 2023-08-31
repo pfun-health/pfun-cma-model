@@ -46,7 +46,7 @@ sleep 1s
 echo 'creating deployment...'
 function get-resources() {
 	aws apigateway get-resources \
-		--rest-api-id ukpfvcn2ac |
+		--rest-api-id "${API_ID}" |
 		jq | python -c \
 		$'
     import json
@@ -58,13 +58,10 @@ function get-resources() {
     )'
 }
 
-# Set the API key for each resource
-for RESOURCE_ID in $(get-resources); do
-	aws apigateway update-api-key \
-		--api-key ${API_KEY_ID} \
-		--patch-operations \
-		op='replace',path=/${RESOURCE_ID}/stageKeys,value=${RESOURCE_ID}/${API_STAGE}
-done
+aws apigateway update-api-key \
+	--api-key ${API_KEY_ID} \
+	--patch-operations \
+	op='add',path=/stageKeys,value=${API_ID}/${API_STAGE}
 
 aws apigateway update-deployment \
 	--rest-api-id ${API_ID} \
