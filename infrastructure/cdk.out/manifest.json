@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/1bce5941cc5ac35a3948876c42ec424fb3cc13207f09ac24793dedcf069c95bf.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/0129766b9c3c0d5831a13a63240c8148b31bd7ce2e34c34c200734a7085c2e9d.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -315,22 +315,37 @@
             "data": "PFunCMAModelLoadBalancerSecurityGroupE55A7C00"
           }
         ],
-        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource": [
+        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443": [
           {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB"
-          }
-        ],
-        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
+            "type": "aws:cdk:warning",
+            "data": "A default Action already existed on this Listener and was replaced. Configure exactly one default Action. [ack: @aws-cdk/aws-elbv2:listenerExistingDefaultActionReplaced]",
+            "trace": [
+              "Annotations.addMessage (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/core/lib/annotations.js:1:1687)",
+              "Annotations.addWarningV2 (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/core/lib/annotations.js:1:758)",
+              "ApplicationListener._setDefaultAction (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/shared/base-listener.js:1:2034)",
+              "ApplicationListener.setDefaultAction (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:8443)",
+              "ApplicationListener.addTargetGroups (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:5356)",
+              "ApplicationListener.addTargets (/tmp/jsii-kernel-BbZwKS/node_modules/aws-cdk-lib/aws-elasticloadbalancingv2/lib/alb/application-listener.js:1:6047)",
+              "/tmp/tmp_f02zwu0/lib/program.js:9818:172",
+              "Kernel._Kernel_ensureSync (/tmp/tmp_f02zwu0/lib/program.js:10443:24)",
+              "Kernel.invoke (/tmp/tmp_f02zwu0/lib/program.js:9818:102)",
+              "KernelHost.processRequest (/tmp/tmp_f02zwu0/lib/program.js:11658:36)",
+              "KernelHost.run (/tmp/tmp_f02zwu0/lib/program.js:11618:22)",
+              "Immediate._onImmediate (/tmp/tmp_f02zwu0/lib/program.js:11619:46)",
+              "process.processImmediate (node:internal/timers:478:21)"
+            ]
           }
         ],
         "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunCMAModelLoadBalancerRedirect80To443F9B8C7FE"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/PFunCMAModelAPIHandlerTargetGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerRedirect80To443PFunCMAModelAPIHandlerTargetGroup338040A5"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunAlbSecurityGroup/Resource": [
@@ -349,18 +364,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunAlbDNSName"
-          }
-        ],
-        "/PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "pfuncmamodeldevcustomdomain577DCF5B"
-          }
-        ],
-        "/PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "pfuncmamodeldevcustomdomainMapPFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43CE4342FEC"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameOutput": [

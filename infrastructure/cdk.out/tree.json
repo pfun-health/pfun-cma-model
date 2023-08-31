@@ -2230,13 +2230,13 @@
                   "version": "2.93.0"
                 }
               },
-              "PFunCMAModelListener": {
-                "id": "PFunCMAModelListener",
-                "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener",
+              "Redirect80To443": {
+                "id": "Redirect80To443",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
                       "aws:cdk:cloudformation:props": {
@@ -2244,7 +2244,7 @@
                           {
                             "type": "forward",
                             "targetGroupArn": {
-                              "Ref": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
+                              "Ref": "PFunCMAModelLoadBalancerRedirect80To443PFunCMAModelAPIHandlerTargetGroup338040A5"
                             }
                           }
                         ],
@@ -2262,11 +2262,11 @@
                   },
                   "PFunCMAModelAPIHandlerTargetGroup": {
                     "id": "PFunCMAModelAPIHandlerTargetGroup",
-                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/PFunCMAModelAPIHandlerTargetGroup",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/PFunCMAModelAPIHandlerTargetGroup/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::TargetGroup",
                           "aws:cdk:cloudformation:props": {
@@ -2292,44 +2292,6 @@
                     },
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationTargetGroup",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
-                  "version": "2.93.0"
-                }
-              },
-              "Redirect80To443": {
-                "id": "Redirect80To443",
-                "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/Redirect80To443/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
-                      "aws:cdk:cloudformation:props": {
-                        "defaultActions": [
-                          {
-                            "type": "redirect",
-                            "redirectConfig": {
-                              "statusCode": "HTTP_301",
-                              "port": "443",
-                              "protocol": "HTTPS"
-                            }
-                          }
-                        ],
-                        "loadBalancerArn": {
-                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
-                        },
-                        "port": 80,
-                        "protocol": "HTTP"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
                       "version": "2.93.0"
                     }
                   }
@@ -2443,65 +2405,11 @@
               "version": "2.93.0"
             }
           },
-          "pfun-cma-model-dev-custom-domain": {
-            "id": "pfun-cma-model-dev-custom-domain",
-            "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain",
-            "children": {
-              "Resource": {
-                "id": "Resource",
-                "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Resource",
-                "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::DomainName",
-                  "aws:cdk:cloudformation:props": {
-                    "domainName": "dev.pfun.app",
-                    "endpointConfiguration": {
-                      "types": [
-                        "REGIONAL"
-                      ]
-                    },
-                    "regionalCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_apigateway.CfnDomainName",
-                  "version": "2.93.0"
-                }
-              },
-              "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C": {
-                "id": "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C",
-                "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "PFunCMAModelChaliceApp/pfun-cma-model-dev-custom-domain/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelHttpApi0B0FC43C/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ApiGateway::BasePathMapping",
-                      "aws:cdk:cloudformation:props": {
-                        "domainName": {
-                          "Ref": "pfuncmamodeldevcustomdomain577DCF5B"
-                        },
-                        "restApiId": {
-                          "Fn::GetAtt": [
-                            "RestAPI",
-                            "RestApiId"
-                          ]
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_apigateway.CfnBasePathMapping",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_apigateway.BasePathMapping",
-                  "version": "2.93.0"
-                }
-              }
-            },
+          "CustomDomainNamePFunCMAModelDev": {
+            "id": "CustomDomainNamePFunCMAModelDev",
+            "path": "PFunCMAModelChaliceApp/CustomDomainNamePFunCMAModelDev",
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_apigateway.DomainName",
+              "fqn": "aws-cdk-lib.Resource",
               "version": "2.93.0"
             }
           },

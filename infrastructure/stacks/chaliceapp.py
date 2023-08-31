@@ -76,8 +76,6 @@ class ChaliceApp(cdk.Stack):
             allow_all_outbound=True,
         ))
 
-        listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
-
         #: lambda function targets
         chalice_lambda_functions = (
             'RunModel', 'FitModel', 'RunAtTime', 'FakeAuth', 'APIHandler')
@@ -122,9 +120,9 @@ class ChaliceApp(cdk.Stack):
         )
 
         # Create a listener rule to forward requests to the Chalice API
-        alb.add_redirect(source_protocol=elbv2.ApplicationProtocol.HTTP,
-                         target_protocol=elbv2.ApplicationProtocol.HTTPS,
-                         source_port=80, target_port=443)
+        listener = alb.add_redirect(source_protocol=elbv2.ApplicationProtocol.HTTP,
+                                    target_protocol=elbv2.ApplicationProtocol.HTTPS,
+                                    source_port=80, target_port=443)
         listener.add_targets("PFunCMAModelAPIHandlerTarget",
                              targets=[
                                  elbv2_targets.LambdaTarget(
