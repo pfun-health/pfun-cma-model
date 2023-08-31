@@ -26,9 +26,6 @@ from chalice import (
     Response,
     Chalice,
 )
-from chalice.local import (
-    LocalChalice,
-)
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -305,7 +302,8 @@ def fake_auth(auth_request: AuthRequest):
     except AttributeError:
         logger.error("Can't authenticate because this is a local instance.")
         logger.info('Current app type: %s', type(app))
-        if isinstance(app, LocalChalice):
+        if hasattr(app, '_THREAD_LOCAL'):
+            #: ! authorize automatically for local requests
             authorized = True
     else:
         logger.info(

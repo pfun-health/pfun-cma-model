@@ -3,7 +3,7 @@ import shutil
 import os
 from pathlib import Path
 
-repo_root = Path(__file__).parents[1]
+repo_root = Path(__file__).parents[2]
 
 if __name__ == '__main__':
     shutil.move(repo_root / 'sdk', repo_root / 'sdk.zip')

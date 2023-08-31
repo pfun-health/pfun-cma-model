@@ -53,7 +53,7 @@ apigClientFactory.newClient = function (config) {
 
     
     // extract endpoint and path from url
-    var invokeUrl = 'https://2386q9818c.execute-api.us-east-1.amazonaws.com/api';
+    var invokeUrl = 'https://2d47pigfu8.execute-api.us-east-1.amazonaws.com/api';
     var endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
     var pathComponent = invokeUrl.substring(endpoint.length);
 
@@ -368,6 +368,60 @@ apigClientFactory.newClient = function (config) {
         
         
         return apiGatewayClient.makeRequest(runOptionsRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
+    apigClient.runAtTimeGet = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        
+        var runAtTimeGetRequest = {
+            verb: 'get'.toUpperCase(),
+            path: pathComponent + uritemplate('/run-at-time').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(runAtTimeGetRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
+    apigClient.runAtTimePost = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        
+        var runAtTimePostRequest = {
+            verb: 'post'.toUpperCase(),
+            path: pathComponent + uritemplate('/run-at-time').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(runAtTimePostRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
+    apigClient.runAtTimeOptions = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        
+        var runAtTimeOptionsRequest = {
+            verb: 'options'.toUpperCase(),
+            path: pathComponent + uritemplate('/run-at-time').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(runAtTimeOptionsRequest, authType, additionalParams, config.apiKey);
     };
     
     
