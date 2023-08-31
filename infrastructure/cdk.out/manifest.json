@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/095446d080580d097db68197b668f02c055ad9d345aea72e67798a401d1d2fd0.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/f8621544a457926d5090b0f88eac8406b63a51014a364080854f80e842fe29b6.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -315,12 +315,6 @@
             "data": "PFunCMAModelLoadBalancerSecurityGroupE55A7C00"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerRedirect443To8014F5B782"
-          }
-        ],
         "/pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -333,16 +327,58 @@
             "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
           }
         ],
+        "/pfun-cma-model/PFunAlbSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunAlbSecurityGroupDA3A5D19"
+          }
+        ],
         "/pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": [
           {
             "type": "aws:cdk:logicalId",
             "data": "pfuncmamodelPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HYA41D19B3"
           }
         ],
+        "/pfun-cma-model/PFunCMAModelDevEIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelDevEIP"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelEIPAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelEIPAssociation"
+          }
+        ],
+        "/pfun-cma-model/PFunCMAModelEIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelEIP"
+          }
+        ],
         "/pfun-cma-model/PFunAlbDNSName": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunAlbDNSName"
+          }
+        ],
+        "/pfun-cma-model/PFunDevCMAModelCustomDomainName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelCustomDomainName"
+          }
+        ],
+        "/pfun-cma-model/PFunDevCMAModelHttpApiMapping": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelHttpApiMapping"
+          }
+        ],
+        "/pfun-cma-model/PFunDevCMAModelCustomDomainNameOutput": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelCustomDomainNameOutput"
           }
         ],
         "/pfun-cma-model/CDKMetadata/Default": [

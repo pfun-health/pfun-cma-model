@@ -121,7 +121,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -152,7 +152,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -183,7 +183,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -214,7 +214,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -245,7 +245,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -276,7 +276,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -392,9 +392,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -438,7 +438,9 @@
                                   "httpMethod": "POST",
                                   "contentHandling": "CONVERT_TO_TEXT",
                                   "type": "aws_proxy"
-                                }
+                                },
+                                "summary": "Generates the index page for the web application.",
+                                "description": "Returns:\n    Response: The HTTP response object containing the index page."
                               },
                               "options": {
                                 "consumes": [
@@ -481,9 +483,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -570,9 +572,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -699,9 +701,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -832,9 +834,138 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Max-Age": "'300'",
+                                        "method.response.header.Access-Control-Allow-Credentials": "'true'"
+                                      }
+                                    }
+                                  },
+                                  "requestTemplates": {
+                                    "application/json": "{\"statusCode\": 200}"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "type": "mock",
+                                  "contentHandling": "CONVERT_TO_TEXT"
+                                }
+                              }
+                            },
+                            "/run-at-time": {
+                              "get": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "post": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200"
+                                    }
+                                  },
+                                  "uri": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+                                  },
+                                  "passthroughBehavior": "when_no_match",
+                                  "httpMethod": "POST",
+                                  "contentHandling": "CONVERT_TO_TEXT",
+                                  "type": "aws_proxy"
+                                },
+                                "security": [
+                                  {
+                                    "fake_auth": []
+                                  }
+                                ]
+                              },
+                              "options": {
+                                "consumes": [
+                                  "application/json"
+                                ],
+                                "produces": [
+                                  "application/json"
+                                ],
+                                "responses": {
+                                  "200": {
+                                    "description": "200 response",
+                                    "schema": {
+                                      "$ref": "#/definitions/Empty"
+                                    },
+                                    "headers": {
+                                      "Access-Control-Allow-Methods": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Origin": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Expose-Headers": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Max-Age": {
+                                        "type": "string"
+                                      },
+                                      "Access-Control-Allow-Credentials": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "x-amazon-apigateway-integration": {
+                                  "responses": {
+                                    "default": {
+                                      "statusCode": "200",
+                                      "responseParameters": {
+                                        "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -926,9 +1057,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1015,9 +1146,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1104,9 +1235,9 @@
                                       "statusCode": "200",
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                                        "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+                                        "method.response.header.Access-Control-Allow-Origin": "'*'",
                                         "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1237,7 +1368,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
                         "handler": "app.run_at_time_connect",
                         "layers": [
@@ -1268,9 +1399,9 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+                          "key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
                         },
-                        "handler": "app.run_at_time_route",
+                        "handler": "app.run_at_time_ws",
                         "layers": [
                           {
                             "Ref": "ManagedLayer"
@@ -2016,6 +2147,7 @@
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
                   "aws:cdk:cloudformation:props": {
+                    "ipAddressType": "ipv4",
                     "loadBalancerAttributes": [
                       {
                         "key": "deletion_protection.enabled",
@@ -2027,6 +2159,12 @@
                       {
                         "Fn::GetAtt": [
                           "PFunCMAModelLoadBalancerSecurityGroupE55A7C00",
+                          "GroupId"
+                        ]
+                      },
+                      {
+                        "Fn::GetAtt": [
+                          "PFunAlbSecurityGroupDA3A5D19",
                           "GroupId"
                         ]
                       }
@@ -2071,13 +2209,6 @@
                           {
                             "cidrIp": "0.0.0.0/0",
                             "ipProtocol": "tcp",
-                            "fromPort": 443,
-                            "toPort": 443,
-                            "description": "Allow from anyone on port 443"
-                          },
-                          {
-                            "cidrIp": "0.0.0.0/0",
-                            "ipProtocol": "tcp",
                             "fromPort": 80,
                             "toPort": 80,
                             "description": "Allow from anyone on port 80"
@@ -2099,44 +2230,6 @@
                   "version": "2.93.0"
                 }
               },
-              "Redirect443To80": {
-                "id": "Redirect443To80",
-                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
-                      "aws:cdk:cloudformation:props": {
-                        "defaultActions": [
-                          {
-                            "type": "redirect",
-                            "redirectConfig": {
-                              "statusCode": "HTTP_301",
-                              "port": "80",
-                              "protocol": "HTTPS"
-                            }
-                          }
-                        ],
-                        "loadBalancerArn": {
-                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
-                        },
-                        "port": 443,
-                        "protocol": "HTTP"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
-                  "version": "2.93.0"
-                }
-              },
               "PFunCMAModelListener": {
                 "id": "PFunCMAModelListener",
                 "path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener",
@@ -2147,6 +2240,11 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
                       "aws:cdk:cloudformation:props": {
+                        "certificates": [
+                          {
+                            "certificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+                          }
+                        ],
                         "defaultActions": [
                           {
                             "type": "forward",
@@ -2214,6 +2312,57 @@
               "version": "2.93.0"
             }
           },
+          "PFunAlbSecurityGroup": {
+            "id": "PFunAlbSecurityGroup",
+            "path": "pfun-cma-model/PFunAlbSecurityGroup",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "pfun-cma-model/PFunAlbSecurityGroup/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+                  "aws:cdk:cloudformation:props": {
+                    "groupDescription": "pfun-cma-model/PFunAlbSecurityGroup",
+                    "securityGroupEgress": [
+                      {
+                        "cidrIp": "0.0.0.0/0",
+                        "description": "Allow all outbound traffic by default",
+                        "ipProtocol": "-1"
+                      }
+                    ],
+                    "securityGroupIngress": [
+                      {
+                        "cidrIp": "0.0.0.0/0",
+                        "ipProtocol": "tcp",
+                        "fromPort": 80,
+                        "toPort": 80,
+                        "description": "Allow from anyone on port 80"
+                      }
+                    ],
+                    "vpcId": {
+                      "Ref": "PFunCMAModelVPC45F492DB"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelListenerCert": {
+            "id": "PFunCMAModelListenerCert",
+            "path": "pfun-cma-model/PFunCMAModelListenerCert",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.Resource",
+              "version": "2.93.0"
+            }
+          },
           "pfun-cma-model--PFunCMAModelChaliceApp--APIHandler": {
             "id": "pfun-cma-model--PFunCMAModelChaliceApp--APIHandler",
             "path": "pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler",
@@ -2245,9 +2394,97 @@
               "version": "2.93.0"
             }
           },
+          "PFunCMAModelDevEIP": {
+            "id": "PFunCMAModelDevEIP",
+            "path": "pfun-cma-model/PFunCMAModelDevEIP",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
+              "aws:cdk:cloudformation:props": {}
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelEIPAssociation": {
+            "id": "PFunCMAModelEIPAssociation",
+            "path": "pfun-cma-model/PFunCMAModelEIPAssociation",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::EC2::EIPAssociation",
+              "aws:cdk:cloudformation:props": {
+                "eip": {
+                  "Ref": "PFunCMAModelDevEIP"
+                },
+                "instanceId": {
+                  "Fn::GetAtt": [
+                    "PFunCMAModelLoadBalancer930A86BD",
+                    "CanonicalHostedZoneID"
+                  ]
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ec2.CfnEIPAssociation",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelEIP": {
+            "id": "PFunCMAModelEIP",
+            "path": "pfun-cma-model/PFunCMAModelEIP",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.93.0"
+            }
+          },
           "PFunAlbDNSName": {
             "id": "PFunAlbDNSName",
             "path": "pfun-cma-model/PFunAlbDNSName",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelCustomDomainName": {
+            "id": "PFunDevCMAModelCustomDomainName",
+            "path": "pfun-cma-model/PFunDevCMAModelCustomDomainName",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::ApiGateway::DomainName",
+              "aws:cdk:cloudformation:props": {
+                "domainName": "dev.pfun.app"
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigateway.CfnDomainName",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelHttpApi": {
+            "id": "PFunDevCMAModelHttpApi",
+            "path": "pfun-cma-model/PFunDevCMAModelHttpApi",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigateway.RestApiBase",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelHttpApiMapping": {
+            "id": "PFunDevCMAModelHttpApiMapping",
+            "path": "pfun-cma-model/PFunDevCMAModelHttpApiMapping",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::ApiMapping",
+              "aws:cdk:cloudformation:props": {
+                "apiId": "RestAPI",
+                "domainName": "dev.pfun.app",
+                "stage": "api"
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigatewayv2.CfnApiMapping",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelCustomDomainNameOutput": {
+            "id": "PFunDevCMAModelCustomDomainNameOutput",
+            "path": "pfun-cma-model/PFunDevCMAModelCustomDomainNameOutput",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnOutput",
               "version": "2.93.0"

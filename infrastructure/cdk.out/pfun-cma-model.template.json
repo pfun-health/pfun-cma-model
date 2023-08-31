@@ -20,7 +20,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -43,7 +43,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -66,7 +66,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -89,7 +89,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -112,7 +112,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -135,7 +135,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -243,9 +243,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -289,7 +289,9 @@
          "httpMethod": "POST",
          "contentHandling": "CONVERT_TO_TEXT",
          "type": "aws_proxy"
-        }
+        },
+        "summary": "Generates the index page for the web application.",
+        "description": "Returns:\n    Response: The HTTP response object containing the index page."
        },
        "options": {
         "consumes": [
@@ -332,9 +334,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -421,9 +423,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -550,9 +552,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -683,9 +685,138 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+            "method.response.header.Access-Control-Max-Age": "'300'",
+            "method.response.header.Access-Control-Allow-Credentials": "'true'"
+           }
+          }
+         },
+         "requestTemplates": {
+          "application/json": "{\"statusCode\": 200}"
+         },
+         "passthroughBehavior": "when_no_match",
+         "type": "mock",
+         "contentHandling": "CONVERT_TO_TEXT"
+        }
+       }
+      },
+      "/run-at-time": {
+       "get": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "post": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200"
+          }
+         },
+         "uri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIHandler.Arn}/invocations"
+         },
+         "passthroughBehavior": "when_no_match",
+         "httpMethod": "POST",
+         "contentHandling": "CONVERT_TO_TEXT",
+         "type": "aws_proxy"
+        },
+        "security": [
+         {
+          "fake_auth": []
+         }
+        ]
+       },
+       "options": {
+        "consumes": [
+         "application/json"
+        ],
+        "produces": [
+         "application/json"
+        ],
+        "responses": {
+         "200": {
+          "description": "200 response",
+          "schema": {
+           "$ref": "#/definitions/Empty"
+          },
+          "headers": {
+           "Access-Control-Allow-Methods": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Origin": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Expose-Headers": {
+            "type": "string"
+           },
+           "Access-Control-Max-Age": {
+            "type": "string"
+           },
+           "Access-Control-Allow-Credentials": {
+            "type": "string"
+           }
+          }
+         }
+        },
+        "x-amazon-apigateway-integration": {
+         "responses": {
+          "default": {
+           "statusCode": "200",
+           "responseParameters": {
+            "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -777,9 +908,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -866,9 +997,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -955,9 +1086,9 @@
            "statusCode": "200",
            "responseParameters": {
             "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-            "method.response.header.Access-Control-Allow-Origin": "'pfun-cma-model-api.p.rapidapi.com'",
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
             "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host'",
+            "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
             "method.response.header.Access-Control-Max-Age": "'300'",
             "method.response.header.Access-Control-Allow-Credentials": "'true'"
            }
@@ -1064,7 +1195,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
     "Handler": "app.run_at_time_connect",
     "Layers": [
@@ -1087,9 +1218,9 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "f0f37ce1efaddf3e94b33b1402a59de54babbe59b1774b9bf9cc529c736b6215.zip"
+     "Key": "416d2d609900ffe839708b890766dc2535c3254ba7af5e9f7b96480826718852.zip"
     },
-    "Handler": "app.run_at_time_route",
+    "Handler": "app.run_at_time_ws",
     "Layers": [
      {
       "Ref": "ManagedLayer"
@@ -1504,6 +1635,7 @@
   "PFunCMAModelLoadBalancer930A86BD": {
    "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
    "Properties": {
+    "IpAddressType": "ipv4",
     "LoadBalancerAttributes": [
      {
       "Key": "deletion_protection.enabled",
@@ -1515,6 +1647,12 @@
      {
       "Fn::GetAtt": [
        "PFunCMAModelLoadBalancerSecurityGroupE55A7C00",
+       "GroupId"
+      ]
+     },
+     {
+      "Fn::GetAtt": [
+       "PFunAlbSecurityGroupDA3A5D19",
        "GroupId"
       ]
      }
@@ -1555,13 +1693,6 @@
     "SecurityGroupIngress": [
      {
       "CidrIp": "0.0.0.0/0",
-      "Description": "Allow from anyone on port 443",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
       "Description": "Allow from anyone on port 80",
       "FromPort": 80,
       "IpProtocol": "tcp",
@@ -1576,32 +1707,14 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/SecurityGroup/Resource"
    }
   },
-  "PFunCMAModelLoadBalancerRedirect443To8014F5B782": {
-   "Type": "AWS::ElasticLoadBalancingV2::Listener",
-   "Properties": {
-    "DefaultActions": [
-     {
-      "RedirectConfig": {
-       "Port": "80",
-       "Protocol": "HTTPS",
-       "StatusCode": "HTTP_301"
-      },
-      "Type": "redirect"
-     }
-    ],
-    "LoadBalancerArn": {
-     "Ref": "PFunCMAModelLoadBalancer930A86BD"
-    },
-    "Port": 443,
-    "Protocol": "HTTP"
-   },
-   "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect443To80/Resource"
-   }
-  },
   "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB": {
    "Type": "AWS::ElasticLoadBalancingV2::Listener",
    "Properties": {
+    "Certificates": [
+     {
+      "CertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+     }
+    ],
     "DefaultActions": [
      {
       "TargetGroupArn": {
@@ -1643,6 +1756,34 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource"
    }
   },
+  "PFunAlbSecurityGroupDA3A5D19": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "pfun-cma-model/PFunAlbSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "PFunCMAModelVPC45F492DB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunAlbSecurityGroup/Resource"
+   }
+  },
   "pfuncmamodelPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HYA41D19B3": {
    "Type": "AWS::Lambda::Permission",
    "Properties": {
@@ -1659,10 +1800,53 @@
     "aws:cdk:path": "pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y="
    }
   },
+  "PFunCMAModelDevEIP": {
+   "Type": "AWS::EC2::EIP",
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevEIP"
+   }
+  },
+  "PFunCMAModelEIPAssociation": {
+   "Type": "AWS::EC2::EIPAssociation",
+   "Properties": {
+    "EIP": {
+     "Ref": "PFunCMAModelDevEIP"
+    },
+    "InstanceId": {
+     "Fn::GetAtt": [
+      "PFunCMAModelLoadBalancer930A86BD",
+      "CanonicalHostedZoneID"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelEIPAssociation"
+   }
+  },
+  "PFunDevCMAModelCustomDomainName": {
+   "Type": "AWS::ApiGateway::DomainName",
+   "Properties": {
+    "DomainName": "dev.pfun.app"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunDevCMAModelCustomDomainName"
+   }
+  },
+  "PFunDevCMAModelHttpApiMapping": {
+   "Type": "AWS::ApiGatewayV2::ApiMapping",
+   "Properties": {
+    "ApiId": "RestAPI",
+    "DomainName": "dev.pfun.app",
+    "Stage": "api"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunDevCMAModelHttpApiMapping"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VRwU7DMAz9Fu5ZGOzEcRswTZqg2tCuk5uaLixNqsQBVVP/HSdboQipku2X5+dn914+zOT0Br7CRFWnidGlPO8I1EkwdDiH2QFCQApynoIIM7mI6oS0gIAiQCPPy3e7gQ79Hn3Qzgqun6NVdM3nre6FgaasIHML9I0OmTnQklYvoNU1EH5B93mfmdyZBNaWsPYw6G1dJEzJI7bGdQ1aShV7rlkEFffuW5WgfbEURSyNVrtYWrzQfrKs8walwV/8F+NtndL/hz6tixRegFYXr4NDz+0jiGdfqznxNY/Z5g5V9Jq6lXexzVPHAJs3EEgr46AqwYBV2tbpFvO25SWymQ2/LfIb+qTwpx7zdCC0V86Qj97fwNdseDAyKvte5F+dDsrzBduJ1bvzTe47aKtMrFDmtXOa+l8jtZHEFoOLXmVoyHtRdHR09nYm76b8TW4+gtYTHy3pBuX2Er8BDJuS/ocCAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VS207DMAz9Ft6zcNkTjxs3IXGpNrTXyU1NCUuTKHFA1dR/x8lWKCBVin1ycnxs90JezuXZCXzGmWp2M6NruV8TqJ1gaLuP8y3EiBTlIh8izuUyqR3SEiKKCJ3cX73aB+gxbDBE7azg/DZZRcd44fUgDHR1A4VbYeh0LMyRlrUGAV63QPgJ/cdFYfLLLHBvCdsAo97KJcIcXKM3ru/QUs7Yc4vHeo/gvbbtIFCx0sarjG+qK1Gl2mi1TrXFw6PvqKi+QG3wB//BuHen9H8LN/dVPp6A7g7OR7+Bn08grn3MFsSzfSum16hS0NTfBZd8qfoXYPlJZW7HQCStjIOmBgNWcZN5Vgvvua1CeuC7ZbnDkCV+5VOejoT2yBnjyf0LhJZbGJ1M0umiypquXQeaZ9ChWGEknn/Z5yDKH5P3wjYFu07Nqwtdkd9qq0xqUJZ5lTCXeU7kE2UZl4Iq0BgPourpzdnTuTw/42928h61noVkSXcoV4fzC08U283OAgAA"
    },
    "Metadata": {
     "aws:cdk:path": "pfun-cma-model/CDKMetadata/Default"
@@ -1729,12 +1913,22 @@
     "Fn::Sub": "wss://${WebsocketAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/"
    }
   },
+  "PFunCMAModelEIP": {
+   "Value": {
+    "Ref": "PFunCMAModelDevEIP"
+   }
+  },
   "PFunAlbDNSName": {
    "Value": {
     "Fn::GetAtt": [
      "PFunCMAModelLoadBalancer930A86BD",
      "DNSName"
     ]
+   }
+  },
+  "PFunDevCMAModelCustomDomainNameOutput": {
+   "Value": {
+    "Ref": "PFunDevCMAModelCustomDomainName"
    }
   }
  },

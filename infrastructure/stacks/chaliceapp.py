@@ -172,5 +172,5 @@ class ChaliceApp(cdk.Stack):
                               stage='api')
 
         # Output the Custom Domain Name
-        cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainName',
+        cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameOutput',
                       value=domain_name.ref)
