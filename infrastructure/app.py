@@ -22,5 +22,6 @@ except (ImportError, ModuleNotFoundError):
 
 environment = cdk.Environment(account='860311922912', region='us-east-1')
 app = cdk.App()
-PFunCMAModelPipelineStack(app, 'PFunCMAModelPipelineStack', env=environment)
+ChaliceApp(app, "PFunCMAModelChaliceApp", env=environment)
+# PFunCMAModelPipelineStack(app, 'PFunCMAModelPipelineStack', env=environment)
 app.synth()

@@ -15,6 +15,7 @@ class PFunCMAModelPipelineStack(cdk.Stack):
         pipeline = CodePipeline(self, "Pipeline",
                                 pipeline_name="PFunCMAModelPipeline",
                                 synth=ShellStep("Synth",
+                                                input=CodePipelineSource.git_hub("rocapp/pfun-cma-model", "main"),
                                                 install_commands=[
                                                     "npm install -g aws-cdk",
                                                     "pip install -r requirements.txt"],
