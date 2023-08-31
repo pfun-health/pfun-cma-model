@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/f8621544a457926d5090b0f88eac8406b63a51014a364080854f80e842fe29b6.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/3602c703c91e3a9f2a00b12a648c9cd9dd6eea6d0eccb7636c9d842656ad7098.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -327,6 +327,12 @@
             "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
           }
         ],
+        "/pfun-cma-model/PFunCMAModelLoadBalancer/Redirect80To443/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelLoadBalancerRedirect80To443F9B8C7FE"
+          }
+        ],
         "/pfun-cma-model/PFunAlbSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -339,34 +345,10 @@
             "data": "pfuncmamodelPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HYA41D19B3"
           }
         ],
-        "/pfun-cma-model/PFunCMAModelDevEIP": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelDevEIP"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelEIPAssociation": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelEIPAssociation"
-          }
-        ],
-        "/pfun-cma-model/PFunCMAModelEIP": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelEIP"
-          }
-        ],
         "/pfun-cma-model/PFunAlbDNSName": [
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunAlbDNSName"
-          }
-        ],
-        "/pfun-cma-model/PFunDevCMAModelCustomDomainName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunDevCMAModelCustomDomainName"
           }
         ],
         "/pfun-cma-model/PFunDevCMAModelHttpApiMapping": [

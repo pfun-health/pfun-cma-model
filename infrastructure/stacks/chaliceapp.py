@@ -79,7 +79,7 @@ class ChaliceApp(cdk.Stack):
             self, 'PFunCMAModelListenerCert',
             'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
         )
-        listener = alb.add_listener("PFunCMAModelListener", port=80, open=True)
+        listener = alb.add_listener("PFunCMAModelListener", port=443, open=True)
         listener.add_certificates("PFunCMAModelListenerCert", certificates=[
             certificate])
 
@@ -127,6 +127,9 @@ class ChaliceApp(cdk.Stack):
         )
 
         # Create a listener rule to forward requests to the Chalice API
+        alb.add_redirect(source_protocol=elbv2.ApplicationProtocol.HTTP,
+                         target_protocol=elbv2.ApplicationProtocol.HTTPS,
+                         source_port=80, target_port=443)
         listener.add_targets("PFunCMAModelAPIHandlerTarget",
                              targets=[
                                  elbv2_targets.LambdaTarget(
@@ -136,35 +139,19 @@ class ChaliceApp(cdk.Stack):
                                  interval=cdk.Duration.minutes(5)),
                              )
 
-        # Allocate an Elastic IP address
-        eip = ec2.CfnEIP(self, 'PFunCMAModelDevEIP')
-
-        # Associate the Elastic IP address with the load balancer
-        eip_association = ec2.CfnEIPAssociation(self, 'PFunCMAModelEIPAssociation',
-                                                eip=eip.ref,
-                                                instance_id=alb.load_balancer_canonical_hosted_zone_id)
-
-        # Output the Elastic IP address
-        cdk.CfnOutput(self, 'PFunCMAModelEIP', value=eip.ref)
-
         # Output the ALB DNS name
         cdk.CfnOutput(self, "PFunAlbDNSName", value=alb.load_balancer_dns_name)
 
         # Create the Custom Domain Name
         domain_name_raw = 'dev.pfun.app'
-        domain_name = apigw.CfnDomainName(
-            self,
-            "PFunDevCMAModelCustomDomainName",
-            domain_name=domain_name_raw,
-        )
 
         # Associate the Custom Domain Name with the HTTP API
         rest_api = self.chalice.get_resource('RestAPI')
         http_api = apigw.RestApi.from_rest_api_id(
             self, 'PFunDevCMAModelHttpApi',
-            rest_api_id=rest_api.node.id
+            rest_api_id=rest_api.get_att('ApiId').to_string()
         )
-        
+
         # Create the HttpApiMapping
         apigwv2.CfnApiMapping(self, 'PFunDevCMAModelHttpApiMapping',
                               api_id=http_api.rest_api_id,
@@ -173,4 +160,4 @@ class ChaliceApp(cdk.Stack):
 
         # Output the Custom Domain Name
         cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameOutput',
-                      value=domain_name.ref)
+                      value=domain_name_raw)

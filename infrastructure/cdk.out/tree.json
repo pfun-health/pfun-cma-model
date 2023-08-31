@@ -103,7 +103,7 @@
                         ],
                         "contentUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "0cd9b2ab28271b48194ab41add1d9853a2d3d8d7590c8c78b76ae4974d97241a.zip"
+                          "key": "937ac23990892c4f13d19b27c881ca206e743357c724556fe16b427d9506f5d7.zip"
                         },
                         "layerName": "pfun-cma-model-pfun-cma-model-managed-layer"
                       }
@@ -2209,6 +2209,13 @@
                           {
                             "cidrIp": "0.0.0.0/0",
                             "ipProtocol": "tcp",
+                            "fromPort": 443,
+                            "toPort": 443,
+                            "description": "Allow from anyone on port 443"
+                          },
+                          {
+                            "cidrIp": "0.0.0.0/0",
+                            "ipProtocol": "tcp",
                             "fromPort": 80,
                             "toPort": 80,
                             "description": "Allow from anyone on port 80"
@@ -2256,8 +2263,8 @@
                         "loadBalancerArn": {
                           "Ref": "PFunCMAModelLoadBalancer930A86BD"
                         },
-                        "port": 80,
-                        "protocol": "HTTP"
+                        "port": 443,
+                        "protocol": "HTTPS"
                       }
                     },
                     "constructInfo": {
@@ -2305,6 +2312,44 @@
                   "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
                   "version": "2.93.0"
                 }
+              },
+              "Redirect80To443": {
+                "id": "Redirect80To443",
+                "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect80To443",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect80To443/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
+                      "aws:cdk:cloudformation:props": {
+                        "defaultActions": [
+                          {
+                            "type": "redirect",
+                            "redirectConfig": {
+                              "statusCode": "HTTP_301",
+                              "port": "443",
+                              "protocol": "HTTPS"
+                            }
+                          }
+                        ],
+                        "loadBalancerArn": {
+                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
+                        },
+                        "port": 80,
+                        "protocol": "HTTP"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
+                  "version": "2.93.0"
+                }
               }
             },
             "constructInfo": {
@@ -2331,6 +2376,13 @@
                       }
                     ],
                     "securityGroupIngress": [
+                      {
+                        "cidrIp": "0.0.0.0/0",
+                        "ipProtocol": "tcp",
+                        "fromPort": 443,
+                        "toPort": 443,
+                        "description": "Allow from anyone on port 443"
+                      },
                       {
                         "cidrIp": "0.0.0.0/0",
                         "ipProtocol": "tcp",
@@ -2394,67 +2446,11 @@
               "version": "2.93.0"
             }
           },
-          "PFunCMAModelDevEIP": {
-            "id": "PFunCMAModelDevEIP",
-            "path": "pfun-cma-model/PFunCMAModelDevEIP",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
-              "aws:cdk:cloudformation:props": {}
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelEIPAssociation": {
-            "id": "PFunCMAModelEIPAssociation",
-            "path": "pfun-cma-model/PFunCMAModelEIPAssociation",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::EC2::EIPAssociation",
-              "aws:cdk:cloudformation:props": {
-                "eip": {
-                  "Ref": "PFunCMAModelDevEIP"
-                },
-                "instanceId": {
-                  "Fn::GetAtt": [
-                    "PFunCMAModelLoadBalancer930A86BD",
-                    "CanonicalHostedZoneID"
-                  ]
-                }
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_ec2.CfnEIPAssociation",
-              "version": "2.93.0"
-            }
-          },
-          "PFunCMAModelEIP": {
-            "id": "PFunCMAModelEIP",
-            "path": "pfun-cma-model/PFunCMAModelEIP",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.CfnOutput",
-              "version": "2.93.0"
-            }
-          },
           "PFunAlbDNSName": {
             "id": "PFunAlbDNSName",
             "path": "pfun-cma-model/PFunAlbDNSName",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnOutput",
-              "version": "2.93.0"
-            }
-          },
-          "PFunDevCMAModelCustomDomainName": {
-            "id": "PFunDevCMAModelCustomDomainName",
-            "path": "pfun-cma-model/PFunDevCMAModelCustomDomainName",
-            "attributes": {
-              "aws:cdk:cloudformation:type": "AWS::ApiGateway::DomainName",
-              "aws:cdk:cloudformation:props": {
-                "domainName": "dev.pfun.app"
-              }
-            },
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_apigateway.CfnDomainName",
               "version": "2.93.0"
             }
           },
@@ -2472,7 +2468,12 @@
             "attributes": {
               "aws:cdk:cloudformation:type": "AWS::ApiGatewayV2::ApiMapping",
               "aws:cdk:cloudformation:props": {
-                "apiId": "RestAPI",
+                "apiId": {
+                  "Fn::GetAtt": [
+                    "RestAPI",
+                    "ApiId"
+                  ]
+                },
                 "domainName": "dev.pfun.app",
                 "stage": "api"
               }

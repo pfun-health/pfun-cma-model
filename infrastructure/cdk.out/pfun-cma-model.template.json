@@ -10,7 +10,7 @@
     ],
     "ContentUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "0cd9b2ab28271b48194ab41add1d9853a2d3d8d7590c8c78b76ae4974d97241a.zip"
+     "Key": "937ac23990892c4f13d19b27c881ca206e743357c724556fe16b427d9506f5d7.zip"
     },
     "LayerName": "pfun-cma-model-pfun-cma-model-managed-layer"
    }
@@ -1693,6 +1693,13 @@
     "SecurityGroupIngress": [
      {
       "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 443",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
       "Description": "Allow from anyone on port 80",
       "FromPort": 80,
       "IpProtocol": "tcp",
@@ -1726,8 +1733,8 @@
     "LoadBalancerArn": {
      "Ref": "PFunCMAModelLoadBalancer930A86BD"
     },
-    "Port": 80,
-    "Protocol": "HTTP"
+    "Port": 443,
+    "Protocol": "HTTPS"
    },
    "Metadata": {
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource"
@@ -1756,6 +1763,29 @@
     "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource"
    }
   },
+  "PFunCMAModelLoadBalancerRedirect80To443F9B8C7FE": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "RedirectConfig": {
+       "Port": "443",
+       "Protocol": "HTTPS",
+       "StatusCode": "HTTP_301"
+      },
+      "Type": "redirect"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "PFunCMAModelLoadBalancer930A86BD"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pfun-cma-model/PFunCMAModelLoadBalancer/Redirect80To443/Resource"
+   }
+  },
   "PFunAlbSecurityGroupDA3A5D19": {
    "Type": "AWS::EC2::SecurityGroup",
    "Properties": {
@@ -1768,6 +1798,13 @@
      }
     ],
     "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 443",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     },
      {
       "CidrIp": "0.0.0.0/0",
       "Description": "Allow from anyone on port 80",
@@ -1800,42 +1837,15 @@
     "aws:cdk:path": "pfun-cma-model/pfun-cma-model--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y="
    }
   },
-  "PFunCMAModelDevEIP": {
-   "Type": "AWS::EC2::EIP",
-   "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunCMAModelDevEIP"
-   }
-  },
-  "PFunCMAModelEIPAssociation": {
-   "Type": "AWS::EC2::EIPAssociation",
-   "Properties": {
-    "EIP": {
-     "Ref": "PFunCMAModelDevEIP"
-    },
-    "InstanceId": {
-     "Fn::GetAtt": [
-      "PFunCMAModelLoadBalancer930A86BD",
-      "CanonicalHostedZoneID"
-     ]
-    }
-   },
-   "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunCMAModelEIPAssociation"
-   }
-  },
-  "PFunDevCMAModelCustomDomainName": {
-   "Type": "AWS::ApiGateway::DomainName",
-   "Properties": {
-    "DomainName": "dev.pfun.app"
-   },
-   "Metadata": {
-    "aws:cdk:path": "pfun-cma-model/PFunDevCMAModelCustomDomainName"
-   }
-  },
   "PFunDevCMAModelHttpApiMapping": {
    "Type": "AWS::ApiGatewayV2::ApiMapping",
    "Properties": {
-    "ApiId": "RestAPI",
+    "ApiId": {
+     "Fn::GetAtt": [
+      "RestAPI",
+      "ApiId"
+     ]
+    },
     "DomainName": "dev.pfun.app",
     "Stage": "api"
    },
@@ -1846,7 +1856,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VS207DMAz9Ft6zcNkTjxs3IXGpNrTXyU1NCUuTKHFA1dR/x8lWKCBVin1ycnxs90JezuXZCXzGmWp2M6NruV8TqJ1gaLuP8y3EiBTlIh8izuUyqR3SEiKKCJ3cX73aB+gxbDBE7azg/DZZRcd44fUgDHR1A4VbYeh0LMyRlrUGAV63QPgJ/cdFYfLLLHBvCdsAo97KJcIcXKM3ru/QUs7Yc4vHeo/gvbbtIFCx0sarjG+qK1Gl2mi1TrXFw6PvqKi+QG3wB//BuHen9H8LN/dVPp6A7g7OR7+Bn08grn3MFsSzfSum16hS0NTfBZd8qfoXYPlJZW7HQCStjIOmBgNWcZN5Vgvvua1CeuC7ZbnDkCV+5VOejoT2yBnjyf0LhJZbGJ1M0umiypquXQeaZ9ChWGEknn/Z5yDKH5P3wjYFu07Nqwtdkd9qq0xqUJZ5lTCXeU7kE2UZl4Iq0BgPourpzdnTuTw/42928h61noVkSXcoV4fzC08U283OAgAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VS207DMAz9Ft6zcNkTjxs3TRpQbWivk5t6JSxNosQBVdP+HSdboQipku1j+/jY6Y28ncqrC/iKE9XsJ0bX8rAmUHvB0PYQp1uIESnKWTYiTuU8qT3SHCKKCJ083O3sEnoMGwxROys4fkxW0dmfeX0UBrq6gVJbYeh0LJVDWeY6CvC6BcIv6D9vSiV3ZoKFJWwDDHwrlwizc4/euL5DSzlizS2e5z2D99q2R4GKmTZeZXxT3Ykq1Uardaotnpp+vML6BrXBX/wX492d0v8lPCyqbF6Ank7KB72B20cQzz5HM+LbvhfRa1QpaOqfgku+TB0DLN5AJK2Mg6YGA1bxSvkyM+95iSJmybl5yWHIDH/icZ2OhPZcM/ij/BuElgUPQkbh+FnkCiPxeU/PVf6HfHWWJVhlanYudIVuq60yqUFZrlHcTPuayCcSzOJSUAUa/KOoenp39nIqr6/4m1x8RK0nIVnSHcrVyX4DtQTAgKwCAAA="
    },
    "Metadata": {
     "aws:cdk:path": "pfun-cma-model/CDKMetadata/Default"
@@ -1913,11 +1923,6 @@
     "Fn::Sub": "wss://${WebsocketAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/"
    }
   },
-  "PFunCMAModelEIP": {
-   "Value": {
-    "Ref": "PFunCMAModelDevEIP"
-   }
-  },
   "PFunAlbDNSName": {
    "Value": {
     "Fn::GetAtt": [
@@ -1927,9 +1932,7 @@
    }
   },
   "PFunDevCMAModelCustomDomainNameOutput": {
-   "Value": {
-    "Ref": "PFunDevCMAModelCustomDomainName"
-   }
+   "Value": "dev.pfun.app"
   }
  },
  "Parameters": {
