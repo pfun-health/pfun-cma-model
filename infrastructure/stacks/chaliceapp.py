@@ -20,6 +20,7 @@ from aws_cdk import (
     aws_apigateway as apigw,
     aws_apigatewayv2 as apigwv2,
 )
+import managed_instance_role
 
 from chalice.cdk import Chalice
 
@@ -81,6 +82,24 @@ class ChaliceApp(cdk.Stack):
             'RunModel', 'FitModel', 'RunAtTime', 'FakeAuth', 'APIHandler')
 
         # Configure permissions
+        managed_custom_policy = iam.Policy(
+            self, 'ManagedCustomPolicy',
+            statements=[
+                iam.PolicyStatement(
+                    actions=['lambda:ListFunctions'],
+                    resources=['*']
+                )
+            ]
+        )
+        #: managed instance role (lambda read only access)
+        mir = managed_instance_role.ManagedInstanceRole(
+            self, 'ManagedInstanceRole',
+            create_instance_profile=True,
+            domain_join_enabled=True
+        )
+        mir.role.attach_inline_policy(managed_custom_policy)
+        
+        #: individual lambda functions
         for function_name in chalice_lambda_functions:
             func = self.chalice.get_function(function_name)
             func.add_permission(
@@ -94,6 +113,10 @@ class ChaliceApp(cdk.Stack):
                 f'Invoke{function_name}APIHandler',
                 principal=iam.ServicePrincipal('apigateway.amazonaws.com'),
                 action='lambda:InvokeFunction')
+            func.add_permission(
+                f'List{function_name}APIHandler',
+                principal=iam.ServicePrincipal('apigateway.amazonaws.com'),
+                action='lambda:ListFunctions')
             func.add_permission(
                 f'Invoke{function_name}APIHandler',
                 principal=iam.ServicePrincipal(
@@ -120,9 +143,12 @@ class ChaliceApp(cdk.Stack):
         )
 
         # Create a listener rule to forward requests to the Chalice API
-        listener = alb.add_redirect(source_protocol=elbv2.ApplicationProtocol.HTTP,
-                                    target_protocol=elbv2.ApplicationProtocol.HTTPS,
-                                    source_port=80, target_port=443)
+        certificate = acm.Certificate.from_certificate_arn(
+            self, 'PFunCMAModelListenerCert',
+            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        )
+        listener = alb.add_listener('PFunCMAModelListener', port=443, certificates=[certificate])
+        #: ! no specify protocol for lambda targets
         listener.add_targets("PFunCMAModelAPIHandlerTarget",
                              targets=[
                                  elbv2_targets.LambdaTarget(
@@ -148,10 +174,6 @@ class ChaliceApp(cdk.Stack):
         )
 
         # # Create the domain -> api map.
-        certificate = acm.Certificate.from_certificate_arn(
-            self, 'PFunCMAModelListenerCert',
-            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
-        )
         domain = apigw.DomainName.from_domain_name_attributes(
             self, "CustomDomainNamePFunCMAModelDev",
             domain_name=domain_name_raw,

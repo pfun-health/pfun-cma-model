@@ -151,7 +151,7 @@ def fix_headers(func):
     return wrapper
 
 
-app.register_middleware(ConvertToMiddleware(fix_headers), event_type='all')
+app.register_middleware(ConvertToMiddleware(fix_headers), event_type='http')
 
 PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
