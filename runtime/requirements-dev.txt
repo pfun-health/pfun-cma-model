@@ -11,5 +11,6 @@ pydantic
 boto3==1.11.0
 scipy==1.11.2
 pdoc3
+aws-cdk.asset-awscli-v1==2.2.200
 -r requirements.txt
 -r ../infrastructure/requirements.txt

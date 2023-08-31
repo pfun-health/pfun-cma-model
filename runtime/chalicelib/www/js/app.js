@@ -52,6 +52,13 @@ app.initializeApp = async () => {
   </form>
     `);
   $('#content').append(app.formCode);
+  $("#apiForm > select#function").val("Run");
+  $("#apiForm > select#function").on("change", function () {
+    if (this.value == "sdk") {
+      $("#apiForm > select#method").val("Get");
+      $("#apiForm > select#method").prop("disabled", true);
+    }
+  });
 
     // Add event listeners to handle form submission.
     document.getElementById('apiForm').addEventListener('submit', async function (event) {

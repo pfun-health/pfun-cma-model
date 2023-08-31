@@ -84,8 +84,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -173,8 +173,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -260,8 +260,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -385,8 +385,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -514,8 +514,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -639,8 +639,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -731,8 +731,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -818,8 +818,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }
@@ -905,8 +905,8 @@
                             "responseParameters": {
                                 "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                 "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                 "method.response.header.Access-Control-Max-Age": "'300'",
                                 "method.response.header.Access-Control-Allow-Credentials": "'true'"
                             }

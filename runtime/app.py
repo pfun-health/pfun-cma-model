@@ -46,44 +46,6 @@ def new_boto3_client(service_name, session=None, *args, **kwds):
     return client_
 
 
-LAMBDA_CLIENT = new_boto3_client('lambda')
-LAMBDA_FUNCTIONS = \
-    list(map(lambda x: x.get('FunctionName'),
-             list(filter(lambda x: 'pfun-cma-model' in x['FunctionName'],
-                         LAMBDA_CLIENT.list_functions()['Functions']))))
-
-
-def lambda_invoke(function_name: str, payload: Any):
-    """
-    Invokes a Lambda function with the given function name and payload.
-
-    Args:
-        function_name (str): The name of the Lambda function to invoke.
-        payload (Any): The payload to pass to the Lambda function.
-
-    Returns:
-        Any: The response from the Lambda function.
-
-    Raises:
-        RuntimeError: If the function name cannot be found in the list of Lambda functions.
-    """
-    actual_function_names = difflib.get_close_matches(
-        function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.3
-    )
-    if len(actual_function_names) == 0:
-        actual_function_names = difflib.get_close_matches(
-            function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.0
-        )
-    if len(actual_function_names) == 0:
-        raise RuntimeError(f'Could not find function {function_name}')
-    function_name = actual_function_names[0]
-    response = LAMBDA_CLIENT.invoke(
-        FunctionName=function_name,
-        Payload=json.dumps(payload).encode('utf-8')
-    )
-    return json.loads(response['Payload'].read())
-
-
 #: pfun imports (relative)
 root_path = Path(__file__).parents[2]
 for pth in [root_path, ]:
@@ -101,14 +63,16 @@ cors_config = CORSConfig(
                    'X-RapidAPI-Proxy-Secret',
                    'X-RapidAPI-Host',
                    'X-API-Key',
-                   'Authorization'],
+                   'Authorization',
+                   'Access-Control-Allow-Origin'],
     allow_credentials=True,
     max_age=300,
     expose_headers=['X-RapidAPI-Key',
                     'X-RapidAPI-Proxy-Secret',
                     'X-RapidAPI-Host',
                     'X-API-Key',
-                    'Authorization']
+                    'Authorization',
+                    'Access-Control-Allow-Origin']
 )
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -152,6 +116,50 @@ def fix_headers(func):
 
 
 app.register_middleware(ConvertToMiddleware(fix_headers), event_type='http')
+
+LAMBDA_CLIENT = None
+LAMBDA_FUNCTIONS = None
+
+
+@app.lambda_function(name='InvokeLambdaByName')
+def lambda_invoke(function_name: str, payload: Any):
+    """
+    Invokes a Lambda function with the given function name and payload.
+
+    Args:
+        function_name (str): The name of the Lambda function to invoke.
+        payload (Any): The payload to pass to the Lambda function.
+
+    Returns:
+        Any: The response from the Lambda function.
+
+    Raises:
+        RuntimeError: If the function name cannot be found in the list of Lambda functions.
+    """
+    global LAMBDA_CLIENT, LAMBDA_FUNCTIONS
+    if LAMBDA_CLIENT is None:
+        LAMBDA_CLIENT = new_boto3_client('lambda')
+    if LAMBDA_FUNCTIONS is None:
+        LAMBDA_FUNCTIONS = \
+            list(map(lambda x: x.get('FunctionName'),
+                     list(filter(lambda x: 'pfun-cma-model' in x['FunctionName'],
+                                 LAMBDA_CLIENT.list_functions()['Functions']))))
+    actual_function_names = difflib.get_close_matches(
+        function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.3
+    )
+    if len(actual_function_names) == 0:
+        actual_function_names = difflib.get_close_matches(
+            function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.0
+        )
+    if len(actual_function_names) == 0:
+        raise RuntimeError(f'Could not find function {function_name}')
+    function_name = actual_function_names[0]
+    response = LAMBDA_CLIENT.invoke(
+        FunctionName=function_name,
+        Payload=json.dumps(payload).encode('utf-8')
+    )
+    return json.loads(response['Payload'].read())
+
 
 PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
@@ -247,7 +255,7 @@ class SecretsWrapper(threading.Thread):
         key = str(self.secrets_manager.get_secret_value(
             SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
         return key
-    
+
     def aws_get_aws_api_key(self):
         """
         Retrieves the AWS API key from the AWS Secrets Manager.
@@ -308,7 +316,7 @@ def fake_auth(auth_request: AuthRequest):
             authorized = True
     else:
         logger.info(
-        '(Authorizer) Request method: %s', current_request.method.lower())
+            '(Authorizer) Request method: %s', current_request.method.lower())
         authorized = all([
             auth_request.token in ['Bearer allow', 'allow'],
             secman.authorize(current_request)
@@ -440,11 +448,11 @@ def get_lambda_params(event, key: str, context: Dict | None = None
 def run_model_with_config(event, context):
     """
     This function runs a model with a given configuration.
-    
+
     Args:
         event (Any): The event object passed to the Lambda function.
         context (Any): The context object passed to the Lambda function.
-        
+
     Returns:
         str: A JSON string representing the response from the model execution.
     """
