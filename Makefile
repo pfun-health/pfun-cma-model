@@ -55,7 +55,7 @@ test_deployment: get_Function_Id
 	sam remote invoke $(LAMBDA_TEST_FUNCTION_ID) --stack-name $(STACK_NAME) --region $(AWS_REGION)
 
 .PHONY: all
-all: synthesize_local validate test_local synthesize_deploy build package deploy test_deployment
+all: synthesize_local validate synthesize_deploy build package deploy test_deployment
 
 .PHONY: clean
 clean:
