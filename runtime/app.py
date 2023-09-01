@@ -485,7 +485,7 @@ def run_model_route():
     A function that returns a message containing the welcome message and the
     routes of the PFun CMA Model API.
     """
-    global LAMBDA_CLIENT  # type: ignore
+    global LAMBDA_CLIENT
     request: Request | None = app.current_request
     if request is None:
         raise RuntimeError("No request was provided!")

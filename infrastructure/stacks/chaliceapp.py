@@ -21,6 +21,8 @@ from aws_cdk import (
     aws_apigatewayv2 as apigwv2,
 )
 import managed_instance_role
+from aws_solutions_constructs.aws_cloudfront_apigateway import CloudFrontToApiGateway
+
 
 from chalice.cdk import Chalice
 
@@ -59,8 +61,11 @@ class ChaliceApp(cdk.Stack):
                       enable_dns_support=True,
                       create_internet_gateway=True,
                       max_azs=2,
-                      nat_gateways=1,
                       subnet_configuration=[
+                          ec2.SubnetConfiguration(
+                              name="private",
+                              subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT
+                          ),
                           ec2.SubnetConfiguration(
                               name="public",
                               subnet_type=ec2.SubnetType.PUBLIC
@@ -123,6 +128,16 @@ class ChaliceApp(cdk.Stack):
                 principal=iam.ServicePrincipal(
                     'apigatewayv2.amazonaws.com'),
                 action='lambda:InvokeFunction')
+            func.add_permission(
+                'InvokeFromLambda{}'.format(function_name),
+                principal=iam.ServicePrincipal('lambda.amazonaws.com'),
+                action='lambda:InvokeFunction'
+            )
+            func.add_permission(
+                'ListFromLambda{}'.format(function_name),
+                principal=iam.ServicePrincipal('lambda.amazonaws.com'),
+                action='lambda:ListFunctions'
+            )
             func.add_to_role_policy(
                 iam.PolicyStatement(
                     effect=iam.Effect.ALLOW,
@@ -142,23 +157,21 @@ class ChaliceApp(cdk.Stack):
                 resources=['*']
             )
         )
-
-        # Create a listener rule to forward requests to the Chalice API
-        certificate = acm.Certificate.from_certificate_arn(
-            self, 'PFunCMAModelListenerCert',
-            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        
+        #: Clone the RestAPI -> Lambda
+        rest_api = self.chalice.get_resource('RestAPI')
+        api_gateway = apigw.LambdaRestApi(
+            self, 'PFunCMAModelAPIGateway',
+            handler=get_lambda_function(self, 'APIHandler'),
+            clone_from=rest_api
         )
-        listener = alb.add_listener('PFunCMAModelListener', port=443, certificates=[certificate])
-        #: ! no specify protocol for lambda targets
-        listener.add_targets("PFunCMAModelAPIHandlerTarget",
-                             targets=[
-                                 elbv2_targets.LambdaTarget(
-                                     get_lambda_function(self, 'APIHandler')),
-                             ],
-                             health_check=elbv2.HealthCheck(
-                                 interval=cdk.Duration.minutes(5)),
-                             )
-
+        
+        # cloudfront -> API gateway
+        CloudFrontToApiGateway(
+            self, 'PFunCMAModelCloudFrontToAPIGateway',
+            existing_api_gateway_obj=api_gateway
+        )
+        
         # Output the ALB DNS name
         cdk.CfnOutput(self, "PFunAlbDNSName", value=alb.load_balancer_dns_name)
 
@@ -166,22 +179,22 @@ class ChaliceApp(cdk.Stack):
         domain_name_raw = 'dev.pfun.app'
 
         # Associate the Custom Domain Name with the HTTP API
-        rest_api = self.chalice.get_resource('RestAPI')
-        #: ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html#aws-resource-apigateway-restapi-return-values
-        #: ref: https://stackoverflow.com/a/65709106/1871569
-        http_api = apigw.RestApi.from_rest_api_id(
-            self, 'PFunDevCMAModelHttpApi',
-            rest_api_id=rest_api.get_att('RestApiId').to_string()
-        )
 
-        # # Create the domain -> api map.
-        domain = apigw.DomainName.from_domain_name_attributes(
-            self, "CustomDomainNamePFunCMAModelDev",
+        # domain -> cert
+        certificate = acm.Certificate.from_certificate_arn(
+            self, 'PFunCMAModelListenerCert',
+            'arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6'
+        )
+        apigw.DomainName(
+            self, 'PFunDevCMAModelCustomDomainName',
             domain_name=domain_name_raw,
-            domain_name_alias_hosted_zone_id='Z2FDTNDATAQYW2',
-            domain_name_alias_target=alb.load_balancer_dns_name
+            certificate=certificate,
+            mapping=apigw.RestApi.from_rest_api_id(
+                self, 'PFunDevCMAModelCustomDomainNameMapping',
+                rest_api_id=rest_api.get_att('RestApiId').to_string()
+            )
         )
 
         # Output the Custom Domain Name
-        cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameOutput',
+        cdk.CfnOutput(self, 'PFunDevCMAModelCustomDomainNameRawOutput',
                       value=domain_name_raw)
