@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/31c743af899bf24c4f5b7b9285d0867f389667c3ad6bd2d7660aa4bdac10724b.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/afe6f9562ad4bf9c8787d63abfeec53b1c201ea67e78340b8beeee7d8018fd56.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -237,6 +237,54 @@
             "data": "PFunCMAModelVPC45F492DB"
           }
         ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet1RouteTableAssociation7C9A5404"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet1DefaultRoute7BD2250C"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet2SubnetD4B15059"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet2RouteTable1C044654"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet2RouteTableAssociation97C73F3C"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCprivateSubnet2DefaultRouteD1033AC0"
+          }
+        ],
         "/PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet1/Subnet": [
           {
             "type": "aws:cdk:logicalId",
@@ -297,6 +345,18 @@
             "data": "PFunCMAModelVPCpublicSubnet2DefaultRoute6684FA33"
           }
         ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2EIPDBD8EB1A"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelVPCpublicSubnet2NATGatewayA5AA7F99"
+          }
+        ],
         "/PFunCMAModelChaliceApp/PFunCMAModelVPC/IGW": [
           {
             "type": "aws:cdk:logicalId",
@@ -319,18 +379,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "PFunCMAModelLoadBalancerSecurityGroupE55A7C00"
-          }
-        ],
-        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB"
-          }
-        ],
-        "/PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunAlbSecurityGroup/Resource": [
@@ -357,10 +405,106 @@
             "data": "ManagedInstanceRoleinstanceProfile7D74766D"
           }
         ],
-        "/PFunCMAModelChaliceApp/PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": [
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunCMAModelChaliceAppPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HY878EE102"
+            "data": "PFunCMAModelAPIGateway8F423C17"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/CloudWatchRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayCloudWatchRoleC1C1D9B7"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Account": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayAccount13233CEC"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayDeployment4E1DD87792f2fb7a6f44d29e5ae88507d00ed8e8"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/DeploymentStage.prod/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayEndpointD88762A0"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayproxyE434090B"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayproxyANYApiPermissionPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANYproxy0AA7A3C7"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayproxyANYApiPermissionTestPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANYproxy4BC18523"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayproxyANYD3B9CFE7"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayANYApiPermissionPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANY25CBE2EA"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayANYApiPermissionTestPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANY9D396C78"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelAPIGatewayANY013C3632"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/SetHttpSecurityHeaders/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelCloudFrontToAPIGatewaySetHttpSecurityHeadersCEC1B6A8"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketPolicyE642E650"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudFrontDistribution/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunCMAModelCloudFrontToAPIGatewayCloudFrontDistribution023CAACA"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunAlbDNSName": [
@@ -369,10 +513,22 @@
             "data": "PFunAlbDNSName"
           }
         ],
-        "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameOutput": [
+        "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PFunDevCMAModelCustomDomainNameOutput"
+            "data": "PFunDevCMAModelCustomDomainName37EDFE0E"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelCustomDomainNameMapPFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B9C1184A8"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameRawOutput": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PFunDevCMAModelCustomDomainNameRawOutput"
           }
         ],
         "/PFunCMAModelChaliceApp/CDKMetadata/Default": [

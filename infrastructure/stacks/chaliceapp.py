@@ -5,20 +5,13 @@ try:
     from aws_cdk import core as cdk
 except ImportError:
     import aws_cdk as cdk
-from aws_cdk import aws_autoscaling as autoscaling
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_elasticloadbalancingv2 as elbv2
 from aws_cdk import (
     aws_ec2 as ec2,
-    aws_route53_targets as targets,
-    aws_route53 as route53,
-    aws_elasticloadbalancingv2_targets as elbv2_targets,
     aws_lambda as lambda_,
-    aws_s3 as s3,
-    aws_cloudfront as cloudfront,
     aws_certificatemanager as acm,
-    aws_apigateway as apigw,
-    aws_apigatewayv2 as apigwv2,
+    aws_apigateway as apigw
 )
 import managed_instance_role
 from aws_solutions_constructs.aws_cloudfront_apigateway import CloudFrontToApiGateway
@@ -169,7 +162,10 @@ class ChaliceApp(cdk.Stack):
         # cloudfront -> API gateway
         CloudFrontToApiGateway(
             self, 'PFunCMAModelCloudFrontToAPIGateway',
-            existing_api_gateway_obj=api_gateway
+            existing_api_gateway_obj=api_gateway,
+            cloud_front_distribution_props={
+                
+            }
         )
         
         # Output the ALB DNS name

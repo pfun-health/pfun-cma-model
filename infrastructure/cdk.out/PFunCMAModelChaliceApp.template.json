@@ -20,7 +20,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.lambda_invoke",
     "Layers": [
@@ -43,7 +43,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.run_model_with_config",
     "Layers": [
@@ -66,7 +66,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.run_at_time",
     "Layers": [
@@ -89,7 +89,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.fit_model_to_data",
     "Layers": [
@@ -112,7 +112,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.oauth2_dexcom",
     "Layers": [
@@ -135,7 +135,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.fake_auth",
     "Layers": [
@@ -158,7 +158,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.app",
     "Layers": [
@@ -1218,7 +1218,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.run_at_time_connect",
     "Layers": [
@@ -1241,7 +1241,7 @@
    "Properties": {
     "CodeUri": {
      "Bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-     "Key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+     "Key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
     },
     "Handler": "app.run_at_time_ws",
     "Layers": [
@@ -1431,11 +1431,159 @@
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/Resource"
    }
   },
+  "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "PFunCMAModelVPC45F492DB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/Subnet"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "PFunCMAModelVPC45F492DB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTable"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet1RouteTableAssociation7C9A5404": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7"
+    },
+    "SubnetId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTableAssociation"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet1DefaultRoute7BD2250C": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "PFunCMAModelVPCpublicSubnet1NATGatewayEE43DF7C"
+    },
+    "RouteTableId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/DefaultRoute"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet2SubnetD4B15059": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.64.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "PFunCMAModelVPC45F492DB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/Subnet"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet2RouteTable1C044654": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "PFunCMAModelVPC45F492DB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTable"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet2RouteTableAssociation97C73F3C": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet2RouteTable1C044654"
+    },
+    "SubnetId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet2SubnetD4B15059"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTableAssociation"
+   }
+  },
+  "PFunCMAModelVPCprivateSubnet2DefaultRouteD1033AC0": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "PFunCMAModelVPCpublicSubnet2NATGatewayA5AA7F99"
+    },
+    "RouteTableId": {
+     "Ref": "PFunCMAModelVPCprivateSubnet2RouteTable1C044654"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/DefaultRoute"
+   }
+  },
   "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
     "AvailabilityZone": "us-east-1a",
-    "CidrBlock": "10.0.0.0/17",
+    "CidrBlock": "10.0.128.0/18",
     "MapPublicIpOnLaunch": true,
     "Tags": [
      {
@@ -1554,7 +1702,7 @@
    "Type": "AWS::EC2::Subnet",
    "Properties": {
     "AvailabilityZone": "us-east-1b",
-    "CidrBlock": "10.0.128.0/17",
+    "CidrBlock": "10.0.192.0/18",
     "MapPublicIpOnLaunch": true,
     "Tags": [
      {
@@ -1627,6 +1775,48 @@
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/DefaultRoute"
    }
   },
+  "PFunCMAModelVPCpublicSubnet2EIPDBD8EB1A": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/EIP"
+   }
+  },
+  "PFunCMAModelVPCpublicSubnet2NATGatewayA5AA7F99": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "PFunCMAModelVPCpublicSubnet2EIPDBD8EB1A",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2"
+     }
+    ]
+   },
+   "DependsOn": [
+    "PFunCMAModelVPCpublicSubnet2DefaultRoute6684FA33",
+    "PFunCMAModelVPCpublicSubnet2RouteTableAssociation80285FB0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/NATGateway"
+   }
+  },
   "PFunCMAModelVPCIGW41DFF152": {
    "Type": "AWS::EC2::InternetGateway",
    "Properties": {
@@ -1682,10 +1872,10 @@
     ],
     "Subnets": [
      {
-      "Ref": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+      "Ref": "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB"
      },
      {
-      "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+      "Ref": "PFunCMAModelVPCprivateSubnet2SubnetD4B15059"
      }
     ],
     "Type": "application"
@@ -1707,70 +1897,12 @@
       "ToPort": 86
      }
     ],
-    "SecurityGroupIngress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow from anyone on port 443",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
-     }
-    ],
     "VpcId": {
      "Ref": "PFunCMAModelVPC45F492DB"
     }
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/SecurityGroup/Resource"
-   }
-  },
-  "PFunCMAModelLoadBalancerPFunCMAModelListener646FABCB": {
-   "Type": "AWS::ElasticLoadBalancingV2::Listener",
-   "Properties": {
-    "Certificates": [
-     {
-      "CertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
-     }
-    ],
-    "DefaultActions": [
-     {
-      "TargetGroupArn": {
-       "Ref": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
-      },
-      "Type": "forward"
-     }
-    ],
-    "LoadBalancerArn": {
-     "Ref": "PFunCMAModelLoadBalancer930A86BD"
-    },
-    "Port": 443,
-    "Protocol": "HTTPS"
-   },
-   "Metadata": {
-    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource"
-   }
-  },
-  "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1": {
-   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-   "Properties": {
-    "HealthCheckIntervalSeconds": 300,
-    "TargetType": "lambda",
-    "Targets": [
-     {
-      "Id": {
-       "Fn::GetAtt": [
-        "APIHandler",
-        "Arn"
-       ]
-      }
-     }
-    ]
-   },
-   "DependsOn": [
-    "PFunCMAModelChaliceAppPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HY878EE102"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource"
    }
   },
   "PFunAlbSecurityGroupDA3A5D19": {
@@ -1782,15 +1914,6 @@
       "CidrIp": "0.0.0.0/0",
       "Description": "Allow all outbound traffic by default",
       "IpProtocol": "-1"
-     }
-    ],
-    "SecurityGroupIngress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow from anyone on port 443",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
      }
     ],
     "VpcId": {
@@ -1887,7 +2010,124 @@
     "aws:cdk:path": "PFunCMAModelChaliceApp/ManagedInstanceRole/instanceProfile"
    }
   },
-  "PFunCMAModelChaliceAppPFunCMAModelChaliceAppAPIHandlerInvoke2UTWxhlfyqbT5FTn5jvgbLgjFfJwzswGk55DU1HY878EE102": {
+  "PFunCMAModelAPIGateway8F423C17": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "PFunCMAModelAPIGateway"
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayCloudWatchRoleC1C1D9B7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/CloudWatchRole/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayAccount13233CEC": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "PFunCMAModelAPIGatewayCloudWatchRoleC1C1D9B7",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "PFunCMAModelAPIGateway8F423C17"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Account"
+   }
+  },
+  "PFunCMAModelAPIGatewayDeployment4E1DD87792f2fb7a6f44d29e5ae88507d00ed8e8": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "PFunCMAModelAPIGateway8F423C17"
+    }
+   },
+   "DependsOn": [
+    "PFunCMAModelAPIGatewayproxyANYD3B9CFE7",
+    "PFunCMAModelAPIGatewayproxyE434090B",
+    "PFunCMAModelAPIGatewayANY013C3632"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Deployment/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "PFunCMAModelAPIGatewayDeployment4E1DD87792f2fb7a6f44d29e5ae88507d00ed8e8"
+    },
+    "RestApiId": {
+     "Ref": "PFunCMAModelAPIGateway8F423C17"
+    },
+    "StageName": "prod"
+   },
+   "DependsOn": [
+    "PFunCMAModelAPIGatewayAccount13233CEC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/DeploymentStage.prod/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayproxyE434090B": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "PFunCMAModelAPIGateway8F423C17",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "{proxy+}",
+    "RestApiId": {
+     "Ref": "PFunCMAModelAPIGateway8F423C17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayproxyANYApiPermissionPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANYproxy0AA7A3C7": {
    "Type": "AWS::Lambda::Permission",
    "Properties": {
     "Action": "lambda:InvokeFunction",
@@ -1897,16 +2137,466 @@
       "Arn"
      ]
     },
-    "Principal": "elasticloadbalancing.amazonaws.com"
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:860311922912:",
+       {
+        "Ref": "PFunCMAModelAPIGateway8F423C17"
+       },
+       "/",
+       {
+        "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+       },
+       "/*/*"
+      ]
+     ]
+    }
    },
    "Metadata": {
-    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y="
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}"
+   }
+  },
+  "PFunCMAModelAPIGatewayproxyANYApiPermissionTestPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANYproxy4BC18523": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "APIHandler",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:860311922912:",
+       {
+        "Ref": "PFunCMAModelAPIGateway8F423C17"
+       },
+       "/test-invoke-stage/*/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}"
+   }
+  },
+  "PFunCMAModelAPIGatewayproxyANYD3B9CFE7": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "ANY",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "APIHandler",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "PFunCMAModelAPIGatewayproxyE434090B"
+    },
+    "RestApiId": {
+     "Ref": "PFunCMAModelAPIGateway8F423C17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/Resource"
+   }
+  },
+  "PFunCMAModelAPIGatewayANYApiPermissionPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANY25CBE2EA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "APIHandler",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:860311922912:",
+       {
+        "Ref": "PFunCMAModelAPIGateway8F423C17"
+       },
+       "/",
+       {
+        "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+       },
+       "/*/"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY.."
+   }
+  },
+  "PFunCMAModelAPIGatewayANYApiPermissionTestPFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670EANY9D396C78": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "APIHandler",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:860311922912:",
+       {
+        "Ref": "PFunCMAModelAPIGateway8F423C17"
+       },
+       "/test-invoke-stage/*/"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY.."
+   }
+  },
+  "PFunCMAModelAPIGatewayANY013C3632": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "ANY",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "APIHandler",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "PFunCMAModelAPIGateway8F423C17",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "PFunCMAModelAPIGateway8F423C17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/Resource"
+   }
+  },
+  "PFunCMAModelCloudFrontToAPIGatewaySetHttpSecurityHeadersCEC1B6A8": {
+   "Type": "AWS::CloudFront::Function",
+   "Properties": {
+    "AutoPublish": true,
+    "FunctionCode": "function handler(event) { var response = event.response; var headers = response.headers; headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload'}; headers['content-security-policy'] = { value: \"default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'\"}; headers['x-content-type-options'] = { value: 'nosniff'}; headers['x-frame-options'] = {value: 'DENY'}; headers['x-xss-protection'] = {value: '1; mode=block'}; return response; }",
+    "FunctionConfig": {
+     "Comment": "SetHttpSecurityHeadersc833fa54bef79a87136d7a5af7bc77f510c3dd6237",
+     "Runtime": "cloudfront-js-1.0"
+    },
+    "Name": "SetHttpSecurityHeadersc833fa54bef79a87136d7a5af7bc77f510c3dd6237"
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/SetHttpSecurityHeaders/Resource"
+   }
+  },
+  "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "AccessControl": "LogDeliveryWrite",
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "OwnershipControls": {
+     "Rules": [
+      {
+       "ObjectOwnership": "ObjectWriter"
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Resource",
+    "cfn_nag": {
+     "rules_to_suppress": [
+      {
+       "id": "W35",
+       "reason": "This S3 bucket is used as the access logging bucket for CloudFront Distribution"
+      }
+     ]
+    }
+   }
+  },
+  "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketPolicyE642E650": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Policy/Resource"
+   }
+  },
+  "PFunCMAModelCloudFrontToAPIGatewayCloudFrontDistribution023CAACA": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "DefaultCacheBehavior": {
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "FunctionAssociations": [
+       {
+        "EventType": "viewer-response",
+        "FunctionARN": {
+         "Fn::GetAtt": [
+          "PFunCMAModelCloudFrontToAPIGatewaySetHttpSecurityHeadersCEC1B6A8",
+          "FunctionARN"
+         ]
+        }
+       }
+      ],
+      "TargetOriginId": "PFunCMAModelChaliceAppPFunCMAModelCloudFrontToAPIGatewayCloudFrontDistributionOrigin157D6F971",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Logging": {
+      "Bucket": {
+       "Fn::GetAtt": [
+        "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+        "RegionalDomainName"
+       ]
+      }
+     },
+     "Origins": [
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "https-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::Select": [
+         0,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             1,
+             {
+              "Fn::Split": [
+               "://",
+               {
+                "Fn::Join": [
+                 "",
+                 [
+                  "https://",
+                  {
+                   "Ref": "PFunCMAModelAPIGateway8F423C17"
+                  },
+                  ".execute-api.us-east-1.",
+                  {
+                   "Ref": "AWS::URLSuffix"
+                  },
+                  "/",
+                  {
+                   "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+                  },
+                  "/"
+                 ]
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "Id": "PFunCMAModelChaliceAppPFunCMAModelCloudFrontToAPIGatewayCloudFrontDistributionOrigin157D6F971",
+       "OriginPath": {
+        "Fn::Join": [
+         "",
+         [
+          "/",
+          {
+           "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+          }
+         ]
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudFrontDistribution/Resource",
+    "cfn_nag": {
+     "rules_to_suppress": [
+      {
+       "id": "W70",
+       "reason": "Since the distribution uses the CloudFront domain name, CloudFront automatically sets the security policy to TLSv1 regardless of the value of MinimumProtocolVersion"
+      }
+     ]
+    }
+   }
+  },
+  "PFunDevCMAModelCustomDomainName37EDFE0E": {
+   "Type": "AWS::ApiGateway::DomainName",
+   "Properties": {
+    "DomainName": "dev.pfun.app",
+    "EndpointConfiguration": {
+     "Types": [
+      "REGIONAL"
+     ]
+    },
+    "RegionalCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Resource"
+   }
+  },
+  "PFunDevCMAModelCustomDomainNameMapPFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B9C1184A8": {
+   "Type": "AWS::ApiGateway::BasePathMapping",
+   "Properties": {
+    "DomainName": {
+     "Ref": "PFunDevCMAModelCustomDomainName37EDFE0E"
+    },
+    "RestApiId": {
+     "Fn::GetAtt": [
+      "RestAPI",
+      "RestApiId"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B/Resource"
    }
   },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VSwW7bMAz9lt4VrWtOOybdVgQoNiMpcg1omXG5yJIhUSuMIP8+SrZXFwUM8JF6enwU/aC/rfX9HbzFlWkuK0u1vh4YzEVJ6XSN6xPEiBz1JgcV13qbzAV5CxFVhE5fH8/uGQYMRwyRvFOS/0zO8IQ3Pd2Uha5uoHArDB3FwpxpWeumoKcWGN9g+PtQmHIzC+wcYxtg1tv7xJjBd+ytHzp0nDPx3IoIGrl77E0uHatHVaXakjmk2uFI+4+KzgvUFt/r7zWZ1hv63PTHrsrhF/DT6HV2GOT6oiS9p2zD8pqvxeYBTQrEw1PwqS9dlwUxbyEyGeuhqcGCM+Ta/BabvpchiplnOduWMwxZ4UO+5FFkdBNnxovzFwitGJ6NLNKborzVygu1jDKhvR9fao47Fzm3rYI/k/2wP73HyLK9ca/lx8nrkWmUDJeasw9dcXEiZ2xqUBe9ArP078R9YiUqPgUzdp3wTVUDv3r3Za2/3su3uvsTiVYhOaYO9X6M/wDh50Ci1QIAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21TTW/jIBD9Lb0T2m162dsmzbaKlO5aSZVrNMYkYYPBgqFdy/J/3wHbsVOtZJk3j2G+Hjzy5vucP9zBp5+J4jLTKufNDkFcGFGHxs8P4L1EzxdxYX7Om2UQF4lL8JJ1kD0fTY+6JbNaiXqkO7tlHkreELuBWrq9dF5ZE71eghHY40WlWqahzAtIvpl0pfLJc3CLqVsGlToByk+oPx6TJ52MAdYG5cnBEG9rA8oIVrLSti6lSfVSjycKIgWd3VciUvvsmWVOfVDQXchN19eIUqB3yLUc+ZGj8VihvmTNQk6NjyF+rrO4/AJ87Sof6nXkMKGokt5aIGlxTkXvpAhOYf3qbKhSCVOCWtHgUQltochBgxHKnOJkFlVFRaTKNrS3THvSxQhTu2UqqjNK16Ot7Roe1rXxGA9kzh6VvtGBN5uk21Z67MWYwIUQNlAftzpMrCTJVRtGR21wQqaLRtn+1gPTB+7wm8SzLSLVoz5lOrayJSiad9ndgNGKuxng+Q2qiuaUruot1TIaZSiOzhrkzfSGXvFKeXQqD8PG1G5bll5M7CUm6IJZVyYhDsoIHQrJ00ATjAF+B6wCsv/12bKnJ3qnP+JD9VanHPRk6YcuCPT36QVfK55NVHmO7Etk3y0Npr9ZLctqmpe5n/NvD/TN7v54pWaOJFKl5Ntu/QdbkaYAIAQAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "PFunCMAModelChaliceApp/CDKMetadata/Default"
@@ -1973,6 +2663,28 @@
     "Fn::Sub": "wss://${WebsocketAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/"
    }
   },
+  "PFunCMAModelAPIGatewayEndpointD88762A0": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "PFunCMAModelAPIGateway8F423C17"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
   "PFunAlbDNSName": {
    "Value": {
     "Fn::GetAtt": [
@@ -1981,7 +2693,7 @@
     ]
    }
   },
-  "PFunDevCMAModelCustomDomainNameOutput": {
+  "PFunDevCMAModelCustomDomainNameRawOutput": {
    "Value": "dev.pfun.app"
   }
  },

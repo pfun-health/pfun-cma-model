@@ -121,7 +121,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.lambda_invoke",
                         "layers": [
@@ -152,7 +152,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -183,7 +183,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -214,7 +214,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -245,7 +245,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -276,7 +276,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -307,7 +307,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -1399,7 +1399,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.run_at_time_connect",
                         "layers": [
@@ -1430,7 +1430,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                          "key": "9a2ed692fd2850458e5e6653f62655cf237987f18ebc515aef0a87597780be6d.zip"
                         },
                         "handler": "app.run_at_time_ws",
                         "layers": [
@@ -1868,6 +1868,230 @@
                   "version": "2.93.0"
                 }
               },
+              "privateSubnet1": {
+                "id": "privateSubnet1",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "availabilityZone": "us-east-1a",
+                        "cidrBlock": "10.0.0.0/18",
+                        "mapPublicIpOnLaunch": false,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "private"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Private"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7"
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet1/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "natGatewayId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet1NATGatewayEE43DF7C"
+                        },
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet1RouteTable4F03F7C7"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PrivateSubnet",
+                  "version": "2.93.0"
+                }
+              },
+              "privateSubnet2": {
+                "id": "privateSubnet2",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2",
+                "children": {
+                  "Subnet": {
+                    "id": "Subnet",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/Subnet",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+                      "aws:cdk:cloudformation:props": {
+                        "availabilityZone": "us-east-1b",
+                        "cidrBlock": "10.0.64.0/18",
+                        "mapPublicIpOnLaunch": false,
+                        "tags": [
+                          {
+                            "key": "aws-cdk:subnet-name",
+                            "value": "private"
+                          },
+                          {
+                            "key": "aws-cdk:subnet-type",
+                            "value": "Private"
+                          },
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Acl": {
+                    "id": "Acl",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/Acl",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTable": {
+                    "id": "RouteTable",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTable",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+                      "aws:cdk:cloudformation:props": {
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2"
+                          }
+                        ],
+                        "vpcId": {
+                          "Ref": "PFunCMAModelVPC45F492DB"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "RouteTableAssociation": {
+                    "id": "RouteTableAssociation",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/RouteTableAssociation",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::SubnetRouteTableAssociation",
+                      "aws:cdk:cloudformation:props": {
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet2RouteTable1C044654"
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet2SubnetD4B15059"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnSubnetRouteTableAssociation",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "DefaultRoute": {
+                    "id": "DefaultRoute",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/privateSubnet2/DefaultRoute",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::Route",
+                      "aws:cdk:cloudformation:props": {
+                        "destinationCidrBlock": "0.0.0.0/0",
+                        "natGatewayId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet2NATGatewayA5AA7F99"
+                        },
+                        "routeTableId": {
+                          "Ref": "PFunCMAModelVPCprivateSubnet2RouteTable1C044654"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ec2.PrivateSubnet",
+                  "version": "2.93.0"
+                }
+              },
               "publicSubnet1": {
                 "id": "publicSubnet1",
                 "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet1",
@@ -1879,7 +2103,7 @@
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
                         "availabilityZone": "us-east-1a",
-                        "cidrBlock": "10.0.0.0/17",
+                        "cidrBlock": "10.0.128.0/18",
                         "mapPublicIpOnLaunch": true,
                         "tags": [
                           {
@@ -2039,7 +2263,7 @@
                       "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
                       "aws:cdk:cloudformation:props": {
                         "availabilityZone": "us-east-1b",
-                        "cidrBlock": "10.0.128.0/17",
+                        "cidrBlock": "10.0.192.0/18",
                         "mapPublicIpOnLaunch": true,
                         "tags": [
                           {
@@ -2133,6 +2357,54 @@
                       "fqn": "aws-cdk-lib.aws_ec2.CfnRoute",
                       "version": "2.93.0"
                     }
+                  },
+                  "EIP": {
+                    "id": "EIP",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/EIP",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::EIP",
+                      "aws:cdk:cloudformation:props": {
+                        "domain": "vpc",
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnEIP",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "NATGateway": {
+                    "id": "NATGateway",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2/NATGateway",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::EC2::NatGateway",
+                      "aws:cdk:cloudformation:props": {
+                        "allocationId": {
+                          "Fn::GetAtt": [
+                            "PFunCMAModelVPCpublicSubnet2EIPDBD8EB1A",
+                            "AllocationId"
+                          ]
+                        },
+                        "subnetId": {
+                          "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+                        },
+                        "tags": [
+                          {
+                            "key": "Name",
+                            "value": "PFunCMAModelChaliceApp/PFunCMAModelVPC/publicSubnet2"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_ec2.CfnNatGateway",
+                      "version": "2.93.0"
+                    }
                   }
                 },
                 "constructInfo": {
@@ -2218,10 +2490,10 @@
                     ],
                     "subnets": [
                       {
-                        "Ref": "PFunCMAModelVPCpublicSubnet1Subnet8C7FD47D"
+                        "Ref": "PFunCMAModelVPCprivateSubnet1SubnetDE1059FB"
                       },
                       {
-                        "Ref": "PFunCMAModelVPCpublicSubnet2SubnetB6BCDE86"
+                        "Ref": "PFunCMAModelVPCprivateSubnet2SubnetD4B15059"
                       }
                     ],
                     "type": "application"
@@ -2252,15 +2524,6 @@
                             "toPort": 86
                           }
                         ],
-                        "securityGroupIngress": [
-                          {
-                            "cidrIp": "0.0.0.0/0",
-                            "ipProtocol": "tcp",
-                            "fromPort": 443,
-                            "toPort": 443,
-                            "description": "Allow from anyone on port 443"
-                          }
-                        ],
                         "vpcId": {
                           "Ref": "PFunCMAModelVPC45F492DB"
                         }
@@ -2274,82 +2537,6 @@
                 },
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
-                  "version": "2.93.0"
-                }
-              },
-              "PFunCMAModelListener": {
-                "id": "PFunCMAModelListener",
-                "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener",
-                "children": {
-                  "Resource": {
-                    "id": "Resource",
-                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/Resource",
-                    "attributes": {
-                      "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::Listener",
-                      "aws:cdk:cloudformation:props": {
-                        "certificates": [
-                          {
-                            "certificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
-                          }
-                        ],
-                        "defaultActions": [
-                          {
-                            "type": "forward",
-                            "targetGroupArn": {
-                              "Ref": "PFunCMAModelLoadBalancerPFunCMAModelListenerPFunCMAModelAPIHandlerTargetGroup31AC0FA1"
-                            }
-                          }
-                        ],
-                        "loadBalancerArn": {
-                          "Ref": "PFunCMAModelLoadBalancer930A86BD"
-                        },
-                        "port": 443,
-                        "protocol": "HTTPS"
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnListener",
-                      "version": "2.93.0"
-                    }
-                  },
-                  "PFunCMAModelAPIHandlerTargetGroup": {
-                    "id": "PFunCMAModelAPIHandlerTargetGroup",
-                    "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup",
-                    "children": {
-                      "Resource": {
-                        "id": "Resource",
-                        "path": "PFunCMAModelChaliceApp/PFunCMAModelLoadBalancer/PFunCMAModelListener/PFunCMAModelAPIHandlerTargetGroup/Resource",
-                        "attributes": {
-                          "aws:cdk:cloudformation:type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-                          "aws:cdk:cloudformation:props": {
-                            "healthCheckIntervalSeconds": 300,
-                            "targets": [
-                              {
-                                "id": {
-                                  "Fn::GetAtt": [
-                                    "APIHandler",
-                                    "Arn"
-                                  ]
-                                }
-                              }
-                            ],
-                            "targetType": "lambda"
-                          }
-                        },
-                        "constructInfo": {
-                          "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.CfnTargetGroup",
-                          "version": "2.93.0"
-                        }
-                      }
-                    },
-                    "constructInfo": {
-                      "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationTargetGroup",
-                      "version": "2.93.0"
-                    }
-                  }
-                },
-                "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_elasticloadbalancingv2.ApplicationListener",
                   "version": "2.93.0"
                 }
               }
@@ -2375,15 +2562,6 @@
                         "cidrIp": "0.0.0.0/0",
                         "description": "Allow all outbound traffic by default",
                         "ipProtocol": "-1"
-                      }
-                    ],
-                    "securityGroupIngress": [
-                      {
-                        "cidrIp": "0.0.0.0/0",
-                        "ipProtocol": "tcp",
-                        "fromPort": 443,
-                        "toPort": 443,
-                        "description": "Allow from anyone on port 443"
                       }
                     ],
                     "vpcId": {
@@ -2541,43 +2719,764 @@
               "version": "2.3.111"
             }
           },
-          "PFunCMAModelListenerCert": {
-            "id": "PFunCMAModelListenerCert",
-            "path": "PFunCMAModelChaliceApp/PFunCMAModelListenerCert",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.Resource",
-              "version": "2.93.0"
-            }
-          },
           "PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler": {
             "id": "PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler",
             "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+              "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelAPIGateway": {
+            "id": "PFunCMAModelAPIGateway",
+            "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway",
             "children": {
-              "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=": {
-                "id": "Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
-                "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp--PFunCMAModelChaliceApp--APIHandler/Invoke2UTWxhlfyqbT5FTn--5jvgbLgj+FfJwzswGk55DU1H--Y=",
+              "Resource": {
+                "id": "Resource",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Resource",
                 "attributes": {
-                  "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::RestApi",
                   "aws:cdk:cloudformation:props": {
-                    "action": "lambda:InvokeFunction",
-                    "functionName": {
-                      "Fn::GetAtt": [
-                        "APIHandler",
-                        "Arn"
-                      ]
-                    },
-                    "principal": "elasticloadbalancing.amazonaws.com"
+                    "name": "PFunCMAModelAPIGateway"
                   }
                 },
                 "constructInfo": {
-                  "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                  "fqn": "aws-cdk-lib.aws_apigateway.CfnRestApi",
+                  "version": "2.93.0"
+                }
+              },
+              "CloudWatchRole": {
+                "id": "CloudWatchRole",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/CloudWatchRole",
+                "children": {
+                  "ImportCloudWatchRole": {
+                    "id": "ImportCloudWatchRole",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/CloudWatchRole/ImportCloudWatchRole",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/CloudWatchRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "apigateway.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.93.0"
+                }
+              },
+              "Account": {
+                "id": "Account",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Account",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::Account",
+                  "aws:cdk:cloudformation:props": {
+                    "cloudWatchRoleArn": {
+                      "Fn::GetAtt": [
+                        "PFunCMAModelAPIGatewayCloudWatchRoleC1C1D9B7",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.CfnAccount",
+                  "version": "2.93.0"
+                }
+              },
+              "Deployment": {
+                "id": "Deployment",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Deployment",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Deployment/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGateway::Deployment",
+                      "aws:cdk:cloudformation:props": {
+                        "description": "Automatically created by the RestApi construct",
+                        "restApiId": {
+                          "Ref": "PFunCMAModelAPIGateway8F423C17"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.CfnDeployment",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.Deployment",
+                  "version": "2.93.0"
+                }
+              },
+              "DeploymentStage.prod": {
+                "id": "DeploymentStage.prod",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/DeploymentStage.prod",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/DeploymentStage.prod/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGateway::Stage",
+                      "aws:cdk:cloudformation:props": {
+                        "deploymentId": {
+                          "Ref": "PFunCMAModelAPIGatewayDeployment4E1DD87792f2fb7a6f44d29e5ae88507d00ed8e8"
+                        },
+                        "restApiId": {
+                          "Ref": "PFunCMAModelAPIGateway8F423C17"
+                        },
+                        "stageName": "prod"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.CfnStage",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.Stage",
+                  "version": "2.93.0"
+                }
+              },
+              "Endpoint": {
+                "id": "Endpoint",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Endpoint",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnOutput",
+                  "version": "2.93.0"
+                }
+              },
+              "Default": {
+                "id": "Default",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default",
+                "children": {
+                  "{proxy+}": {
+                    "id": "{proxy+}",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::ApiGateway::Resource",
+                          "aws:cdk:cloudformation:props": {
+                            "parentId": {
+                              "Fn::GetAtt": [
+                                "PFunCMAModelAPIGateway8F423C17",
+                                "RootResourceId"
+                              ]
+                            },
+                            "pathPart": "{proxy+}",
+                            "restApiId": {
+                              "Ref": "PFunCMAModelAPIGateway8F423C17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_apigateway.CfnResource",
+                          "version": "2.93.0"
+                        }
+                      },
+                      "ANY": {
+                        "id": "ANY",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY",
+                        "children": {
+                          "ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}": {
+                            "id": "ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}",
+                            "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                              "aws:cdk:cloudformation:props": {
+                                "action": "lambda:InvokeFunction",
+                                "functionName": {
+                                  "Fn::GetAtt": [
+                                    "APIHandler",
+                                    "Arn"
+                                  ]
+                                },
+                                "principal": "apigateway.amazonaws.com",
+                                "sourceArn": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "arn:",
+                                      {
+                                        "Ref": "AWS::Partition"
+                                      },
+                                      ":execute-api:us-east-1:860311922912:",
+                                      {
+                                        "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                      },
+                                      "/",
+                                      {
+                                        "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+                                      },
+                                      "/*/*"
+                                    ]
+                                  ]
+                                }
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                              "version": "2.93.0"
+                            }
+                          },
+                          "ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}": {
+                            "id": "ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}",
+                            "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..{proxy+}",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                              "aws:cdk:cloudformation:props": {
+                                "action": "lambda:InvokeFunction",
+                                "functionName": {
+                                  "Fn::GetAtt": [
+                                    "APIHandler",
+                                    "Arn"
+                                  ]
+                                },
+                                "principal": "apigateway.amazonaws.com",
+                                "sourceArn": {
+                                  "Fn::Join": [
+                                    "",
+                                    [
+                                      "arn:",
+                                      {
+                                        "Ref": "AWS::Partition"
+                                      },
+                                      ":execute-api:us-east-1:860311922912:",
+                                      {
+                                        "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                      },
+                                      "/test-invoke-stage/*/*"
+                                    ]
+                                  ]
+                                }
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                              "version": "2.93.0"
+                            }
+                          },
+                          "Resource": {
+                            "id": "Resource",
+                            "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/{proxy+}/ANY/Resource",
+                            "attributes": {
+                              "aws:cdk:cloudformation:type": "AWS::ApiGateway::Method",
+                              "aws:cdk:cloudformation:props": {
+                                "authorizationType": "NONE",
+                                "httpMethod": "ANY",
+                                "integration": {
+                                  "type": "AWS_PROXY",
+                                  "uri": {
+                                    "Fn::Join": [
+                                      "",
+                                      [
+                                        "arn:",
+                                        {
+                                          "Ref": "AWS::Partition"
+                                        },
+                                        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                                        {
+                                          "Fn::GetAtt": [
+                                            "APIHandler",
+                                            "Arn"
+                                          ]
+                                        },
+                                        "/invocations"
+                                      ]
+                                    ]
+                                  },
+                                  "integrationHttpMethod": "POST"
+                                },
+                                "resourceId": {
+                                  "Ref": "PFunCMAModelAPIGatewayproxyE434090B"
+                                },
+                                "restApiId": {
+                                  "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                }
+                              }
+                            },
+                            "constructInfo": {
+                              "fqn": "aws-cdk-lib.aws_apigateway.CfnMethod",
+                              "version": "2.93.0"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_apigateway.Method",
+                          "version": "2.93.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.ProxyResource",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "ANY": {
+                    "id": "ANY",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY",
+                    "children": {
+                      "ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..": {
+                        "id": "ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                          "aws:cdk:cloudformation:props": {
+                            "action": "lambda:InvokeFunction",
+                            "functionName": {
+                              "Fn::GetAtt": [
+                                "APIHandler",
+                                "Arn"
+                              ]
+                            },
+                            "principal": "apigateway.amazonaws.com",
+                            "sourceArn": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "arn:",
+                                  {
+                                    "Ref": "AWS::Partition"
+                                  },
+                                  ":execute-api:us-east-1:860311922912:",
+                                  {
+                                    "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                  },
+                                  "/",
+                                  {
+                                    "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+                                  },
+                                  "/*/"
+                                ]
+                              ]
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                          "version": "2.93.0"
+                        }
+                      },
+                      "ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..": {
+                        "id": "ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/ApiPermission.Test.PFunCMAModelChaliceAppPFunCMAModelAPIGateway6A14670E.ANY..",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                          "aws:cdk:cloudformation:props": {
+                            "action": "lambda:InvokeFunction",
+                            "functionName": {
+                              "Fn::GetAtt": [
+                                "APIHandler",
+                                "Arn"
+                              ]
+                            },
+                            "principal": "apigateway.amazonaws.com",
+                            "sourceArn": {
+                              "Fn::Join": [
+                                "",
+                                [
+                                  "arn:",
+                                  {
+                                    "Ref": "AWS::Partition"
+                                  },
+                                  ":execute-api:us-east-1:860311922912:",
+                                  {
+                                    "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                  },
+                                  "/test-invoke-stage/*/"
+                                ]
+                              ]
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                          "version": "2.93.0"
+                        }
+                      },
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelAPIGateway/Default/ANY/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::ApiGateway::Method",
+                          "aws:cdk:cloudformation:props": {
+                            "authorizationType": "NONE",
+                            "httpMethod": "ANY",
+                            "integration": {
+                              "type": "AWS_PROXY",
+                              "uri": {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                                    {
+                                      "Fn::GetAtt": [
+                                        "APIHandler",
+                                        "Arn"
+                                      ]
+                                    },
+                                    "/invocations"
+                                  ]
+                                ]
+                              },
+                              "integrationHttpMethod": "POST"
+                            },
+                            "resourceId": {
+                              "Fn::GetAtt": [
+                                "PFunCMAModelAPIGateway8F423C17",
+                                "RootResourceId"
+                              ]
+                            },
+                            "restApiId": {
+                              "Ref": "PFunCMAModelAPIGateway8F423C17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_apigateway.CfnMethod",
+                          "version": "2.93.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.Method",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.ResourceBase",
                   "version": "2.93.0"
                 }
               }
             },
             "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+              "fqn": "aws-cdk-lib.aws_apigateway.LambdaRestApi",
               "version": "2.93.0"
+            }
+          },
+          "PFunCMAModelCloudFrontToAPIGateway": {
+            "id": "PFunCMAModelCloudFrontToAPIGateway",
+            "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway",
+            "children": {
+              "SetHttpSecurityHeaders": {
+                "id": "SetHttpSecurityHeaders",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/SetHttpSecurityHeaders",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/SetHttpSecurityHeaders/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::CloudFront::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "autoPublish": true,
+                        "functionCode": "function handler(event) { var response = event.response; var headers = response.headers; headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload'}; headers['content-security-policy'] = { value: \"default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'\"}; headers['x-content-type-options'] = { value: 'nosniff'}; headers['x-frame-options'] = {value: 'DENY'}; headers['x-xss-protection'] = {value: '1; mode=block'}; return response; }",
+                        "functionConfig": {
+                          "comment": "SetHttpSecurityHeadersc833fa54bef79a87136d7a5af7bc77f510c3dd6237",
+                          "runtime": "cloudfront-js-1.0"
+                        },
+                        "name": "SetHttpSecurityHeadersc833fa54bef79a87136d7a5af7bc77f510c3dd6237"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_cloudfront.CfnFunction",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudfront.Function",
+                  "version": "2.93.0"
+                }
+              },
+              "CloudfrontLoggingBucket": {
+                "id": "CloudfrontLoggingBucket",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
+                      "aws:cdk:cloudformation:props": {
+                        "bucketEncryption": {
+                          "serverSideEncryptionConfiguration": [
+                            {
+                              "serverSideEncryptionByDefault": {
+                                "sseAlgorithm": "AES256"
+                              }
+                            }
+                          ]
+                        },
+                        "ownershipControls": {
+                          "rules": [
+                            {
+                              "objectOwnership": "ObjectWriter"
+                            }
+                          ]
+                        },
+                        "publicAccessBlockConfiguration": {
+                          "blockPublicAcls": true,
+                          "blockPublicPolicy": true,
+                          "ignorePublicAcls": true,
+                          "restrictPublicBuckets": true
+                        },
+                        "versioningConfiguration": {
+                          "status": "Enabled"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.CfnBucket",
+                      "version": "2.93.0"
+                    }
+                  },
+                  "Policy": {
+                    "id": "Policy",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Policy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudfrontLoggingBucket/Policy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::S3::BucketPolicy",
+                          "aws:cdk:cloudformation:props": {
+                            "bucket": {
+                              "Ref": "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770"
+                            },
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "s3:*",
+                                  "Condition": {
+                                    "Bool": {
+                                      "aws:SecureTransport": "false"
+                                    }
+                                  },
+                                  "Effect": "Deny",
+                                  "Principal": {
+                                    "AWS": "*"
+                                  },
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": [
+                                        "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+                                        "Arn"
+                                      ]
+                                    },
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          {
+                                            "Fn::GetAtt": [
+                                              "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+                                              "Arn"
+                                            ]
+                                          },
+                                          "/*"
+                                        ]
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_s3.CfnBucketPolicy",
+                          "version": "2.93.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketPolicy",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3.Bucket",
+                  "version": "2.93.0"
+                }
+              },
+              "CloudFrontDistribution": {
+                "id": "CloudFrontDistribution",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudFrontDistribution",
+                "children": {
+                  "Origin1": {
+                    "id": "Origin1",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudFrontDistribution/Origin1",
+                    "constructInfo": {
+                      "fqn": "constructs.Construct",
+                      "version": "10.2.69"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelCloudFrontToAPIGateway/CloudFrontDistribution/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::CloudFront::Distribution",
+                      "aws:cdk:cloudformation:props": {
+                        "distributionConfig": {
+                          "enabled": true,
+                          "origins": [
+                            {
+                              "domainName": {
+                                "Fn::Select": [
+                                  0,
+                                  {
+                                    "Fn::Split": [
+                                      "/",
+                                      {
+                                        "Fn::Select": [
+                                          1,
+                                          {
+                                            "Fn::Split": [
+                                              "://",
+                                              {
+                                                "Fn::Join": [
+                                                  "",
+                                                  [
+                                                    "https://",
+                                                    {
+                                                      "Ref": "PFunCMAModelAPIGateway8F423C17"
+                                                    },
+                                                    ".execute-api.us-east-1.",
+                                                    {
+                                                      "Ref": "AWS::URLSuffix"
+                                                    },
+                                                    "/",
+                                                    {
+                                                      "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+                                                    },
+                                                    "/"
+                                                  ]
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              "id": "PFunCMAModelChaliceAppPFunCMAModelCloudFrontToAPIGatewayCloudFrontDistributionOrigin157D6F971",
+                              "originPath": {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "/",
+                                    {
+                                      "Ref": "PFunCMAModelAPIGatewayDeploymentStageprodF4B4E490"
+                                    }
+                                  ]
+                                ]
+                              },
+                              "customOriginConfig": {
+                                "originSslProtocols": [
+                                  "TLSv1.2"
+                                ],
+                                "originProtocolPolicy": "https-only"
+                              }
+                            }
+                          ],
+                          "defaultCacheBehavior": {
+                            "pathPattern": "*",
+                            "targetOriginId": "PFunCMAModelChaliceAppPFunCMAModelCloudFrontToAPIGatewayCloudFrontDistributionOrigin157D6F971",
+                            "cachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                            "compress": true,
+                            "viewerProtocolPolicy": "redirect-to-https",
+                            "functionAssociations": [
+                              {
+                                "functionArn": {
+                                  "Fn::GetAtt": [
+                                    "PFunCMAModelCloudFrontToAPIGatewaySetHttpSecurityHeadersCEC1B6A8",
+                                    "FunctionARN"
+                                  ]
+                                },
+                                "eventType": "viewer-response"
+                              }
+                            ]
+                          },
+                          "httpVersion": "http2",
+                          "ipv6Enabled": true,
+                          "logging": {
+                            "bucket": {
+                              "Fn::GetAtt": [
+                                "PFunCMAModelCloudFrontToAPIGatewayCloudfrontLoggingBucketB31E2770",
+                                "RegionalDomainName"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_cloudfront.CfnDistribution",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_cloudfront.Distribution",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-solutions-constructs/aws-cloudfront-apigateway.CloudFrontToApiGateway",
+              "version": "2.44.0"
             }
           },
           "PFunAlbDNSName": {
@@ -2588,25 +3487,87 @@
               "version": "2.93.0"
             }
           },
-          "PFunDevCMAModelHttpApi": {
-            "id": "PFunDevCMAModelHttpApi",
-            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelHttpApi",
-            "constructInfo": {
-              "fqn": "aws-cdk-lib.aws_apigateway.RestApiBase",
-              "version": "2.93.0"
-            }
-          },
-          "CustomDomainNamePFunCMAModelDev": {
-            "id": "CustomDomainNamePFunCMAModelDev",
-            "path": "PFunCMAModelChaliceApp/CustomDomainNamePFunCMAModelDev",
+          "PFunCMAModelListenerCert": {
+            "id": "PFunCMAModelListenerCert",
+            "path": "PFunCMAModelChaliceApp/PFunCMAModelListenerCert",
             "constructInfo": {
               "fqn": "aws-cdk-lib.Resource",
               "version": "2.93.0"
             }
           },
-          "PFunDevCMAModelCustomDomainNameOutput": {
-            "id": "PFunDevCMAModelCustomDomainNameOutput",
-            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameOutput",
+          "PFunDevCMAModelCustomDomainNameMapping": {
+            "id": "PFunDevCMAModelCustomDomainNameMapping",
+            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameMapping",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigateway.RestApiBase",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelCustomDomainName": {
+            "id": "PFunDevCMAModelCustomDomainName",
+            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::DomainName",
+                  "aws:cdk:cloudformation:props": {
+                    "domainName": "dev.pfun.app",
+                    "endpointConfiguration": {
+                      "types": [
+                        "REGIONAL"
+                      ]
+                    },
+                    "regionalCertificateArn": "arn:aws:acm:us-east-1:860311922912:certificate/01704bec-f302-4d8a-a1ae-b211d880a9d6"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.CfnDomainName",
+                  "version": "2.93.0"
+                }
+              },
+              "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B": {
+                "id": "Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B",
+                "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainName/Map:--=>PFunCMAModelChaliceAppPFunDevCMAModelCustomDomainNameMapping6E32F02B/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::ApiGateway::BasePathMapping",
+                      "aws:cdk:cloudformation:props": {
+                        "domainName": {
+                          "Ref": "PFunDevCMAModelCustomDomainName37EDFE0E"
+                        },
+                        "restApiId": {
+                          "Fn::GetAtt": [
+                            "RestAPI",
+                            "RestApiId"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_apigateway.CfnBasePathMapping",
+                      "version": "2.93.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.BasePathMapping",
+                  "version": "2.93.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigateway.DomainName",
+              "version": "2.93.0"
+            }
+          },
+          "PFunDevCMAModelCustomDomainNameRawOutput": {
+            "id": "PFunDevCMAModelCustomDomainNameRawOutput",
+            "path": "PFunCMAModelChaliceApp/PFunDevCMAModelCustomDomainNameRawOutput",
             "constructInfo": {
               "fqn": "aws-cdk-lib.CfnOutput",
               "version": "2.93.0"
