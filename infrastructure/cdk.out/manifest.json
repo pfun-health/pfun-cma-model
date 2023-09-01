@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-deploy-role-860311922912-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::860311922912:role/cdk-hnb659fds-cfn-exec-role-860311922912-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/adbcddeef367af37db105e2946da759ef0ef0dcb29c750c31588296582bcc3ef.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-860311922912-us-east-1/31c743af899bf24c4f5b7b9285d0867f389667c3ad6bd2d7660aa4bdac10724b.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -43,6 +43,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "ManagedLayer"
+          }
+        ],
+        "/PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/InvokeLambdaByName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "InvokeLambdaByName"
           }
         ],
         "/PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunModel": [
@@ -333,10 +339,10 @@
             "data": "PFunAlbSecurityGroupDA3A5D19"
           }
         ],
-        "/PFunCMAModelChaliceApp/ManagedCustomPolicy/Resource": [
+        "/PFunCMAModelChaliceApp/ManagedCustomPolicyLambdaInvokeAndListFunctions/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ManagedCustomPolicy69E28D71"
+            "data": "ManagedCustomPolicyLambdaInvokeAndListFunctions71A35889"
           }
         ],
         "/PFunCMAModelChaliceApp/ManagedInstanceRole/role/Resource": [

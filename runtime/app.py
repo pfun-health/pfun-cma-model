@@ -375,7 +375,16 @@ def index():
         'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
         .decode('utf-8')
     PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
+    #: get the base url for the static Rest API
+    client = boto3.client('apigateway')
+    region = 'us-east-1'
+    rest_apis = list(filter(
+        lambda x: x['name'] == 'PFunCMADevStaticFilesHttpApi',
+        client.get_rest_apis()['items']))
+    rest_api_id = sorted(rest_apis, key=lambda x: x['createdDate'])[-1]['id']
+    STATIC_BASE_URL = f"https://{rest_api_id}.execute-api.{region}.amazonaws.com/prod"
     body = body.format(
+        STATIC_BASE_URL=STATIC_BASE_URL,
         PFUN_ICON_BLOB=PFUN_ICON_BLOB,
         ROUTES=ROUTES
     )

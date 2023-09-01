@@ -24,9 +24,10 @@ def create_s3_http_api(bucket_name, api_name, role_arn, object_key='{{proxy}}'):
         )
     except Exception as e:
         api_response = {}
-        for rest_api in apigateway_client.get_rest_apis()['items']:
+        for rest_api in reversed(apigateway_client.get_rest_apis()['items']):
             if rest_api['name'] == api_name:
                 api_response = rest_api
+                break
     print('API ID: %s' % api_response['id'])
 
     # Retrieve the API ID from the response

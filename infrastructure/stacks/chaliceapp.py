@@ -79,14 +79,16 @@ class ChaliceApp(cdk.Stack):
 
         #: lambda function targets
         chalice_lambda_functions = (
-            'RunModel', 'FitModel', 'RunAtTime', 'FakeAuth', 'APIHandler')
+            'RunModel', 'FitModel', 'RunAtTime', 'FakeAuth', 'APIHandler',
+            'InvokeLambdaByName', 'Oauth2Dexcom', )
 
         # Configure permissions
         managed_custom_policy = iam.Policy(
-            self, 'ManagedCustomPolicy',
+            self, 'ManagedCustomPolicyLambdaInvokeAndListFunctions',
+            policy_name='ManagedCustomPolicyLambdaListFunctionsAndInvoke',
             statements=[
                 iam.PolicyStatement(
-                    actions=['lambda:ListFunctions'],
+                    actions=['lambda:ListFunctions', 'lambda:InvokeFunction'],
                     resources=['*']
                 )
             ]
@@ -98,7 +100,6 @@ class ChaliceApp(cdk.Stack):
             domain_join_enabled=True
         )
         mir.role.attach_inline_policy(managed_custom_policy)
-        
         #: individual lambda functions
         for function_name in chalice_lambda_functions:
             func = self.chalice.get_function(function_name)

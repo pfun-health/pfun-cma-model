@@ -113,6 +113,37 @@
                       "version": "2.93.0"
                     }
                   },
+                  "InvokeLambdaByName": {
+                    "id": "InvokeLambdaByName",
+                    "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/InvokeLambdaByName",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Serverless::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "codeUri": {
+                          "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
+                        },
+                        "handler": "app.lambda_invoke",
+                        "layers": [
+                          {
+                            "Ref": "ManagedLayer"
+                          },
+                          "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-deps-dev-managed-layer:14"
+                        ],
+                        "memorySize": 128,
+                        "runtime": "python3.10",
+                        "tags": {
+                          "aws-chalice": "version=1.29.0:stage=PFunCMAModelChaliceApp:app=pfun-cma-model"
+                        },
+                        "timeout": 60,
+                        "tracing": "PassThrough"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sam.CfnFunction",
+                      "version": "2.93.0"
+                    }
+                  },
                   "RunModel": {
                     "id": "RunModel",
                     "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/ChaliceApp/RunModel",
@@ -121,7 +152,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.run_model_with_config",
                         "layers": [
@@ -152,7 +183,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.run_at_time",
                         "layers": [
@@ -183,7 +214,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.fit_model_to_data",
                         "layers": [
@@ -214,7 +245,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.oauth2_dexcom",
                         "layers": [
@@ -245,7 +276,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.fake_auth",
                         "layers": [
@@ -276,7 +307,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.app",
                         "layers": [
@@ -393,8 +424,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -484,8 +515,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -573,8 +604,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -702,8 +733,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -835,8 +866,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -964,8 +995,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1058,8 +1089,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1147,8 +1178,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1236,8 +1267,8 @@
                                       "responseParameters": {
                                         "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
                                         "method.response.header.Access-Control-Allow-Origin": "'*'",
-                                        "method.response.header.Access-Control-Allow-Headers": "'Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
-                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization'",
+                                        "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Origin,Authorization,Content-Type,X-API-Key,X-Amz-Date,X-Amz-Security-Token,X-Api-Key,X-RapidAPI-Host,X-RapidAPI-Key,X-RapidAPI-Proxy-Secret'",
+                                        "method.response.header.Access-Control-Expose-Headers": "'X-RapidAPI-Key,X-RapidAPI-Proxy-Secret,X-RapidAPI-Host,X-API-Key,Authorization,Access-Control-Allow-Origin'",
                                         "method.response.header.Access-Control-Max-Age": "'300'",
                                         "method.response.header.Access-Control-Allow-Credentials": "'true'"
                                       }
@@ -1368,7 +1399,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.run_at_time_connect",
                         "layers": [
@@ -1399,7 +1430,7 @@
                       "aws:cdk:cloudformation:props": {
                         "codeUri": {
                           "bucket": "cdk-hnb659fds-assets-860311922912-us-east-1",
-                          "key": "84911384786f2b9cf08de37ad07b4e55634cc7104f8fb36d91ef59273901fbf7.zip"
+                          "key": "9862256ee3ea40a3cdafa4e0b9e5c52cf0a06dc1958e393f2b6cf78d6304afc6.zip"
                         },
                         "handler": "app.run_at_time_ws",
                         "layers": [
@@ -1783,6 +1814,22 @@
               "APIHandler": {
                 "id": "APIHandler",
                 "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/APIHandler",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "InvokeLambdaByName": {
+                "id": "InvokeLambdaByName",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/InvokeLambdaByName",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
+                  "version": "2.93.0"
+                }
+              },
+              "Oauth2Dexcom": {
+                "id": "Oauth2Dexcom",
+                "path": "PFunCMAModelChaliceApp/PFunCMAModelChaliceApp/Oauth2Dexcom",
                 "constructInfo": {
                   "fqn": "aws-cdk-lib.aws_lambda.FunctionBase",
                   "version": "2.93.0"
@@ -2355,27 +2402,30 @@
               "version": "2.93.0"
             }
           },
-          "ManagedCustomPolicy": {
-            "id": "ManagedCustomPolicy",
-            "path": "PFunCMAModelChaliceApp/ManagedCustomPolicy",
+          "ManagedCustomPolicyLambdaInvokeAndListFunctions": {
+            "id": "ManagedCustomPolicyLambdaInvokeAndListFunctions",
+            "path": "PFunCMAModelChaliceApp/ManagedCustomPolicyLambdaInvokeAndListFunctions",
             "children": {
               "Resource": {
                 "id": "Resource",
-                "path": "PFunCMAModelChaliceApp/ManagedCustomPolicy/Resource",
+                "path": "PFunCMAModelChaliceApp/ManagedCustomPolicyLambdaInvokeAndListFunctions/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                   "aws:cdk:cloudformation:props": {
                     "policyDocument": {
                       "Statement": [
                         {
-                          "Action": "lambda:ListFunctions",
+                          "Action": [
+                            "lambda:ListFunctions",
+                            "lambda:InvokeFunction"
+                          ],
                           "Effect": "Allow",
                           "Resource": "*"
                         }
                       ],
                       "Version": "2012-10-17"
                     },
-                    "policyName": "ManagedCustomPolicy69E28D71",
+                    "policyName": "ManagedCustomPolicyLambdaListFunctionsAndInvoke",
                     "roles": [
                       {
                         "Ref": "ManagedInstanceRolerole3BBF2FD5"
