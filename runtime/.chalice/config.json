@@ -6,29 +6,19 @@
   ],
   "automatic_layer": true,
   "api_gateway_stage": "api",
-  "manage_iam_role": false,
-  "autogen_policy": false,
   "stages": {
     "dev": {
-      "api_gateway_stage": "api",
-      "lambda_functions": {
-        "run_at_time": {
-          "lambda_timeout": 120,
-          "lambda_memory_size": 256
-        },
-        "run_model": {
-          "lambda_timeout": 120,
-          "lambda_memory_size": 256
-        },
-        "fit_model": {
-          "lambda_timeout": 120,
-          "lambda_memory_size": 512
-        }
+      "custom_domain": {
+        "domain_name": "api.dev.pfun.app",
+        "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/90fd1335-11f8-4c45-b5fa-1ac512e24d39",
+        "security_policy": "tls_1_2",
+        "endpoint_type": "REGIONAL"
       },
-      "manage_iam_role": false,
-      "iam_role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev1",
-      "autogen_policy": false,
-      "iam_policy_file": "policy-dev.json"
+      "websocket_api_custom_domain": {
+        "domain_name": "api.dev.pfun.app",
+        "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/90fd1335-11f8-4c45-b5fa-1ac512e24d39",
+        "security_policy": "TLS_1_2"
+      }
     }
   }
 }

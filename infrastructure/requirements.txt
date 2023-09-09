@@ -1,6 +1,0 @@
-aws-cdk-lib>2.0,<3.0
-renovosolutions.aws-cdk-managed-instance-role-2.3.111
-chalice==1.29.0
-botocore==1.14.0
-boto3==1.11.0
-aws-solutions-constructs.aws-cloudfront-apigateway==2.44.0

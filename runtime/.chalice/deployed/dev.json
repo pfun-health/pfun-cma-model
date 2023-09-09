@@ -1,5 +1,63 @@
 {
-  "resources": [],
+  "resources": [
+    {
+      "name": "managed-layer",
+      "resource_type": "lambda_layer",
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:36"
+    },
+    {
+      "name": "default-role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev",
+      "role_name": "pfun-cma-model-dev"
+    },
+    {
+      "name": "api_handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+    },
+    {
+      "name": "fake_auth",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-fake_auth"
+    },
+    {
+      "name": "rest_api",
+      "resource_type": "rest_api",
+      "rest_api_id": "izfjrczaa5",
+      "rest_api_url": "https://izfjrczaa5.execute-api.us-east-1.amazonaws.com/api/"
+    },
+    {
+      "name": "websocket_connect",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-websocket_connect"
+    },
+    {
+      "name": "websocket_message",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-websocket_message"
+    },
+    {
+      "name": "websocket_api",
+      "resource_type": "websocket_api",
+      "websocket_api_url": "wss://zv4oosck8l.execute-api.us-east-1.amazonaws.com/api/",
+      "websocket_api_id": "zv4oosck8l"
+    },
+    {
+      "name": "websocket_api_custom_domain",
+      "resource_type": "domain_name",
+      "hosted_zone_id": "Z1UJRXOUMOOFQ8",
+      "alias_domain_name": "d-ep8a37uww9.execute-api.us-east-1.amazonaws.com",
+      "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/90fd1335-11f8-4c45-b5fa-1ac512e24d39",
+      "security_policy": "TLS_1_2",
+      "domain_name": "api.dev.pfun.app",
+      "api_mapping": [
+        {
+          "key": "/"
+        }
+      ]
+    }
+  ],
   "schema_version": "2.0",
   "backend": "api"
 }

@@ -107,58 +107,16 @@ def fix_headers(func):
         response.headers['Access-Control-Allow-Origin'] = '*'
         if not hasattr(request, 'headers'):
             return response
-        if 'Host' not in request.headers:
+        if 'Host' not in request.headers and 'Origin' not in request.headers:
             return response
-        if request.headers['Host'].split(':')[0] == '127.0.0.1':
-            response.headers['Access-Control-Allow-Origin'] = request.headers['Host']
+        header = 'Origin' if 'Origin' in request.headers else 'Host'
+        if request.headers[header].split(':')[0] == '127.0.0.1':
+            response.headers['Access-Control-Allow-Origin'] = request.headers[header]
         return response
     return wrapper
 
 
-app.register_middleware(ConvertToMiddleware(fix_headers), event_type='http')
-
-LAMBDA_CLIENT = None
-LAMBDA_FUNCTIONS = None
-
-
-@app.lambda_function(name='InvokeLambdaByName')
-def lambda_invoke(function_name: str, payload: Any):
-    """
-    Invokes a Lambda function with the given function name and payload.
-
-    Args:
-        function_name (str): The name of the Lambda function to invoke.
-        payload (Any): The payload to pass to the Lambda function.
-
-    Returns:
-        Any: The response from the Lambda function.
-
-    Raises:
-        RuntimeError: If the function name cannot be found in the list of Lambda functions.
-    """
-    global LAMBDA_CLIENT, LAMBDA_FUNCTIONS
-    if LAMBDA_CLIENT is None:
-        LAMBDA_CLIENT = new_boto3_client('lambda')
-    if LAMBDA_FUNCTIONS is None:
-        LAMBDA_FUNCTIONS = \
-            list(map(lambda x: x.get('FunctionName'),
-                     list(filter(lambda x: 'pfun-cma-model' in x['FunctionName'],
-                                 LAMBDA_CLIENT.list_functions()['Functions']))))
-    actual_function_names = difflib.get_close_matches(
-        function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.3
-    )
-    if len(actual_function_names) == 0:
-        actual_function_names = difflib.get_close_matches(
-            function_name, LAMBDA_FUNCTIONS, n=1, cutoff=0.0
-        )
-    if len(actual_function_names) == 0:
-        raise RuntimeError(f'Could not find function {function_name}')
-    function_name = actual_function_names[0]
-    response = LAMBDA_CLIENT.invoke(
-        FunctionName=function_name,
-        Payload=json.dumps(payload).encode('utf-8')
-    )
-    return json.loads(response['Payload'].read())
+app.register_middleware(ConvertToMiddleware(fix_headers), event_type='all')
 
 
 PUBLIC_ROUTES: list[str | AuthRoute] = [
@@ -352,6 +310,27 @@ def generate_sdk():
         status_code=200,
     )
 
+@app.route('/static', methods=['GET'])
+def static_files():
+    """
+    Serves the static files for the web application.
+    """
+    # pylint: disable=consider-using-f-string
+    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
+        sys.version_info[:2]
+    if not Path(pypath).exists():
+        pypath = Path(__file__).parent.joinpath("chalicelib")
+    else:
+        pypath = Path(pypath)
+    if app.current_request.query_params is None:
+        app.log.warning('No query params')
+        return Response(body='', status_code=400)
+    filename = app.current_request.query_params.get('filename', 'index.template.html')
+    pypath = Path(str(pypath) + '/www/' + filename)
+    content_type = app.current_request.query_params.get('ContentType', 'text/html')
+    return Response(body=pypath.read_text(encoding='utf-8'),
+                    status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
+
 
 @app.route("/")
 def index():
@@ -375,14 +354,7 @@ def index():
         'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
         .decode('utf-8')
     PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
-    #: get the base url for the static Rest API
-    client = boto3.client('apigateway')
-    region = 'us-east-1'
-    rest_apis = list(filter(
-        lambda x: x['name'] == 'PFunCMADevStaticFilesHttpApi',
-        client.get_rest_apis()['items']))
-    rest_api_id = sorted(rest_apis, key=lambda x: x['createdDate'])[-1]['id']
-    STATIC_BASE_URL = f"https://{rest_api_id}.execute-api.{region}.amazonaws.com/prod"
+    STATIC_BASE_URL = '/static?filename='
     body = body.format(
         STATIC_BASE_URL=STATIC_BASE_URL,
         PFUN_ICON_BLOB=PFUN_ICON_BLOB,
@@ -437,60 +409,26 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
-def get_lambda_params(event, key: str, context: Dict | None = None
-                      ) -> Dict[str, Any] | None:
-    if context is None:
-        context = {}
-    http_method = event.get('httpMethod')
-    query_params = event.get('queryStringParams', {})
-    app.log.info('(lambda) http_method: %s', http_method)
-    body = event.get('body')
-    params = {}
-    if body is not None:
-        params = json.loads(body)
-    params = params.get(key, params)
-    params.update(query_params)
-    return params
-
-
-@app.lambda_function(name="run_model")
-def run_model_with_config(event, context):
-    """
-    This function runs a model with a given configuration.
-
-    Args:
-        event (Any): The event object passed to the Lambda function.
-        context (Any): The context object passed to the Lambda function.
-
-    Returns:
-        str: A JSON string representing the response from the model execution.
-    """
-    # pylint: disable=import-outside-toplevel
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    model_config: Dict[str, Any] | None = \
-        get_lambda_params(event, 'model_config', context=context)
-    if model_config is None:
-        model_config = {}
-    model = CMASleepWakeModel(**model_config)
-    df = model.run()
-    output = df.to_json()
-    response = Response(body=output, status_code=200,
-                        headers={'Content-Type': 'application/json'})
-    return json.dumps(response.to_dict())
-
-
 @app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
 def run_model_route():
     """
     A function that returns a message containing the welcome message and the
     routes of the PFun CMA Model API.
     """
-    global LAMBDA_CLIENT
     request: Request | None = app.current_request
     if request is None:
         raise RuntimeError("No request was provided!")
     model_config = get_model_config(app)
-    return lambda_invoke('RunModel', payload=model_config)
+    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    if model_config is None:
+        model_config = {}
+    model = CMASleepWakeModel(**model_config)
+    df = model.run()
+    output = df.to_json()
+    response = Response(body=output, status_code=200,
+                        headers={'Content-Type': 'application/json',
+                                 'Access-Control-Allow-Origin': '*'})
+    return response
 
 
 @app.on_ws_connect(name="run_at_time")
@@ -499,45 +437,15 @@ def run_at_time_connect(event):
     app.websocket_api.send(event.connection_id, "Connected")
 
 
-@app.on_ws_message(name="run_at_time")
-def run_at_time_ws(event):
-    global LAMBDA_CLIENT
+def run_at_time_func(app: Chalice) -> str:
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
-    params = {
-        "model_config": model_config,
-        "calc_params": calc_params
-    }
-    lambda_response = lambda_invoke(
-        'RunAtTime', payload=params
-    )
-    app.websocket_api.send(event.connection_id, lambda_response)
-
-
-@app.route('/run-at-time', methods=["GET", "POST"], authorizer=fake_auth)
-def run_at_time_route():
-    model_config = get_model_config(app)
-    calc_params = get_params(app, 'calc_params')
-    params = {
-        "model_config": model_config,
-        "calc_params": calc_params
-    }
-    lambda_response = lambda_invoke(
-        'RunAtTime', payload=params
-    )
-    return lambda_response
-
-
-@app.lambda_function(name='run_at_time')
-def run_at_time(event, context):
     # pylint-disable=import-outside-toplevel
     import numpy as np
     # pylint-disable=import-outside-toplevel
     import pandas as pd
     # pylint-disable=import-outside-toplevel
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    model_config = get_lambda_params(event, 'model_config')
-    calc_params = get_lambda_params(event, 'calc_params')
     logger.info('model_config: %s', json.dumps(model_config))
     logger.info('calc_params: %s', json.dumps(calc_params))
     if model_config is None:
@@ -546,20 +454,33 @@ def run_at_time(event, context):
     if calc_params is None:
         calc_params = {}
     output: np.ndarray | tuple = model.calc_Gt(**calc_params)
-    output = pd.json_normalize(output).to_json()  # type: ignore
-    return output
+    output_json: str = pd.json_normalize(output).to_json()  # type: ignore
+    return output_json
 
 
-@app.lambda_function(name="fit_model")
-def fit_model_to_data(event, context):
+@app.on_ws_message(name="run_at_time")
+def run_at_time_ws(event):
+    logger.info('Received message: %s', event.body)
+    output: str = run_at_time_func(app)
+    app.websocket_api.send(event.connection_id, output)
+
+
+@app.route('/run-at-time', methods=["GET", "POST"], authorizer=fake_auth)
+def run_at_time_route():
+    return Response(body=run_at_time_func(app), status_code=200,
+                    headers={'Content-Type': 'application/json'})
+
+
+@app.route('/fit', methods=['POST'], authorizer=fake_auth)
+def fit_model_to_data():
     from chalicelib.engine.fit import fit_model as cma_fit_model
     import pandas as pd
-    data = get_lambda_params(event, 'data')
+    data = get_params(app, 'data')
     if data is None:
         raise RuntimeError("no data was provided!")
     if isinstance(data, str):
         data = json.loads(data)
-    model_config = get_lambda_params(event, 'model_config', context=context)
+    model_config = get_model_config(app)
     if isinstance(model_config, str):
         model_config = json.loads(model_config)
     try:
@@ -573,13 +494,6 @@ def fit_model_to_data(event, context):
         return json.dumps(error_response.to_dict())
     response = Response(body={"output": output}, status_code=200,
                         headers={'Content-Type': 'application/json'})
-    return json.dumps(response.to_dict())
-
-
-@app.route('/fit', methods=['POST'], authorizer=fake_auth)
-def fit_model_route():
-    model_config = get_model_config(app)
-    response = lambda_invoke('FitModel', payload=model_config)
     return response
 
 
@@ -601,7 +515,7 @@ def get_oauth_info(event):
     os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
     os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
     oauth_info["host"] = os.getenv(
-        "DEXCOM_HOST", get_lambda_params(event, 'DEXCOM_HOST')) or \
+        "DEXCOM_HOST", get_params(app, 'DEXCOM_HOST')) or \
         'https://api.dexcom.com'
     oauth_info["login_url"] = urlparse.urljoin(
         oauth_info["host"], "/v2/oauth2/login")
@@ -621,7 +535,7 @@ def get_oauth_info(event):
 oauth_info = None
 
 
-@app.lambda_function(name="oauth2_dexcom")
+@app.route('/login-dexcom', methods=['GET', 'POST'])
 def oauth2_dexcom(event, context):
     """Handles the Dexcom login request."""
 
@@ -630,8 +544,7 @@ def oauth2_dexcom(event, context):
         oauth_info = get_oauth_info(event)
 
     # Get the authorization code from the event.
-    authorization_code = get_lambda_params(
-        event, 'authorization_code', context=context)
+    authorization_code = get_params(app, 'authorization_code')
     if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
         # Exchange the authorization code for an access token.
         url = oauth_info['token_url']
@@ -697,15 +610,9 @@ def oauth2_dexcom(event, context):
         logger.warning(
             "(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
         response = Response(body='Unauthorized', status_code=401)
-    return json.dumps(response.to_dict())
+    return response
 
 
 @app.route('/login-success', methods=['GET'])
 def login_success():
     return Response(status_code=200, body='<h1>Dexcom Login Success!</h1>')
-
-
-@app.route('/login-dexcom', methods=['GET'])
-def login_dexcom():
-    payload = app.current_request.to_dict()
-    return lambda_invoke('Oauth2Dexcom', payload=payload)

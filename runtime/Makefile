@@ -2,12 +2,12 @@ deploy: tests deploy_dependencies build_venv prepare_deployment deploy_chalice t
 
 deploy_dependencies:
 	echo "deploying dependencies layer..."
-	cd ${HOME}/Git/pfun-cma-model-deps && ./deploy.sh
+	cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy
 	sleep 2s
 
 deploy_local: build_venv tests prepare_deployment
 	@sleep 1s;
-	@/tmp/venv310/bin/chalice local
+	@chalice local
 	@sleep 1s;
 	@echo -e '...Success (see above)...deployed locally.'
 	@sleep 1s;
@@ -43,29 +43,34 @@ prepare_deployment:
 	sleep 1s
 	echo 'fixing lambda layer version...'
 	sleep 1s
-	/tmp/venv310/bin/python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py"
+	python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py"
 	sleep 1s
 
 deploy_chalice:
 	echo 'deploying...'
 	sleep 1s
-	/tmp/venv310/bin/chalice deploy
+	chalice deploy
 	sleep 1s
+	echo '...deployed.'
+	sleep 1s
+	echo 'generate sdk...'
+	chalice generate-sdk
+	sleep 1s
+	echo '...generated sdk.'
+	sleep 1s
+	echo 'deploy with latest sdk...'
+	chalice deploy
+	sleep 1s
+	echo '...deployed with latest sdk.'
 
 test_deployment:
 	echo 'testing...'
 	sleep 1s
-	(/tmp/venv310/bin/chalice invoke -n run_model | jq) && \
+	(chalice invoke -n run_model | jq) && \
 		echo 'Success (see above)...done testing lambda function run_model.'
 	sleep 1s
 	(./scripts/sample-endpoint.sh) && \
 		echo 'Success (see above)...done testing HTTP endpoint.'
-
-activate:
-	sleep 1s
-	source /tmp/venv310/bin/activate
-	sleep 1s
-	echo -e "...activated the venv310.\nPython version: '$(python --version)'"
 
 tests:
 	sleep 1s
@@ -77,13 +82,12 @@ tests-interactive:
 
 plot-interactive:
 	sleep 1s
-	ipython -i ${HOME}/Git/pfun-cma-model/scripts/plot-interactive.py
+	ipython -i ${HOME}/Git/pfun-cma-model/runtime/scripts/plot-interactive.py
 
 clean:
-	rm -rf ${HOME}/Git/pfun-cma-model/.chalice/deployments/*
+	rm -rf ${HOME}/Git/pfun-cma-model/runtime/.chalice/deployments/*
 	rm -rf ${HOME}/Git/pfun-cma-model/__pycache__
-	rm -rf /tmp/venv310
-	rm -rf ${HOME}/Git/pfun-cma-model/chalicelib/www/lib
+	rm -rf ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www/lib
 	echo '...cleaned the deployments and venv.'
 
 docs:
@@ -91,7 +95,8 @@ docs:
 
 generate-sdk:
 	echo 'generating SDK...'
+	rm -rf ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www/chalice-javascript-sdk
 	sleep 1s
-	/tmp/venv310/bin/chalice generate-sdk --sdk-type javascript ./chalicelib/www
+	chalice generate-sdk --sdk-type javascript ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www
 	sleep 1s
 	echo '...generated SDK'
