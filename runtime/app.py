@@ -99,7 +99,6 @@ app.experimental_feature_flags.update([
 
 def fix_headers(func):
     def wrapper(*args, **kwargs):
-        print('wrapper access')
         response = func(*args, **kwargs)
         if isinstance(func, LambdaFunction) or len(args) > 0:
             return response
@@ -354,7 +353,12 @@ def index():
         'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
         .decode('utf-8')
     PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
-    STATIC_BASE_URL = '/static?filename='
+    STATIC_BASE_URL = app.current_request.headers['host']
+    if '127.0.0.1' in STATIC_BASE_URL:
+        STATIC_BASE_URL = f'http://{STATIC_BASE_URL}'
+    else:
+        STATIC_BASE_URL = f'https://{STATIC_BASE_URL}/api'
+    STATIC_BASE_URL += '/static?filename='
     body = body.format(
         STATIC_BASE_URL=STATIC_BASE_URL,
         PFUN_ICON_BLOB=PFUN_ICON_BLOB,
