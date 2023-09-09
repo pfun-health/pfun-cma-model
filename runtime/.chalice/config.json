@@ -6,6 +6,8 @@
   ],
   "automatic_layer": true,
   "api_gateway_stage": "api",
+  "autogen_policy": false,
+  "iam_policy_file": "policy-dev.json",
   "stages": {
     "dev": {
       "environment_variables": {

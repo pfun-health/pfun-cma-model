@@ -443,6 +443,7 @@ def run_model_route():
     response = Response(body=output, status_code=200,
                         headers={'Content-Type': 'application/json',
                                  'Access-Control-Allow-Origin': '*'})
+    logger.info('Response: %s', json.dumps(response.to_dict()))
     return response
 
 

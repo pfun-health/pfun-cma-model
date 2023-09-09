@@ -1,0 +1,17 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "GetSecretPFunModel",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": [
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:*",
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapidapi-key-YafFYb",
+                "arn:aws:secretsmanager:us-east-1:860311922912:secret:pfun-cma-model-rapid-api-proxy-secret-fyV6L1"
+            ]
+        }
+    ]
+}

@@ -100,3 +100,9 @@ generate-sdk:
 	chalice generate-sdk --sdk-type javascript ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www
 	sleep 1s
 	echo '...generated SDK'
+
+setup-role-policy:
+	@aws iam create-role --role-name pfun-cma-model-dev --assume-role-policy-document file://./.chalice/trust-policy.json
+	@sleep 1s
+	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
+	@echo '...done with setup of role and policy.'

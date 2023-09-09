@@ -3,18 +3,24 @@
     {
       "name": "managed-layer",
       "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:41"
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:45"
     },
     {
-      "name": "default-role",
+      "name": "api_handler_role",
       "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev",
-      "role_name": "pfun-cma-model-dev"
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-api_handler",
+      "role_name": "pfun-cma-model-dev-api_handler"
     },
     {
       "name": "api_handler",
       "resource_type": "lambda_function",
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev"
+    },
+    {
+      "name": "fake_auth_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-fake_auth",
+      "role_name": "pfun-cma-model-dev-fake_auth"
     },
     {
       "name": "fake_auth",
@@ -28,9 +34,21 @@
       "rest_api_url": "https://izfjrczaa5.execute-api.us-east-1.amazonaws.com/api/"
     },
     {
+      "name": "websocket_connect_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-websocket_connect",
+      "role_name": "pfun-cma-model-dev-websocket_connect"
+    },
+    {
       "name": "websocket_connect",
       "resource_type": "lambda_function",
       "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-websocket_connect"
+    },
+    {
+      "name": "websocket_message_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-websocket_message",
+      "role_name": "pfun-cma-model-dev-websocket_message"
     },
     {
       "name": "websocket_message",
