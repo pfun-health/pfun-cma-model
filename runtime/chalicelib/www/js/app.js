@@ -52,7 +52,7 @@ app.initializeApp = async () => {
   </form>
     `);
   $('#content').append(app.formCode);
-  $("#apiForm > select#function").val("Run");
+  $("#apiForm > select#function").val("run");
   $("#apiForm > select#function").on("change", function () {
     if (this.value == "sdk") {
       $("#apiForm > select#method").val("Get");

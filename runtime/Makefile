@@ -54,7 +54,7 @@ deploy_chalice:
 	echo '...deployed.'
 	sleep 1s
 	echo 'generate sdk...'
-	chalice generate-sdk
+	@make generate-sdk
 	sleep 1s
 	echo '...generated sdk.'
 	sleep 1s

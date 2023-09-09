@@ -2,7 +2,6 @@
 PFun CMA Model API routes.
 """
 import base64
-import difflib
 import os
 import json
 import sys
@@ -85,6 +84,8 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
 app = Chalice(app_name='PFun CMA Model Backend')
+if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
+    app.debug = True
 app.log = logger
 app.log.setLevel(logging.INFO)
 local_environ = {k: v for k, v in dict(os.environ).items() if 'AWS' in k}
@@ -100,10 +101,10 @@ app.experimental_feature_flags.update([
 def fix_headers(func):
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)
+        logger.debug('Original headers: %s', json.dumps(response.headers))
         if isinstance(func, LambdaFunction) or len(args) > 0:
             return response
         request = app.current_request
-        request.headers['Authorization'] = 'allow'
         response.headers['Access-Control-Allow-Origin'] = '*'
         if not hasattr(request, 'headers'):
             return response
@@ -321,12 +322,23 @@ def static_files():
     else:
         pypath = Path(pypath)
     if app.current_request.query_params is None:
-        app.log.warning('No query params')
-        return Response(body='', status_code=400)
+        app.log.warning('No query params provided (requested static resource).')
+        return Response(body='No query prameters provided when requesting static resource.', status_code=400)
     filename = app.current_request.query_params.get('filename', 'index.template.html')
-    pypath = Path(str(pypath) + '/www/' + filename)
-    content_type = app.current_request.query_params.get('ContentType', 'text/html')
-    return Response(body=pypath.read_text(encoding='utf-8'),
+    filepath = Path(str(pypath) + '/www/')
+    available_files = [f for f in filepath.rglob('*') if f.is_file()]
+    filepath = Path(str(filepath) + filename)
+    logger.info('Requested static resource: %s', str(filepath))
+    if not filepath.exists():
+        app.log.warning('Requested static resource does not exist: %s', str(filepath))
+        return Response(
+            body='Requested static resource does not exist (requested static resource: %s).' % str(filepath), status_code=404)
+    if filepath not in available_files:
+        app.log.warning('Requested static resource is not available: %s', str(filepath))
+        return Response(
+            body='Requested static resource is not available (requested static resource: %s).' % str(filepath), status_code=404)
+    content_type = app.current_request.query_params.get('ContentType', 'text/*')
+    return Response(body=filepath.read_text(encoding='utf-8'),
                     status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
 
 
