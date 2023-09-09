@@ -102,17 +102,11 @@ def fix_headers(func):
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)
         logger.debug('Original headers: %s', json.dumps(response.headers))
-        if isinstance(func, LambdaFunction) or len(args) > 0:
-            return response
-        request = app.current_request
+        #: headers for CORS
+        #: ref: https://stackoverflow.com/a/67853191/1871569
         response.headers['Access-Control-Allow-Origin'] = '*'
-        if not hasattr(request, 'headers'):
-            return response
-        if 'Host' not in request.headers and 'Origin' not in request.headers:
-            return response
-        header = 'Origin' if 'Origin' in request.headers else 'Host'
-        if request.headers[header].split(':')[0] == '127.0.0.1':
-            response.headers['Access-Control-Allow-Origin'] = request.headers[header]
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         return response
     return wrapper
 

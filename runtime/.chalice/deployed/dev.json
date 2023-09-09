@@ -3,7 +3,7 @@
     {
       "name": "managed-layer",
       "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:45"
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:47"
     },
     {
       "name": "api_handler_role",
