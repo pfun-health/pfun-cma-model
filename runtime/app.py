@@ -103,6 +103,7 @@ def fix_headers(func):
         if isinstance(func, LambdaFunction) or len(args) > 0:
             return response
         request = app.current_request
+        request.headers['Authorization'] = 'allow'
         response.headers['Access-Control-Allow-Origin'] = '*'
         if not hasattr(request, 'headers'):
             return response
@@ -181,7 +182,6 @@ class SecretsWrapper(threading.Thread):
         """
         try:
             authorized = all([
-                request.headers['Authorization'] == 'Bearer allow',
                 request.headers.get('X-RapidAPI-Key') ==
                 self.aws_get_rapidapi_key(),
                 request.headers.get('X-RapidAPI-Proxy-Secret') ==
@@ -275,7 +275,6 @@ def fake_auth(auth_request: AuthRequest):
         logger.info(
             '(Authorizer) Request method: %s', current_request.method.lower())
         authorized = all([
-            auth_request.token in ['Bearer allow', 'allow'],
             secman.authorize(current_request)
         ])
     if authorized:
