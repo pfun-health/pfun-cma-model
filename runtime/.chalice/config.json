@@ -13,7 +13,7 @@
       "environment_variables": {
         "DEBUG_CHALICE": "1"
       },
-      "custom_domain": {
+      "api_gateway_custom_domain": {
         "domain_name": "api.dev.pfun.app",
         "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/90fd1335-11f8-4c45-b5fa-1ac512e24d39",
         "security_policy": "TLS_1_2",

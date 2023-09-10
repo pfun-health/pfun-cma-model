@@ -14,4 +14,3 @@ pdoc3
 aws-cdk.asset-awscli-v1==2.2.200
 cdk-iam-floyd==0.507.0
 -r requirements.txt
--r ../infrastructure/requirements.txt

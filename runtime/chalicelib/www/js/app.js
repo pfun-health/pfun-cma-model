@@ -2,6 +2,20 @@
 var apigClient = null;
 var app = {};
 
+$.fn.json_beautify = function () {
+  // ref: https://stackoverflow.com/a/62060316/1871569
+  try {
+    this.each(function () {
+      var el = $(this),
+        obj = JSON.parse(el.val()),
+        pretty = JSON.stringify(obj, undefined, 4);
+      el.val(pretty);
+    });
+  } catch (err) {
+    console.warn('Failed to beautify JSON because: ' + err);
+  }
+};
+
 async function initializeAPI(apiKey) {
     try {
         apigClient = apigClientFactory.newClient({
@@ -14,9 +28,17 @@ async function initializeAPI(apiKey) {
     }
 }
 
+function autoGrow(oField) {
+  // ref: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement
+  if (oField.scrollHeight > oField.clientHeight) {
+    oField.style.height = `${oField.scrollHeight}px`;
+  }
+}
+
+
 app.initializeApp = async () => {
 
-    // TODO: write a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
+  // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
 
     // Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
     app.formCode = $(`
@@ -29,7 +51,7 @@ app.initializeApp = async () => {
     <input type="text" id="optionalParams"><br><br>
 
     <label for="body">Body:</label>
-    <textarea id="body"></textarea><br><br>
+    <textarea id="body">{}</textarea><br><br>
 
     <label for="function">Function:</label>
     <select id="function">
@@ -40,6 +62,7 @@ app.initializeApp = async () => {
       <option value="runOptions">Run Options</option>
       <option value="fit">Fit</option>
       <option value="routes">Routes</option>
+      <option value="runAtTime">Run At Time</option>
     </select><br><br>
 
     <label for="method">Method:</label>
@@ -59,6 +82,13 @@ app.initializeApp = async () => {
       $("#apiForm > select#method").prop("disabled", true);
     }
   });
+  $("textarea#body").on('input', (event) => {
+    setTimeout(() => {
+      $(event.target).json_beautify();
+      autoGrow(event.target);
+    }, 1000);
+  });
+  $("textarea#body").json_beautify();
 
     // Add event listeners to handle form submission.
     document.getElementById('apiForm').addEventListener('submit', async function (event) {

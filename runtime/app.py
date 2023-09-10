@@ -6,7 +6,7 @@ import os
 import json
 import sys
 import uuid
-from chalice.app import LambdaFunction, ConvertToMiddleware, Request, AuthRequest
+from chalice.app import UnauthorizedError, LambdaFunction, ConvertToMiddleware, Request, AuthRequest
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
@@ -96,23 +96,6 @@ app.websocket_api.session = new_boto3_session()
 app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
-
-
-def fix_headers(func):
-    def wrapper(*args, **kwargs):
-        response = func(*args, **kwargs)
-        logger.debug('Original headers: %s', json.dumps(response.headers))
-        #: headers for CORS
-        #: ref: https://stackoverflow.com/a/67853191/1871569
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
-        return response
-    return wrapper
-
-
-app.register_middleware(ConvertToMiddleware(fix_headers), event_type='all')
-
 
 PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
@@ -261,7 +244,8 @@ def fake_auth(auth_request: AuthRequest):
     try:
         current_request = app.current_request
     except AttributeError:
-        logger.error("Can't authenticate because this is a local instance.")
+        logger.info("Can't authenticate because this is a local instance.")
+        app.log.error("Can't authenticate because this is a local instance.")
         logger.info('Current app type: %s', type(app))
         if hasattr(app, '_THREAD_LOCAL'):
             #: ! authorize automatically for local requests
@@ -279,7 +263,7 @@ def fake_auth(auth_request: AuthRequest):
     #: ! Unauthorized
     app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
     logger.warning('Unauthorized request: %s', str(vars(auth_request)))
-    return AuthResponse(routes=[], principal_id='user')
+    raise UnauthorizedError('Unauthorized request: %s' % str(vars(auth_request)))
 
 
 @app.route('/sdk', methods=['GET'], authorizer=fake_auth)
