@@ -95,9 +95,8 @@ docs:
 
 generate-sdk:
 	echo 'generating SDK...'
-	rm -rf ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www/chalice-javascript-sdk
 	sleep 1s
-	chalice generate-sdk --sdk-type javascript ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www
+	${HOME}/Git/pfun-cma-model/scripts/generate-sdk.sh
 	sleep 1s
 	echo '...generated SDK'
 

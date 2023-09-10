@@ -17,15 +17,19 @@ $.fn.json_beautify = function () {
 };
 
 async function initializeAPI(apiKey) {
-    try {
-        apigClient = apigClientFactory.newClient({
-            apiKey: apiKey
-        });
-        console.log('API initialized');
-    } catch (err) {
-        console.error('Failed to create api client because: ' + err);
-        return;
-    }
+  if (apigClient !== null) {
+    return app;
+  }
+  try {
+    apigClient = await apigClientFactory.newClient({
+      apiKey: apiKey
+    });
+    console.log('...initialized API.');
+    app.apigClient = apigClient;
+  } catch (err) {
+    console.error('Failed to create api client because: ' + err);
+    return app;
+  }
 }
 
 function autoGrow(oField) {
@@ -40,14 +44,14 @@ app.initializeApp = async () => {
 
   // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
 
-    // Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
-    app.formCode = $(`
+  // Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
+  app.formCode = $(`
     <h1>API Form</h1>
   <form id="apiForm">
     <label for="apiKey">API Key:</label>
     <input type="text" id="apiKey" required><br><br>
 
-    <label for="optionalParams">Optional Parameters:</label>
+    <label for="optionalParams">Query Parameters:</label>
     <input type="text" id="optionalParams"><br><br>
 
     <label for="body">Body:</label>
@@ -74,6 +78,7 @@ app.initializeApp = async () => {
     <button type="submit">Submit</button>
   </form>
     `);
+  $('#content').html(''); // clear the content of the page
   $('#content').append(app.formCode);
   $("#apiForm > select#function").val("run");
   $("#apiForm > select#function").on("change", function () {
@@ -90,42 +95,50 @@ app.initializeApp = async () => {
   });
   $("textarea#body").json_beautify();
 
-    // Add event listeners to handle form submission.
-    document.getElementById('apiForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
+  // Add event listeners to handle form submission.
+  document.getElementById('apiForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
 
-        // Retrieve the input values
-        var apiKey = document.getElementById('apiKey').value;
-        var optionalParams = document.getElementById('optionalParams').value;
-        var body = document.getElementById('body').value;
-        var selectedFunction = document.getElementById('function').value;
-        var selectedMethod = document.getElementById('method').value;
+    // Retrieve the input values
+    var apiKey = document.getElementById('apiKey').value;
+    var optionalParams = document.getElementById('optionalParams').value;
+    var body = document.getElementById('body').value;
+    var selectedFunction = document.getElementById('function').value;
+    var selectedMethod = document.getElementById('method').value;
 
-        // Validate the input values
-      // ... (TODO)
+    // Validate the input values
+    // ... (TODO)
 
-        // initialize the API using the provided apiKey
-        await initializeAPI(apiKey);
+    // initialize the API using the provided apiKey
+    app = await initializeAPI(apiKey);
 
-      app = Object.assign(app, {
-        'sdkGet': apigClient.sdkGet,
-        'logGet': apigClient.logGet,
-        'runGet': apigClient.runGet,
-        'rootGet': apigClient.rootGet,
-        'runPost': apigClient.runPost,
-        'logPost': apigClient.logPost,
-        'fitPost': apigClient.fitPost,
-        'routesGet': apigClient.routesGet,
-        'runOptions': apigClient.runOptions
-      });
+    // Handle WebSocket and HTTP endpoints based on the selected method and function
+    // Call the appropriate function with the provided input values.
+    try {
+      console.log(selectedFunction, selectedMethod);
+      apigClient[selectedFunction + selectedMethod](optionalParams, body, {
+        headers: {
+          Authorization: 'Bearer allow'
+        }
+      })
+        .then(async (response) => {
+          return await response.json();
+        })
+        .then((json_data) => {
+          $("#output-area").html(
+            `<pre><code>${json_data}</code></pre>`
+          );
+        })
+        .catch((err) => {
+          console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
+        })
+    } catch (err) {
+      console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
+    }
 
-        // Handle WebSocket and HTTP endpoints based on the selected method and function
-        // Call the appropriate function with the provided input values.
-        app[selectedFunction + selectedMethod](optionalParams, body);
-
-    });
+  });
 };
 
 document.addEventListener('DOMContentLoaded', async function () {
-  await app.initializeApp();
+  app = await app.initializeApp();
 });

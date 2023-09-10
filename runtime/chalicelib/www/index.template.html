@@ -40,8 +40,7 @@
             src="{STATIC_BASE_URL}/chalice-javascript-sdk/lib/apiGatewayCore/utils.js"></script>
     <script type="text/javascript"
             src="{STATIC_BASE_URL}/chalice-javascript-sdk/apigClient.js"></script>
-    <script type="text/javascript"
-            src="{STATIC_BASE_URL}/js/app.js"></script>
+    <script type="text/javascript" src="{STATIC_BASE_URL}/js/app.js"></script>
     <style>
       .bd-placeholder-img {{
         font-size: 1.125rem;
@@ -61,14 +60,24 @@
   </head>
   <body>
     <main class="container">
-      <div id="header" class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
+      <div id="header"
+           class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
         <img class="mr-3" src="{PFUN_ICON_BLOB}" alt="" width="48" height="48">
         <div class="lh-1">
           <h6 class="mb-1 text-dark lh-2">PFun CMA Model API</h6>
         </div>
       </div>
-      <div id="content" class="my-3 p-3 bg-white rounded shadow-sm">
-        <!-- CONTENT HERE -->
+      <div class="row">
+        <div id="content" class="col my-3 p-3 bg-white rounded shadow-sm">
+          <!-- CONTENT HERE -->
+        </div>
+        <div id="output" class="col my-3 p-3 bg-white rounded shadow-sm">
+          <h2>Output</h2>
+          <hr>
+          <div id="output-area" class="border border-dark p-3">
+            <span class="text-muted">Output will appear here</span>
+          </div>
+        </div>
       </div>
     </main>
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">

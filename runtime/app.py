@@ -16,6 +16,7 @@ from typing import (
 from botocore.client import BaseClient
 from botocore.config import Config as ConfigCore
 import boto3
+from botocore.exceptions import ClientError
 import threading
 import importlib
 from chalice import (
@@ -88,7 +89,7 @@ if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
     app.debug = True
 app.log = logger
 app.log.setLevel(logging.INFO)
-local_environ = {k: v for k, v in dict(os.environ).items() if 'AWS' in k}
+local_environ = {k: v for k, v in dict(os.environ).items() if 'AWS' in k or 'Chalice' in k}
 logger.info('app environment: %s', json.dumps(local_environ, indent=2))
 
 app.api.cors = cors_config
@@ -287,6 +288,7 @@ def generate_sdk():
         status_code=200,
     )
 
+
 @app.route('/static', methods=['GET'])
 def static_files():
     """
@@ -302,7 +304,22 @@ def static_files():
     if app.current_request.query_params is None:
         app.log.warning('No query params provided (requested static resource).')
         return Response(body='No query prameters provided when requesting static resource.', status_code=400)
+    source: str = app.current_request.query_params.get('source', 's3')
     filename = app.current_request.query_params.get('filename', 'index.template.html')
+    if source.lower() == 's3':
+        #: use s3 as source for static files
+        s3_client = new_boto3_client('s3')
+        filename = filename.lstrip('/')  # remove leading slash for s3
+        try:
+            response = s3_client.get_object(Bucket='pfun-cma-model-www', Key=filename)
+        except ClientError:
+            app.log.warning('Requested static resource does not exist: %s', str(filename))
+            return Response(
+                body='Requested static resource does not exist (requested static resource: %s).' % str(filename), status_code=404)
+        return Response(body=response['Body'].read(),
+                        status_code=200,
+                        headers={'Content-Type': response['ContentType']}
+                        )
     filepath = Path(str(pypath) + '/www/')
     available_files = [f for f in filepath.rglob('*') if f.is_file()]
     filepath = Path(str(filepath) + filename)
@@ -395,6 +412,8 @@ def get_params(app: Chalice, key: str) -> Dict:
         params = params[key]
     if app.current_request.query_params is not None:
         params.update(app.current_request.query_params)
+    if key in params:
+        params = params[key]
     return params
 
 
