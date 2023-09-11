@@ -96,12 +96,14 @@ docs:
 generate-sdk:
 	echo 'generating SDK...'
 	sleep 1s
-	${HOME}/Git/pfun-cma-model/scripts/generate-sdk.sh
+	${HOME}/Git/pfun-cma-model/runtime/scripts/generate-sdk.sh
 	sleep 1s
 	echo '...generated SDK'
 
-setup-role-policy:
+create-role:
 	@aws iam create-role --role-name pfun-cma-model-dev --assume-role-policy-document file://./.chalice/trust-policy.json
-	@sleep 1s
+	@echo '...done with setup of role.'
+
+setup-role-policy:
 	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
-	@echo '...done with setup of role and policy.'
+	@echo '...done with setup of role policy.'
