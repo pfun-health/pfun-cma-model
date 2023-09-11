@@ -243,24 +243,23 @@ def index():
         Response: The HTTP response object containing the index page.
     """
     # pylint: disable=consider-using-f-string
-    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
-        sys.version_info[:2]
-    if not Path(pypath).exists():
-        pypath = Path(__file__).parent.joinpath("chalicelib")
-    body = Path(pypath).joinpath('www', 'index.template.html') \
-        .read_text(encoding='utf-8')
-    ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
-        for name in PUBLIC_ROUTES])
-    PFUN_ICON_BLOB = base64.b64encode(Path(pypath).joinpath(
-        'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
-        .decode('utf-8')
-    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
-    STATIC_BASE_URL = app.current_request.headers.get('host', app.current_request.headers.get('origin', app.current_request.headers.get('referer', '')))
+    STATIC_BASE_URL = app.current_request.headers.get(
+        'host', app.current_request.headers.get(
+            'origin', app.current_request.headers.get('referer', '')))
     if '127.0.0.1' in STATIC_BASE_URL or 'localhost' in STATIC_BASE_URL:
         STATIC_BASE_URL = f'http://{STATIC_BASE_URL}'
     else:
         STATIC_BASE_URL = f'https://{STATIC_BASE_URL}/api'
+    session = requests.Session()
+    response = session.get(f'{STATIC_BASE_URL}/static?source=s3&filename=index.template.html')
+    body = response.text
+    ROUTES = '\n'.join([
+        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
+        for name in PUBLIC_ROUTES])
+    img_content = session.get(
+        f'{STATIC_BASE_URL}/static?source=s3&filename=/icons/mattepfunlogolighter.png').content
+    PFUN_ICON_BLOB = base64.b64encode(img_content).decode('utf-8')
+    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
     STATIC_BASE_URL += '/static?filename='
     body = body.format(
         STATIC_BASE_URL=STATIC_BASE_URL,
@@ -305,6 +304,8 @@ def get_params(app: Chalice, key: str) -> Dict:
         raise RuntimeError("No request was provided!")
     params = {} if app.current_request.json_body is None else \
         app.current_request.json_body
+    if isinstance(params, (str, bytes)):
+        params = json.loads(params)
     if key in params:
         params = params[key]
     if app.current_request.query_params is not None:
