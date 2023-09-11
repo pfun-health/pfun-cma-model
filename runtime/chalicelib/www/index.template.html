@@ -40,6 +40,7 @@
             src="{STATIC_BASE_URL}/apiGateway-js-sdk/lib/apiGatewayCore/utils.js"></script>
     <script type="text/javascript"
             src="{STATIC_BASE_URL}/apiGateway-js-sdk/apigClient.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .bd-placeholder-img {{
         font-size: 1.125rem;
@@ -73,6 +74,11 @@
         <div id="output" class="col my-3 p-3 bg-white rounded shadow-sm">
           <h2>Output</h2>
           <hr>
+          <label>Chart</label>
+          <div id="chart-area" class="border border-dark p-2">
+            <canvas id="chart"></canvas>
+          </div>
+          <label>Raw Output</label>
           <div id="output-area" class="border border-dark p-3">
             <span class="text-muted">Output will appear here</span>
           </div>
