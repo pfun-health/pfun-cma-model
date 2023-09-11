@@ -6,23 +6,20 @@ import os
 import json
 import sys
 import uuid
-from chalice.app import UnauthorizedError, ConvertToMiddleware, Request, AuthRequest
+from chalice.app import UnauthorizedError, ConvertToMiddleware, Request
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
 from typing import (
-    Any, Dict, Literal
+    Dict, Literal
 )
-from botocore.client import BaseClient
 from botocore.config import Config as ConfigCore
 import boto3
 from botocore.exceptions import ClientError
-import threading
 import importlib
 from chalice import (
     AuthRoute,
     CORSConfig,
-    AuthResponse,
     Response,
     Chalice,
 )

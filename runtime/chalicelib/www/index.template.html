@@ -126,6 +126,7 @@
     <!-- apiGateway-js-sdk -->
     <script>
       const ns = {{
+        // ref: https://stackoverflow.com/a/76438811/1871569
         //injects client js file
         require: async u => {{
             await new Promise((res, rej) => {{
