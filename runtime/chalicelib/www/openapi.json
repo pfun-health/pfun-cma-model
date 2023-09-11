@@ -35,12 +35,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "options": {
                 "consumes": [
@@ -391,12 +386,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "post": {
                 "consumes": [
@@ -424,12 +414,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "options": {
                 "consumes": [
@@ -518,12 +503,7 @@
                     "type": "aws_proxy"
                 },
                 "summary": "A function that returns a message containing the welcome message and the",
-                "description": "routes of the PFun CMA Model API.",
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                "description": "routes of the PFun CMA Model API."
             },
             "post": {
                 "consumes": [
@@ -553,12 +533,7 @@
                     "type": "aws_proxy"
                 },
                 "summary": "A function that returns a message containing the welcome message and the",
-                "description": "routes of the PFun CMA Model API.",
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                "description": "routes of the PFun CMA Model API."
             },
             "options": {
                 "consumes": [
@@ -645,12 +620,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "post": {
                 "consumes": [
@@ -678,12 +648,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "options": {
                 "consumes": [
@@ -770,12 +735,7 @@
                     "httpMethod": "POST",
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
-                },
-                "security": [
-                    {
-                        "fake_auth": []
-                    }
-                ]
+                }
             },
             "options": {
                 "consumes": [
@@ -1063,17 +1023,5 @@
         "video/ogg",
         "video/mpeg",
         "video/webm"
-    ],
-    "securityDefinitions": {
-        "fake_auth": {
-            "in": "header",
-            "type": "apiKey",
-            "name": "Authorization",
-            "x-amazon-apigateway-authtype": "custom",
-            "x-amazon-apigateway-authorizer": {
-                "type": "token",
-                "authorizerUri": "arn:{partition}:apigateway:{region_name}:lambda:path/2015-03-31/functions/{fake_auth_lambda_arn}/invocations"
-            }
-        }
-    }
+    ]
 }

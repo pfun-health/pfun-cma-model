@@ -117,7 +117,8 @@ app.initializeApp = async () => {
       console.log(selectedFunction, selectedMethod);
       apigClient[selectedFunction + selectedMethod](optionalParams, body, {
         headers: {
-          Authorization: 'Bearer allow'
+          Authorization: 'Bearer allow',
+          Accept: '*/*'
         }
       })
         .then(async (response) => {

@@ -85,7 +85,6 @@ logger.setLevel(logging.INFO)
 app = Chalice(app_name='PFun CMA Model Backend')
 if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
     app.debug = True
-app.log = logger
 app.log.setLevel(logging.INFO)
 
 app.api.cors = cors_config
@@ -102,35 +101,6 @@ PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/routes',
     '/sdk'
 ]
-
-
-@app.authorizer()
-def fake_auth(auth_request: AuthRequest):
-    """Temporary authorizer for testing purposes.
-    """
-    authorized = False
-    try:
-        current_request = app.current_request
-    except AttributeError:
-        logger.info("Can't authenticate because this is a local instance.")
-        app.log.error("Can't authenticate because this is a local instance.")
-        logger.info('Current app type: %s', type(app))
-        if hasattr(app, '_THREAD_LOCAL'):
-            #: ! authorize automatically for local requests
-            authorized = True
-    else:
-        authorized = auth_request.token in ['Bearer allow', 'allow']
-    if authorized:
-        logger.info('Authorized request: %s', str(vars(auth_request)))
-        return AuthResponse(routes=PUBLIC_ROUTES, principal_id='user')
-    #: ! otherwise, Unauthorized
-    try:
-        raise UnauthorizedError('Unauthorized request: %s' % str(vars(auth_request)))
-    except UnauthorizedError:
-        logger.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
-        app.log.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
-    return AuthResponse(routes=[], principal_id='user')
-
 
 PRIVATE_ROUTES: list[str] = [
     '/run',
@@ -190,7 +160,7 @@ def authorization_required(func):
 app.register_middleware(ConvertToMiddleware(authorization_required), event_type='all')
 
 
-@app.route('/sdk', methods=['GET'], authorizer=fake_auth)
+@app.route('/sdk', methods=['GET'])
 def generate_sdk():
     logger.info('Generating SDK')
     client = boto3.client('apigateway')
@@ -311,7 +281,7 @@ def get_routes():
     return Response(body=routes, status_code=200)
 
 
-@app.route("/log", methods=['GET', 'POST'], authorizer=fake_auth)
+@app.route("/log", methods=['GET', 'POST'])
 def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
     if app.current_request is None:
         raise RuntimeError("Logging error! No request was provided!")
@@ -348,7 +318,7 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
-@app.route('/run', methods=["GET", "POST"], authorizer=fake_auth)
+@app.route('/run', methods=["GET", "POST"])
 def run_model_route():
     """
     A function that returns a message containing the welcome message and the
@@ -406,7 +376,7 @@ def run_at_time_ws(event):
     app.websocket_api.send(event.connection_id, output)
 
 
-@app.route('/run-at-time', methods=["GET", "POST"], authorizer=fake_auth)
+@app.route('/run-at-time', methods=["GET", "POST"])
 def run_at_time_route():
     try:
         output = run_at_time_func(app)
@@ -418,7 +388,7 @@ def run_at_time_route():
         error_response = Response(body={"error": "failed to run at time. See error message on server log."}, status_code=500)
 
 
-@app.route('/fit', methods=['POST'], authorizer=fake_auth)
+@app.route('/fit', methods=['POST'])
 def fit_model_to_data():
     from chalicelib.engine.fit import fit_model as cma_fit_model
     import pandas as pd
