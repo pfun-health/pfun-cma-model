@@ -6,7 +6,7 @@ import os
 import json
 import sys
 import uuid
-from chalice.app import UnauthorizedError, LambdaFunction, ConvertToMiddleware, Request, AuthRequest
+from chalice.app import UnauthorizedError, ConvertToMiddleware, Request, AuthRequest
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
@@ -62,8 +62,6 @@ cors_config = CORSConfig(
     allow_headers=['X-RapidAPI-Key',
                    'X-RapidAPI-Proxy-Secret',
                    'X-RapidAPI-Host',
-                   'X-API-Key',
-                   'Authorization',
                    'Access-Control-Allow-Origin'],
     allow_credentials=True,
     max_age=300,
@@ -89,8 +87,6 @@ if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
     app.debug = True
 app.log = logger
 app.log.setLevel(logging.INFO)
-local_environ = {k: v for k, v in dict(os.environ).items() if 'AWS' in k or 'Chalice' in k}
-logger.info('app environment: %s', json.dumps(local_environ, indent=2))
 
 app.api.cors = cors_config
 app.websocket_api.session = new_boto3_session()
@@ -106,141 +102,21 @@ PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/routes',
     '/sdk'
 ]
-
-
-class SecretsWrapper(threading.Thread):
-    """
-    Wrapper class for boto3 client 'secretsmanager'
-    """
-
-    def __init__(self, secrets_lock, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._secrets_lock = secrets_lock
-        self._secrets_manager: BaseClient | None = None
-        self._session: boto3.Session | None = None
-
-    def run(self):
-        self.session = new_boto3_session()
-
-    @property
-    def session(self):
-        if not self._session:
-            with self._secrets_lock:
-                if not self._session:
-                    self._session = new_boto3_session()
-        return self._session
-
-    @session.setter
-    def session(self, session):
-        with self._secrets_lock:
-            self._session = session
-
-    @property
-    def secrets_manager(self):
-        """
-        Retrieves the secrets manager client.
-
-        Returns:
-            BaseClient: _description_
-        """
-        with self._secrets_lock:
-            if self._secrets_manager is None:
-                self._secrets_manager = \
-                    new_boto3_client('secretsmanager', session=self.session)
-            return self._secrets_manager
-
-    def authorize(self, request: Request):
-        """
-        Authorizes a request based on the provided headers.
-
-        Args:
-            request (Request): The request object containing the headers.
-
-        Returns:
-            bool: True if the request is authorized, False otherwise.
-        """
-        try:
-            authorized = all([
-                request.headers.get('X-RapidAPI-Key') ==
-                self.aws_get_rapidapi_key(),
-                request.headers.get('X-RapidAPI-Proxy-Secret') ==
-                self.aws_get_rapidapi_proxy_secret()
-            ])
-        except KeyError:
-            authorized = False
-        return authorized
-
-    def aws_get_rapidapi_key(self):
-        """
-        Retrieves the RapidAPI proxy secret from the AWS Secrets Manager.
-
-        :param self: The reference to the current object.
-        :return: The RapidAPI proxy secret as a string.
-        """
-        key = str(self.secrets_manager.get_secret_value(
-            SecretId='pfun-cma-model-rapidapi-key')['SecretString'])
-        return key
-
-    def aws_get_rapidapi_proxy_secret(self):
-        """
-        Retrieves the RapidAPI proxy secret from the AWS Secrets Manager.
-
-        :param self: The reference to the current object.
-        :return: The RapidAPI proxy secret as a string.
-        """
-        key = str(self.secrets_manager.get_secret_value(
-            SecretId='pfun-cma-model-rapid-api-proxy-secret')['SecretString'])
-        return key
-
-    def aws_get_aws_api_key(self):
-        """
-        Retrieves the AWS API key from the AWS Secrets Manager.
-        """
-        key = str(self.secrets_manager.get_secret_value(
-            SecretId='pfun-cma-model-aws-api-key')['SecretString'])
-        return key
-
-
-class SecretsManagerContainer:
-    """
-    Container class for boto3 client 'secretsmanager'
-    """
-
-    secrets_lock = threading.Lock()
-
-    def __init__(self, *args, **kwargs):
-        self._secrets = SecretsWrapper(self.__class__.secrets_lock, *args,
-                                       **kwargs)
-        self._secrets.start()
-
-    def __del__(self):
-        self._secrets.join(timeout=1.0)
-
-    def authorize(self, request, *args, **kwargs):
-        """
-        Authorizes the request by checking if the secret is authorized or if the API key is valid.
-
-        Args:
-            request (object): The request object containing the headers.
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
-
-        Returns:
-            bool: True if the request is authorized, False otherwise.
-        """
-        secret_authorized = self._secrets.authorize(request, *args, **kwargs)
-        apikey_authorized = request.headers['X-API-Key'] == \
-            self._secrets.aws_get_aws_api_key()
-        return secret_authorized or apikey_authorized
-
-
-secman = SecretsManagerContainer()
+PUBLIC_ROUTES = PUBLIC_ROUTES + \
+    [f'/api{route}' for route in PUBLIC_ROUTES]
 
 
 @app.authorizer()
 def fake_auth(auth_request: AuthRequest):
     """Temporary authorizer for testing purposes.
     """
+    secrets = new_boto3_client('secretsmanager')
+    api_key = secrets.get_secret_value(
+        SecretId='pfun-cma-model-aws-api-key')['SecretString']
+    rapidapi_key = secrets.get_secret_value(
+        SecretId='pfun-cma-model-rapidapi-key')['SecretString']
+    logger.info('RapidAPI key: %s', rapidapi_key)
+    logger.info('API key: %s', api_key)
     authorized = False
     try:
         current_request = app.current_request
@@ -252,11 +128,15 @@ def fake_auth(auth_request: AuthRequest):
             #: ! authorize automatically for local requests
             authorized = True
     else:
+        app.log.info('Headers: %s', str(current_request.headers))
         logger.info(
             '(Authorizer) Request method: %s', current_request.method.lower())
-        authorized = all([
-            secman.authorize(current_request)
-        ])
+        apikey_authorized = current_request.headers.get('X-Api-Key') == \
+            api_key
+        rapidapi_authorized = current_request.headers.get('X-RapidAPI-Key') == \
+            rapidapi_key
+        authorized = any([apikey_authorized, rapidapi_authorized]) and \
+            auth_request.token in ['Bearer allow', 'allow']
     if authorized:
         logger.info('Authorized request: %s', str(vars(auth_request)))
         return AuthResponse(routes=PUBLIC_ROUTES,
@@ -264,7 +144,12 @@ def fake_auth(auth_request: AuthRequest):
     #: ! Unauthorized
     app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
     logger.warning('Unauthorized request: %s', str(vars(auth_request)))
-    raise UnauthorizedError('Unauthorized request: %s' % str(vars(auth_request)))
+    try:
+        raise UnauthorizedError('Unauthorized request: %s' % str(vars(auth_request)))
+    except UnauthorizedError:
+        logger.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
+        app.log.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
+    return AuthResponse(routes=[], principal_id='user')
 
 
 @app.route('/sdk', methods=['GET'], authorizer=fake_auth)
@@ -305,21 +190,25 @@ def static_files():
         app.log.warning('No query params provided (requested static resource).')
         return Response(body='No query prameters provided when requesting static resource.', status_code=400)
     source: str = app.current_request.query_params.get('source', 's3')
-    filename = app.current_request.query_params.get('filename', 'index.template.html')
-    if source.lower() == 's3':
-        #: use s3 as source for static files
-        s3_client = new_boto3_client('s3')
-        filename = filename.lstrip('/')  # remove leading slash for s3
-        try:
-            response = s3_client.get_object(Bucket='pfun-cma-model-www', Key=filename)
-        except ClientError:
-            app.log.warning('Requested static resource does not exist: %s', str(filename))
-            return Response(
-                body='Requested static resource does not exist (requested static resource: %s).' % str(filename), status_code=404)
-        return Response(body=response['Body'].read(),
-                        status_code=200,
-                        headers={'Content-Type': response['ContentType']}
-                        )
+    filename = app.current_request.query_params.get('filename', '/index.template.html')
+    try:
+        if source.lower() == 's3':
+            #: use s3 as source for static files
+            s3_client = new_boto3_client('s3')
+            s3_filename = filename.lstrip('/')  # remove leading slash for s3
+            try:
+                response = s3_client.get_object(Bucket='pfun-cma-model-www', Key=s3_filename)
+            except ClientError:
+                app.log.warning('Requested static resource does not exist: %s', str(filename))
+                return Response(
+                    body='Requested static resource does not exist (requested static resource: %s).' % str(filename), status_code=404)
+            body = response['Body'].read()
+            return Response(body=body,
+                            status_code=200,
+                            headers={'Content-Type': 'text/*'}
+                            )
+    except Exception:
+        pass  # ! attempt to get the file locally if failure
     filepath = Path(str(pypath) + '/www/')
     available_files = [f for f in filepath.rglob('*') if f.is_file()]
     filepath = Path(str(filepath) + filename)
@@ -359,8 +248,8 @@ def index():
         'www', 'icons', 'mattepfunlogolighter.png').read_bytes()) \
         .decode('utf-8')
     PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
-    STATIC_BASE_URL = app.current_request.headers['host']
-    if '127.0.0.1' in STATIC_BASE_URL:
+    STATIC_BASE_URL = app.current_request.headers.get('host', app.current_request.headers.get('origin', app.current_request.headers.get('referer', '')))
+    if '127.0.0.1' in STATIC_BASE_URL or 'localhost' in STATIC_BASE_URL:
         STATIC_BASE_URL = f'http://{STATIC_BASE_URL}'
     else:
         STATIC_BASE_URL = f'https://{STATIC_BASE_URL}/api'
@@ -467,8 +356,9 @@ def run_at_time_func(app: Chalice) -> str:
     if calc_params is None:
         calc_params = {}
     output: np.ndarray | tuple = model.calc_Gt(**calc_params)
-    output_json: str = pd.json_normalize(output).to_json()  # type: ignore
-    return output_json
+    if isinstance(output, np.ndarray):
+        output = output.tolist()
+    return output
 
 
 @app.on_ws_message(name="run_at_time")
@@ -480,8 +370,14 @@ def run_at_time_ws(event):
 
 @app.route('/run-at-time', methods=["GET", "POST"], authorizer=fake_auth)
 def run_at_time_route():
-    return Response(body=run_at_time_func(app), status_code=200,
-                    headers={'Content-Type': 'application/json'})
+    try:
+        output = run_at_time_func(app)
+        return Response(body=output, status_code=200,
+                        headers={'Content-Type': 'application/json'})
+    except Exception:
+        app.log.error('failed to run at time.', exc_info=True)
+        logger.error('failed to run at time.', exc_info=True)
+        error_response = Response(body={"error": "failed to run at time. See error message on server log."}, status_code=500)
 
 
 @app.route('/fit', methods=['POST'], authorizer=fake_auth)

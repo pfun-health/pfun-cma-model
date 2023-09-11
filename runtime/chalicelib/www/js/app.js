@@ -25,11 +25,10 @@ async function initializeAPI(apiKey) {
       apiKey: apiKey
     });
     console.log('...initialized API.');
-    app.apigClient = apigClient;
   } catch (err) {
     console.error('Failed to create api client because: ' + err);
-    return app;
   }
+  return app;
 }
 
 function autoGrow(oField) {

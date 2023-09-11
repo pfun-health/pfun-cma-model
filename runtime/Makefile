@@ -1,11 +1,11 @@
-deploy: tests deploy_dependencies build_venv prepare_deployment deploy_chalice test_deployment
+deploy: tests deploy_chalice test_deployment
 
 deploy_dependencies:
 	echo "deploying dependencies layer..."
 	cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy
 	sleep 2s
 
-deploy_local: build_venv tests prepare_deployment
+deploy_local: tests
 	@sleep 1s;
 	@chalice local
 	@sleep 1s;
@@ -22,43 +22,10 @@ test_local_deployment:
 	sleep 1s
 	echo '...Success (see above)...done testing.'
 
-deploy_model: build_venv generate-sdk prepare_deployment deploy_chalice test_deployment
+deploy_model: generate-sdk deploy_chalice test_deployment
 	echo -e '...Success (see above)...done deploying.'
 
-build_venv:
-	./scripts/create-venv.sh
-	sleep 1s
-
-prepare_deployment:
-	echo 'preparing for deployment...'
-	echo 'generating openapi.json...'
-	chalice generate-models > ./chalicelib/openapi.json
-	echo '...generated openapi.json'
-	echo 'cleaning old deployments...'
-	set +e
-	rm -rf ${HOME}/Git/pfun-cma-model/.chalice/deployments/*
-	set -e
-	sleep 1s
-	echo '...cleared old deployments'
-	sleep 1s
-	echo 'fixing lambda layer version...'
-	sleep 1s
-	python "${HOME}/Git/pfun-cma-model/scripts/fix-lambda-layer-version.py"
-	sleep 1s
-
-deploy_chalice:
-	echo 'deploying...'
-	sleep 1s
-	chalice deploy
-	sleep 1s
-	echo '...deployed.'
-	sleep 1s
-	echo 'generate sdk...'
-	@make generate-sdk
-	sleep 1s
-	echo '...generated sdk.'
-	sleep 1s
-	echo 'deploy with latest sdk...'
+deploy_chalice: generate-sdk
 	chalice deploy
 	sleep 1s
 	echo '...deployed with latest sdk.'
@@ -94,11 +61,14 @@ docs:
 	pdoc --html .
 
 generate-sdk:
+	echo 'running chalice locally...'
+	sh -c 'chalice local &'
 	echo 'generating SDK...'
 	sleep 1s
 	${HOME}/Git/pfun-cma-model/runtime/scripts/generate-sdk.sh
 	sleep 1s
 	echo '...generated SDK'
+	pkill chalice
 
 create-role:
 	@aws iam create-role --role-name pfun-cma-model-dev --assume-role-policy-document file://./.chalice/trust-policy.json
@@ -106,4 +76,6 @@ create-role:
 
 setup-role-policy:
 	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
+	@aws iam attach-role-policy --role-name pfun-cma-model-dev-api_handler --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
 	@echo '...done with setup of role policy.'

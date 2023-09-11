@@ -37,6 +37,14 @@
             ],
             "Resource": "arn:aws:iam::*:role/pfun-cma-model-dev",
             "Effect": "Allow"
+        },
+        {
+            "Sid": "AllowAPIGatewayInvokePFunModel",
+            "Action": [
+                "apigateway:*"
+            ],
+            "Resource": "arn:aws:apigateway:us-east-1::/restapis",
+            "Effect": "Allow"
         }
     ]
 }

@@ -5,7 +5,7 @@ echo 'generating sdk...'
 export ROOT_REPO_DIR=$HOME/Git/pfun-cma-model
 export base_url=${base_url:-localhost:8000/}
 
-$ROOT_REPO_DIR/runtime/scripts/sample-endpoint.sh sdk "-O" || exit
+$ROOT_REPO_DIR/runtime/scripts/sample-endpoint.sh sdk || exit
 sleep 0.1s
 
 cd $ROOT_REPO_DIR/runtime &&
