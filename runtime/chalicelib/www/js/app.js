@@ -1,4 +1,3 @@
-
 var apigClient = null;
 var app = {};
 
@@ -13,7 +12,7 @@ app.formCode = $(`
     <input type="text" id="optionalParams"><br><br>
 
     <label for="body">Body:</label>
-    <textarea id="body">{}</textarea><br><br>
+    <textarea id="body"></textarea><br><br>
 
     <label for="function">Function:</label>
     <select id="function">
@@ -134,10 +133,9 @@ var chart = null;
 
 app.initializeApp = async () => {
 
-// a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
+  // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
 
-  // Add event listeners to handle form submission.
-  document.getElementById('apiForm').addEventListener('submit', async function (event) {
+  async function submitFunction(event) {
     event.preventDefault();
 
     // Retrieve the input values
@@ -217,10 +215,15 @@ app.initializeApp = async () => {
       console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
     }
 
+  }
+
+  // Add event listeners to handle form submission.
+  document.getElementById('apiForm').addEventListener('submit', async (event) => {
+    await progressIndicator(submitFunction, event);
   });
 };
 
-document.addEventListener('DOMContentLoaded', async function () {
+async function setupApp() {
   app = await app.initializeApp();
 
   // Get the content div element
@@ -246,4 +249,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   restoreButton.addEventListener("click", toggleMinimized);
-});
+}
+
+setupApp();

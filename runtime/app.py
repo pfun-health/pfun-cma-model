@@ -216,7 +216,8 @@ def static_files():
                             headers={'Content-Type': 'text/*'}
                             )
     except Exception:
-        pass  # ! attempt to get the file locally if failure
+        logger.warning('Failed to get static resource from s3: %s', str(filename))
+        #: ! attempt to get the file locally if failure
     filepath = Path(str(pypath) + '/www/')
     available_files = [f for f in filepath.rglob('*') if f.is_file()]
     filepath = Path(str(filepath) + filename)
