@@ -144,15 +144,23 @@ app.initializeApp = async () => {
       const ctx = document.getElementById("chart");
       if (selectedFunction == 'run') {
         var arr = [];
-        data.t.forEach((value, index) => {
+        const G = Object.values(data.G);
+        Object.values(data.t).forEach((value, index) => {
           arr.push({
             x: value,
-            y: data.G[index]
+            y: G[index]
           });
         });
         new Chart(ctx, {
-          type: 'scatter',
-          data: arr
+          type: 'bar',
+          data: {
+            labels: arr.map(x => x.x),
+            datasets: [
+              {
+                label: 'Glucose',
+                data: arr
+              }]
+          }
         });
       }
 
