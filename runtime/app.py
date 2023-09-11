@@ -102,21 +102,12 @@ PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/routes',
     '/sdk'
 ]
-PUBLIC_ROUTES = PUBLIC_ROUTES + \
-    [f'/api{route}' for route in PUBLIC_ROUTES]
 
 
 @app.authorizer()
 def fake_auth(auth_request: AuthRequest):
     """Temporary authorizer for testing purposes.
     """
-    secrets = new_boto3_client('secretsmanager')
-    api_key = secrets.get_secret_value(
-        SecretId='pfun-cma-model-aws-api-key')['SecretString']
-    rapidapi_key = secrets.get_secret_value(
-        SecretId='pfun-cma-model-rapidapi-key')['SecretString']
-    logger.info('RapidAPI key: %s', rapidapi_key)
-    logger.info('API key: %s', api_key)
     authorized = False
     try:
         current_request = app.current_request
@@ -128,28 +119,75 @@ def fake_auth(auth_request: AuthRequest):
             #: ! authorize automatically for local requests
             authorized = True
     else:
-        app.log.info('Headers: %s', str(current_request.headers))
-        logger.info(
-            '(Authorizer) Request method: %s', current_request.method.lower())
-        apikey_authorized = current_request.headers.get('X-Api-Key') == \
-            api_key
-        rapidapi_authorized = current_request.headers.get('X-RapidAPI-Key') == \
-            rapidapi_key
-        authorized = any([apikey_authorized, rapidapi_authorized]) and \
-            auth_request.token in ['Bearer allow', 'allow']
+        authorized = auth_request.token in ['Bearer allow', 'allow']
     if authorized:
         logger.info('Authorized request: %s', str(vars(auth_request)))
-        return AuthResponse(routes=PUBLIC_ROUTES,
-                            principal_id='user')
-    #: ! Unauthorized
-    app.log.warning('Unauthorized request: %s', str(vars(auth_request)))
-    logger.warning('Unauthorized request: %s', str(vars(auth_request)))
+        return AuthResponse(routes=PUBLIC_ROUTES, principal_id='user')
+    #: ! otherwise, Unauthorized
     try:
         raise UnauthorizedError('Unauthorized request: %s' % str(vars(auth_request)))
     except UnauthorizedError:
         logger.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
         app.log.error('Unauthorized request: %s', str(vars(auth_request)), exc_info=True)
     return AuthResponse(routes=[], principal_id='user')
+
+
+PRIVATE_ROUTES: list[str] = [
+    '/run',
+    '/fit',
+    '/run-at-time',
+    '/sdk'
+]
+
+
+def authorization_required(func):
+    """
+    A wrapper function that handles authentication for the API.
+
+    Args:
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Returns:
+        The result of the wrapped function.
+
+    Raises:
+        UnauthorizedError: If the authentication parameters are invalid.
+
+    """
+    def wrapper(*args, **kwargs):
+        if app.current_request.path not in PRIVATE_ROUTES:
+            #: skip authorization for public routes
+            return func(*args, **kwargs)
+        secrets = new_boto3_client('secretsmanager')
+        api_key = secrets.get_secret_value(
+            SecretId='pfun-cma-model-aws-api-key')['SecretString']
+        rapidapi_key = secrets.get_secret_value(
+            SecretId='pfun-cma-model-rapidapi-key')['SecretString']
+        logger.info('RapidAPI key: %s', rapidapi_key)
+        logger.info('API key: %s', api_key)
+        try:
+            current_request = app.current_request
+            api_key_given = current_request.headers.get('X-API-Key')
+            apikey_authorized = api_key_given == api_key
+            rapidapi_key_given = current_request.headers.get('X-RapidAPI-Key')
+            rapidapi_authorized = rapidapi_key_given == rapidapi_key
+            if any([apikey_authorized, rapidapi_authorized]):
+                logger.info('Authorized request: %s', str(vars(current_request)))
+                return func(*args, **kwargs)
+            else:
+                raise UnauthorizedError('Unauthorized request: %s' % str(vars(current_request)))
+        except UnauthorizedError:
+            logger.error(
+                'authorization parameters given:\n\tapi_key: %s (%s),\n\trapidapi_key: %s (%s)',
+                api_key_given, str(apikey_authorized), rapidapi_key_given, str(rapidapi_authorized))
+            return Response(
+                body='Unauthorized request.\nAuth params:\n\tapi_key: %s,\n\trapidapi_key: %s' % (api_key_given, rapidapi_key_given), status_code=401
+            )
+    return wrapper
+
+
+app.register_middleware(ConvertToMiddleware(authorization_required), event_type='all')
 
 
 @app.route('/sdk', methods=['GET'], authorizer=fake_auth)
