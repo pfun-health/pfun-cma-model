@@ -1,49 +1,189 @@
+// Initialize global variables
+
 var apigClient = null;
 var app = {};
 
+// input values
+var apiKey = null;
+var optionalParams = null;
+var body = null;
+var selectedFunction = null;
+var selectedMethod = null;
+
 // Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
-app.formCode = $(`
-    <h1>API Form</h1>
-  <form id="apiForm">
-    <label for="apiKey">API Key:</label>
-    <input type="text" id="apiKey" required><br><br>
+// Function to generate the API form based on the JSON response
+async function generateApiForm() {
 
-    <label for="optionalParams">Query Parameters:</label>
-    <input type="text" id="optionalParams"><br><br>
+  // Example JSON response from /routes endpoint
+  const routesData = await axios.get(window.location.href + '/routes', {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  }).then((response) => {
+    return response.data;
+  }).catch((error) => {
+    console.error('Failed to get routes data because: ', error);
+  });
 
-    <label for="body">Body:</label>
-    <textarea id="body"></textarea><br><br>
+  const formContainer = document.getElementById('apiForm');
 
-    <label for="function">Function:</label>
-    <select id="function">
-      <option value="sdk">SDK</option>
-      <option value="log">Log</option>
-      <option value="run">Run</option>
-      <option value="root">Root</option>
-      <option value="runOptions">Run Options</option>
-      <option value="fit">Fit</option>
-      <option value="routes">Routes</option>
-      <option value="runAtTime">Run At Time</option>
-    </select><br><br>
+  // Create a label for API Key
+  const apiKeyLabel = document.createElement('label');
+  apiKeyLabel.setAttribute('for', 'apiKey');
+  apiKeyLabel.textContent = 'API Key:';
+  formContainer.appendChild(apiKeyLabel);
 
-    <label for="method">Method:</label>
-    <select id="method">
-      <option value="Post">POST</option>
-      <option value="Get">GET</option>
-    </select><br><br>
+  // Create an input field for API Key
+  const apiKeyInput = document.createElement('input');
+  apiKeyInput.setAttribute('type', 'password');
+  apiKeyInput.setAttribute('id', 'apiKey');
+  apiKeyInput.setAttribute('required', 'true');
+  formContainer.appendChild(apiKeyInput);
 
-    <button type="submit">Submit</button>
-  </form>
-    `);
-$('#content').html(''); // clear the content of the page
-$('#content').append(app.formCode);
+  // Create a line break
+  formContainer.appendChild(document.createElement('br'));
 
-// Retrieve the input values
-var apiKey = document.getElementById('apiKey').value;
-var optionalParams = document.getElementById('optionalParams').value;
-var body = document.getElementById('body').value;
-var selectedFunction = document.getElementById('function').value;
-var selectedMethod = document.getElementById('method').value;
+  // Create a label for Query Parameters
+  const queryParamsLabel = document.createElement('label');
+  queryParamsLabel.setAttribute('for', 'optionalParams');
+  queryParamsLabel.textContent = 'Query Parameters:';
+  formContainer.appendChild(queryParamsLabel);
+
+  // Create an input field for Query Parameters
+  const queryParamsInput = document.createElement('input');
+  queryParamsInput.setAttribute('type', 'text');
+  queryParamsInput.setAttribute('id', 'optionalParams');
+  formContainer.appendChild(queryParamsInput);
+
+  // Create a line break
+  formContainer.appendChild(document.createElement('br'));
+
+  // Create a label for Body
+  const bodyLabel = document.createElement('label');
+  bodyLabel.setAttribute('for', 'body');
+  bodyLabel.textContent = 'Body:';
+  formContainer.appendChild(bodyLabel);
+
+  // Create a textarea for the Body
+  const bodyTextarea = document.createElement('textarea');
+  bodyTextarea.setAttribute('id', 'body');
+  formContainer.appendChild(bodyTextarea);
+
+  // Create a line break
+  formContainer.appendChild(document.createElement('br'));
+
+  // Create a label for Function
+  const functionLabel = document.createElement('label');
+  functionLabel.setAttribute('for', 'function');
+  functionLabel.textContent = 'Function:';
+  formContainer.appendChild(functionLabel);
+
+  // Create a select dropdown for Function
+  const functionSelect = document.createElement('select');
+  functionSelect.setAttribute('id', 'function');
+
+  // Add options for Function based on the routesData
+  for (const route in routesData) {
+    const option = document.createElement('option');
+    option.setAttribute('value', route);
+    option.textContent = route;
+    functionSelect.appendChild(option);
+  }
+
+  formContainer.appendChild(functionSelect);
+
+  // Create a line break
+  formContainer.appendChild(document.createElement('br'));
+
+  // Create a label for Method
+  const methodLabel = document.createElement('label');
+  methodLabel.setAttribute('for', 'method');
+  methodLabel.textContent = 'Method:';
+  formContainer.appendChild(methodLabel);
+
+  // Create a select dropdown for Method
+  const methodSelect = document.createElement('select');
+  methodSelect.setAttribute('id', 'method');
+
+  // Add options for Method (POST, GET, OPTIONS)
+  const methods = ['POST', 'GET', 'OPTIONS'];
+  for (const method of methods) {
+    const option = document.createElement('option');
+    option.setAttribute('value', method);
+    option.textContent = method;
+    methodSelect.appendChild(option);
+  }
+
+  formContainer.appendChild(methodSelect);
+
+  // Create a line break
+  formContainer.appendChild(document.createElement('br'));
+
+  // Create a Submit button
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.textContent = 'Submit';
+  formContainer.appendChild(submitButton);
+
+  if (localStorage.getItem('PFUN_CMA_API_KEY')) {
+    apiKeyInput.value = localStorage.getItem('PFUN_CMA_API_KEY');
+  }
+
+
+  $("#apiForm > select#function").val("/routes");
+  $("#apiForm > select#method").val("GET");
+
+  $("#apiForm > select#function").on("change", function () {
+    if (this.value == "run" && $("#apiForm > select#method").val() == "Post") {
+      $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+    }
+  });
+
+  $("#apiForm > select#method").on("change", function () {
+    if (this.value.toUpperCase() == "POST" && $("#apiForm > select#function").val().replace('/', '') == "run") {
+      $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+    }
+    else if (this.value.toUpperCase() == "GET") {
+      $("#apiForm > textarea#body").val("");
+    }
+  });
+
+  $("textarea#body").on('input', (event) => {
+    setTimeout(() => {
+      $(event.target).json_beautify();
+      autoGrow(event.target);
+    }, 5000);
+    if ($("#taug-container").length == 0) {
+      try {
+        $("#taug-container").remove();
+      } catch (e) {
+        // pass
+      }
+      $("#apiFormContainer").append('<div id="taug-container"><label for="taug">Tau G:</label><input type="range" id="taug" min="0.01" max="5.0" step="0.01"></div>');
+      $("#taug").on("input", function () {
+        model_config.model_config.taug = parseFloat($("#taug").val());
+        $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+      });
+    }
+  });
+  $("textarea#body").json_beautify();
+}
+
+
+// Call the function to generate the API form
+(async function () {
+  return new Promise(async (resolve, reject) => {
+    await generateApiForm();
+    // Retrieve the input values and set global variables
+    apiKey = document.getElementById('apiKey').value;
+    optionalParams = document.getElementById('optionalParams').value;
+    body = document.getElementById('body').value;
+    selectedFunction = document.getElementById('function').value;
+    selectedMethod = document.getElementById('method').value;
+    resolve();
+  });
+})();
 
 $.fn.json_beautify = function () {
   // ref: https://stackoverflow.com/a/62060316/1871569
@@ -87,51 +227,10 @@ var model_config = {
   }
 };
 
-$("#apiForm > select#function").val("routes");
-$("#apiForm > select#method").val("Get");
-
-$("#apiForm > select#function").on("change", function () {
-  if (this.value == "sdk") {
-    $("#apiForm > select#method").val("Get");
-    $("#apiForm > select#method").prop("disabled", true);
-  }
-  else if (this.value == "run" && $("#apiForm > select#method").val() == "Post") {
-    $("#apiForm > textarea#body").val(JSON.stringify(model_config));
-  }
-});
-
-$("#apiForm > select#method").on("change", function () {
-  if (this.value == "Post" && $("#apiForm > select#function").val() == "run") {
-    $("#apiForm > textarea#body").val(JSON.stringify(model_config));
-  }
-});
-
-$("textarea#body").on('focus', (event) => {
-  setTimeout(() => {
-    $(event.target).json_beautify();
-    autoGrow(event.target);
-  }, 5000);
-  if ($(event.target).val().includes("taug")) {
-    try {
-      $("#taug-container").remove();
-    } catch (e) {
-      // pass
-    }
-    $("#content").append('<div id="taug-container"><label for="taug">Tau G:</label><input type="range" id="taug" min="0.01" max="5.0" step="0.01"></div>');
-    $("#taug").on("input", function () {
-      model_config.model_config.taug = parseFloat($("#taug").val());
-      $("#apiForm > textarea#body").val(JSON.stringify(model_config));
-    });
-  } else {
-    $("#taug-container").remove();
-  }
-  });
-$("textarea#body").json_beautify();
-
 var chart = null;
 
 
-app.initializeApp = async () => {
+const initializeApp = async () => {
 
   // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
 
@@ -155,13 +254,22 @@ app.initializeApp = async () => {
     // Call the appropriate function with the provided input values.
     try {
 
-      console.log(selectedFunction, selectedMethod);
-
+      console.log(selectedFunction, selectedMethod, optionalParams, body);
+      selectedFunction = selectedFunction.replace('/', '');
+      selectedMethod = selectedMethod.slice(0, 1).toUpperCase() + selectedMethod.slice(1).toLowerCase();
+      var content_type = 'application/json';
+      body = body ? body : '{}';
+      if (selectedMethod.toUpperCase() == 'GET') {
+        body = null;
+        content_type = 'application/x-www-form-urlencoded';
+      }
       var result = await apigClient[selectedFunction + selectedMethod](optionalParams, body, {
         headers: {
           Authorization: 'Bearer allow',
-          Accept: '*/*'
-        }
+          Accept: '*/*',
+          'Content-Type': content_type
+        },
+        timeout: 30000
       });
 
       // set raw json data...
@@ -224,10 +332,10 @@ app.initializeApp = async () => {
 };
 
 async function setupApp() {
-  app = await app.initializeApp();
+  app = await initializeApp();
 
-  // Get the content div element
-  var contentDiv = document.getElementById("content");
+  // Get the apiFormContainer div element
+  var apiFormContainerDiv = document.getElementById("apiFormContainer");
 
   // Get the restore button element
   var restoreButton = document.createElement("button");
@@ -236,10 +344,10 @@ async function setupApp() {
   $("ul.navbar-nav").append(`<li id="restore-button-container" class="nav-item"></li>`);
   document.getElementById("restore-button-container").appendChild(restoreButton);
 
-  // Add a click event listener to toggle the class "minimized" on the content div when the div or restore button is clicked
+  // Add a click event listener to toggle the class "minimized" on the apiFormContainer div when the div or restore button is clicked
   function toggleMinimized() {
-    contentDiv.classList.toggle("minimized");
-    if (contentDiv.classList.contains("minimized")) {
+    apiFormContainerDiv.classList.toggle("minimized");
+    if (apiFormContainerDiv.classList.contains("minimized")) {
       restoreButton.innerText = "Restore API Form";
       $("#output").removeClass("col-9").addClass("col-12");
     } else {

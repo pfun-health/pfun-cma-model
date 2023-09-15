@@ -32,8 +32,8 @@ class TestCMASleepWakeModel:
     def test_calculate_Gt(self):
         model = CMASleepWakeModel()
         Gt = model.calc_Gt()
-        assert isinstance(Gt, np.ndarray)
-        assert Gt.size == len(model.tM)
+        assert isinstance(Gt, pd.DataFrame)
+        assert Gt.shape[1] == (len(model.tM) + 1)
 
     # Test that the CMASleepWakeModel class correctly handles updating the model with invalid parameter values.
 

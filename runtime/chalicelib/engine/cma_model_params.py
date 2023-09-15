@@ -1,6 +1,6 @@
+from typing import Optional, Sequence
 from pydantic import BaseModel, field_serializer
-from typing import Optional, Tuple, Container, Any
-import numpy as np
+from numpy import ndarray
 
 
 class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
@@ -20,20 +20,20 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         seed (Optional[int], optional): The value of seed. Defaults to None.
         eps (float, optional): The value of eps. Defaults to 1e-18.
     """
-    t: Optional[float | Container[float]] = None
+    t: Optional[float | Sequence[float] | ndarray] = None
     N: int = 288
     d: float = 0.0
     taup: float = 1.0
-    taug: float | Container[float] = 1.0
+    taug: float | Sequence[float] | ndarray = 1.0
     B: float = 0.05
     Cm: float = 0.0
     toff: float = 0.0
-    tM: Container[float] | float = (7.0, 11.0, 17.5)
+    tM: Sequence[float] | float = (7.0, 11.0, 17.5)
     seed: Optional[int | float] = None
     eps: float = 1e-18
 
     @field_serializer('t')
     def serialize_t(self, value, *args):
-        if isinstance(value, np.ndarray):
+        if isinstance(value, ndarray):
             return value.tolist()
         return value

@@ -8,9 +8,42 @@ import logging
 import sys
 from pathlib import Path
 from typing import (
+    Sequence,
     Callable, Container, Dict, Iterable, Tuple
 )
-import numpy as np
+from numpy import (
+    dtype,
+    array,
+    ndarray,
+    nansum,
+    exp,
+    log,
+    power,
+    cos,
+    pi,
+    piecewise,
+    logical_and,
+    logical_or,
+    logical_not,
+    nan,
+    nanmax,
+    append,
+    mod,
+    abs,
+    linspace,
+    broadcast_to,
+    atleast_1d,
+    zeros,
+    bool_,
+    asarray
+)
+from numpy.random import default_rng
+from pandas import (
+    DataFrame,
+    Series,
+    json_normalize,
+    to_timedelta
+)
 
 #: pfun imports (relative)
 root_path = str(Path(__file__).parents[1])
@@ -24,13 +57,8 @@ try:
     from chalicelib.engine.calc import normalize, normalize_glucose
     from chalicelib.engine.data_utils import dt_to_decimal_hours
     from chalicelib.engine.bounds import Bounds
-    import pandas as pd
+    from chalicelib.engine.cma_model_params import CMAModelParams
 except ModuleNotFoundError:
-    try:
-        pd = importlib.import_module("pandas")
-    except ModuleNotFoundError as err:
-        err.msg += '\nContext: chalicelib/engine/cma_sleepwake.py'
-        raise err
     check_is_numpy = importlib.import_module(
         ".decorators", package="chalicelib").check_is_numpy
     normalize = importlib.import_module(
@@ -41,16 +69,18 @@ except ModuleNotFoundError:
         ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
     Bounds = importlib.import_module(
         ".bounds", package="chalicelib.engine").Bounds
+    CMAModelParams = importlib.import_module(
+        ".cma_model_params", package="chalicelib.engine").CMAModelParams
 
 logger = logging.getLogger()
 
 
-def l(x):
-    return 2.0 / (1.0 + np.exp(2.0 * np.power(x, 2)))
+def Light(x):
+    return 2.0 / (1.0 + exp(2.0 * power(x, 2)))
 
 
 def E(x):
-    return 1.0 / (1.0 + np.exp(-2.0 * x))
+    return 1.0 / (1.0 + exp(-2.0 * x))
 
 
 def meal_distr(Cm, t, toff):
@@ -70,11 +100,11 @@ def meal_distr(Cm, t, toff):
     array_like
         Meal distribution function.
     """
-    return np.power(np.cos(2 * np.pi * Cm * (t + toff) / 24), 2)
+    return power(cos(2 * pi * Cm * (t + toff) / 24), 2)
 
 
 @check_is_numpy
-def K(x: np.ndarray):
+def K(x: ndarray):
     """
     Defines the glucose response function.
     Apply a piecewise function to the input array `x`.
@@ -85,12 +115,12 @@ def K(x: np.ndarray):
     Returns:
         numpy.ndarray: The result of applying the piecewise function to `x`.
     """
-    return np.piecewise(x, [x > 0.0, x <= 0.0], [
-        lambda x_: np.exp(-np.power(np.log(2.0 * x_), 2)), 0.0])
+    return piecewise(x, [x > 0.0, x <= 0.0], [
+        lambda x_: exp(-power(log(2.0 * x_), 2)), 0.0])
 
 
-def vectorized_G(t: np.ndarray | float, I_E: np.ndarray | float,
-                 tm: np.ndarray | float, taug: np.ndarray | float,
+def vectorized_G(t: ndarray | float, I_E: ndarray | float,
+                 tm: ndarray | float, taug: ndarray | float,
                  B: float, Cm: float, toff: float):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
 
@@ -116,18 +146,18 @@ def vectorized_G(t: np.ndarray | float, I_E: np.ndarray | float,
     array_like
         G(t, I_E, tm, taug, B, Cm, toff).
     """
-    tm = np.atleast_1d(tm)
-    t = np.atleast_1d(t)
-    taug = np.atleast_1d(taug)
+    tm = atleast_1d(tm)
+    t = atleast_1d(t)
+    taug = atleast_1d(taug)
 
-    def Gtmp(tm_: float | np.ndarray, taug_: float | np.ndarray):
-        k_G = K((t - np.atleast_1d(tm_)) / np.power(np.atleast_1d(taug_), 2))
+    def Gtmp(tm_: float | ndarray, taug_: float | ndarray):
+        k_G = K((t - atleast_1d(tm_)) / power(atleast_1d(taug_), 2))
         return 1.3 * k_G / (1.0 + I_E)
 
     m = len(tm)
     n = len(t)
     j = 0
-    out = np.zeros((m, n), dtype=float)
+    out = zeros((m, n), dtype=float)
     while j < m:
         gtmp = Gtmp(tm[j], taug[j])
         out[j, :] = gtmp
@@ -177,14 +207,14 @@ class CMASleepWakeModel:
             return [self.param_keys.index(k) for k in keys]
 
     def update_bounds(self, keys, lb, ub,
-                      keep_feasible: np.bool_ | Iterable[np.bool_] = Bounds.True_,
+                      keep_feasible: bool_ | Iterable[bool_] = Bounds.True_,
                       return_bounds=False):
         """Update the bounds of the model."""
         keys = [keys] if isinstance(keys, str) else keys
         lb = [float(lb)] if isinstance(lb, (float, int)) else lb
         ub = [float(ub)] if isinstance(ub, (float, int)) else ub
-        keep_feasible = [keep_feasible, ] if isinstance(keep_feasible, Bounds.bool_) \
-            else keep_feasible
+        if isinstance(keep_feasible, bool_):
+            keep_feasible = [keep_feasible, ] * len(keys)
         for k in keys:
             ix = self.param_keys.index(k)
             self.bounds[ix] = (
@@ -196,12 +226,12 @@ class CMASleepWakeModel:
         """JSON serialization."""
         out = {k: v for k, v in self.__dict__.items()}
         for key, value in out.items():
-            if isinstance(value, np.ndarray):
+            if isinstance(value, ndarray):
                 out[key] = value.tolist()
-            elif isinstance(value, pd.DataFrame):
-                out[key] = pd.json_normalize(
+            elif isinstance(value, DataFrame):
+                out[key] = json_normalize(
                     value.to_dict()).to_dict()  # type: ignore
-            elif isinstance(value, pd.Series):
+            elif isinstance(value, Series):
                 out[key] = value.tolist()
             elif isinstance(value, Bounds):
                 out[key] = value.json()
@@ -218,7 +248,7 @@ class CMASleepWakeModel:
         """JSON serialization."""
         return self.__json__()
 
-    def __init__(self, **kwds):
+    def __init__(self, model_config: Dict | CMAModelParams | None = None, **kwds):  # type: ignore
         """PFun CMA model constructor.
 
         Arguments:
@@ -242,33 +272,33 @@ class CMASleepWakeModel:
             seed=None, eps=1e-18
         )
         params = defaults.copy()
+        if model_config is not None:
+            if isinstance(model_config, CMAModelParams):
+                model_config = model_config.dict()  # type: ignore
+            params.update(model_config)  # type: ignore
         params.update(kwds)
         t, N, tM, seed, eps = params.pop('t'), params.pop('N'), params.pop(
             'tM'), params.pop('seed'), params.pop('eps')
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
         if t is None:
-            t = np.linspace(0, 24, num=int(N))
-        self.t: Container[float] | np.ndarray = t  # time vector
-        self.tM = np.asarray(tM, dtype=float)  # mealtimes vector
-        self.params: Dict[str, float] = {k: v for k, v in params.items() if k
-                                         in self.param_keys}
-        for pkey in self.param_keys:
-            pval = params.get(pkey)
-            if pval is not None:
-                self.params[pkey] = pval
+            t = linspace(0, 24, num=int(N))  # type: ignore
+        self.t: Sequence[float] | ndarray = t  # time vector  # type: ignore
+        self.tM = asarray(tM, dtype=float)  # mealtimes vector
+        self.params: Dict[str, float] = {
+            k: float(v) for k, v in params.items() if k in self.param_keys and v is not None}  # type: ignore
         self.bounds = copy.copy(self.__class__.bounds)
         self.eps = eps
         self.rng = None
         if seed is not None:
-            self.rng = np.random.default_rng(seed=seed)
+            self.rng = default_rng(seed=seed)  # type: ignore
 
     @property
     def N(self):
         """Number of time steps."""
         return len(self.t)
 
-    def update(self, *args, inplace=True, **kwds):
+    def update(self, model_params: CMAModelParams | Dict | None = None, inplace=True, **kwds):  # type: ignore
         """
         Update the current instance with new values.
 
@@ -295,10 +325,11 @@ class CMASleepWakeModel:
             - The `rng` attribute is updated with a new random number generator if 'seed' is present.
             - The `eps` attribute is updated with the value from `kwds` if 'eps' is present.
         """
-        if len(args) > 0:
-            opts = args[0]
-            opts.update(kwds)
-            kwds = dict(opts)
+        if model_params is not None:
+            if isinstance(model_params, CMAModelParams):
+                model_params: CMAModelParams | Dict = model_params.dict()  # type: ignore
+            model_params.update(kwds)
+            kwds = dict(model_params)
         if inplace is False:
             new_inst = copy.copy(self)
             new_inst.update(inplace=True, **kwds)
@@ -309,10 +340,10 @@ class CMASleepWakeModel:
             match isinstance(taug_new, Container):
                 case True:
                     #: ! replace current values elementwise if given a vector
-                    self.params['taug'] = np.broadcast_to(  # type: ignore
+                    self.params['taug'] = broadcast_to(  # type: ignore
                         taug_new, (self.n_meals, ))
                 case False:  # ! else, taug is a scale: <old_taug> *= new_taug
-                    self.params['taug'] = np.array(  # type: ignore
+                    self.params['taug'] = array(  # type: ignore
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
         self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
@@ -321,11 +352,11 @@ class CMASleepWakeModel:
         #: keep within specified bounds (keep_feasible is handled by Bounds)
         self.params = self.bounds.update_values(self.params)  # type: ignore
         if 'tM' in kwds:
-            self.tM = np.array(kwds['tM'], dtype=float).flatten()
+            self.tM = array(kwds['tM'], dtype=float).flatten()
         if 'N' in kwds:
-            self.t = np.linspace(0, 24, num=kwds['N'])
+            self.t = linspace(0, 24, num=kwds['N'])
         if 'seed' in kwds:
-            self.rng = np.random.default_rng(seed=kwds['seed'])
+            self.rng = default_rng(seed=kwds['seed'])
         if 'eps' in kwds:
             self.eps = kwds['eps']
         #: check all parameters are present and valid types
@@ -355,10 +386,10 @@ class CMASleepWakeModel:
         return len(self.tM)
 
     @property
-    def taug(self) -> np.ndarray:
+    def taug(self) -> ndarray:
         """taug: get an array broadcasted to: (, number_of_meals)."""
         taug_ = self.params["taug"]
-        taug_vector = np.broadcast_to(taug_, (self.n_meals, ))
+        taug_vector = broadcast_to(taug_, (self.n_meals, ))
         return taug_vector
 
     @property
@@ -378,8 +409,7 @@ class CMASleepWakeModel:
     def E_L(self, t=None):
         if t is None:
             t = self.t
-        return l(0.025 * np.power((t - 12.0 - self.d), 2) /
-                 (self.eps + self.taup))
+        return Light(0.025 * power((t - 12.0 - self.d), 2) / (self.eps + self.taup))  # type: ignore
 
     @property
     def L(self):
@@ -389,12 +419,10 @@ class CMASleepWakeModel:
         """compute the estimated relative Melatonin signal."""
         if t is None:
             t = self.t
-        m_out = np.power((1.0 - self.L), 3) * \
-            np.power(np.cos(-(t - 3.0 - self.d) * np.pi / 24.0), 2)
+        m_out = power((1.0 - self.L), 3) * power(cos(-(t - 3.0 - self.d) * pi / 24.0), 2)  # type: ignore
         if self.rng is not None:
             # ! tiny amount of random noise
-            m_out = m_out + \
-                self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
+            m_out = m_out + self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)  # type: ignore
         return m_out
 
     @property
@@ -403,14 +431,14 @@ class CMASleepWakeModel:
 
     @property
     def c(self):
-        return (4.9 / (1.0 + self.taup)) * np.pi * E(np.power((self.L - 0.88), 3)) * \
-            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * np.power(-self.m, 3))
+        return (4.9 / (1.0 + self.taup)) * pi * E(power((self.L - 0.88), 3)) * \
+            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * power(-self.m, 3))
 
     @property
     def a(self):
-        return (E(np.power((-self.c * self.m), 3)) +
-                np.exp(-0.025 * np.power((self.t - 13 - self.d), 2)) *
-                self.E_L(t=0.7*(27-self.t+self.d))) / 2.0
+        return (E(power((-self.c * self.m), 3)) +
+                exp(-0.025 * power((self.t - 13 - self.d), 2)) *
+                self.E_L(t=0.7 * (27 - self.t + self.d))) / 2.0
 
     @property
     def I_S(self):
@@ -420,60 +448,53 @@ class CMASleepWakeModel:
     def I_E(self):
         return self.a * self.I_S
 
-    def calc_Gt(self, t=None, dt=None, n=1, return_t=False):
+    def calc_Gt(self, t: ndarray | None | float | int = None,
+                dt: float | None = None, n: int = 1) -> DataFrame:
         """
-        Calculate the value of Gt at a given time or times.
+        Calculates Gt for given parameters.
 
-        Parameters:
-            t (float or array-like, optional): The time or times at which to
-                calculate Gt. If not provided, the next time step(s) will be
-                calculated based on the previous time step and the specified
-                time step size.
-            dt (float, optional): The time step size. If not provided, it will
-                be calculated as the absolute difference between the last two
-                time steps.
-            n (int, optional): The number of time steps to calculate if `t` is
-                not provided. Defaults to 1.
-            return_t (bool, optional): Whether to return the calculated time
-                step(s) along with the calculated Gt value(s). Defaults to
-                False.
+        Args:
+            t (ndarray or None): Array of time values. Defaults to None.
+            dt (float or None): Time step. Defaults to None.
+            n (int): Number of time steps. Defaults to 1.
 
         Returns:
-            Gt (float or array-like): The calculated Gt value(s) at the
-                specified time(s).
-            t (float or array-like, optional): The calculated time step(s) if
-                `return_t` is True.
+            DataFrame: A DataFrame containing Gt values for each column index, with time values as the index.
         """
+        if isinstance(t, (float, int)):
+            t = array([t], dtype=float)
         if t is None:
             if dt is None:
-                dt = np.abs(self.t[-1] - self.t[-2])
-            t = np.mod(np.linspace(
-                self.t[-1] + dt, self.t[-1] + (n-1)*dt, num=n), 24)
+                dt = abs(self.t[-1] - self.t[-2])
+            t = mod(linspace(
+                self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)
         Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
                           self.B, self.Cm, self.toff)
-        if return_t is False:
-            return Gt
-        else:
-            return Gt, t
+        df_gt = DataFrame({
+            'Gt{}'.format(i): Gt[i] for i in range(Gt.shape[0])
+        }, index=t)
+        df_gt['Gt'] = nansum(Gt, axis=0)
+        return df_gt
 
     def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
         """
-        Update the value of Gt and t.
+        Update the Gt values of the object.
 
         Parameters:
-            t (float): The starting time for calculating Gt. If None, the current time will be used. Default is None.
-            dt (float): The time step for calculating Gt. If None, the default time step will be used. Default is None.
-            n (int): The number of time steps to calculate Gt. Default is 1.
-            keep_tvec_size (bool): Whether to keep the size of the time vector equal to the original size. Default is True.
+            t (float or None): The starting time point for the calculation. If None, the calculation starts from the last time point.
+            dt (float or None): The time step size for the calculation. If None, the time step size is determined automatically.
+            n (int): The number of time steps to calculate.
+            keep_tvec_size (bool): Whether to keep the size of the time vector constant. If True, the size of the time vector will be reduced by `n`.
 
         Returns:
-            tuple: A tuple containing the updated Gt and t arrays.
+            df_gt (DataFrame): The updated Gt values.
+
         """
-        Gt, t = self.calc_Gt(t=t, dt=dt, n=n, return_t=True)
-        self.t = np.append(self.t, t)
+        df_gt = self.calc_Gt(t=t, dt=dt, n=n)
+        self.t = append(self.t, df_gt.index.to_numpy(dtype=float))
         if keep_tvec_size is True:
             self.t = self.t[n:]
-        return Gt, self.t
+        return df_gt
 
     @property
     def G(self):
@@ -500,12 +521,12 @@ class CMASleepWakeModel:
         """
         return self.G
 
-    def integrate_signal(self, signal: np.ndarray | None = None,
+    def integrate_signal(self, signal: ndarray | None = None,
                          signal_name: str | None = None,
                          t0: int | float = 0, t1: int | float = 24,
                          M: int = 3,
                          t_extra: Tuple | None = None,
-                         tvec: np.ndarray | None = None) -> float:
+                         tvec: ndarray | None = None) -> float:
         """Integrate the signal between the hours given, assuming M discrete events.
 
             t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
@@ -523,18 +544,18 @@ class CMASleepWakeModel:
             signal = getattr(self, signal_name)
         if signal.shape[0] != tvec.size:
             signal = signal.T
-        period = np.logical_and((tvec >= t0), (tvec <= t1))
+        period = logical_and((tvec >= t0), (tvec <= t1))
         if t_extra is not None:
-            period = np.logical_or(
+            period = logical_or(
                 period, (tvec >= t_extra[0]) & (tvec <= t_extra[1]))
-        total = np.nansum(signal[period]) / (M * (t1 - t0))
+        total = nansum(signal[period]) / (M * (t1 - t0))
         return total
 
-    def morning(self, signal: np.ndarray = None, signal_name=None):
+    def morning(self, signal: ndarray = None, signal_name=None):
         """compute the total morning integrated signal."""
         return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)
 
-    def evening(self, signal: np.ndarray = None, signal_name=None):
+    def evening(self, signal: ndarray = None, signal_name=None):
         """Compute the total evening integrated signal."""
         return self.integrate_signal(signal=signal, signal_name=signal_name,
                                      t0=16, t1=24, t_extra=(0, 3))
@@ -554,16 +575,16 @@ class CMASleepWakeModel:
     @property
     def g_instant(self):
         """vector of instantaneous (overall) glucose."""
-        return np.nansum(self.g, axis=0)
+        return nansum(self.g, axis=0)
 
     @property
-    def df(self) -> pd.DataFrame:
+    def df(self) -> DataFrame:
         return self.run()
 
     @property
     def dt(self):
         #: TimedeltaIndex (in hours)
-        return pd.to_timedelta(self.t, unit='H')
+        return to_timedelta(self.t, unit='H')
 
     @classmethod
     def get_model_args(cls):
@@ -573,10 +594,10 @@ class CMASleepWakeModel:
     @property
     def pvec(self):
         """easy access to parameter vector (copy)"""
-        return np.array([self.params[k] for k in self.param_keys])
+        return array([self.params[k] for k in self.param_keys])
 
-    def run(self) -> pd.DataFrame:
-        """run the model, return the solution as a labeled pd.DataFrame.
+    def run(self) -> DataFrame:
+        """run the model, return the solution as a labeled DataFrame.
 
         Examples:
         ---------
@@ -603,7 +624,7 @@ class CMASleepWakeModel:
         columns = columns + gi_cols
         values = values + [g[i, :] for i in range(g.shape[0])]
         data = {k: v for k, v in zip(columns, values)}
-        df = pd.DataFrame(data, columns=columns, index=self.dt)
+        df = DataFrame(data, columns=columns, index=self.dt)
         #: record instantaneous glucose
         df["G"] = self.g_instant
         #: record estimated meal times
@@ -659,18 +680,18 @@ class CMAUtils:
             return f'{int(hour) - 12}PM'
 
     @staticmethod
-    def label_meals(df: pd.DataFrame,
+    def label_meals(df: DataFrame,
                     rounded: [None | Callable] = round_to_nearest_integer,
                     as_str: bool = False) -> Tuple[str | int | float]:
         """Label the meal times in a CMA model results dataframe.
         Parameters:
-            df (pd.DataFrame): The CMA model results dataframe.
+            df (DataFrame): The CMA model results dataframe.
             rounded (None or Callable): Function to round the meal times.
             as_str (bool): If True, return the meal times as strings.
         Returns:
             tuple: The meal times as strings or integers.
         Examples:
-            >>> df = pd.DataFrame({'t': [0, 8, 16, 24], 'is_meal': [True, True, True, False]})
+            >>> df = DataFrame({'t': [0, 8, 16, 24], 'is_meal': [True, True, True, False]})
             >>> CMAUtils.label_meals(df)
             ('12AM', '8AM', '4PM')
             >>> CMAUtils.label_meals(df, as_str=True)

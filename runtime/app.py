@@ -6,7 +6,12 @@ import os
 import json
 import sys
 import uuid
-from chalice.app import UnauthorizedError, ConvertToMiddleware, Request
+from chalice.app import (
+    UnauthorizedError, ConvertToMiddleware,
+    Request, BadRequestError, Chalice,
+    Response, AuthRoute, CORSConfig,
+    CaseInsensitiveMapping
+)
 import requests
 from pathlib import Path
 import urllib.parse as urlparse
@@ -17,30 +22,49 @@ from botocore.config import Config as ConfigCore
 import boto3
 from botocore.exceptions import ClientError
 import importlib
-from chalice import (
-    AuthRoute,
-    CORSConfig,
-    Response,
-    Chalice,
-)
+
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#: pfun imports (relative)
+root_path = str(Path(__file__).parents[1])
+mod_path = str(Path(__file__).parent)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+if mod_path not in sys.path:
+    sys.path.insert(0, mod_path)
+utils = importlib.import_module('.utils', package='chalicelib')
+
+
+BOTO3_SESSION = None
+
 
 def new_boto3_session():
-    session_ = boto3.Session()
-    return session_
+    global BOTO3_SESSION
+    if BOTO3_SESSION is not None:
+        return BOTO3_SESSION
+    BOTO3_SESSION = boto3.Session()
+    return BOTO3_SESSION
 
 
-def new_boto3_client(service_name, session=None, *args, **kwds):
-    config = ConfigCore(
-        region_name='us-east-1',
-    )
-    if session is None:
-        session = new_boto3_session()
-    client_ = session.client(service_name, *args, config=config, **kwds)
-    return client_
+def new_boto3_client(service_name: str, session=None, *args, **kwds):
+    """
+    Creates a new Boto3 client for a specified AWS service.
+
+    Args:
+        service_name (str): The name of the AWS service for which the client is being created.
+        session (boto3.Session, optional): An existing Boto3 session to use. If not provided, a new session will be created.
+        *args: Additional arguments that will be passed to the Boto3 client constructor.
+        **kwds: Additional keyword arguments that will be passed to the Boto3 client constructor.
+
+    Returns:
+        boto3.client: The newly created Boto3 client for the specified AWS service.
+    """
+    config = ConfigCore(region_name='us-east-1')
+    session = session or new_boto3_session()
+    client = session.client(service_name, *args, config=config, **kwds)
+    return client
 
 
 #: pfun imports (relative)
@@ -106,6 +130,8 @@ PRIVATE_ROUTES: list[str] = [
     '/sdk'
 ]
 
+SECRETS_CLIENT = None
+
 
 def authorization_required(func):
     """
@@ -123,13 +149,16 @@ def authorization_required(func):
 
     """
     def wrapper(*args, **kwargs):
+        global SECRETS_CLIENT
         if app.current_request.path not in PRIVATE_ROUTES:
             #: skip authorization for public routes
             return func(*args, **kwargs)
-        secrets = new_boto3_client('secretsmanager')
-        api_key = secrets.get_secret_value(
+        if SECRETS_CLIENT is None:
+            # lazy load secrets client
+            SECRETS_CLIENT = new_boto3_client('secretsmanager')
+        api_key = SECRETS_CLIENT.get_secret_value(
             SecretId='pfun-cma-model-aws-api-key')['SecretString']
-        rapidapi_key = secrets.get_secret_value(
+        rapidapi_key = SECRETS_CLIENT.get_secret_value(
             SecretId='pfun-cma-model-rapidapi-key')['SecretString']
         logger.info('RapidAPI key: %s', rapidapi_key)
         logger.info('API key: %s', api_key)
@@ -157,13 +186,18 @@ def authorization_required(func):
 app.register_middleware(ConvertToMiddleware(authorization_required), event_type='all')
 
 
+SDK_CLIENT = None
+
+
 @app.route('/sdk', methods=['GET'])
 def generate_sdk():
+    global SDK_CLIENT
     logger.info('Generating SDK')
-    client = boto3.client('apigateway')
-    rest_api_id = next(item for item in client.get_rest_apis()['items']
+    if SDK_CLIENT is None:
+        SDK_CLIENT = new_boto3_client('apigateway')
+    rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
                        if item.get('name') == 'PFun CMA Model Backend')['id']
-    response = client.get_sdk(
+    response = SDK_CLIENT.get_sdk(
         restApiId=rest_api_id,
         stageName='api',
         sdkType='javascript',
@@ -179,11 +213,15 @@ def generate_sdk():
     )
 
 
+S3_CLIENT = None
+
+
 @app.route('/static', methods=['GET'])
 def static_files():
     """
     Serves the static files for the web application.
     """
+    global S3_CLIENT
     # pylint: disable=consider-using-f-string
     pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
         sys.version_info[:2]
@@ -195,14 +233,20 @@ def static_files():
         app.log.warning('No query params provided (requested static resource).')
         return Response(body='No query prameters provided when requesting static resource.', status_code=400)
     source: str = app.current_request.query_params.get('source', 's3')
+    if STATIC_BASE_URL is None:
+        initialize_base_url(app)
+    if source not in ('s3', 'local'):
+        app.log.warning('Invalid source provided (requested static resource).')
+        return Response(body='Invalid source provided when requesting static resource.', status_code=BadRequestError.STATUS_CODE)
     filename = app.current_request.query_params.get('filename', '/index.template.html')
     try:
         if source.lower() == 's3':
             #: use s3 as source for static files
-            s3_client = new_boto3_client('s3')
+            if S3_CLIENT is None:
+                S3_CLIENT = new_boto3_client('s3')
             s3_filename = filename.lstrip('/')  # remove leading slash for s3
             try:
-                response = s3_client.get_object(Bucket='pfun-cma-model-www', Key=s3_filename)
+                response = S3_CLIENT.get_object(Bucket='pfun-cma-model-www', Key=s3_filename)
             except ClientError:
                 app.log.warning('Requested static resource does not exist: %s', str(filename))
                 return Response(
@@ -228,8 +272,88 @@ def static_files():
         return Response(
             body='Requested static resource is not available (requested static resource: %s).' % str(filepath), status_code=404)
     content_type = app.current_request.query_params.get('ContentType', 'text/*')
-    return Response(body=filepath.read_text(encoding='utf-8'),
+    if 'text' in content_type or content_type == '*/*':
+        output = filepath.read_text(encoding='utf-8')
+    else:
+        output = filepath.read_bytes()
+    return Response(body=output,
                     status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
+
+
+def initialize_http_session():
+    HTTP_SESSION = requests.Session()
+    HTTP_SESSION.headers.update({'Connection': 'keep-alive'})
+    return HTTP_SESSION
+
+
+HTTP_SESSION = initialize_http_session()
+
+BASE_URL = None
+STATIC_BASE_URL = None
+BODY = None
+
+
+def initialize_base_url(app):
+    global BASE_URL, STATIC_BASE_URL
+    if BASE_URL is not None and STATIC_BASE_URL is not None:
+        return BASE_URL
+    BASE_URL = app.current_request.headers.get(
+        'host', app.current_request.headers.get(
+            'origin', app.current_request.headers.get('referer', '')))
+    if '127.0.0.1' in BASE_URL or 'localhost' in BASE_URL:
+        BASE_URL = f'http://{BASE_URL}'
+    else:
+        BASE_URL = f'https://{BASE_URL}/api'
+    STATIC_BASE_URL = f'{BASE_URL}/static'
+    return BASE_URL
+
+
+def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', content_type: str = 'text/*'):
+    global STATIC_BASE_URL
+    if STATIC_BASE_URL is None:
+        initialize_base_url(app)
+    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):
+        source = 'local'  # ! overwrite source to local for localhost
+    url = urlparse.urljoin(STATIC_BASE_URL, path)
+    if path[0] != '/':
+        path = '/' + path  # ! add leading slash
+    url = utils.add_url_params(STATIC_BASE_URL, {
+        'source': source, 'filename': path, 'ContentType': content_type})
+    app.log.info('(static resource) GET: %s', url)
+    response = HTTP_SESSION.get(url)
+    return response
+
+
+def initialize_index_resources():
+    global BODY, BASE_URL, STATIC_BASE_URL
+    if BODY is not None:
+        return BODY
+    #: initialize base url
+    BASE_URL = initialize_base_url(app)
+    response = get_static_resource('index.template.html')
+    body = response.text
+    ROUTES = '\n'.join([
+        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
+        for name in PUBLIC_ROUTES])
+    img_content = get_static_resource(
+        '/icons/mattepfunlogolighter.png', content_type='image/png').content
+    PFUN_ICON_BLOB = base64.b64encode(img_content).decode('utf-8')
+    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
+    app.log.debug('BODY: %s', body)
+    app.log.info('BASE_URL: %s', BASE_URL)
+    app.log.info('STATIC_BASE_URL: %s', STATIC_BASE_URL)
+    source = 's3'
+    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):
+        source = 'local'  # ! overwrite source to local for localhost
+    output_static_base_url = str(
+        utils.add_url_params(
+            STATIC_BASE_URL, {'source': source, 'filename': ''}))
+    BODY = body.format(
+        STATIC_BASE_URL=output_static_base_url,
+        PFUN_ICON_BLOB=PFUN_ICON_BLOB,
+        ROUTES=ROUTES
+    )
+    return BODY
 
 
 @app.route("/")
@@ -240,32 +364,11 @@ def index():
     Returns:
         Response: The HTTP response object containing the index page.
     """
-    # pylint: disable=consider-using-f-string
-    STATIC_BASE_URL = app.current_request.headers.get(
-        'host', app.current_request.headers.get(
-            'origin', app.current_request.headers.get('referer', '')))
-    if '127.0.0.1' in STATIC_BASE_URL or 'localhost' in STATIC_BASE_URL:
-        STATIC_BASE_URL = f'http://{STATIC_BASE_URL}'
-    else:
-        STATIC_BASE_URL = f'https://{STATIC_BASE_URL}/api'
-    session = requests.Session()
-    response = session.get(f'{STATIC_BASE_URL}/static?source=s3&filename=index.template.html')
-    body = response.text
-    ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
-        for name in PUBLIC_ROUTES])
-    img_content = session.get(
-        f'{STATIC_BASE_URL}/static?source=s3&filename=/icons/mattepfunlogolighter.png').content
-    PFUN_ICON_BLOB = base64.b64encode(img_content).decode('utf-8')
-    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
-    STATIC_BASE_URL += '/static?filename='
-    body = body.format(
-        STATIC_BASE_URL=STATIC_BASE_URL,
-        PFUN_ICON_BLOB=PFUN_ICON_BLOB,
-        ROUTES=ROUTES
-    )
+    global BODY
+    if BODY is None:
+        BODY = initialize_index_resources()
     return Response(
-        body=body,
+        body=BODY,
         status_code=200,
         headers={'Content-Type': 'text/html'}
     )
@@ -284,11 +387,14 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
         raise RuntimeError("Logging error! No request was provided!")
     if app.current_request.query_params is None:
         raise RuntimeError("Logging error! No query parameters were provided!")
-    msg = app.current_request.query_params.get('msg')
+    msg = app.current_request.query_params.get('msg') or \
+        app.current_request.query_params.get('message')
     level = app.current_request.query_params.get('level', level)
     if msg is None:
-        raise RuntimeError("Logging error! No message was provided!")
+        return Response(body='No message provided.', status_code=BadRequestError.STATUS_CODE)
     loggers = {
+        'debug': app.log.debug,
+        'trace': app.log.trace,
         'info': app.log.info,
         'warning': app.log.warning,
         'error': app.log.error
@@ -317,6 +423,24 @@ def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
     return get_params(app, key=key)
 
 
+CMA_MODEL_INSTANCE = None
+
+
+def initialize_model():
+    global CMA_MODEL_INSTANCE
+    if CMA_MODEL_INSTANCE is not None:
+        return CMA_MODEL_INSTANCE
+    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    from chalicelib.engine.cma_model_params import CMAModelParams
+    model_config = get_model_config(app)
+    if model_config is None:
+        model_config = {}
+    model_config = CMAModelParams(**model_config)
+    model = CMASleepWakeModel(model_config)
+    CMA_MODEL_INSTANCE = model
+    return CMA_MODEL_INSTANCE
+
+
 @app.route('/run', methods=["GET", "POST"])
 def run_model_route():
     """
@@ -327,10 +451,8 @@ def run_model_route():
     if request is None:
         raise RuntimeError("No request was provided!")
     model_config = get_model_config(app)
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    if model_config is None:
-        model_config = {}
-    model = CMASleepWakeModel(**model_config)
+    model = initialize_model()
+    model.update(**model_config)
     df = model.run()
     output = df.to_json()
     response = Response(body=output, status_code=200,
@@ -350,21 +472,20 @@ def run_at_time_func(app: Chalice) -> str:
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     # pylint-disable=import-outside-toplevel
-    import numpy as np
-    # pylint-disable=import-outside-toplevel
-    import pandas as pd
-    # pylint-disable=import-outside-toplevel
     from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pandas import DataFrame
     logger.info('model_config: %s', json.dumps(model_config))
     logger.info('calc_params: %s', json.dumps(calc_params))
     if model_config is None:
         model_config = {}
-    model = CMASleepWakeModel(**model_config)
+    model = initialize_model()
+    model_config = CMAModelParams(**model_config)
+    model = model.update(model_config)
     if calc_params is None:
         calc_params = {}
-    output: np.ndarray | tuple = model.calc_Gt(**calc_params)
-    if isinstance(output, np.ndarray):
-        output = output.tolist()
+    df: DataFrame = model.calc_Gt(**calc_params)
+    output = df.to_json()
     return output
 
 
@@ -385,12 +506,13 @@ def run_at_time_route():
         app.log.error('failed to run at time.', exc_info=True)
         logger.error('failed to run at time.', exc_info=True)
         error_response = Response(body={"error": "failed to run at time. See error message on server log."}, status_code=500)
+        return error_response
 
 
 @app.route('/fit', methods=['POST'])
 def fit_model_to_data():
     from chalicelib.engine.fit import fit_model as cma_fit_model
-    import pandas as pd
+    from pandas import DataFrame
     data = get_params(app, 'data')
     if data is None:
         raise RuntimeError("no data was provided!")
@@ -400,7 +522,7 @@ def fit_model_to_data():
     if isinstance(model_config, str):
         model_config = json.loads(model_config)
     try:
-        df = pd.DataFrame(data)
+        df = DataFrame(data)
         fit_result = cma_fit_model(df, **model_config)
         output = fit_result.model_dump_json()
     except Exception:
