@@ -313,7 +313,9 @@ def initialize_base_url(app):
     if '127.0.0.1' in BASE_URL or 'localhost' in BASE_URL:
         BASE_URL = f'http://{BASE_URL}'
     else:
-        BASE_URL = f'https://{BASE_URL}/api'
+        BASE_URL = f'https://{BASE_URL}'
+        if '/api' not in BASE_URL:
+            BASE_URL += '/api'
     STATIC_BASE_URL = f'{BASE_URL}/static'
     return BASE_URL
 
