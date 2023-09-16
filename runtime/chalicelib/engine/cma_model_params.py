@@ -21,7 +21,7 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         eps (float, optional): The value of eps. Defaults to 1e-18.
     """
     t: Optional[float | Sequence[float] | ndarray] = None
-    N: int = 288
+    N: int | None = 288
     d: float = 0.0
     taup: float = 1.0
     taug: float | Sequence[float] | ndarray = 1.0
