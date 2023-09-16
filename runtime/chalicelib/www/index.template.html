@@ -45,7 +45,7 @@
     <main class="container">
       <div id="header"
            class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
-        <img class="mr-3" src="{PFUN_ICON_URL}" alt="" width="48" height="48">
+        <img id="pfun-logo" class="mr-3" src="" alt="" width="48" height="48">
         <div class="lh-1">
           <h6 class="mb-1 text-dark lh-2">PFun CMA Model API</h6>
         </div>
@@ -58,7 +58,7 @@
         </div>
         <div id="errorToast"
              class="toast bg-warning"
-             style="display: none;"
+             style="display: none"
              role="alert"
              aria-live="assertive"
              aria-atomic="true">
@@ -73,9 +73,11 @@
           </div>
           <div class="toast-body">An error occurred while loading.</div>
         </div>
-        <div id="apiFormContainer" class="col-3 my-3 p-3 bg-white rounded shadow-sm">
+        <div id="apiFormContainer"
+             class="col-3 my-3 p-3 bg-white rounded shadow-sm">
           <!-- form container -->
-          <form id="apiForm"></form>
+          <form id="apiForm">
+          </form>
         </div>
         <div id="output" class="col-9 my-3 p-3 bg-white rounded shadow-sm">
           <h2>Output</h2>
@@ -184,8 +186,28 @@
         loadingIndicator.style.display = "none";
       }}
 
+      async function loadLogo() {{
+        const logo = document.getElementById("pfun-logo");
+        axios.get('{PFUN_ICON_URL}', {{
+          responseType: 'arraybuffer'
+        }}).then(r => {{
+          const base64Image = btoa(
+            new Uint8Array(r.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ''
+            )
+          );
+          $('#pfun-logo').attr('src', 'data:image/png;base64,' + base64Image);
+        }})
+          .catch(error => {{
+          console.error('Error fetching image:', error);
+        }});
+      }}
+
       const loadAll = async (params=null) => {{
         await loadScripts();
+        await loadLogo();
+        console.log('...loaded logo.');
         await ns.require("{STATIC_BASE_URL}/js/app.js");
         console.log('...loaded app.js.');
       }};
