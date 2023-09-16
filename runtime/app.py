@@ -347,9 +347,9 @@ def initialize_index_resources():
     output_static_base_url = str(
         utils.add_url_params(
             STATIC_BASE_URL, {'source': source, 'filename': ''}))
-    PFUN_ICON_URL = str(
+    PFUN_ICON_URL = str(urlparse.unquote(
         utils.add_url_params(
-            STATIC_BASE_URL, {'filename': '/icons/mattepfunlogolighter.png'}))
+            STATIC_BASE_URL, {'filename': '/icons/mattepfunlogolighter.png'})))
     BODY = body.format(
         STATIC_BASE_URL=output_static_base_url,
         PFUN_ICON_URL=PFUN_ICON_URL,
