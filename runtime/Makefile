@@ -79,3 +79,7 @@ setup-role-policy:
 	@aws iam attach-role-policy --role-name pfun-cma-model-dev-api_handler --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
 	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
 	@echo '...done with setup of role policy.'
+
+generate-swagger:
+	sh -c 'cd ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www && aws apigateway get-export --rest-api-id oias8ms59c --stage-name api --export-type swagger --parameters extensions='apigateway' swagger.json --output json && cd -'
+	echo '...generated swagger.json'

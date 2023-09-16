@@ -333,12 +333,8 @@ def initialize_index_resources():
     response = get_static_resource('index.template.html')
     body = response.text
     ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item" href="/api{name}">{name}</a></li>'
+        f'<li><a class="dropdown-item route-link" href="{BASE_URL}/{name}">{name}</a></li>'
         for name in PUBLIC_ROUTES])
-    img_content = get_static_resource(
-        '/icons/mattepfunlogolighter.png', content_type='image/png').content
-    PFUN_ICON_BLOB = base64.b64encode(img_content).decode('utf-8')
-    PFUN_ICON_BLOB = f'data:image/png;base64,{PFUN_ICON_BLOB}'
     app.log.debug('BODY: %s', body)
     app.log.info('BASE_URL: %s', BASE_URL)
     app.log.info('STATIC_BASE_URL: %s', STATIC_BASE_URL)
@@ -348,9 +344,12 @@ def initialize_index_resources():
     output_static_base_url = str(
         utils.add_url_params(
             STATIC_BASE_URL, {'source': source, 'filename': ''}))
+    PFUN_ICON_URL = str(
+        utils.add_url_params(
+            STATIC_BASE_URL, {'filename': '/icons/mattepfunlogolighter.png'}))
     BODY = body.format(
         STATIC_BASE_URL=output_static_base_url,
-        PFUN_ICON_BLOB=PFUN_ICON_BLOB,
+        PFUN_ICON_URL=PFUN_ICON_URL,
         ROUTES=ROUTES
     )
     return BODY
@@ -372,6 +371,16 @@ def index():
         status_code=200,
         headers={'Content-Type': 'text/html'}
     )
+
+
+@app.schedule('rate(2 minutes)')
+def reheat_app(event):
+    global HTTP_SESSION, BASE_URL
+    HTTP_SESSION = initialize_http_session()
+    BASE_URL = initialize_base_url(app)
+    response = HTTP_SESSION.get(BASE_URL + '/routes')
+    return {'routes': json.loads(response.text), 'message': '...reheated.',
+            'status': response.status_code}
 
 
 @app.route("/routes")
@@ -443,9 +452,7 @@ def initialize_model():
 
 @app.route('/run', methods=["GET", "POST"])
 def run_model_route():
-    """
-    A function that returns a message containing the welcome message and the
-    routes of the PFun CMA Model API.
+    """Runs the CMA model.
     """
     request: Request | None = app.current_request
     if request is None:

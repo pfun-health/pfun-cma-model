@@ -125,6 +125,17 @@ async function generateApiForm() {
   submitButton.setAttribute('type', 'submit');
   submitButton.textContent = 'Submit';
   formContainer.appendChild(submitButton);
+  submitButton.classList.add("btn", "btn-primary", "m-2");
+  $("ul.navbar-nav").append(`<li id="submit-button-container" class="nav-item"></li>`);
+  var secondarySubmitButton = document.createElement("button");
+  secondarySubmitButton.setAttribute("id", "secondary-submit-button");
+  secondarySubmitButton.setAttribute("type", "button");
+  secondarySubmitButton.textContent = "Submit";
+  secondarySubmitButton.classList.add("btn", "btn-primary", "m-2");
+  secondarySubmitButton.addEventListener("click", function (event) {
+    submitButton.click();
+  })
+  document.getElementById("submit-button-container").appendChild(secondarySubmitButton);
 
   if (localStorage.getItem('PFUN_CMA_API_KEY')) {
     apiKeyInput.value = localStorage.getItem('PFUN_CMA_API_KEY');
