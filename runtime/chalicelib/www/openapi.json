@@ -502,8 +502,8 @@
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
                 },
-                "summary": "A function that returns a message containing the welcome message and the",
-                "description": "routes of the PFun CMA Model API."
+                "summary": "Runs the CMA model.",
+                "description": "    "
             },
             "post": {
                 "consumes": [
@@ -532,8 +532,8 @@
                     "contentHandling": "CONVERT_TO_TEXT",
                     "type": "aws_proxy"
                 },
-                "summary": "A function that returns a message containing the welcome message and the",
-                "description": "routes of the PFun CMA Model API."
+                "summary": "Runs the CMA model.",
+                "description": "    "
             },
             "options": {
                 "consumes": [

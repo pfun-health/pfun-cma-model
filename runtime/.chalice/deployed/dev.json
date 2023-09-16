@@ -3,7 +3,23 @@
     {
       "name": "managed-layer",
       "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:77"
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-managed-layer:78"
+    },
+    {
+      "name": "reheat_app_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::860311922912:role/pfun-cma-model-dev-reheat_app",
+      "role_name": "pfun-cma-model-dev-reheat_app"
+    },
+    {
+      "name": "reheat_app",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:860311922912:function:pfun-cma-model-dev-reheat_app"
+    },
+    {
+      "name": "reheat_app-event",
+      "resource_type": "cloudwatch_event",
+      "rule_name": "pfun-cma-model-dev-reheat_app-event"
     },
     {
       "name": "api_handler_role",

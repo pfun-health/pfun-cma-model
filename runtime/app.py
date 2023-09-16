@@ -150,6 +150,9 @@ def authorization_required(func):
     """
     def wrapper(*args, **kwargs):
         global SECRETS_CLIENT
+        if not hasattr(app, 'current_request'):
+            #: skip authorization for lambda functions
+            return func(*args, **kwargs)
         if app.current_request.path not in PRIVATE_ROUTES:
             #: skip authorization for public routes
             return func(*args, **kwargs)
