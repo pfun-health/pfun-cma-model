@@ -1,7 +1,6 @@
 """
 PFun CMA Model API routes.
 """
-import base64
 import os
 import json
 import sys
@@ -12,7 +11,8 @@ from chalice.app import (
     Response, AuthRoute, CORSConfig,
     CaseInsensitiveMapping
 )
-import requests
+from requests import post
+from requests.sessions import Session
 from pathlib import Path
 import urllib.parse as urlparse
 from typing import (
@@ -282,15 +282,6 @@ def static_files():
     return Response(body=output,
                     status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
 
-
-def initialize_http_session():
-    HTTP_SESSION = requests.Session()
-    HTTP_SESSION.headers.update({'Connection': 'keep-alive'})
-    return HTTP_SESSION
-
-
-HTTP_SESSION = initialize_http_session()
-
 BASE_URL = None
 STATIC_BASE_URL = None
 BODY = None
@@ -300,20 +291,22 @@ def initialize_base_url(app):
     global BASE_URL, STATIC_BASE_URL, SDK_CLIENT
     if BASE_URL is not None and STATIC_BASE_URL is not None:
         return BASE_URL
-    if not hasattr(app, 'current_request'):
+    BASE_URL = app.current_request.headers.get(
+            'host', app.current_request.headers.get(
+                'origin', app.current_request.headers.get('referer', '')))
+    if any([BASE_URL == '', not hasattr(app, 'current_request')]):
         if SDK_CLIENT is None:
             SDK_CLIENT = new_boto3_client('apigateway')
         rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
                            if item.get('name') == 'PFun CMA Model Backend')['id']
-        BASE_URL = 'https://%s.execute-api.us-east-1.amazonaws.com/%s' % (rest_api_id, 'api')
-    else:
-        BASE_URL = app.current_request.headers.get(
-            'host', app.current_request.headers.get(
-                'origin', app.current_request.headers.get('referer', '')))
+        BASE_URL = 'https://%s.execute-api.us-east-1.amazonaws.com/api' % (rest_api_id,)
     if '127.0.0.1' in BASE_URL or 'localhost' in BASE_URL:
+        #: handle localhost
         BASE_URL = f'http://{BASE_URL}'
     else:
-        BASE_URL = f'https://{BASE_URL}'
+        #: handle non-localhost
+        if 'https://' not in BASE_URL:
+            BASE_URL = f'https://{BASE_URL}'
         if '/api' not in BASE_URL:
             BASE_URL += '/api'
     STATIC_BASE_URL = f'{BASE_URL}/static'
@@ -332,7 +325,9 @@ def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', conten
     url = utils.add_url_params(STATIC_BASE_URL, {
         'source': source, 'filename': path, 'ContentType': content_type})
     app.log.info('(static resource) GET: %s', url)
-    response = HTTP_SESSION.get(url)
+    response = None
+    with Session() as session:
+        response = session.get(url)
     return response
 
 
@@ -383,16 +378,6 @@ def index():
         status_code=200,
         headers={'Content-Type': 'text/html'}
     )
-
-
-@app.schedule('rate(2 minutes)')
-def reheat_app(event):
-    global HTTP_SESSION, BASE_URL
-    HTTP_SESSION = initialize_http_session()
-    BASE_URL = initialize_base_url(app)
-    response = HTTP_SESSION.get(BASE_URL + '/routes')
-    return {'routes': json.loads(response.text), 'message': '...reheated.',
-            'status': response.status_code}
 
 
 @app.route("/routes")
@@ -592,7 +577,7 @@ oauth_info = None
 
 
 @app.route('/login-dexcom', methods=['GET', 'POST'])
-def oauth2_dexcom(event, context):
+def oauth2_dexcom():
     """Handles the Dexcom login request."""
 
     global oauth_info
@@ -612,7 +597,7 @@ def oauth2_dexcom(event, context):
             'redirect_uri': oauth_info['redirect_uri']
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = requests.post(
+        response = post(
             url, data=payload, timeout=10, headers=headers)
         data = response.json()
         oauth_info['oauth2_tokens'] = data
@@ -651,7 +636,7 @@ def oauth2_dexcom(event, context):
             'redirect_uri': oauth_info['redirect_uri']
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = requests.post(
+        response = post(
             url, data=payload, timeout=10, headers=headers)
         data = response.json()
         oauth_info['oauth2_tokens'] = data

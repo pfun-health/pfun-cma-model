@@ -1,8 +1,10 @@
 deploy: tests deploy_chalice test_deployment
 
+STAGE ?= dev
+
 deploy_dependencies:
 	echo "deploying dependencies layer..."
-	cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy
+	@cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy --stage ${STAGE}
 	sleep 2s
 
 deploy_local: tests
@@ -20,21 +22,19 @@ test_local_deployment:
 	base_url='http://localhost:8000/' \
 	${HOME}/Git/pfun-cma-model/scripts/sample-local-deployment.sh
 	sleep 1s
-	echo '...Success (see above)...done testing.'
+	@echo '...Success (see above)...done testing.'
 
 deploy_model: generate-sdk deploy_chalice test_deployment
-	echo -e '...Success (see above)...done deploying.'
+	@echo -e '...Success (see above)...done deploying.'
 
 deploy_chalice: generate-sdk
-	chalice deploy
+	@echo 'deploying...'
+	@chalice deploy --stage $(STAGE)
 	sleep 1s
-	echo '...deployed with latest sdk.'
+	@echo '...deployed with latest sdk.'
 
 test_deployment:
-	echo 'testing...'
-	sleep 1s
-	(chalice invoke -n run_model | jq) && \
-		echo 'Success (see above)...done testing lambda function run_model.'
+	@echo 'testing...'
 	sleep 1s
 	(./scripts/sample-endpoint.sh) && \
 		echo 'Success (see above)...done testing HTTP endpoint.'

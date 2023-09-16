@@ -198,6 +198,7 @@
             )
           );
           $('#pfun-logo').attr('src', 'data:image/png;base64,' + base64Image);
+          console.log('...loaded logo.');
         }})
           .catch(error => {{
           console.error('Error fetching image:', error);
@@ -206,10 +207,9 @@
 
       const loadAll = async (params=null) => {{
         await loadScripts();
-        await loadLogo();
-        console.log('...loaded logo.');
         await ns.require("{STATIC_BASE_URL}/js/app.js");
         console.log('...loaded app.js.');
+        loadLogo();
       }};
 
       progressIndicator(loadAll);
