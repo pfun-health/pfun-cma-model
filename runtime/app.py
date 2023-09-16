@@ -297,12 +297,19 @@ BODY = None
 
 
 def initialize_base_url(app):
-    global BASE_URL, STATIC_BASE_URL
+    global BASE_URL, STATIC_BASE_URL, SDK_CLIENT
     if BASE_URL is not None and STATIC_BASE_URL is not None:
         return BASE_URL
-    BASE_URL = app.current_request.headers.get(
-        'host', app.current_request.headers.get(
-            'origin', app.current_request.headers.get('referer', '')))
+    if not hasattr(app, 'current_request'):
+        if SDK_CLIENT is None:
+            SDK_CLIENT = new_boto3_client('apigateway')
+        rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
+                           if item.get('name') == 'PFun CMA Model Backend')['id']
+        BASE_URL = 'https://%s.execute-api.us-east-1.amazonaws.com/%s' % (rest_api_id, 'api')
+    else:
+        BASE_URL = app.current_request.headers.get(
+            'host', app.current_request.headers.get(
+                'origin', app.current_request.headers.get('referer', '')))
     if '127.0.0.1' in BASE_URL or 'localhost' in BASE_URL:
         BASE_URL = f'http://{BASE_URL}'
     else:
