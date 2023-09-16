@@ -229,6 +229,10 @@ var model_config = {
 
 var chart = null;
 
+const funcMap = {
+  'run-at-time': 'runAtTime'
+}
+
 
 const initializeApp = async () => {
 
@@ -253,9 +257,11 @@ const initializeApp = async () => {
     // Handle WebSocket and HTTP endpoints based on the selected method and function
     // Call the appropriate function with the provided input values.
     try {
-
       console.log(selectedFunction, selectedMethod, optionalParams, body);
       selectedFunction = selectedFunction.replace('/', '');
+      if (Object.keys(funcMap).includes(selectedFunction)) {
+        selectedFunction = funcMap[selectedFunction];
+      }
       selectedMethod = selectedMethod.slice(0, 1).toUpperCase() + selectedMethod.slice(1).toLowerCase();
       var content_type = 'application/json';
       body = body ? body : '{}';

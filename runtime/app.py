@@ -472,7 +472,6 @@ def run_at_time_func(app: Chalice) -> str:
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     # pylint-disable=import-outside-toplevel
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
     from chalicelib.engine.cma_model_params import CMAModelParams
     from pandas import DataFrame
     logger.info('model_config: %s', json.dumps(model_config))
@@ -481,7 +480,7 @@ def run_at_time_func(app: Chalice) -> str:
         model_config = {}
     model = initialize_model()
     model_config = CMAModelParams(**model_config)
-    model = model.update(model_config)
+    model.update(model_config)  # ! this occurs inplace !
     if calc_params is None:
         calc_params = {}
     df: DataFrame = model.calc_Gt(**calc_params)
