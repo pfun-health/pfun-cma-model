@@ -10,12 +10,8 @@ var body = null;
 var selectedFunction = null;
 var selectedMethod = null;
 
-// Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
-// Function to generate the API form based on the JSON response
-async function generateApiForm() {
-
-  // Example JSON response from /routes endpoint
-  const routesData = await axios.get(window.location.href + '/routes', {
+async function getRoutesData() {
+  return await axios.get(window.location.origin + '/routes', {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -25,6 +21,14 @@ async function generateApiForm() {
   }).catch((error) => {
     console.error('Failed to get routes data because: ', error);
   });
+}
+
+// Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
+// Function to generate the API form based on the JSON response
+async function generateApiForm() {
+
+  // Example JSON response from /routes endpoint
+  const routesData = await getRoutesData();
 
   const formContainer = document.getElementById('apiForm');
 
@@ -241,111 +245,114 @@ var model_config = {
 var chart = null;
 
 const funcMap = {
-  'run-at-time': 'runAtTime'
+  'run-at-time': 'runAtTime',
+  'run': 'run',
+  'fit': 'fit'
 }
 
+// a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
 
-const initializeApp = async () => {
+async function submitFunction(event) {
+  event.preventDefault();
 
-  // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
+  // Retrieve the input values
+  apiKey = document.getElementById('apiKey').value;
+  optionalParams = document.getElementById('optionalParams').value;
+  body = document.getElementById('body').value;
+  selectedFunction = document.getElementById('function').value;
+  selectedMethod = document.getElementById('method').value;
 
-  async function submitFunction(event) {
-    event.preventDefault();
+  // Validate the input values
+  // ... (TODO)
 
-    // Retrieve the input values
-    apiKey = document.getElementById('apiKey').value;
-    optionalParams = document.getElementById('optionalParams').value;
-    body = document.getElementById('body').value;
-    selectedFunction = document.getElementById('function').value;
-    selectedMethod = document.getElementById('method').value;
+  // initialize the API using the provided apiKey
+  app = await initializeAPI(apiKey);
 
-    // Validate the input values
-    // ... (TODO)
+  // Handle WebSocket and HTTP endpoints based on the selected method and function
+  // Call the appropriate function with the provided input values.
+  try {
+    console.log(selectedFunction, selectedMethod, optionalParams, body);
+    selectedFunction = selectedFunction.replace('/', '');
+    if (Object.keys(funcMap).includes(selectedFunction)) {
+      selectedFunction = funcMap[selectedFunction];
+    }
+    selectedMethod = selectedMethod.slice(0, 1).toUpperCase() + selectedMethod.slice(1).toLowerCase();
+    var content_type = 'application/json';
+    body = body ? body : '{}';
+    if (selectedMethod.toUpperCase() == 'GET') {
+      body = null;
+      content_type = 'application/x-www-form-urlencoded';
+    }
+    var result = await apigClient[selectedFunction + selectedMethod](optionalParams, body, {
+      headers: {
+        Authorization: 'Bearer allow',
+        Accept: '*/*',
+        'Content-Type': content_type
+      },
+      timeout: 30000
+    });
 
-    // initialize the API using the provided apiKey
-    app = await initializeAPI(apiKey);
+    // set raw json data...
+    var data = result.data;
+    var string_data = JSON.stringify(data);
+    console.log(string_data);
+    $("#output-area").html(
+      `<code>${string_data}</code>`
+    );
 
-    // Handle WebSocket and HTTP endpoints based on the selected method and function
-    // Call the appropriate function with the provided input values.
-    try {
-      console.log(selectedFunction, selectedMethod, optionalParams, body);
-      selectedFunction = selectedFunction.replace('/', '');
-      if (Object.keys(funcMap).includes(selectedFunction)) {
-        selectedFunction = funcMap[selectedFunction];
-      }
-      selectedMethod = selectedMethod.slice(0, 1).toUpperCase() + selectedMethod.slice(1).toLowerCase();
-      var content_type = 'application/json';
-      body = body ? body : '{}';
-      if (selectedMethod.toUpperCase() == 'GET') {
-        body = null;
-        content_type = 'application/x-www-form-urlencoded';
-      }
-      var result = await apigClient[selectedFunction + selectedMethod](optionalParams, body, {
-        headers: {
-          Authorization: 'Bearer allow',
-          Accept: '*/*',
-          'Content-Type': content_type
-        },
-        timeout: 30000
+    // update chart...
+    const ctx = document.getElementById("chart");
+    if (selectedFunction == 'run') {
+      var arr = [];
+      var Carr = [];
+      const G = Object.values(data.G);
+      const C = Object.values(data.c);
+      Object.values(data.t).forEach((value, index) => {
+        arr.push({
+          x: value,
+          y: G[index]
+        });
+        Carr.push({
+          x: value,
+          y: C[index]
+        });
       });
-
-      // set raw json data...
-      var data = result.data;
-      var string_data = JSON.stringify(data);
-      console.log(string_data);
-      $("#output-area").html(
-        `<code>${string_data}</code>`
-      );
-
-      // update chart...
-      const ctx = document.getElementById("chart");
-      if (selectedFunction == 'run') {
-        var arr = [];
-        var Carr = [];
-        const G = Object.values(data.G);
-        const C = Object.values(data.c);
-        Object.values(data.t).forEach((value, index) => {
-          arr.push({
-            x: value,
-            y: G[index]
-          });
-          Carr.push({
-            x: value,
-            y: C[index]
-          });
-        });
-        if (chart) {
-          chart.clear();
-          chart.destroy();
-        }
-        chart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: arr.map(x => x.x),
-            datasets: [
-              {
-                label: 'Glucose',
-                data: arr
-              },
-              {
-                label: 'Cortisol',
-                data: Carr
-              }
-            ]
-          }
-        });
+      if (chart) {
+        chart.clear();
+        chart.destroy();
       }
-
-    } catch (err) {
-      console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: arr.map(x => x.x),
+          datasets: [
+            {
+              label: 'Glucose',
+              data: arr
+            },
+            {
+              label: 'Cortisol',
+              data: Carr
+            }
+          ]
+        }
+      });
     }
 
+  } catch (err) {
+    console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
   }
+}
+
+const initializeApp = async () => {
+// Initialize the app.
 
   // Add event listeners to handle form submission.
   document.getElementById('apiForm').addEventListener('submit', async (event) => {
     await progressIndicator(submitFunction, event);
   });
+
+  return app;
 };
 
 async function setupApp() {
@@ -366,14 +373,51 @@ async function setupApp() {
     apiFormContainerDiv.classList.toggle("minimized");
     if (apiFormContainerDiv.classList.contains("minimized")) {
       restoreButton.innerText = "Restore API Form";
+      $(restoreButton).toggleClass("btn-success");
       $("#output").removeClass("col-9").addClass("col-12");
     } else {
       restoreButton.innerText = "Minimize API Form";
+      $(restoreButton).toggleClass("btn-danger");
       $("#output").removeClass("col-12").addClass("col-9");
     }
   }
-
   restoreButton.addEventListener("click", toggleMinimized);
+
+  // setup the route links
+  async function setupRouteLinks() {
+
+    // Select all "a" elements with the class "route-link"
+    const links = document.querySelectorAll('a.route-link');
+
+    // Add event listener to each link
+    links.forEach(link => {
+      link.addEventListener('click', async function (event) {
+        event.preventDefault(); // Prevent the default action
+        const routeName = this.id; // Get the ID of the clicked element
+
+        // Call the corresponding function from apigClient
+        if (routeName) {
+          const routeData = await getRoutesData();
+          var routeMethod = routeData[routeName][0];
+          if (["/run", "/run-at-time"].includes(routeName)) {
+            routeMethod = 'POST';
+          }
+          $("select#function").val(routeName);
+          $("select#method").val(routeMethod);
+          $("#apiForm > button[type=submit]").click();
+          // console.log(routeData);
+          // console.log(routeName, routeMethod);
+          // console.log(routeData[routeName][0]);
+        } else {
+          console.warn(`Route name not found or not a function: ${routeName}`);
+        }
+      });
+    });
+  }
+
+  // Run the function to set up the event listeners
+  await setupRouteLinks();
+
 }
 
 setupApp();

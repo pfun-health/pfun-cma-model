@@ -3,6 +3,7 @@ import logging
 import os
 import time
 import json
+from io import BytesIO
 from requests import ConnectionError
 from requests.sessions import Session
 from chalice.app import Chalice
@@ -31,6 +32,10 @@ class DummyResponse:
     def json(self):
         return json.loads(self.body)
 
+    @property
+    def raw(self):
+        return BytesIO(self.body.encode('utf-8'))
+
 
 @app.schedule('rate(15 minutes)')
 def keep_warm(event):
@@ -51,5 +56,5 @@ def keep_warm(event):
     return {
         "message": "Lambda function kept warm!" if success else "Failed to warm up Lambda.",
         "status_code": response.status_code,
-        "data": response.json()
+        "data": response.raw.read().decode('utf-8')
     }

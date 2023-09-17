@@ -10,36 +10,21 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
           integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I"
           crossorigin="anonymous">
+    <!-- jquery-ui CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <!-- bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
             integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
             integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
             crossorigin="anonymous"></script>
-    <!-- jquery -->
+    <!-- jquery JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- jquery-ui JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <!-- chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      .minimized {{
-        display: none;
-      }}
-
-      .bd-placeholder-img {{
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }}
-
-      @media (min-width: 768px) {{
-        .bd-placeholder-img-lg {{
-          font-size: 3.5rem;
-        }}
-      }}
-    </style>
   </head>
   <body>
     <main class="container">
@@ -50,7 +35,7 @@
           <h6 class="mb-1 text-dark lh-2">PFun CMA Model API</h6>
         </div>
       </div>
-      <div class="row">
+      <div class="grid">
         <div id="loadingIndicator"
              class="spinner-border text-primary"
              role="status">
@@ -74,12 +59,15 @@
           <div class="toast-body">An error occurred while loading.</div>
         </div>
         <div id="apiFormContainer"
-             class="col-3 my-3 p-3 bg-white rounded shadow-sm">
+             class="row my-3 p-3 bg-white rounded shadow-sm topRow">
           <!-- form container -->
           <form id="apiForm">
           </form>
         </div>
-        <div id="output" class="col-9 my-3 p-3 bg-white rounded shadow-sm">
+        <div id="resizableHandle" class="my-10 p-3 bg-dark row resize-handle border border-dark border-top-2 shadow rounded text-white">
+          <i class="bi bi-arrow-down-up"></i>
+        </div>
+        <div id="output" class="my-3 p-3 bg-white rounded shadow-sm bottomRow">
           <h2>Output</h2>
           <hr>
           <label>Chart</label>
@@ -160,7 +148,7 @@
           "{STATIC_BASE_URL}/apiGateway-js-sdk/lib/apiGatewayCore/apiGatewayClient.js",
           "{STATIC_BASE_URL}/apiGateway-js-sdk/lib/apiGatewayCore/simpleHttpClient.js",
           "{STATIC_BASE_URL}/apiGateway-js-sdk/lib/apiGatewayCore/utils.js",
-          "{STATIC_BASE_URL}/apiGateway-js-sdk/apigClient.js"
+          "{STATIC_BASE_URL}/apiGateway-js-sdk/apigClient.js",
         ];
 
         for (const scriptSrc of scriptSrcArray) {{
@@ -188,7 +176,8 @@
 
       async function loadLogo() {{
         const logo = document.getElementById("pfun-logo");
-        axios.get('{PFUN_ICON_URL}', {{
+        const pfun_icon_url = window.location.origin + '{PFUN_ICON_PATH}';
+        axios.get(pfun_icon_url, {{
           responseType: 'arraybuffer'
         }}).then(r => {{
           const base64Image = btoa(
@@ -205,10 +194,28 @@
         }});
       }}
 
+      async function loadStyles() {{
+        console.log('loading inject-css.js...');
+        await ns.require("{STATIC_BASE_URL}/js/inject-css.js");
+        ns.link = async (url) => {{
+          return await injectCSSFile(url);
+        }};
+        console.log('...loaded inject-css.js.');
+      }}
+
       const loadAll = async (params=null) => {{
         await loadScripts();
+        await loadStyles();
+        await ns.link("{STATIC_BASE_URL}/css/app.css");
+        console.log('...loaded app.css.');
         await ns.require("{STATIC_BASE_URL}/js/app.js");
         console.log('...loaded app.js.');
+        console.log("loading extras...");
+        await ns.link("{STATIC_BASE_URL}/css/resize-handle.css");
+        await ns.require("{STATIC_BASE_URL}/js/resize-handle.js");
+        console.log('...loaded extras.');
+        await setupResizeHandle();
+        console.log('...setup resize handle.');
         loadLogo();
       }};
 

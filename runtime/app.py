@@ -276,11 +276,15 @@ def static_files():
             body='Requested static resource is not available (requested static resource: %s).' % str(filepath), status_code=404)
     content_type = app.current_request.query_params.get('ContentType', 'text/*')
     if 'text' in content_type or content_type == '*/*':
-        output = filepath.read_text(encoding='utf-8')
+        try:
+            output = filepath.read_text(encoding='utf-8')
+        except UnicodeDecodeError:
+            output = filepath.read_bytes()
     else:
         output = filepath.read_bytes()
     return Response(body=output,
                     status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
+
 
 BASE_URL = None
 STATIC_BASE_URL = None
@@ -292,8 +296,8 @@ def initialize_base_url(app):
     if BASE_URL is not None and STATIC_BASE_URL is not None:
         return BASE_URL
     BASE_URL = app.current_request.headers.get(
-            'host', app.current_request.headers.get(
-                'origin', app.current_request.headers.get('referer', '')))
+        'host', app.current_request.headers.get(
+            'origin', app.current_request.headers.get('referer', '')))
     if any([BASE_URL == '', not hasattr(app, 'current_request')]):
         if SDK_CLIENT is None:
             SDK_CLIENT = new_boto3_client('apigateway')
@@ -340,7 +344,7 @@ def initialize_index_resources():
     response = get_static_resource('index.template.html')
     body = response.text
     ROUTES = '\n'.join([
-        f'<li><a class="dropdown-item route-link" href="{BASE_URL}/{name}">{name}</a></li>'
+        f'<li><a id="{name}" class="dropdown-item route-link" href="{BASE_URL}{name}">{name}</a></li>'
         for name in PUBLIC_ROUTES])
     app.log.debug('BODY: %s', body)
     app.log.info('BASE_URL: %s', BASE_URL)
@@ -351,14 +355,16 @@ def initialize_index_resources():
     output_static_base_url = str(
         utils.add_url_params(
             STATIC_BASE_URL, {'source': source, 'filename': ''}))
-    PFUN_ICON_URL = str(urlparse.unquote(
-        utils.add_url_params(
-            STATIC_BASE_URL, {'filename': '/icons/mattepfunlogolighter.png'})))
-    BODY = body.format(
-        STATIC_BASE_URL=output_static_base_url,
-        PFUN_ICON_URL=PFUN_ICON_URL,
-        ROUTES=ROUTES
-    )
+    PFUN_ICON_PATH = f'/static?source={source}&filename=/icons/mattepfunlogolighter.png'
+    try:
+        BODY = body.format(
+            STATIC_BASE_URL=output_static_base_url,
+            PFUN_ICON_PATH=PFUN_ICON_PATH,
+            ROUTES=ROUTES
+        )
+    except KeyError as e:
+        print(f"KeyError: {e}")
+        print(f"Body before formatting: {body}")
     return BODY
 
 

@@ -1,0 +1,8 @@
+.resize-handle {
+  cursor: ew-resize;
+  border: 1px solid #000;
+  border-radius: 5px;
+  width: 100%;
+  height: 10px;
+  float: right;
+}

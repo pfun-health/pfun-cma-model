@@ -1,13 +1,13 @@
-deploy: tests deploy_chalice test_deployment
+deploy: tests deploy-chalice test-deployment
 
 STAGE ?= dev
 
-deploy_dependencies:
+deploy-dependencies:
 	echo "deploying dependencies layer..."
 	@cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy --stage ${STAGE}
 	sleep 2s
 
-deploy_local: tests
+deploy-local: tests
 	@sleep 1s;
 	@chalice local
 	@sleep 1s;
@@ -16,7 +16,7 @@ deploy_local: tests
 	@make test_local_deployment
 	sleep 1s;
 
-test_local_deployment:
+test-local-deployment:
 	sleep 1s;
 	echo -e '...Testing local deployment...';
 	base_url='http://localhost:8000/' \
@@ -24,16 +24,16 @@ test_local_deployment:
 	sleep 1s
 	@echo '...Success (see above)...done testing.'
 
-deploy_model: generate-sdk deploy_chalice test_deployment
-	@echo -e '...Success (see above)...done deploying.'
+deploy-dependencies-b2bd:
+	@cd ${HOME}/Git/pfun-cma-model-deps && chalice-local deploy --stage ${STAGE}
 
-deploy_chalice: generate-sdk
+deploy-chalice: generate-sdk
 	@echo 'deploying...'
 	@chalice deploy --stage $(STAGE)
 	sleep 1s
 	@echo '...deployed with latest sdk.'
 
-test_deployment:
+test-deployment:
 	@echo 'testing...'
 	sleep 1s
 	(./scripts/sample-endpoint.sh) && \

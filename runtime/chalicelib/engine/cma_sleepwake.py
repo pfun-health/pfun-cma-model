@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.
 """
+from functools import cached_property
 import importlib
 import copy
 import json
@@ -191,13 +192,21 @@ class CMASleepWakeModel:
          ...  (+/- postprandial insulin, glucose){Late, Early}.
     """
 
-    param_keys = ('d', 'taup', 'taug', 'B', 'Cm', 'toff')
-    param_defaults = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
-    bounds = Bounds(
-        lb=[-12.0, 0.5, 0.1, 0.0, 0.0, -3.0, ],
-        ub=[14.0, 3.0, 3.0, 1.0, 2.0, 3.0, ],
-        keep_feasible=Bounds.True_
-    )
+    @cached_property
+    def _DEFAULT_PARAMS_MODEL(self) -> CMAModelParams:  # type: ignore
+        return CMAModelParams()
+
+    @cached_property
+    def _DEFAULT_PARAMS(self) -> Dict:
+        return self._DEFAULT_PARAMS_MODEL.model_dump()
+
+    @cached_property
+    def bounded_param_keys(self):
+        return self._DEFAULT_PARAMS_MODEL.bounded_param_keys
+
+    @cached_property
+    def param_keys(self):
+        return tuple(self._DEFAULT_PARAMS.keys())
 
     def param_key_index(self, keys: str | Iterable[str]) -> int | Iterable[int]:
         """Return the index of the parameter key."""
@@ -216,7 +225,7 @@ class CMASleepWakeModel:
         if isinstance(keep_feasible, bool_):
             keep_feasible = [keep_feasible, ] * len(keys)
         for k in keys:
-            ix = self.param_keys.index(k)
+            ix = self.bounded_param_keys.index(k)
             self.bounds[ix] = (
                 lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
         if return_bounds:
@@ -248,13 +257,21 @@ class CMASleepWakeModel:
         """JSON serialization."""
         return self.__json__()
 
+    @property
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value):
+        self._params = value
+
     def __init__(self, model_config: Dict | CMAModelParams | None = None, **kwds):  # type: ignore
         """PFun CMA model constructor.
 
         Arguments:
         ----------
             t (array or float, optional): Time vector (corresponds to ). If not provided, t will be a linearly spaced vector of length N.
-            N (int, optional): Number of time points. Defaults to 288.
+            N (int, optional): Number of time points. Defaults to 24.
             d (float, optional): Offset from UTC solar noon for the estimated latitude (hours). Defaults to 0.0.
             taup (float, optional): Photoperiod length (hours). Defaults to 1.0.
             taug (float, optional): Meal duration (hours). Defaults to 1.0.
@@ -265,29 +282,25 @@ class CMASleepWakeModel:
             seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
             eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
         """
-        defaults = dict(
-            t=None,
-            N=288, d=0.0, taup=1.0, taug=1.0, B=0.05,
-            Cm=0.0, toff=0.0, tM=(7.0, 11.0, 17.5),
-            seed=None, eps=1e-18
-        )
-        params = defaults.copy()
+        self._params: Dict = {}
+        defaults = self._DEFAULT_PARAMS
+        self._params.update(defaults)  # type: ignore
         if model_config is not None:
             if isinstance(model_config, CMAModelParams):
-                model_config = model_config.dict()  # type: ignore
-            params.update(model_config)  # type: ignore
-        params.update(kwds)
-        t, N, tM, seed, eps = params.pop('t'), params.pop('N'), params.pop(
-            'tM'), params.pop('seed'), params.pop('eps')
+                model_config = model_config.model_dump()  # type: ignore
+            self._params.update(model_config)  # type: ignore
+        self._params.update(kwds)
+        t, N, tM, seed, eps = self._params.get('t'), self._params.get('N'), self._params.get(
+            'tM'), self._params.get('seed'), self._params.get('eps')  # type: ignore
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
         if t is None:
             t = linspace(0, 24, num=int(N))  # type: ignore
         self.t: Sequence[float] | ndarray = t  # time vector  # type: ignore
         self.tM = asarray(tM, dtype=float)  # mealtimes vector
-        self.params: Dict[str, float] = {
-            k: float(v) for k, v in params.items() if k in self.param_keys and v is not None}  # type: ignore
-        self.bounds = copy.copy(self.__class__.bounds)
+        self.bounds = copy.copy(self._DEFAULT_PARAMS_MODEL.bounds)
+        if all([kwds.get('lb', False), kwds.get('ub', False), kwds.get('bounded_param_keys', False)]):
+            self.update_bounds(kwds['bounded_param_keys'], kwds['lb'], kwds['ub'], kwds.get('keep_feasible', Bounds.True_))
         self.eps = eps
         self.rng = None
         if seed is not None:
@@ -297,6 +310,21 @@ class CMASleepWakeModel:
     def N(self):
         """Number of time steps."""
         return len(self.t)
+
+    def update_bounded_params(self, params: Dict | CMAModelParams  # type: ignore
+                              ) -> Dict | CMAModelParams:  # type: ignore
+        """Update the latest parameters to correspond to the current bounds.
+
+        Args:
+            params (Dict): most recently updated parameters.
+
+        Returns:
+            Dict: updated parameters
+        """
+        bounded_params = {k: v for k, v in params.items() if k in self.bounded_param_keys}
+        new_params = self.bounds.update_values(bounded_params)
+        params.update(new_params)
+        return params
 
     def update(self, model_params: CMAModelParams | Dict | None = None, inplace=True, **kwds):  # type: ignore
         """
@@ -347,10 +375,10 @@ class CMASleepWakeModel:
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
         self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
-        self.params = {k: self.params[k]
-                       for k in self.param_keys}  # ! ensure order
-        #: keep within specified bounds (keep_feasible is handled by Bounds)
-        self.params = self.bounds.update_values(self.params)  # type: ignore
+        self.params = {k: self.params[k] for k in self.param_keys}  # ! ensure order
+        #: ! Note: Keep params within specified bounds (keep_feasible is handled by Bounds)
+        #: ! Note: that only bounded params are updated
+        self.params = self.update_bounded_params(self.params)
         if 'tM' in kwds:
             self.tM = array(kwds['tM'], dtype=float).flatten()
         if 'N' in kwds and kwds.get('N') is not None:
@@ -432,13 +460,11 @@ class CMASleepWakeModel:
     @property
     def c(self):
         return (4.9 / (1.0 + self.taup)) * pi * E(power((self.L - 0.88), 3)) * \
-            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * power(-self.m, 3))
+            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * power(-self.m, 3))  # type: ignore
 
     @property
     def a(self):
-        return (E(power((-self.c * self.m), 3)) +
-                exp(-0.025 * power((self.t - 13 - self.d), 2)) *
-                self.E_L(t=0.7 * (27 - self.t + self.d))) / 2.0
+        return (E(power((-self.c * self.m), 3)) + exp(-0.025 * power((self.t - 13 - self.d), 2)) * self.E_L(t=0.7 * (27 - self.t + self.d))) / 2.0  # type: ignore
 
     @property
     def I_S(self):
@@ -467,12 +493,10 @@ class CMASleepWakeModel:
             if dt is None:
                 dt = abs(self.t[-1] - self.t[-2])
             t = mod(linspace(
-                self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)
+                self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)  # type: ignore
         Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
                           self.B, self.Cm, self.toff)
-        df_gt = DataFrame({
-            'Gt{}'.format(i): Gt[i] for i in range(Gt.shape[0])
-        }, index=t)
+        df_gt = DataFrame({'Gt{}'.format(i): Gt[i] for i in range(Gt.shape[0])}, index=t)  # type: ignore
         df_gt['Gt'] = nansum(Gt, axis=0)
         return df_gt
 
@@ -585,11 +609,6 @@ class CMASleepWakeModel:
     def dt(self):
         #: TimedeltaIndex (in hours)
         return to_timedelta(self.t, unit='H')
-
-    @classmethod
-    def get_model_args(cls):
-        """for maintaining compatibility with the pfun.model_funcs API"""
-        return dict(zip(cls.param_keys, cls.param_defaults))
 
     @property
     def pvec(self):

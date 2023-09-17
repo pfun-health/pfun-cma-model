@@ -1,5 +1,7 @@
+from typing import Sequence, Dict, Any, Type
+from pydantic_core import core_schema
+from pydantic import GetCoreSchemaHandler
 import numpy as np
-from typing import Container, Dict, Tuple, Any
 
 
 class BaseCustomException(Exception):
@@ -19,6 +21,23 @@ class BoundsTypeError(BaseCustomException):
 #: Aliases for numpy bool types (necessary for type checking).
 True_, False_ = np.bool_(True), np.bool_(False)
 Bool_ = np.bool_
+
+
+_BOUNDS_SCHEMA = core_schema.typed_dict_schema({
+    "lb": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
+    "ub": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
+    "keep_feasible": core_schema.typed_dict_field(core_schema.list_schema(core_schema.bool_schema()))
+})
+
+
+class BoundsType:
+
+    def __get_pydantic_core_schema__(
+        self,
+        source: Type[Any],
+        handler: GetCoreSchemaHandler,
+    ) -> core_schema.CoreSchema:
+        return _BOUNDS_SCHEMA
 
 
 class Bounds:
@@ -115,7 +134,7 @@ class Bounds:
     def keep_feasible(self, value):
         self.array[:, 2] = value
 
-    def __setitem__(self, index: int | slice | Container[int | Any], value):
+    def __setitem__(self, index: int | slice | Sequence[int | Any], value):
         """set the bounds information at the specified index."""
         if isinstance(index, slice):
             self._array[:, index] = np.asarray(value, dtype=object)[:]
@@ -146,8 +165,8 @@ class Bounds:
             keep_feasible = np.tile(keep_feasible, len(lb))
         return np.asarray(list(zip(lb, ub, keep_feasible)))
 
-    def __init__(self, *args, lb: float | Container[float] = -np.inf,
-                 ub: float | Container[float] = np.inf,
+    def __init__(self, *args, lb: float | Sequence[float] = -np.inf,
+                 ub: float | Sequence[float] = np.inf,
                  keep_feasible: np.bool_ = True_):
         if len(args) > 0:
             #: handle Bounds positional argument
@@ -159,8 +178,8 @@ class Bounds:
             else:
                 #: handle alternative positional arguments
                 lb, ub, keep_feasible = args
-        lb = np.asarray(lb, dtype=np.float64)
-        ub = np.asarray(ub, dtype=np.float64)
+        lb = np.asarray(lb, dtype=float)
+        ub = np.asarray(ub, dtype=float)
         keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
         self._array = self._assemble_array(lb, ub, keep_feasible)
         self._input_validation()
