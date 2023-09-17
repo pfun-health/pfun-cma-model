@@ -7,20 +7,6 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
-    volumes:
-      - type: bind
-        source: ${HOME}/.aws/credentials
-        target: /root/.aws
-      - type: bind
-        source: ${HOME}/.aws/config
-        target: /root/.aws
-      - type: bind
-        source: ${HOME}/Git/pfun-cma-model-deps
-        target: /root/Git/pfun-cma-model-deps
-      - type: bind
-        source: ${HOME}/Git/pfun-cma-model
-        target: /root/Git/pfun-cma-model
-      - type: bind
-        source: ${HOME}/Git/minpack
-        target: /root/Git/minpack
+      - "8003:8001"
+      - "8002:8002"
+    expose: [8002,8003]

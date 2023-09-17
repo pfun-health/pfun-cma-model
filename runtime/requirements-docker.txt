@@ -1,0 +1,7 @@
+-r requirements.txt
+cffi
+pkgconfig
+pandas==2.0.0
+pydantic==2.3.0
+boto3==1.11.0
+chalice==1.29.0

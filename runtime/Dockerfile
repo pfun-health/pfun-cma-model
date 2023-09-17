@@ -1,26 +1,34 @@
+#syntax=docker/dockerfile:1.4
+
+# Use a lightweight base image
 FROM python:3.10-alpine
 
-# Specify the health check command
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 CMD curl --fail http://localhost:8000/ || exit 1
+# Install dependencies
+COPY requirements-docker.txt /app/
+COPY requirements.txt /app/
+RUN apk add py3-scipy && \
+    pip install --upgrade \
+	--platform manylinux2014_x86_64 \
+	--target /usr/local/lib/python3.10/site-packages \
+	--implementation cp \
+	--python-version 3.10 \
+	--only-binary=:all: \
+	--no-cache-dir \
+    -r /app/requirements-docker.txt
 
-RUN apk update && apk upgrade && \
-    apk add --no-cache \
-        python3 \
-        make \
-        bash \
-        curl \
-        git \
-        meson \
-        pkgconfig \
-        build-base \
-        gfortran \
-    && \
-    export PATH=/root/.local/bin:/usr/local/bin:/bin:/usr/bin:$PATH && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    rm -r /root/.cache
+RUN apk add mlocate && updatedb && \
+    echo '# link local executables (e.g., Chalice)' >> $HOME/.bashrc && \
+    echo 'export PATH=/usr/local/bin:$HOME/.local/bin:$PATH' >> $HOME/.bashrc && \
+    echo 'export CHALICE_EXE=$(locate /bin/chalice | head -1)' >> $HOME/.bashrc
 
-CMD ["python3", "-m", "app.app"]
+# Copy the application
+COPY . /app
+WORKDIR /app
+
+ENV CHALICE_PORT=${CHALICE_PORT:-8001}
+
+# Expose the port the app runs on
+EXPOSE ${CHALICE_PORT}
+
+# Command to run the application
+CMD ["/bin/sh", "-c", "${CHALICE_EXE}", "local", "--port", "${CHALICE_PORT}", "--host", "0.0.0.0"]
