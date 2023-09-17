@@ -1,13 +1,14 @@
-import warnings
 from minpack import lmdif
 import pandas as pd
-from typing import Any, Optional, Dict, Iterable, Container
+from typing import Any, Dict, Iterable, Container
 import numpy as np
-from numpy.linalg import LinAlgError
 from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
 import importlib
 import sys
 from pathlib import Path
+import logging
+logging.basicConfig(level=logging.WARN)
+logger = logging.getLogger(__name__)
 
 root_path = str(Path(__file__).parents[1])
 mod_path = str(Path(__file__).parent)
@@ -51,18 +52,40 @@ class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
                 self.__dict__[key] = value.to_json()
             if isinstance(value, np.ndarray):
                 self.__dict__[key] = value.tolist()
-        output = super().model_dump_json(
-            indent=indent, include=include, exclude=exclude,
-            by_alias=by_alias, exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults, exclude_none=exclude_none,
-            round_trip=round_trip, warnings=warnings)
+            if isinstance(value, CMASleepWakeModel):
+                self.__dict__[key] = value.dict()  # type: ignore
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    if isinstance(v, pd.DataFrame):
+                        value[k] = v.to_json()
+                    if isinstance(v, np.ndarray):
+                        value[k] = v.tolist()
+                    if isinstance(v, CMASleepWakeModel):
+                        value[k] = v.dict()  # type: ignore
+                self.__dict__[key] = value
+        try:
+            output = super().model_dump_json(
+                indent=indent, include=include, exclude=exclude,
+                by_alias=by_alias, exclude_unset=exclude_unset,
+                exclude_defaults=exclude_defaults, exclude_none=exclude_none,
+                round_trip=round_trip, warnings=warnings)
+        except Exception as error:
+            logging.warning("Failed to dump model json.", exc_info=True)
+            for key in self.__dict__:
+                logging.info(key, type(value), type(self.__dict__[key]))
+                print(key, type(value), type(self.__dict__[key]))
+            raise error
         self.__dict__.update(original_dict)
         return output
 
     @computed_field
     @property
     def popt_named(self) -> Dict:
-        return {k: v for k, v in zip(self.cma.param_keys, self.popt, strict=True)}
+        if hasattr(self.cma, 'bounded_param_keys'):
+            bounded_param_keys = self.cma.bounded_param_keys
+        else:
+            bounded_param_keys = self.cma.get('bounded_param_keys')
+        return {k: v for k, v in zip(bounded_param_keys, self.popt, strict=True)}
 
     @computed_field
     @property
@@ -95,7 +118,9 @@ class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
 
     @field_serializer('cma')
     def serialize_cma(self, cma: Any, _info):
-        return cma.json()
+        if hasattr(cma, 'to_dict'):
+            return cma.to_dict()
+        return cma
 
 
 def estimate_mealtimes(data, ycol: str = 'G', tm_freq: str = "2h",
@@ -244,7 +269,7 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
     #: instantiate model
     cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
-        print("taup0=", cma.taup)
+        logging.debug("taup0=", cma.taup)
 
     def fun(p, fvec, args=(), cma=cma):
         y, pcov, pmu, Niters = args
@@ -260,11 +285,11 @@ def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
             Niters[0] = Niters[0] + 1
 
     #: perform fitting
-    pkeys_include = cma.param_keys
+    pkeys_include = cma.bounded_param_keys
     p0 = np.array([cma.params[k] for k in pkeys_include])
-    if isinstance(p0[cma.param_keys.index("taug")], Container):
+    if isinstance(p0[cma.bounded_param_keys.index("taug")], Container):
         #: ! ensure we update using a scalar
-        p0[cma.param_keys.index("taug")] = 1.0
+        p0[cma.bounded_param_keys.index("taug")] = 1.0
     bounds = cma.bounds
     popt, pcov, infodict, mesg, ier = curve_fit(
         fun, xdata, ydata, p0=p0, bounds=bounds, full_output=True,

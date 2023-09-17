@@ -76,4 +76,4 @@ class TestCMASleepWakeModel:
 
         # Verify that the bounds are updated correctly
         expected_bounds = Bounds(lb=lb, ub=ub, keep_feasible=keep_feasible)
-        assert np.all(model.bounds[model.param_key_index(keys)] == expected_bounds)
+        assert np.all(model.bounds[model.param_key_index(keys, only_bounded=True)] == expected_bounds)

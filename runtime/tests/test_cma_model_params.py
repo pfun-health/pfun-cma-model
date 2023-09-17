@@ -21,7 +21,7 @@ class TestCMAModelParams:
     def test_default_values(self):
         params = CMAModelParams()
         assert params.t is None
-        assert params.N == 288
+        assert params.N == 24
         assert params.d == 0.0
         assert params.taup == 1.0
         assert params.taug == 1.0

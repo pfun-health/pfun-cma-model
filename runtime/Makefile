@@ -24,8 +24,11 @@ test-local-deployment:
 	sleep 1s
 	@echo '...Success (see above)...done testing.'
 
-deploy-dependencies-b2bd:
+deploy-localstack:
 	@cd ${HOME}/Git/pfun-cma-model-deps && chalice-local deploy --stage ${STAGE}
+
+deploy-localstack: 
+	@cd ${HOME}/Git/pfun-cma-model && chalice-local deploy --stage ${STAGE}
 
 deploy-chalice: generate-sdk
 	@echo 'deploying...'

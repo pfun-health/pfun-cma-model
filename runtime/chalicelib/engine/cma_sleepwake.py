@@ -10,10 +10,10 @@ import sys
 from pathlib import Path
 from typing import (
     Sequence,
-    Callable, Container, Dict, Iterable, Tuple
+    Callable, Container, Dict, Iterable, Tuple,
+    Optional
 )
 from numpy import (
-    dtype,
     array,
     ndarray,
     nansum,
@@ -25,12 +25,8 @@ from numpy import (
     piecewise,
     logical_and,
     logical_or,
-    logical_not,
-    nan,
-    nanmax,
     append,
     mod,
-    abs,
     linspace,
     broadcast_to,
     atleast_1d,
@@ -38,6 +34,7 @@ from numpy import (
     bool_,
     asarray
 )
+from numpy import abs as np_abs
 from numpy.random import default_rng
 from pandas import (
     DataFrame,
@@ -208,12 +205,20 @@ class CMASleepWakeModel:
     def param_keys(self):
         return tuple(self._DEFAULT_PARAMS.keys())
 
-    def param_key_index(self, keys: str | Iterable[str]) -> int | Iterable[int]:
+    def param_key_index(self,
+                        keys: str | Iterable[str] | Sequence[str],
+                        only_bounded: bool = False
+                        ) -> int | Iterable[int]:
         """Return the index of the parameter key."""
+        local_param_keys = self.param_keys if not only_bounded else \
+            self.bounded_param_keys
         if isinstance(keys, str):
-            return self.param_keys.index(keys)
+            return local_param_keys.index(keys)
         else:
-            return [self.param_keys.index(k) for k in keys]
+            return [
+                int(self.param_key_index(k, only_bounded=only_bounded))  # type: ignore
+                for k in keys
+            ]
 
     def update_bounds(self, keys, lb, ub,
                       keep_feasible: bool_ | Iterable[bool_] = Bounds.True_,
@@ -234,7 +239,9 @@ class CMASleepWakeModel:
     def __json__(self):
         """JSON serialization."""
         out = {k: v for k, v in self.__dict__.items()}
-        for key, value in out.items():
+        keys = list(out.keys())
+        for key in keys:
+            value = out[key]
             if isinstance(value, ndarray):
                 out[key] = value.tolist()
             elif isinstance(value, DataFrame):
@@ -246,16 +253,30 @@ class CMASleepWakeModel:
                 out[key] = value.json()
             elif hasattr(value, '__json__'):
                 out[key] = value.__json__()
+            elif hasattr(value, 'model_dump'):
+                out[key] = value.model_dump()
+            elif isinstance(value, (dict)):
+                for k, v in value.items():
+                    if isinstance(v, DataFrame):
+                        value[k] = v.to_json()
+                    elif isinstance(v, ndarray):
+                        value[k] = v.tolist()
             try:
-                out[key] = json.dumps(out[key])
+                json.dumps(out[key])
             except json.JSONDecodeError:
                 logging.warning("Could not convert %s to JSON.", str(value))
                 out.pop(key)  # ! remove any non-JSONable value
-        return out
+        return json.dumps(out)
 
     def json(self):
         """JSON serialization."""
         return self.__json__()
+
+    def to_dict(self):
+        return json.loads(self.__json__())  # type: ignore
+
+    def dict(self):
+        return self.to_dict()
 
     @property
     def params(self):
@@ -313,7 +334,7 @@ class CMASleepWakeModel:
 
     def update_bounded_params(self, params: Dict | CMAModelParams  # type: ignore
                               ) -> Dict | CMAModelParams:  # type: ignore
-        """Update the latest parameters to correspond to the current bounds.
+        """Update the latest parameters to correspond to the current bounds (trim to bounds).
 
         Args:
             params (Dict): most recently updated parameters.
@@ -388,7 +409,7 @@ class CMASleepWakeModel:
         if 'eps' in kwds:
             self.eps = kwds['eps']
         #: check all parameters are present and valid types
-        for pkey in self.param_keys:
+        for pkey in self.bounded_param_keys:
             if pkey not in self.params:
                 raise ValueError(f"Parameter '{pkey}' not found.")
             if not isinstance(self.params[pkey], (float, int)):
@@ -491,11 +512,10 @@ class CMASleepWakeModel:
             t = array([t], dtype=float)
         if t is None:
             if dt is None:
-                dt = abs(self.t[-1] - self.t[-2])
+                dt = np_abs(self.t[-1] - self.t[-2])
             t = mod(linspace(
                 self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)  # type: ignore
-        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug,
-                          self.B, self.Cm, self.toff)
+        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug, self.B, self.Cm, self.toff)  # type: ignore
         df_gt = DataFrame({'Gt{}'.format(i): Gt[i] for i in range(Gt.shape[0])}, index=t)  # type: ignore
         df_gt['Gt'] = nansum(Gt, axis=0)
         return df_gt
@@ -522,8 +542,12 @@ class CMASleepWakeModel:
 
     @property
     def G(self):
-        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B,
-                            self.Cm, self.toff)
+        """G: get the post-prandial glucose dynamics.
+
+        Returns:
+            np.ndarray: Array of Post-prandial glucose dynamics.
+        """
+        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff)  # type: ignore
 
     @property
     def g(self):
@@ -545,12 +569,12 @@ class CMASleepWakeModel:
         """
         return self.G
 
-    def integrate_signal(self, signal: ndarray | None = None,
-                         signal_name: str | None = None,
+    def integrate_signal(self, signal: Optional[ndarray] = None,
+                         signal_name: Optional[str] = None,
                          t0: int | float = 0, t1: int | float = 24,
                          M: int = 3,
-                         t_extra: Tuple | None = None,
-                         tvec: ndarray | None = None) -> float:
+                         t_extra: Optional[Tuple] = None,
+                         tvec: Optional[ndarray] = None) -> float:
         """Integrate the signal between the hours given, assuming M discrete events.
 
             t_extra specifies any additional range of 'accepted hours' as an inclusive tuple [te0, te1],
@@ -563,30 +587,41 @@ class CMASleepWakeModel:
         assert any([(signal is not None), (signal_name is not None)]
                    ), "Must provide exactly one of signal or signal_name"
         if tvec is None:
-            tvec = self.t
+            tvec = self.t  # type: ignore
         if signal_name is not None:
             signal = getattr(self, signal_name)
-        if signal.shape[0] != tvec.size:
-            signal = signal.T
-        period = logical_and((tvec >= t0), (tvec <= t1))
+        if signal.shape[0] != tvec.size:  # type: ignore
+            signal = signal.T  # type: ignore
+        period = logical_and((tvec >= t0), (tvec <= t1))  # type: ignore
         if t_extra is not None:
             period = logical_or(
                 period, (tvec >= t_extra[0]) & (tvec <= t_extra[1]))
-        total = nansum(signal[period]) / (M * (t1 - t0))
+        total = nansum(signal[period]) / (M * (t1 - t0))  # type: ignore
         return total
 
-    def morning(self, signal: ndarray = None, signal_name=None):
+    def morning(self, signal: Optional[ndarray] = None, signal_name=None):
         """compute the total morning integrated signal."""
         return self.integrate_signal(signal=signal, signal_name=signal_name, t0=4, t1=13)
 
-    def evening(self, signal: ndarray = None, signal_name=None):
+    def evening(self, signal: Optional[ndarray] = None, signal_name=None):
         """Compute the total evening integrated signal."""
         return self.integrate_signal(signal=signal, signal_name=signal_name,
                                      t0=16, t1=24, t_extra=(0, 3))
 
     @property
-    def columns(self):
-        return ["t", "c", "m", "a", "I_S", "I_E", "L", "G"]
+    def columns(self) -> Tuple[str]:
+        """column names for the DataFrame.
+
+        Examples:
+        ---------
+            >>> cma = CMASleepWakeModel(N=4)
+            >>> cma.columns
+            ('t', 'c', 'm', 'a', 'I_S', 'I_E', 'L', 'G')
+
+        Returns:
+            tuple[str]: column names for the Dataframe
+        """
+        return ('t', 'c', 'm', 'a', 'I_S', 'I_E', 'L', 'G')  # type: ignore
 
     @property
     def g_morning(self):
@@ -684,7 +719,7 @@ class CMAUtils:
         """
         if isinstance(hour, tuple):
             # ! handle tuple
-            return tuple(map(CMAUtils.get_hour_of_day, hour))
+            return tuple(map(CMAUtils.get_hour_of_day, hour))  # type: ignore
         if not isinstance(hour, (float, int)):
             raise ValueError("The hour must be a float or integer value.")
         if hour < 0 or hour > 24:
@@ -700,7 +735,7 @@ class CMAUtils:
 
     @staticmethod
     def label_meals(df: DataFrame,
-                    rounded: [None | Callable] = round_to_nearest_integer,
+                    rounded: Optional[Callable] = round_to_nearest_integer,
                     as_str: bool = False) -> Tuple[str | int | float]:
         """Label the meal times in a CMA model results dataframe.
         Parameters:
@@ -730,4 +765,4 @@ class CMAUtils:
                 tM = tuple(tM)  # type: ignore
             else:
                 tM = (tM,)
-        return tM
+        return tM  # type: ignore
