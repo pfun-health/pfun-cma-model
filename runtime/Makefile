@@ -24,11 +24,14 @@ test-local-deployment:
 	sleep 1s
 	@echo '...Success (see above)...done testing.'
 
-deploy-localstack:
-	@cd ${HOME}/Git/pfun-cma-model-deps && chalice-local deploy --stage ${STAGE}
-
 deploy-localstack: 
-	@cd ${HOME}/Git/pfun-cma-model && chalice-local deploy --stage ${STAGE}
+	@echo "Deploying to localstack..."
+	@echo "AWS_ENDPOINT_URL: ${AWSLOCALSTACK_ENDPOINT_URL}"
+	@echo "AWS_PROFILE: localstack"
+	@bash -c "cd ${HOME}/Git/pfun-cma-model/runtime && \
+		AWS_ENDPOINT_URL=${AWSLOCALSTACK_ENDPOINT_URL} \
+		AWS_PROFILE=localstack chalice-local deploy"
+	@echo "...Done."
 
 deploy-chalice: generate-sdk
 	@echo 'deploying...'

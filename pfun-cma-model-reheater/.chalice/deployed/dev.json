@@ -3,7 +3,7 @@
     {
       "name": "managed-layer",
       "resource_type": "lambda_layer",
-      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-reheater-dev-managed-layer:2"
+      "layer_version_arn": "arn:aws:lambda:us-east-1:860311922912:layer:pfun-cma-model-dev-reheater-dev-managed-layer:3"
     },
     {
       "name": "default-role",

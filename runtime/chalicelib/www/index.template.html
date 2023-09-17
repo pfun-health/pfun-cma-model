@@ -10,8 +10,12 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
           integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I"
           crossorigin="anonymous">
+    <!-- bootstrap-icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.0/font/bootstrap-icons.css"
+          rel="stylesheet">
     <!-- jquery-ui CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <!-- bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
             integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
@@ -23,24 +27,32 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- jquery-ui JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-simulate/1.0.1/jquery.simulate.js"></script>
     <!-- chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
+    <div id="loading-overlay" class="d-none mw-100 mh-100">
+      <div id="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
     <main class="container">
       <div id="header"
            class="d-flex align-items-center p-3 my-3 text-dark-50 bg-purple rounded shadow-sm">
         <img id="pfun-logo" class="mr-3" src="" alt="" width="48" height="48">
         <div class="lh-1">
           <h6 class="mb-1 text-dark lh-2">PFun CMA Model API</h6>
+          <div id="loadingIndicator"
+               class="spinner-border text-primary"
+               role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
       </div>
-      <div class="grid">
-        <div id="loadingIndicator"
-             class="spinner-border text-primary"
-             role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
+      <div id="containerDiv" class="grid">
         <div id="errorToast"
              class="toast bg-warning"
              style="display: none"
@@ -58,27 +70,31 @@
           </div>
           <div class="toast-body">An error occurred while loading.</div>
         </div>
-        <div id="apiFormContainer"
-             class="row my-3 p-3 bg-white rounded shadow-sm topRow">
-          <!-- form container -->
-          <form id="apiForm">
-          </form>
-        </div>
-        <div id="resizableHandle" class="my-10 p-3 bg-dark row resize-handle border border-dark border-top-2 shadow rounded text-white">
-          <i class="bi bi-arrow-down-up"></i>
-        </div>
-        <div id="output" class="my-3 p-3 bg-white rounded shadow-sm bottomRow">
-          <h2>Output</h2>
-          <hr>
-          <label>Chart</label>
-          <div id="chart-area" class="border border-dark p-2">
-            <canvas id="chart"></canvas>
+        <div id="topRow" class="bg-white rounded row shadow-sm">
+          <div id="apiFormContainer" class="bg-white rounded">
+            <!-- form container -->
+            <form id="apiForm">
+            </form>
           </div>
-          <label>Raw Output</label>
-          <div id="output-area"
-               class="border border-dark p-3 overflow-auto"
-               style="max-height: 300px">
-            <span class="text-muted">Output will appear here</span>
+        </div>
+        <div id="resizableHandle"
+             class="bg-dark row resize-handle border border-dark border-2 shadow rounded text-white text-center text-bold">
+          <i id='arrows-icon' class="bi bi-arrow-down-up"></i>
+        </div>
+        <div id="bottomRow" class="row rounded shadow-sm">
+          <div id="output" class="bg-white rounded">
+            <h2>Output</h2>
+            <hr>
+            <label>Chart</label>
+            <div id="chart-area" class="border border-dark p-2">
+              <canvas id="chart" height="0"></canvas>
+            </div>
+            <label>Raw Output</label>
+            <div id="output-area"
+                 class="border border-dark p-3 overflow-auto"
+                 style="max-height: 300px">
+              <span class="text-muted">Output will appear here</span>
+            </div>
           </div>
         </div>
       </div>
@@ -163,6 +179,7 @@
         const toast = document.getElementById("toast");
         // begin loading...
         loadingIndicator.style.display = "block";
+        $("#loading-overlay").removeClass("d-none");
         // Start the async function...
         try {{
           await func(params);
@@ -172,6 +189,7 @@
         }}
         // End loading.
         loadingIndicator.style.display = "none";
+        $("#loading-overlay").addClass("d-none");
       }}
 
       async function loadLogo() {{
@@ -211,6 +229,27 @@
         await ns.require("{STATIC_BASE_URL}/js/app.js");
         console.log('...loaded app.js.');
         console.log("loading extras...");
+        // configure loading overlay
+        $("#loading-overlay")
+        .addClass("text-center mw-100 mh-100")
+        .css({{
+          "margin": "0 auto",
+          "display": "flex",
+          "text-align": "center",
+          "justify-content": "center",
+          "place-content": "center",
+          "align-items": "center",
+          "height": "100%",
+          "width": "100%",
+          "position": "fixed",
+          "top": "0px",
+          "left": "0px",
+          "margin": "0 auto",
+          "width": "100%",
+          "height": "100%",
+          "z-index": "9999",
+          "background-color": "rgba(0, 0, 0, 0.5)"
+        }});
         await ns.link("{STATIC_BASE_URL}/css/resize-handle.css");
         await ns.require("{STATIC_BASE_URL}/js/resize-handle.js");
         console.log('...loaded extras.');

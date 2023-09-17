@@ -1,4 +1,11 @@
+import sys
 import json
+from pathlib import Path
+# append to path
+pth = str(Path(__file__).parents[1])
+if pth not in sys.path:
+    sys.path.append(pth)
+    print('appended %s to sys.path' % pth)
 from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from chalicelib.engine.cma_model_params import CMAModelParams
 

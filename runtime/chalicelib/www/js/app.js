@@ -141,30 +141,43 @@ async function generateApiForm() {
   })
   document.getElementById("submit-button-container").appendChild(secondarySubmitButton);
 
+  // get the API key from local storage
   if (localStorage.getItem('PFUN_CMA_API_KEY')) {
     apiKeyInput.value = localStorage.getItem('PFUN_CMA_API_KEY');
   }
 
+  // styling, final stuff...
 
-  $("#apiForm > select#function").val("/routes");
-  $("#apiForm > select#method").val("GET");
+  // Apply Bootstrap form-control class to input, select, and textarea
+  $("#apiForm input, #apiForm select, #apiForm textarea").addClass("form-control");
 
-  $("#apiForm > select#function").on("change", function () {
-    if (this.value == "run" && $("#apiForm > select#method").val() == "Post") {
-      $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+  // Apply Bootstrap form-group for spacing
+  $("#apiForm label, #apiForm input, #apiForm select, #apiForm textarea, #apiForm button").wrapAll("<div class='form-group'></div>");
+
+  // Apply Bootstrap btn and btn-primary classes to the button
+  $("#apiForm button").addClass("btn btn-primary");
+
+  // Set default values
+  $("select#function").val("/routes");
+  $("select#method").val("GET");
+
+  // Event listeners
+  $("select#function").on("change", function () {
+    if (this.value == "run" && $("select#method").val().toUpperCase() == "POST") {
+      $("textarea#body").val(JSON.stringify(model_config));
     }
   });
 
-  $("#apiForm > select#method").on("change", function () {
-    if (this.value.toUpperCase() == "POST" && $("#apiForm > select#function").val().replace('/', '') == "run") {
-      $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+  $("select#method").on("change", function () {
+    if (this.value.toUpperCase() == "POST" && $("select#function").val().replace('/', '') == "run") {
+      $("textarea#body").val(JSON.stringify(model_config));
     }
     else if (this.value.toUpperCase() == "GET") {
-      $("#apiForm > textarea#body").val("");
+      $("textarea#body").val("");
     }
   });
 
-  $("textarea#body").on('input', (event) => {
+  $("textarea#body").on('focus', (event) => {
     setTimeout(() => {
       $(event.target).json_beautify();
       autoGrow(event.target);
@@ -178,7 +191,7 @@ async function generateApiForm() {
       $("#apiFormContainer").append('<div id="taug-container"><label for="taug">Tau G:</label><input type="range" id="taug" min="0.01" max="5.0" step="0.01"></div>');
       $("#taug").on("input", function () {
         model_config.model_config.taug = parseFloat($("#taug").val());
-        $("#apiForm > textarea#body").val(JSON.stringify(model_config));
+        $("textarea#body").val(JSON.stringify(model_config));
       });
     }
   });
@@ -190,6 +203,9 @@ async function generateApiForm() {
 (async function () {
   return new Promise(async (resolve, reject) => {
     await generateApiForm();
+    // Set default values
+    $("select#function").val("/routes");
+    $("select#method").val("GET");
     // Retrieve the input values and set global variables
     apiKey = document.getElementById('apiKey').value;
     optionalParams = document.getElementById('optionalParams').value;
@@ -244,6 +260,20 @@ var model_config = {
 
 var chart = null;
 
+function simulateDrag(dy = null) {
+  const resizableHandle = $("#resizableHandle");
+  const outputBottom = $("#output-area").position().top;
+  if (dy === null) {
+    // update the UI to make room for the output
+    dy = $("#output-area").height() + outputBottom - $("nav").position().top;
+  }
+  resizableHandle.simulate("drag", {
+    dx: resizableHandle.offset().left,
+    dy: -dy,
+  });
+};
+
+
 const funcMap = {
   'run-at-time': 'runAtTime',
   'run': 'run',
@@ -270,6 +300,8 @@ async function submitFunction(event) {
 
   // Handle WebSocket and HTTP endpoints based on the selected method and function
   // Call the appropriate function with the provided input values.
+
+  // prepare the payload
   try {
     console.log(selectedFunction, selectedMethod, optionalParams, body);
     selectedFunction = selectedFunction.replace('/', '');
@@ -283,13 +315,18 @@ async function submitFunction(event) {
       body = null;
       content_type = 'application/x-www-form-urlencoded';
     }
+
+    // make room for the output
+    simulateDrag();
+
+    // make the request
     var result = await apigClient[selectedFunction + selectedMethod](optionalParams, body, {
       headers: {
         Authorization: 'Bearer allow',
         Accept: '*/*',
         'Content-Type': content_type
       },
-      timeout: 30000
+      timeout: 60000
     });
 
     // set raw json data...
@@ -302,6 +339,11 @@ async function submitFunction(event) {
 
     // update chart...
     const ctx = document.getElementById("chart");
+    if (chart) {
+      chart.clear();
+      chart.destroy();
+    }
+    ctx.style.height = '0px';
     if (selectedFunction == 'run') {
       var arr = [];
       var Carr = [];
@@ -317,10 +359,6 @@ async function submitFunction(event) {
           y: C[index]
         });
       });
-      if (chart) {
-        chart.clear();
-        chart.destroy();
-      }
       chart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -342,6 +380,8 @@ async function submitFunction(event) {
   } catch (err) {
     console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
   }
+  // make room for the output (after request)
+  simulateDrag();
 }
 
 const initializeApp = async () => {
@@ -357,31 +397,8 @@ const initializeApp = async () => {
 
 async function setupApp() {
   app = await initializeApp();
-
-  // Get the apiFormContainer div element
-  var apiFormContainerDiv = document.getElementById("apiFormContainer");
-
-  // Get the restore button element
-  var restoreButton = document.createElement("button");
-  restoreButton.innerText = "Toggle API Form";
-  restoreButton.classList.add("btn", "btn-primary", "mt-2");
-  $("ul.navbar-nav").append(`<li id="restore-button-container" class="nav-item"></li>`);
-  document.getElementById("restore-button-container").appendChild(restoreButton);
-
-  // Add a click event listener to toggle the class "minimized" on the apiFormContainer div when the div or restore button is clicked
-  function toggleMinimized() {
-    apiFormContainerDiv.classList.toggle("minimized");
-    if (apiFormContainerDiv.classList.contains("minimized")) {
-      restoreButton.innerText = "Restore API Form";
-      $(restoreButton).toggleClass("btn-success");
-      $("#output").removeClass("col-9").addClass("col-12");
-    } else {
-      restoreButton.innerText = "Minimize API Form";
-      $(restoreButton).toggleClass("btn-danger");
-      $("#output").removeClass("col-12").addClass("col-9");
-    }
-  }
-  restoreButton.addEventListener("click", toggleMinimized);
+  $("select#function").val("/routes");
+  $("select#method").val("GET");
 
   // setup the route links
   async function setupRouteLinks() {
@@ -404,7 +421,7 @@ async function setupApp() {
           }
           $("select#function").val(routeName);
           $("select#method").val(routeMethod);
-          $("#apiForm > button[type=submit]").click();
+          $("button[type=submit]").click();
           // console.log(routeData);
           // console.log(routeName, routeMethod);
           // console.log(routeData[routeName][0]);

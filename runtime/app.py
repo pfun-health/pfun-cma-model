@@ -406,7 +406,6 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
         return Response(body='No message provided.', status_code=BadRequestError.STATUS_CODE)
     loggers = {
         'debug': app.log.debug,
-        'trace': app.log.trace,
         'info': app.log.info,
         'warning': app.log.warning,
         'error': app.log.error
@@ -511,10 +510,10 @@ def run_at_time_route():
         output = run_at_time_func(app)
         return Response(body=output, status_code=200,
                         headers={'Content-Type': 'application/json'})
-    except Exception:
+    except Exception as err:
         app.log.error('failed to run at time.', exc_info=True)
         logger.error('failed to run at time.', exc_info=True)
-        error_response = Response(body={"error": "failed to run at time. See error message on server log."}, status_code=500)
+        error_response = Response(body={"error": "failed to run at time. See error message on server log.", "exception": str(err)}, status_code=500)
         return error_response
 
 

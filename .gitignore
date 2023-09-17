@@ -8,6 +8,7 @@
 *.pem
 /packaged/*.zip
 /lambda_layer/packages/
+/runtime/localstack-package/.terraform/providers/
 
 
 #: chalice stuff

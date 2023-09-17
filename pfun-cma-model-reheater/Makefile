@@ -11,6 +11,13 @@ APP_NAME = pfun-cma-model-reheater
 deploy:
 	chalice deploy --stage $(STAGE)
 
+deploy-localstack:
+	@echo "Deploying to localstack..."
+	@bash -c "
+		AWS_ENDPOINT_URL=${AWSLOCALSTACK_ENDPOINT_URL} AWS_PROFILE=localstack
+			chalice-local deploy"
+	@echo "...Done."
+
 # Generate a deployment package for the Chalice app
 package:
 	chalice package --stage $(STAGE) ./package

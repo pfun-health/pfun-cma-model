@@ -1,0 +1,4 @@
+[profile localstack]
+endpoint_url = https://localhost.localstack.cloud:31566
+region = us-east-1
+output = json
