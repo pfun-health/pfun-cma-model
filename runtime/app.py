@@ -356,6 +356,13 @@ def initialize_index_resources():
         utils.add_url_params(
             STATIC_BASE_URL, {'source': source, 'filename': ''}))
     PFUN_ICON_PATH = f'/static?source={source}&filename=/icons/mattepfunlogolighter.png'
+    if source != 'local':
+        if not PFUN_ICON_PATH.startswith('/api'):
+            PFUN_ICON_PATH = '/api' + PFUN_ICON_PATH
+        if '/api' not in output_static_base_url:
+            output_static_base_url = urlparse.urlparse(output_static_base_url)
+            output_static_base_url = str(output_static_base_url).replace(
+                output_static_base_url.path, '/api' + output_static_base_url.path)
     try:
         BODY = body.format(
             STATIC_BASE_URL=output_static_base_url,

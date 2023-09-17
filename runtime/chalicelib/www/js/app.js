@@ -177,11 +177,11 @@ async function generateApiForm() {
     }
   });
 
-  $("textarea#body").on('focus', (event) => {
+  $("textarea#body").on('blur', (event) => {
     setTimeout(() => {
       $(event.target).json_beautify();
       autoGrow(event.target);
-    }, 5000);
+    }, 500);
     if ($("#taug-container").length == 0) {
       try {
         $("#taug-container").remove();
@@ -254,7 +254,17 @@ function autoGrow(oField) {
 
 var model_config = {
   model_config: {
-    taug: 0.8
+    t: null,
+    N: 24,
+    d: 0,
+    taup: 1,
+    taug: 1,
+    B: 0.05,
+    Cm: 0,
+    toff: 0,
+    tM: [7, 11, 17.5],
+    seed: null,
+    eps: 1e-18,
   }
 };
 
@@ -347,8 +357,12 @@ async function submitFunction(event) {
     if (selectedFunction == 'run') {
       var arr = [];
       var Carr = [];
+      var Marr = [];
+      var Aarr = [];
       const G = Object.values(data.G);
       const C = Object.values(data.c);
+      const M = Object.values(data.m);
+      const A = Object.values(data.a);
       Object.values(data.t).forEach((value, index) => {
         arr.push({
           x: value,
@@ -358,6 +372,14 @@ async function submitFunction(event) {
           x: value,
           y: C[index]
         });
+        Marr.push({
+          x: value,
+          y: M[index]
+        });
+        Aarr.push({
+          x: value,
+          y: A[index]
+        })
       });
       chart = new Chart(ctx, {
         type: 'bar',
@@ -371,6 +393,14 @@ async function submitFunction(event) {
             {
               label: 'Cortisol',
               data: Carr
+            },
+            {
+              label: 'Melatonin',
+              data: Marr
+            },
+            {
+              label: 'Adiponectin',
+              data: Aarr
             }
           ]
         }
@@ -379,6 +409,7 @@ async function submitFunction(event) {
 
   } catch (err) {
     console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
+    throw err;
   }
   // make room for the output (after request)
   simulateDrag();

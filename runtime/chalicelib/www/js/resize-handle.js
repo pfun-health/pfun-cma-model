@@ -24,6 +24,9 @@ async function setupResizeHandle() {
             const containerOffset = Math.min(containerDiv.offset().top, window.innerHeight);
             const newTopHeight = Math.min(mouseY - containerOffset * 1.1, window.innerHeight);
             const newBottomHeight = Math.min(containerDiv.height() - newTopHeight, window.innerHeight);
+            if ($("#body").position().top + $("#body").height() < mouseY) {
+                $("#body").height($("#body").position().top - mouseY);
+            }
 
             if (newTopHeight >= 0 && newBottomHeight >= 0) {
                 topRow.height(newTopHeight);
