@@ -1,0 +1,16 @@
+{
+    "Changes": [
+        {
+            "Action": "CREATE",
+            "ResourceRecordSet": {
+                "Name": "api.prod.pfun.app",
+                "Type": "A",
+                "AliasTarget": {
+                    "DNSName": "",
+                    "HostedZoneId": "Z08336641UG5TD3O6KEG7",
+                    "EvaluateTargetHealth": false
+                }
+            }
+        }
+    ]
+}

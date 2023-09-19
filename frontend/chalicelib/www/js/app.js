@@ -11,13 +11,26 @@ var selectedFunction = null;
 var selectedMethod = null;
 
 async function getRoutesData() {
-  const routesData = await fetch('./routes')
-    .then(response => response.json())
-    .catch(error => {
-      console.error('failed to get routes:', error);
-      return {};
-    });
-  return routesData;
+  // Get the routes data from the /routes endpoint
+  var routes_url = window.location.origin + '/routes';
+  await axios.get(routes_url, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  }).catch((error) => {
+    route_url = window.location.origin + '/api/routes';
+  });
+  return await axios.get(routes_url, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  }).then((response) => {
+    return response.data;
+  }).catch((error) => {
+    console.error('Failed to get routes data because: ', error);
+  });
 }
 
 // Create an HTML form in your UI to input the apiKey, optional parameters, body, function selection, and method selection.
@@ -141,10 +154,6 @@ async function generateApiForm() {
   // get the API key from local storage
   if (localStorage.getItem('PFUN_CMA_API_KEY')) {
     apiKeyInput.value = localStorage.getItem('PFUN_CMA_API_KEY');
-  }
-  if (apiKeyInput.value != "") {
-    localStorage.setItem('PFUN_CMA_API_KEY', apiKeyInput.value);
-    console.log('...stored api key locally.');
   }
 
   // styling, final stuff...
@@ -420,7 +429,7 @@ async function submitFunction(event) {
 }
 
 const initializeApp = async () => {
-  // Initialize the app.
+// Initialize the app.
 
   // Add event listeners to handle form submission.
   document.getElementById('apiForm').addEventListener('submit', async (event) => {
@@ -473,16 +482,3 @@ async function setupApp() {
 }
 
 setupApp();
-
-
-async function doToasts(success) {
-  console.log('(toasts) success', success);
-  const errorToast = $("#errorToast");
-  const toast = $("#toast");
-  $('.toast').toast({ delay: 2000, animation: true });
-  if (success) {
-    toast.toast('show');
-  } else {
-    errorToast.toast('show');
-  }
-}

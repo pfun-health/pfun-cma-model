@@ -1,0 +1,166 @@
+/*--------------------Reusable Variables--------------------*/
+:root {
+    /*--------------------Light Theme Variables (Default)--------------------*/
+    --light-theme-background-color: #eee;
+    --light-theme-darker-background-color: #ccc;
+    --light-theme-text-color: #333;
+    --light-theme-link-color: #ff6347;
+    --light-theme-link-hover-color: #fa2600;
+
+    /*--------------------Dark Theme Variables--------------------*/ 
+    --dark-theme-background-color: #333;
+    --dark-theme-darker-background-color: #111;
+    --dark-theme-text-color: #eee;
+    --dark-theme-link-color: #00fa9a;
+    --dark-theme-link-hover-color: #00955b; 
+
+    /*--------------------Other Variables--------------------*/ 
+    --link-hover-timing: all 0.25s ease-in-out;
+    --theme-change-timing: all 1s ease-in-out;
+}
+
+/*--------------------Font Sizing--------------------*/
+h1, h2 {    
+    font-family: 'Carter One', cursive;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+}
+
+/*--------------------Universal Styles--------------------*/ 
+* {
+    font-family: 'Lato', sans-serif;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+}
+
+a {    
+    transition: var(--link-hover-timing);
+}
+
+.btn {
+    border: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    padding: 10px;
+    transition: all .5s ease-in-out;
+}
+
+.btn-light {
+    background: var(--light-theme-link-color);
+    color: var(--light-theme-background-color);
+}
+
+.btn-light:hover {
+    background: var(--light-theme-link-hover-color);
+}
+
+.btn-dark {
+    background: var(--dark-theme-link-color);
+    color: var(--dark-theme-background-color);
+}
+
+.btn-dark:hover {
+    background: var(--dark-theme-link-hover-color);
+    color: var(--dark-theme-text-color);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+}
+
+/*--------------------Light Theme Styles (Default)--------------------*/
+.light {
+    background: var(--light-theme-background-color);
+    color: var(--light-theme-text-color);
+    transition: var(--theme-change-timing);
+}
+
+.light a {
+    color: var(--light-theme-link-color);
+}
+
+.light a:hover {
+    color: var(--light-theme-link-hover-color);
+}
+
+.footer-light {
+    background: var(--light-theme-darker-background-color);
+}
+
+/*--------------------Dark Theme Styles--------------------*/
+.dark {
+    background: var(--dark-theme-background-color);
+    color: var(--dark-theme-text-color);
+    transition: var(--theme-change-timing);
+}
+
+.dark a {
+    color: var(--dark-theme-link-color);
+}
+
+.dark a:hover {
+    color: var(--dark-theme-link-hover-color);
+}
+
+.footer-dark {
+    background: var(--dark-theme-darker-background-color);
+}
+
+/*--------------------Body Styles--------------------*/
+.header {
+    text-align: center;
+}
+
+.header h3 {
+    margin-bottom: 50px;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.main-content {
+    margin: 100px auto 50px auto;
+    width: 95%;
+}
+
+.sample-1,
+.sample-3 {
+    text-align: left;
+}
+
+.sample-2 {
+    text-align: right;
+}
+
+.footer {
+    align-items: center;
+    flex-shrink: 0;
+    text-align: center;
+    transition: var(--theme-change-timing);
+    width: 100%;
+}
+
+/*--------------------Media Queries--------------------*/
+@media (min-width: 768px) {
+    main {
+        width: 65%;
+    }
+}

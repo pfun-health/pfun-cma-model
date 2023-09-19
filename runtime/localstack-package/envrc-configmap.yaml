@@ -1,9 +1,0 @@
-apiVersion: v1
-data:
-  AWS_ENDPOINT_URL: https://localhost.localstack.cloud:31566
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  labels:
-    io.kompose.service: tflocal-envrc
-  name: envrc

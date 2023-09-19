@@ -71,8 +71,8 @@ def keep_warm(event):
             future = executor.submit(reheater_func, path)
             futures.append(future)
         try:
-            for future in as_completed(futures, timeout=50):
-                result = future.result(timeout=10)
+            for future in as_completed(futures, timeout=600):
+                result = future.result(timeout=120)
                 logging.debug('Result: %s', json.dumps(result))
                 results.append(result)
         except TimeoutError as e:

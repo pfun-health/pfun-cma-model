@@ -155,42 +155,6 @@ apigClientFactory.newClient = function (config) {
     };
     
     
-    apigClient.iconsMattepfunlogolighterPngGet = function (params, body, additionalParams) {
-        if(additionalParams === undefined) { additionalParams = {}; }
-        
-        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
-        var iconsMattepfunlogolighterPngGetRequest = {
-            verb: 'get'.toUpperCase(),
-            path: pathComponent + uritemplate('/icons/mattepfunlogolighter.png').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
-            headers: apiGateway.core.utils.parseParametersToObject(params, []),
-            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
-            body: body
-        };
-        
-        
-        return apiGatewayClient.makeRequest(iconsMattepfunlogolighterPngGetRequest, authType, additionalParams, config.apiKey);
-    };
-    
-    
-    apigClient.iconsMattepfunlogolighterPngOptions = function (params, body, additionalParams) {
-        if(additionalParams === undefined) { additionalParams = {}; }
-        
-        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
-        var iconsMattepfunlogolighterPngOptionsRequest = {
-            verb: 'options'.toUpperCase(),
-            path: pathComponent + uritemplate('/icons/mattepfunlogolighter.png').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
-            headers: apiGateway.core.utils.parseParametersToObject(params, []),
-            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
-            body: body
-        };
-        
-        
-        return apiGatewayClient.makeRequest(iconsMattepfunlogolighterPngOptionsRequest, authType, additionalParams, config.apiKey);
-    };
-    
-    
     apigClient.logGet = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         

@@ -1,6 +1,10 @@
 deploy: tests deploy-chalice test-deployment
 
 STAGE ?= dev
+# Variables
+DOMAIN_NAME = api.$(STAGE).pfun.app
+APP ?= pfun-cma-model
+LOG_GROUP_NAME = /aws/lambda/$(APP)-$(STAGE)
 
 deploy-dependencies:
 	echo "deploying dependencies layer..."
@@ -77,15 +81,29 @@ generate-sdk:
 	pkill chalice
 
 create-role:
-	@aws iam create-role --role-name pfun-cma-model-dev --assume-role-policy-document file://./.chalice/trust-policy.json
+	@aws iam create-role --role-name pfun-cma-model-$(STAGE) --assume-role-policy-document file://./.chalice/trust-policy.json
 	@echo '...done with setup of role.'
 
 setup-role-policy:
-	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
-	@aws iam attach-role-policy --role-name pfun-cma-model-dev-api_handler --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
-	@aws iam attach-role-policy --role-name pfun-cma-model-dev --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+	@aws iam attach-role-policy --role-name pfun-cma-model-$(STAGE) --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
+	@aws iam attach-role-policy --role-name pfun-cma-model-$(STAGE)-api_handler --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+	@aws iam attach-role-policy --role-name pfun-cma-model-$(STAGE) --policy-arn arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
 	@echo '...done with setup of role policy.'
+
+create-hosted-zone:
+	@aws route53 create-hosted-zone --name api.$(STAGE).pfun.app --caller-reference 12345
+
+create-acm-cert:
+	@aws acm request-certificate --domain-name "*.api.$(STAGE).pfun.app" \
+    --validation-method DNS --idempotency-token 12345 \
+    --options CertificateTransparencyLoggingPreference=DISABLED
 
 generate-swagger:
 	sh -c 'cd ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www && aws apigateway get-export --rest-api-id oias8ms59c --stage-name api --export-type swagger --parameters extensions='apigateway' swagger.json --output json && cd -'
 	echo '...generated swagger.json'
+
+clear_logs:
+	# Delete all log streams in the log group
+	# aws logs describe-log-streams --log-group-name $(LOG_GROUP_NAME) --query 'logStreams[*].logStreamName' --output text | xargs -I {} aws logs delete-log-stream --log-group-name $(LOG_GROUP_NAME) --log-stream-name {}
+	# If you want to delete the log group entirely, uncomment the following line
+	@aws logs delete-log-group --log-group-name $(LOG_GROUP_NAME)

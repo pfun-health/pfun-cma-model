@@ -11,6 +11,10 @@
   "api_gateway_endpoint_type": "REGIONAL",
   "stages": {
     "dev": {
+      "lambda_functions": {
+        "lambda_timeout": 120,
+        "lambda_memory_size": 256
+      },
       "environment_variables": {
         "DEBUG_CHALICE": "1"
       },
@@ -23,6 +27,25 @@
         "url_prefix": "api",
         "domain_name": "api.dev.pfun.app",
         "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/90fd1335-11f8-4c45-b5fa-1ac512e24d39"
+      }
+    },
+    "prod": {
+      "lambda_functions": {
+        "lambda_timeout": 120,
+        "lambda_memory_size": 256
+      },
+      "environment_variables": {
+        "DEBUG_CHALICE": "0"
+      },
+      "custom_domain": {
+        "domain_name": "api.prod.pfun.app",
+        "url_prefix": "api",
+        "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/1cbcebf3-9f82-47eb-861e-f9f7ef322989"
+      },
+      "api_gateway_custom_domain": {
+        "url_prefix": "",
+        "domain_name": "api.prod.pfun.app",
+        "certificate_arn": "arn:aws:acm:us-east-1:860311922912:certificate/1cbcebf3-9f82-47eb-861e-f9f7ef322989"
       }
     }
   }

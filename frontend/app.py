@@ -1,6 +1,3 @@
-"""
-PFun CMA Model API routes.
-"""
 import os
 import json
 import sys
@@ -103,7 +100,8 @@ logger = logging.getLogger(__name__)
 logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
-app = Chalice(app_name='PFun CMA Model Backend')
+app = Chalice(app_name='frontend')
+
 if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
     app.debug = True
 app.log.setLevel(logging.INFO)
@@ -311,7 +309,7 @@ def initialize_base_url(app):
         #: handle non-localhost
         if 'https://' not in BASE_URL:
             BASE_URL = f'https://{BASE_URL}'
-        if not BASE_URL.endswith('/api'):
+        if '/api' not in BASE_URL:
             BASE_URL += '/api'
     STATIC_BASE_URL = f'{BASE_URL}/static'
     return BASE_URL
@@ -335,7 +333,7 @@ def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', conten
     return response
 
 
-@app.route('/icons/mattepfunlogolighter.png')
+@app.route('/icons/mattepfunlogolighter.png', content_types=['image/png'])
 def icon_static_resource():
     query_params = app.current_request.query_params
     if query_params is None:
@@ -407,274 +405,3 @@ def get_routes():
     routes = json.dumps({k: list(v.keys()) for k, v in app.routes.items()
                          if k in PUBLIC_ROUTES}, indent=4)
     return Response(body=routes, status_code=200)
-
-
-@app.route("/log", methods=['GET', 'POST'])
-def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
-    if app.current_request is None:
-        raise RuntimeError("Logging error! No request was provided!")
-    if app.current_request.query_params is None:
-        raise RuntimeError("Logging error! No query parameters were provided!")
-    msg = app.current_request.query_params.get('msg') or \
-        app.current_request.query_params.get('message')
-    level = app.current_request.query_params.get('level', level)
-    if msg is None:
-        return Response(body='No message provided.', status_code=BadRequestError.STATUS_CODE)
-    loggers = {
-        'debug': app.log.debug,
-        'info': app.log.info,
-        'warning': app.log.warning,
-        'error': app.log.error
-    }
-    loggers[level](msg)
-    return {'message': msg, 'level': level}
-
-
-def get_params(app: Chalice, key: str) -> Dict:
-    if app.current_request is None:
-        raise RuntimeError("No request was provided!")
-    params = {} if app.current_request.json_body is None else \
-        app.current_request.json_body
-    if isinstance(params, (str, bytes)):
-        params = json.loads(params)
-    if key in params:
-        params = params[key]
-    if app.current_request.query_params is not None:
-        params.update(app.current_request.query_params)
-    if key in params:
-        params = params[key]
-    return params
-
-
-def get_model_config(app: Chalice, key: str = 'model_config') -> Dict:
-    return get_params(app, key=key)
-
-
-CMA_MODEL_INSTANCE = None
-
-
-def initialize_model():
-    global CMA_MODEL_INSTANCE
-    if CMA_MODEL_INSTANCE is not None:
-        return CMA_MODEL_INSTANCE
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    from chalicelib.engine.cma_model_params import CMAModelParams
-    model_config = get_model_config(app)
-    if model_config is None:
-        model_config = {}
-    model_config = CMAModelParams(**model_config)
-    model = CMASleepWakeModel(model_config)
-    CMA_MODEL_INSTANCE = model
-    return CMA_MODEL_INSTANCE
-
-
-@app.route('/run', methods=["GET", "POST"])
-def run_model_route():
-    """Runs the CMA model.
-    """
-    request: Request | None = app.current_request
-    if request is None:
-        raise RuntimeError("No request was provided!")
-    model_config = get_model_config(app)
-    model = initialize_model()
-    model.update(**model_config)
-    df = model.run()
-    output = df.to_json()
-    response = Response(body=output, status_code=200,
-                        headers={'Content-Type': 'application/json',
-                                 'Access-Control-Allow-Origin': '*'})
-    logger.info('Response: %s', json.dumps(response.to_dict()))
-    return response
-
-
-@app.on_ws_connect(name="run_at_time")
-def run_at_time_connect(event):
-    logger.info('New connection: %s' % event.connection_id)
-    app.websocket_api.send(event.connection_id, "Connected")
-
-
-def run_at_time_func(app: Chalice) -> str:
-    model_config = get_model_config(app)
-    calc_params = get_params(app, 'calc_params')
-    # pylint-disable=import-outside-toplevel
-    from chalicelib.engine.cma_model_params import CMAModelParams
-    from pandas import DataFrame
-    logger.info('model_config: %s', json.dumps(model_config))
-    logger.info('calc_params: %s', json.dumps(calc_params))
-    if model_config is None:
-        model_config = {}
-    model = initialize_model()
-    model_config = CMAModelParams(**model_config)
-    model.update(model_config)  # ! this occurs inplace !
-    if calc_params is None:
-        calc_params = {}
-    df: DataFrame = model.calc_Gt(**calc_params)
-    output = df.to_json()
-    return output
-
-
-@app.on_ws_message(name="run_at_time")
-def run_at_time_ws(event):
-    logger.info('Received message: %s', event.body)
-    output: str = run_at_time_func(app)
-    app.websocket_api.send(event.connection_id, output)
-
-
-@app.route('/run-at-time', methods=["GET", "POST"])
-def run_at_time_route():
-    try:
-        output = run_at_time_func(app)
-        return Response(body=output, status_code=200,
-                        headers={'Content-Type': 'application/json'})
-    except Exception as err:
-        app.log.error('failed to run at time.', exc_info=True)
-        logger.error('failed to run at time.', exc_info=True)
-        error_response = Response(body={"error": "failed to run at time. See error message on server log.", "exception": str(err)}, status_code=500)
-        return error_response
-
-
-@app.route('/fit', methods=['POST'])
-def fit_model_to_data():
-    from chalicelib.engine.fit import fit_model as cma_fit_model
-    from pandas import DataFrame
-    data = get_params(app, 'data')
-    if data is None:
-        raise RuntimeError("no data was provided!")
-    if isinstance(data, str):
-        data = json.loads(data)
-    model_config = get_model_config(app)
-    if isinstance(model_config, str):
-        model_config = json.loads(model_config)
-    try:
-        df = DataFrame(data)
-        fit_result = cma_fit_model(df, **model_config)
-        output = fit_result.model_dump_json()
-    except Exception:
-        app.log.error('failed to fit to data.', exc_info=True)
-        error_response = Response(body={"error": "failed to fit data. See error message on server log."},
-                                  status_code=500, headers={'Content-Type': 'application/json'})
-        return json.dumps(error_response.to_dict())
-    response = Response(body={"output": output}, status_code=200,
-                        headers={'Content-Type': 'application/json'})
-    return response
-
-
-DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
-                         "devices", "events"]
-
-
-def get_oauth_info(event):
-    oauth_info = {
-        "creds": {},
-        "host": "",
-        "login_url": "",
-        "redirect_uri": "",
-        "state": str(uuid.uuid4()),
-        "oauth2_tokens": None
-    }
-    secret = get_secret_func("dexcom_pfun-app_glucose")
-    oauth_info["creds"] = json.loads(secret)
-    os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
-    os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
-    oauth_info["host"] = os.getenv(
-        "DEXCOM_HOST", get_params(app, 'DEXCOM_HOST')) or \
-        'https://api.dexcom.com'
-    oauth_info["login_url"] = urlparse.urljoin(
-        oauth_info["host"], "/v2/oauth2/login")
-    oauth_info["redirect_uri"] = os.getenv("DEXCOM_REDIRECT_URI") or \
-        '/login-success'
-    oauth_info["token_url"] = urlparse.urljoin(
-        oauth_info["host"], "v2/oauth2/token")
-    oauth_info['refresh_url'] = urlparse.urljoin(
-        oauth_info["host"], "v2/oauth2/token")
-    oauth_info['endpoint_urls'] = {}
-    for endpoint in DexcomEndpoint.__args__:
-        oauth_info["endpoint_urls"][endpoint] = urlparse.urljoin(
-            oauth_info['host'], f"v3/users/{{}}/{endpoint}")
-    return oauth_info
-
-
-oauth_info = None
-
-
-@app.route('/login-dexcom', methods=['GET', 'POST'])
-def oauth2_dexcom():
-    """Handles the Dexcom login request."""
-
-    global oauth_info
-    if oauth_info is None:
-        oauth_info = get_oauth_info(event)
-
-    # Get the authorization code from the event.
-    authorization_code = get_params(app, 'authorization_code')
-    if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
-        # Exchange the authorization code for an access token.
-        url = oauth_info['token_url']
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'code': authorization_code,
-            'grant_type': 'authorization_code',
-            'redirect_uri': oauth_info['redirect_uri']
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = post(
-            url, data=payload, timeout=10, headers=headers)
-        data = response.json()
-        oauth_info['oauth2_tokens'] = data
-
-        # Return the refresh, access tokens.
-        response = Response(body={
-            'refresh_token': data['refresh_token'],
-            'access_token': data['access_token'],
-            'expires_in': data['expires_in'],
-            'token_type': data['token_type'],
-            'message': 'Successfully authorized.'
-        }, status_code=200, headers={'Content-Type': 'application/json'})
-    elif authorization_code is None and oauth_info['oauth2_tokens'] is None:
-        #: Redirect to dexcom, get the authorization code.
-        url = oauth_info['login_url']
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'redirect_uri': oauth_info['redirect_uri'],
-            'response_type': 'code',
-            'scope': 'offline_access',
-            'state': oauth_info['state']
-        }
-        response = Response(
-            status_code=301,
-            headers={'Location': url + '?' + urlparse.urlencode(payload)},
-            body=''
-        )
-    elif oauth_info['oauth2_tokens'] is not None:
-        #: Refresh the token.
-        url = oauth_info['refresh_url']
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'refresh_token': oauth_info['oauth2_tokens']['refresh_token'],
-            'grant_type': 'refresh_token',
-            'redirect_uri': oauth_info['redirect_uri']
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = post(
-            url, data=payload, timeout=10, headers=headers)
-        data = response.json()
-        oauth_info['oauth2_tokens'] = data
-        response = Response(body={
-            'refresh_token': data['refresh_token'],
-            'access_token': data['access_token'],
-            'expires_in': data['expires_in'],
-            'token_type': data['token_type'],
-            'message': 'Successfully refreshed token.'
-        }, status_code=200, headers={'Content-Type': 'application/json'})
-    else:
-        logger.warning(
-            "(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
-        response = Response(body='Unauthorized', status_code=401)
-    return response
-
-
-@app.route('/login-success', methods=['GET'])
-def login_success():
-    return Response(status_code=200, body='<h1>Dexcom Login Success!</h1>')
