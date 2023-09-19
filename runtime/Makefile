@@ -107,3 +107,15 @@ clear_logs:
 	# aws logs describe-log-streams --log-group-name $(LOG_GROUP_NAME) --query 'logStreams[*].logStreamName' --output text | xargs -I {} aws logs delete-log-stream --log-group-name $(LOG_GROUP_NAME) --log-stream-name {}
 	# If you want to delete the log group entirely, uncomment the following line
 	@aws logs delete-log-group --log-group-name $(LOG_GROUP_NAME)
+
+SOURCE_BUCKET = pfun-cma-model-www
+NEW_BUCKET = pfun-cma-model-www-$(STAGE)
+REGION = us-east-1
+
+copy-bucket:
+	aws s3api create-bucket --bucket $(NEW_BUCKET) --region $(REGION)
+	aws s3 sync s3://$(SOURCE_BUCKET) s3://$(NEW_BUCKET)
+	-aws s3api get-bucket-policy --bucket $(SOURCE_BUCKET) --query 'Policy' --output text > bucket-policy.json && \
+	aws s3api put-bucket-policy --bucket $(NEW_BUCKET) --policy file://bucket-policy.json || true
+	aws s3api get-bucket-acl --bucket $(SOURCE_BUCKET) > bucket-acl.json || true && aws s3api put-bucket-acl --bucket $(NEW_BUCKET) --access-control-policy file://bucket-acl.json || true
+	echo '...copied bucket'

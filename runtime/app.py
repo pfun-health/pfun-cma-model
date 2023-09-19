@@ -249,7 +249,9 @@ def static_files():
                 S3_CLIENT = new_boto3_client('s3')
             s3_filename = filename.lstrip('/')  # remove leading slash for s3
             try:
-                response = S3_CLIENT.get_object(Bucket='pfun-cma-model-www', Key=s3_filename)
+                stage_name = app.current_request.context['stage'].lower()
+                bucket_name = f'pfun-cma-model-www-{stage_name}'
+                response = S3_CLIENT.get_object(Bucket=bucket_name, Key=s3_filename)
             except ClientError:
                 app.log.warning('Requested static resource does not exist: %s', str(filename))
                 return Response(

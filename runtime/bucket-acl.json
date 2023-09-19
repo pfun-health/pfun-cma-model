@@ -1,0 +1,16 @@
+{
+    "Owner": {
+        "DisplayName": "rocapp",
+        "ID": "dd3c5b88b0ad1a0497aff23d55b4b2b64f084ec95af496fe974e5808f93b0777"
+    },
+    "Grants": [
+        {
+            "Grantee": {
+                "DisplayName": "rocapp",
+                "ID": "dd3c5b88b0ad1a0497aff23d55b4b2b64f084ec95af496fe974e5808f93b0777",
+                "Type": "CanonicalUser"
+            },
+            "Permission": "FULL_CONTROL"
+        }
+    ]
+}
