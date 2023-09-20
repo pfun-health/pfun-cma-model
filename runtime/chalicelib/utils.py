@@ -1,4 +1,6 @@
 from json import dumps
+import sys
+from pathlib import Path
 
 try:
     from urllib import urlencode, unquote
@@ -52,3 +54,17 @@ def add_url_params(url, params):
     ).geturl()
 
     return new_url
+
+
+def append_root_path():
+    """
+    adds the root path to the python path
+    """
+    #: pfun imports (relative)
+    root_path = str(Path(__file__).parents[1])
+    mod_path = str(Path(__file__).parent)
+    if root_path not in sys.path:
+        sys.path.insert(0, root_path)
+    if mod_path not in sys.path:
+        sys.path.insert(0, mod_path)
+    return sys.path

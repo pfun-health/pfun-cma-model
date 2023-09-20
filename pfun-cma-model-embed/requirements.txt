@@ -1,0 +1,3 @@
+chalice
+redis
+openai

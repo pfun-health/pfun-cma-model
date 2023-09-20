@@ -220,7 +220,7 @@ class CMASleepWakeModel:
                 for k in keys
             ]
 
-    def update_bounds(self, keys, lb, ub,
+    def update_bounds(self, keys=[], lb=[], ub=[],
                       keep_feasible: bool_ | Iterable[bool_] = Bounds.True_,
                       return_bounds=False):
         """Update the bounds of the model."""
@@ -322,6 +322,11 @@ class CMASleepWakeModel:
         self.bounds = copy.copy(self._DEFAULT_PARAMS_MODEL.bounds)
         if all([kwds.get('lb', False), kwds.get('ub', False), kwds.get('bounded_param_keys', False)]):
             self.update_bounds(kwds['bounded_param_keys'], kwds['lb'], kwds['ub'], kwds.get('keep_feasible', Bounds.True_))
+        elif 'bounds' in kwds:
+            new_bounds = kwds['bounds']
+            if isinstance(bounds, str):
+                new_bounds = json.loads(new_bounds)
+            self.update_bounds(**new_bounds)
         self.eps = eps
         self.rng = None
         if seed is not None:

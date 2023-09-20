@@ -16,7 +16,8 @@
         "lambda_memory_size": 256
       },
       "environment_variables": {
-        "DEBUG_CHALICE": "1"
+        "DEBUG_CHALICE": "1",
+        "stage": "dev"
       },
       "custom_domain": {
         "domain_name": "api.dev.pfun.app",
@@ -35,7 +36,8 @@
         "lambda_memory_size": 256
       },
       "environment_variables": {
-        "DEBUG_CHALICE": "0"
+        "DEBUG_CHALICE": "0",
+        "stage": "prod"
       },
       "custom_domain": {
         "domain_name": "api.prod.pfun.app",

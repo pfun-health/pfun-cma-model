@@ -16,7 +16,7 @@ from requests.sessions import Session
 from pathlib import Path
 import urllib.parse as urlparse
 from typing import (
-    Dict, Literal
+    Any, Dict, Literal
 )
 from botocore.config import Config as ConfigCore
 import boto3
@@ -114,13 +114,22 @@ app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
 
+API_ROUTES = [
+    '/run',
+    '/run-at-time',
+    '/params/schema',
+    '/params/default'
+]
+
 PUBLIC_ROUTES: list[str | AuthRoute] = [
     '/',
     '/run',
     '/fit',
     '/run-at-time',
     '/routes',
-    '/sdk'
+    '/sdk',
+    '/params/schema',
+    '/params/default',
 ]
 
 PRIVATE_ROUTES: list[str] = [
@@ -194,6 +203,7 @@ SDK_CLIENT = None
 
 @app.route('/sdk', methods=['GET'])
 def generate_sdk():
+    
     global SDK_CLIENT
     logger.info('Generating SDK')
     if SDK_CLIENT is None:
@@ -217,6 +227,18 @@ def generate_sdk():
 
 
 S3_CLIENT = None
+
+@app.route('/params/schema', methods=['GET'])
+def params_schema():
+    from chalicelib.engine.cma_model_params import CMAModelParams
+    params = CMAModelParams()
+    return params.model_json_schema()
+
+@app.route('/params/default', methods=['GET'])
+def default_params():
+    from chalicelib.engine.cma_model_params import CMAModelParams
+    params = CMAModelParams()
+    return params.model_dump_json()
 
 
 @app.route('/static', methods=['GET'])
@@ -248,12 +270,17 @@ def static_files():
             if S3_CLIENT is None:
                 S3_CLIENT = new_boto3_client('s3')
             s3_filename = filename.lstrip('/')  # remove leading slash for s3
+            stage_name = os.getenv('stage', 'error').lower()
             try:
-                stage_name = app.current_request.context['stage'].lower()
+                app.log.info('stage_name: %s', stage_name)
                 bucket_name = f'pfun-cma-model-www-{stage_name}'
                 response = S3_CLIENT.get_object(Bucket=bucket_name, Key=s3_filename)
             except ClientError:
-                app.log.warning('Requested static resource does not exist: %s', str(filename))
+                app.log.warning(
+                    '(stage: %s) Requested static resource does not exist: %s', str(stage_name), str(filename), exc_info=True)
+                # app.log.warning('context: %s', str(app.current_request.context))
+                # app.log.warning('event: %s', str(app.current_request._event_dict))
+                app.log.warning('environment: %s', str({k: v for k, v in os.environ.items() if 'AWS' in k.upper() or 'CHALICE' in k.upper()}))
                 return Response(
                     body='Requested static resource does not exist (requested static resource: %s).' % str(filename), status_code=404)
             body = response['Body'].read()
@@ -346,7 +373,6 @@ def icon_static_resource():
     resp = get_static_resource("icons/mattepfunlogolighter.png", source, "image/png")
     return Response(body=resp.content, status_code=200, headers={'Content-Type': 'image/png', 'x-version': '4'})
 
-
 def initialize_index_resources():
     global BODY, BASE_URL, STATIC_BASE_URL
     if BODY is not None:
@@ -432,7 +458,7 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
     return {'message': msg, 'level': level}
 
 
-def get_params(app: Chalice, key: str) -> Dict:
+def get_params(app: Chalice, key: str, default: Any = None, load_json: bool = False) -> Dict:
     if app.current_request is None:
         raise RuntimeError("No request was provided!")
     params = {} if app.current_request.json_body is None else \
@@ -445,6 +471,10 @@ def get_params(app: Chalice, key: str) -> Dict:
         params.update(app.current_request.query_params)
     if key in params:
         params = params[key]
+    if params is None:
+        params = default
+    if load_json and isinstance(params, (str, bytes)):
+        params = json.loads(params)
     return params
 
 
@@ -468,6 +498,29 @@ def initialize_model():
     model = CMASleepWakeModel(model_config)
     CMA_MODEL_INSTANCE = model
     return CMA_MODEL_INSTANCE
+
+
+@app.route('/model/results/translate', methods=['POST', 'GET'])
+def translate_model_results_by_language():
+    results = get_params(app, 'results')
+    from_lang = get_params(app, 'from', 'python', load_json=True)
+    if from_lang not in ['python', 'javascript']:
+        return Response(body='Invalid from language.', status_code=BadRequestError.STATUS_CODE)
+    to_lang = get_params(app, 'to', 'javascript', load_json=True)
+    if to_lang not in ['python', 'javascript']:
+        return Response(body='Invalid to language.', status_code=BadRequestError.STATUS_CODE)
+    if from_lang == to_lang:
+        return Response(body=json.dumps(results), status_code=200)
+    from pandas import DataFrame
+    translation_dict = {
+        'python': {
+            'javascript': lambda x: DataFrame(x).to_json(orient='records'),
+        },
+        'javascript': {
+            'python': lambda x: DataFrame.from_records(x).to_json(orient='columns'),
+        }
+    }
+    return Response(body=translation_dict[from_lang][to_lang](results), status_code=200)
 
 
 @app.route('/run', methods=["GET", "POST"])
