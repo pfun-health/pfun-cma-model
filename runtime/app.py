@@ -8,8 +8,7 @@ import uuid
 from chalice.app import (
     UnauthorizedError, ConvertToMiddleware,
     Request, BadRequestError, Chalice,
-    Response, AuthRoute, CORSConfig,
-    CaseInsensitiveMapping
+    Response, AuthRoute, CORSConfig
 )
 from requests import post
 from requests.sessions import Session
@@ -114,7 +113,7 @@ app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
 
-API_ROUTES = [
+FRONTEND_ROUTES = [
     '/run',
     '/run-at-time',
     '/params/schema',
@@ -246,63 +245,42 @@ def static_files():
     """
     Serves the static files for the web application.
     """
-    global S3_CLIENT
-    # pylint: disable=consider-using-f-string
-    pypath = '/opt/python/lib/python%s.%s/site-packages/chalicelib' % \
-        sys.version_info[:2]
-    if not Path(pypath).exists():
+    if not Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2])).exists():
         pypath = Path(__file__).parent.joinpath("chalicelib")
     else:
-        pypath = Path(pypath)
+        pypath = Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2]))
+    
     if app.current_request.query_params is None:
-        app.log.warning('No query params provided (requested static resource).')
-        return Response(body='No query prameters provided when requesting static resource.', status_code=400)
-    source: str = app.current_request.query_params.get('source', 's3')
+        return Response(body='No query parameters provided when requesting static resource.', status_code=400)
+    
+    source = app.current_request.query_params.get('source', 's3')
     if STATIC_BASE_URL is None:
         initialize_base_url(app)
     if source not in ('s3', 'local'):
-        app.log.warning('Invalid source provided (requested static resource).')
         return Response(body='Invalid source provided when requesting static resource.', status_code=BadRequestError.STATUS_CODE)
+    
     filename = app.current_request.query_params.get('filename', '/index.template.html')
-    try:
-        if source.lower() == 's3':
-            #: use s3 as source for static files
-            if S3_CLIENT is None:
-                S3_CLIENT = new_boto3_client('s3')
-            s3_filename = filename.lstrip('/')  # remove leading slash for s3
-            stage_name = os.getenv('stage', 'error').lower()
-            try:
-                app.log.info('stage_name: %s', stage_name)
-                bucket_name = f'pfun-cma-model-www-{stage_name}'
-                response = S3_CLIENT.get_object(Bucket=bucket_name, Key=s3_filename)
-            except ClientError:
-                app.log.warning(
-                    '(stage: %s) Requested static resource does not exist: %s', str(stage_name), str(filename), exc_info=True)
-                # app.log.warning('context: %s', str(app.current_request.context))
-                # app.log.warning('event: %s', str(app.current_request._event_dict))
-                app.log.warning('environment: %s', str({k: v for k, v in os.environ.items() if 'AWS' in k.upper() or 'CHALICE' in k.upper()}))
-                return Response(
-                    body='Requested static resource does not exist (requested static resource: %s).' % str(filename), status_code=404)
-            body = response['Body'].read()
-            return Response(body=body,
-                            status_code=200,
-                            headers={'Content-Type': 'text/*'}
-                            )
-    except Exception:
-        logger.warning('Failed to get static resource from s3: %s', str(filename))
-        #: ! attempt to get the file locally if failure
+    
+    if source.lower() == 's3':
+        if S3_CLIENT is None:
+            S3_CLIENT = new_boto3_client('s3')
+        s3_filename = filename.lstrip('/')
+        stage_name = os.getenv('stage', 'error').lower()
+        try:
+            bucket_name = 'pfun-cma-model-www-{0}'.format(stage_name)
+            response = S3_CLIENT.get_object(Bucket=bucket_name, Key=s3_filename)
+        except ClientError:
+            return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filename), status_code=404)
+        body = response['Body'].read()
+        return Response(body=body, status_code=200, headers={'Content-Type': 'text/*'})
+    
     filepath = Path(str(pypath) + '/www/')
     available_files = [f for f in filepath.rglob('*') if f.is_file()]
     filepath = Path(str(filepath) + filename)
-    logger.info('Requested static resource: %s', str(filepath))
     if not filepath.exists():
-        app.log.warning('Requested static resource does not exist: %s', str(filepath))
-        return Response(
-            body='Requested static resource does not exist (requested static resource: %s).' % str(filepath), status_code=404)
+        return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filepath), status_code=404)
     if filepath not in available_files:
-        app.log.warning('Requested static resource is not available: %s', str(filepath))
-        return Response(
-            body='Requested static resource is not available (requested static resource: %s).' % str(filepath), status_code=404)
+        return Response(body='Requested static resource is not available (requested static resource: {0}).'.format(filepath), status_code=404)
     content_type = app.current_request.query_params.get('ContentType', 'text/*')
     if 'text' in content_type or content_type == '*/*':
         try:
@@ -311,8 +289,7 @@ def static_files():
             output = filepath.read_bytes()
     else:
         output = filepath.read_bytes()
-    return Response(body=output,
-                    status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
+    return Response(body=output, status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
 
 
 BASE_URL = None
@@ -432,8 +409,15 @@ def index():
 
 @app.route("/routes")
 def get_routes():
-    routes = json.dumps({k: list(v.keys()) for k, v in app.routes.items()
-                         if k in PUBLIC_ROUTES}, indent=4)
+    """
+    Retrieves a list of routes available in the application.
+
+    Returns:
+        A Response object with the list of routes in the body and a status code of 200.
+    """
+    routes = json.dumps({
+        k: list(v.keys()) for k, v in app.routes.items()
+        if k in FRONTEND_ROUTES}, indent=4)
     return Response(body=routes, status_code=200)
 
 

@@ -2,8 +2,9 @@
 name = "pfun-cma-model"
 version = "0.1.0"
 description = "PFun CMA Model App"
-authors = ["Robbie Capps <rocapp@gmail.com>"]
+authors = ["Robbie Capps <robbie@pfun.me>"]
 readme = "README.md"
+packages = [{include = "runtime"},{include = "frontend"},{include = "embed"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

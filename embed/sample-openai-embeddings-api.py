@@ -8,11 +8,10 @@ import threading
 import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
-
-
-from chalicelib.engine.cma_model_params import CMAModelParams
-from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-from chalicelib.secrets import get_secret
+import path_helper
+from runtime.chalicelib.engine.cma_model_params import CMAModelParams
+from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+from runtime.chalicelib.secrets import get_secret
 
 tunnel_thread = None
 sample_text = None
@@ -27,6 +26,8 @@ def setup_ssh_tunnel():
     tunnel_thread.start()
     print('Tunnel thread started')
     return tunnel_thread
+
+tunnel_thread = setup_ssh_tunnel()
 
 def get_sample_text():
     global sample_text
@@ -69,7 +70,7 @@ def connect_opensearch():
 openai.api_key = get_secret('openai-api-key-emacs', region_name='us-east-1')
 
 # Function to get embeddings from OpenAI
-def get_embeddings(text):
+def get_embeddings(text) -> str:
     model = "text-embedding-ada-002"  # Replace with the model you want to use
     response = openai.Embedding.create(input=text, model=model)
     return response.get('data')

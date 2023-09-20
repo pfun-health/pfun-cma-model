@@ -12,6 +12,16 @@ $(SUBDIRS):
 
 # Clean target to remove intermediate files
 clean:
+	sh -c 'set +e; rm -rf ./dist/*'
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir clean; \
 	done
+build:
+	poetry build
+
+install:
+	poetry build
+	poetry install
+
+publish:
+	poetry publish

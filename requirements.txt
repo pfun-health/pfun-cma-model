@@ -1,1 +1,2 @@
 -r ./runtime/requirements-dev.txt
+-r ./pfun-cma-model-embed/requirements.txt

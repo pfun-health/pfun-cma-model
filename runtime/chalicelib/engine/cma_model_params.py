@@ -4,13 +4,8 @@ from typing import Annotated, Optional, Sequence, Dict
 from pydantic import BaseModel, field_serializer
 from numpy import ndarray
 import importlib
-#: pfun imports (relative)
-root_path = str(Path(__file__).parents[1])
-mod_path = str(Path(__file__).parent)
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
-if mod_path not in sys.path:
-    sys.path.insert(0, mod_path)
+from path_helper import path_helper
+path_helper.append_path(Path(__file__).parent.parent.parent)
 # from chalicelib.engine.bounds import Bounds
 bounds = importlib.import_module('.engine.bounds', package='chalicelib')
 Bounds = bounds.Bounds

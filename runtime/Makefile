@@ -6,6 +6,12 @@ DOMAIN_NAME = api.$(STAGE).pfun.app
 APP ?= pfun-cma-model
 LOG_GROUP_NAME = /aws/lambda/$(APP)-$(STAGE)
 
+local:
+	@echo "running locally with STAGE=$(STAGE)..."
+	sleep 1s
+	@cd ${HOME}/Git/pfun-cma-model && chalice deploy --stage $(STAGE)
+	sleep 2s
+
 deploy-dependencies:
 	echo "deploying dependencies layer..."
 	@cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy --stage ${STAGE}
