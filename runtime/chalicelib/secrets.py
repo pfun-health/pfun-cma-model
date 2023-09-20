@@ -64,9 +64,6 @@ def get_secret_func(
         logger.info(
             f"...retrieved secret from AWS:\n'{secret_name}':\n{secret}\n")
 
-        # write to output path if given
-        if output_fpath is not None:
-            Path(output_fpath).write_text(secret)
         return secret
 
 
