@@ -1,7 +1,7 @@
 # Root Makefile
 
 # List of subdirectories to traverse
-SUBDIRS = runtime pfun-cma-model-reheater
+SUBDIRS ?= runtime pfun-cma-model-reheater
 
 .PHONY: all $(SUBDIRS)
 

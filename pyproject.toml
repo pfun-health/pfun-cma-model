@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "pfun-cma-model"
+version = "0.1.0"
+description = "PFun CMA Model App"
+authors = ["Robbie Capps <rocapp@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
