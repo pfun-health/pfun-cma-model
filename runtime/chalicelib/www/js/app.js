@@ -288,7 +288,9 @@ function simulateDrag(dy = null) {
 const funcMap = {
   'run-at-time': 'runAtTime',
   'run': 'run',
-  'fit': 'fit'
+  'fit': 'fit',
+  'params/schema': 'paramsSchema',
+  'params/default': 'paramsDefault',
 }
 
 // a simple UI to input apiKey, enter any optional parameters + the body, and choose which function to call, and select the method (POST/GET). Make sure to validate the input. Handle websocket & HTTP endpoints.
