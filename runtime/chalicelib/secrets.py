@@ -3,7 +3,7 @@
 # or implementing the sample code, visit the AWS docs:
 # https://aws.amazon.com/developer/language/python/
 from botocore.exceptions import ClientError, ProfileNotFound
-from pathlib import Path
+from runtime.chalicelib.sessions import PFunCMASession
 import boto3
 import logging
 from typing import AnyStr
@@ -71,10 +71,11 @@ def get_secret(
     secret_name,
     region_name="us-west-1",
     profile="robbie",
-    output_fpath=None,
     verbosity=logging.WARN,
 ):
-    return get_secret_func(secret_name, region_name, profile, output_fpath, verbosity)
+    return get_secret_func(
+        secret_name, region_name=region_name,
+        profile=profile, verbosity=verbosity)
 
 
 def put_secret_func(
@@ -104,18 +105,15 @@ def put_secret_func(
             region_name=region_name,
         )
 
-    client_request_token = str(
-        uuid.uuid3(uuid.uuid4(), secret_node + ":" + secret_name)
-    )
     try:
-        put_secret_value_response = client.put_secret_value(
+        client.put_secret_value(
             SecretId=secret_name, SecretString=secret_value
         )
     except Exception as e:
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        logging.warn(e, exc_info=1)
-        create_secret_response = client.create_secret(
+        logging.warn(e, exc_info=True)
+        client.create_secret(
             Name=secret_name, SecretString=secret_value
         )
     return

@@ -6,75 +6,43 @@ import json
 import sys
 import uuid
 from chalice.app import (
-    UnauthorizedError, ConvertToMiddleware,
+    ConvertToMiddleware,
     Request, BadRequestError, Chalice,
-    Response, AuthRoute, CORSConfig
+    Response, CORSConfig
 )
 from requests import post
 from requests.sessions import Session
 from pathlib import Path
 import urllib.parse as urlparse
 from typing import (
-    Any, Dict, Literal
+    Any, Dict, Literal, Optional
 )
-from botocore.config import Config as ConfigCore
-import boto3
 from botocore.exceptions import ClientError
-import importlib
-
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-#: pfun imports (relative)
-root_path = str(Path(__file__).parents[1])
-mod_path = str(Path(__file__).parent)
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
-if mod_path not in sys.path:
-    sys.path.insert(0, mod_path)
-utils = importlib.import_module('.utils', package='chalicelib')
-
-
-BOTO3_SESSION = None
-
-
-def new_boto3_session():
-    global BOTO3_SESSION
-    if BOTO3_SESSION is not None:
-        return BOTO3_SESSION
-    BOTO3_SESSION = boto3.Session()
-    return BOTO3_SESSION
+import pfun_path_helper.pfun_path_helper as pfun_path_helper
+pfun_path_helper.append_path(Path(__file__).parent.parent)
+import runtime.chalicelib.utils as utils
+from runtime.chalicelib.pathdefs import (
+    FRONTEND_ROUTES,
+    PUBLIC_ROUTES,
+    PRIVATE_ROUTES
+)
+from runtime.chalicelib.secrets import get_secret_func
+from runtime.chalicelib.sessions import PFunCMASession
+from runtime.chalicelib.middleware import authorization_required as authreq
+from functools import partial
 
 
-def new_boto3_client(service_name: str, session=None, *args, **kwds):
-    """
-    Creates a new Boto3 client for a specified AWS service.
+BOTO3_SESSION = PFunCMASession.get_boto3_session()
+SECRETS_CLIENT = PFunCMASession.get_boto3_client('secretsmanager')
+SDK_CLIENT = None
+BASE_URL: Optional[str] = None
+STATIC_BASE_URL: str | None = None
+BODY: Optional[str] = None
+S3_CLIENT = PFunCMASession.get_boto3_client('s3')
 
-    Args:
-        service_name (str): The name of the AWS service for which the client is being created.
-        session (boto3.Session, optional): An existing Boto3 session to use. If not provided, a new session will be created.
-        *args: Additional arguments that will be passed to the Boto3 client constructor.
-        **kwds: Additional keyword arguments that will be passed to the Boto3 client constructor.
-
-    Returns:
-        boto3.client: The newly created Boto3 client for the specified AWS service.
-    """
-    config = ConfigCore(region_name='us-east-1')
-    session = session or new_boto3_session()
-    client = session.client(service_name, *args, config=config, **kwds)
-    return client
-
-
-#: pfun imports (relative)
-root_path = Path(__file__).parents[2]
-for pth in [root_path, ]:
-    pth = str(pth)
-    if pth not in sys.path:
-        sys.path.insert(0, pth)
-
-get_secret_func = importlib.import_module(
-    '.secrets', package='chalicelib').get_secret_func
 
 #: init app, set cors
 cors_config = CORSConfig(
@@ -103,110 +71,35 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
 app = Chalice(app_name='PFun CMA Model Backend')
-if os.getenv('DEBUG_CHALICE', False) in ['1', 'true']:
+if os.getenv('DEBUG_CHALICE', '0') in ['1', 'true']:
     app.debug = True
 app.log.setLevel(logging.INFO)
 
 app.api.cors = cors_config
-app.websocket_api.session = new_boto3_session()
+app.websocket_api.session = PFunCMASession.get_boto3_session()
 app.experimental_feature_flags.update([
     'WEBSOCKETS'
 ])
 
-FRONTEND_ROUTES = [
-    '/run',
-    '/run-at-time',
-    '/params/schema',
-    '/params/default'
-]
 
-PUBLIC_ROUTES: list[str | AuthRoute] = [
-    '/',
-    '/run',
-    '/fit',
-    '/run-at-time',
-    '/routes',
-    '/sdk',
-    '/params/schema',
-    '/params/default',
-]
-
-PRIVATE_ROUTES: list[str] = [
-    '/run',
-    '/fit',
-    '/run-at-time',
-    '/sdk'
-]
-
-SECRETS_CLIENT = None
+def get_current_request(app: Chalice = app) -> Request:
+    current_request: Request = app.current_request if app.current_request \
+        is not None else Request({})  # to make the linter shut up.
+    return current_request
 
 
-def authorization_required(func):
-    """
-    A wrapper function that handles authentication for the API.
-
-    Args:
-        *args: Variable length argument list.
-        **kwargs: Arbitrary keyword arguments.
-
-    Returns:
-        The result of the wrapped function.
-
-    Raises:
-        UnauthorizedError: If the authentication parameters are invalid.
-
-    """
-    def wrapper(*args, **kwargs):
-        global SECRETS_CLIENT
-        if not hasattr(app, 'current_request'):
-            #: skip authorization for lambda functions
-            return func(*args, **kwargs)
-        if app.current_request.path not in PRIVATE_ROUTES:
-            #: skip authorization for public routes
-            return func(*args, **kwargs)
-        if SECRETS_CLIENT is None:
-            # lazy load secrets client
-            SECRETS_CLIENT = new_boto3_client('secretsmanager')
-        api_key = SECRETS_CLIENT.get_secret_value(
-            SecretId='pfun-cma-model-aws-api-key')['SecretString']
-        rapidapi_key = SECRETS_CLIENT.get_secret_value(
-            SecretId='pfun-cma-model-rapidapi-key')['SecretString']
-        logger.info('RapidAPI key: %s', rapidapi_key)
-        logger.info('API key: %s', api_key)
-        try:
-            current_request = app.current_request
-            api_key_given = current_request.headers.get('X-API-Key')
-            apikey_authorized = api_key_given == api_key
-            rapidapi_key_given = current_request.headers.get('X-RapidAPI-Key')
-            rapidapi_authorized = rapidapi_key_given == rapidapi_key
-            if any([apikey_authorized, rapidapi_authorized]):
-                logger.info('Authorized request: %s', str(vars(current_request)))
-                return func(*args, **kwargs)
-            else:
-                raise UnauthorizedError('Unauthorized request: %s' % str(vars(current_request)))
-        except UnauthorizedError:
-            logger.error(
-                'authorization parameters given:\n\tapi_key: %s (%s),\n\trapidapi_key: %s (%s)',
-                api_key_given, str(apikey_authorized), rapidapi_key_given, str(rapidapi_authorized))
-            return Response(
-                body='Unauthorized request.\nAuth params:\n\tapi_key: %s,\n\trapidapi_key: %s' % (api_key_given, rapidapi_key_given), status_code=401
-            )
-    return wrapper
-
-
+authorization_required = partial(
+    authreq, app, get_current_request,
+    PRIVATE_ROUTES, SECRETS_CLIENT, PFunCMASession, logger)
 app.register_middleware(ConvertToMiddleware(authorization_required), event_type='all')
-
-
-SDK_CLIENT = None
 
 
 @app.route('/sdk', methods=['GET'])
 def generate_sdk():
-    
     global SDK_CLIENT
     logger.info('Generating SDK')
     if SDK_CLIENT is None:
-        SDK_CLIENT = new_boto3_client('apigateway')
+        SDK_CLIENT = PFunCMASession.get_boto3_client('apigateway')
     rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
                        if item.get('name') == 'PFun CMA Model Backend')['id']
     response = SDK_CLIENT.get_sdk(
@@ -223,9 +116,6 @@ def generate_sdk():
         headers={'Content-Type': 'application/zip'},
         status_code=200,
     )
-
-
-S3_CLIENT = None
 
 @app.route('/params/schema', methods=['GET'])
 def params_schema():
@@ -249,21 +139,23 @@ def static_files():
         pypath = Path(__file__).parent.joinpath("chalicelib")
     else:
         pypath = Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2]))
+
+    current_request = get_current_request(app)
     
-    if app.current_request.query_params is None:
+    if current_request.query_params is None:
         return Response(body='No query parameters provided when requesting static resource.', status_code=400)
     
-    source = app.current_request.query_params.get('source', 's3')
+    source = current_request.query_params.get('source', 's3')
     if STATIC_BASE_URL is None:
         initialize_base_url(app)
     if source not in ('s3', 'local'):
         return Response(body='Invalid source provided when requesting static resource.', status_code=BadRequestError.STATUS_CODE)
     
-    filename = app.current_request.query_params.get('filename', '/index.template.html')
+    filename = current_request.query_params.get('filename', '/index.template.html')
     
     if source.lower() == 's3':
         if S3_CLIENT is None:
-            S3_CLIENT = new_boto3_client('s3')
+            S3_CLIENT = PFunCMASession.get_boto3_client('s3')
         s3_filename = filename.lstrip('/')
         stage_name = os.getenv('stage', 'error').lower()
         try:
@@ -281,7 +173,7 @@ def static_files():
         return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filepath), status_code=404)
     if filepath not in available_files:
         return Response(body='Requested static resource is not available (requested static resource: {0}).'.format(filepath), status_code=404)
-    content_type = app.current_request.query_params.get('ContentType', 'text/*')
+    content_type = current_request.query_params.get('ContentType', 'text/*')
     if 'text' in content_type or content_type == '*/*':
         try:
             output = filepath.read_text(encoding='utf-8')
@@ -292,21 +184,17 @@ def static_files():
     return Response(body=output, status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
 
 
-BASE_URL = None
-STATIC_BASE_URL = None
-BODY = None
-
-
 def initialize_base_url(app):
     global BASE_URL, STATIC_BASE_URL, SDK_CLIENT
     if BASE_URL is not None and STATIC_BASE_URL is not None:
         return BASE_URL
-    BASE_URL = app.current_request.headers.get(
-        'host', app.current_request.headers.get(
-            'origin', app.current_request.headers.get('referer', '')))
+    current_request = get_current_request()
+    BASE_URL = current_request.headers.get(
+        'host', current_request.headers.get(
+            'origin', current_request.headers.get('referer', '')))
     if any([BASE_URL == '', not hasattr(app, 'current_request')]):
         if SDK_CLIENT is None:
-            SDK_CLIENT = new_boto3_client('apigateway')
+            SDK_CLIENT = PFunCMASession.get_boto3_client('apigateway')
         rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
                            if item.get('name') == 'PFun CMA Model Backend')['id']
         BASE_URL = 'https://%s.execute-api.us-east-1.amazonaws.com/api' % (rest_api_id,)
@@ -324,7 +212,6 @@ def initialize_base_url(app):
 
 
 def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', content_type: str = 'text/*'):
-    global STATIC_BASE_URL
     if STATIC_BASE_URL is None:
         initialize_base_url(app)
     if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):
@@ -343,18 +230,19 @@ def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', conten
 
 @app.route('/icons/mattepfunlogolighter.png')
 def icon_static_resource():
-    query_params = app.current_request.query_params
+    current_request = get_current_request(app)
+    query_params = current_request.query_params
     if query_params is None:
         query_params = {}
     source = query_params.get('source', 's3')
     resp = get_static_resource("icons/mattepfunlogolighter.png", source, "image/png")
     return Response(body=resp.content, status_code=200, headers={'Content-Type': 'image/png', 'x-version': '4'})
 
+
 def initialize_index_resources():
     global BODY, BASE_URL, STATIC_BASE_URL
     if BODY is not None:
         return BODY
-    status_code = 200
     #: initialize base url
     BASE_URL = initialize_base_url(app)
     response = get_static_resource('index.template.html')
@@ -423,13 +311,14 @@ def get_routes():
 
 @app.route("/log", methods=['GET', 'POST'])
 def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
-    if app.current_request is None:
+    current_request = get_current_request(app)
+    if current_request is None:
         raise RuntimeError("Logging error! No request was provided!")
-    if app.current_request.query_params is None:
+    if current_request.query_params is None:
         raise RuntimeError("Logging error! No query parameters were provided!")
-    msg = app.current_request.query_params.get('msg') or \
-        app.current_request.query_params.get('message')
-    level = app.current_request.query_params.get('level', level)
+    msg = current_request.query_params.get('msg') or \
+        current_request.query_params.get('message')
+    level = current_request.query_params.get('level', level)
     if msg is None:
         return Response(body='No message provided.', status_code=BadRequestError.STATUS_CODE)
     loggers = {
@@ -443,16 +332,17 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
 
 
 def get_params(app: Chalice, key: str, default: Any = None, load_json: bool = False) -> Dict:
-    if app.current_request is None:
+    current_request = get_current_request(app)
+    if current_request is None:
         raise RuntimeError("No request was provided!")
-    params = {} if app.current_request.json_body is None else \
-        app.current_request.json_body
+    params = {} if current_request.json_body is None else \
+        current_request.json_body
     if isinstance(params, (str, bytes)):
         params = json.loads(params)
     if key in params:
         params = params[key]
-    if app.current_request.query_params is not None:
-        params.update(app.current_request.query_params)
+    if current_request.query_params is not None:
+        params.update(current_request.query_params)
     if key in params:
         params = params[key]
     if params is None:
@@ -511,7 +401,7 @@ def translate_model_results_by_language():
 def run_model_route():
     """Runs the CMA model.
     """
-    request: Request | None = app.current_request
+    request: Request | None = get_current_request(app)
     if request is None:
         raise RuntimeError("No request was provided!")
     model_config = get_model_config(app)
@@ -602,8 +492,8 @@ DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
                          "devices", "events"]
 
 
-def get_oauth_info(event):
-    oauth_info = {
+def get_oauth_info():
+    oauth_info: Dict[str, str | Any | os.PathLike] = {
         "creds": {},
         "host": "",
         "login_url": "",
@@ -611,7 +501,7 @@ def get_oauth_info(event):
         "state": str(uuid.uuid4()),
         "oauth2_tokens": None
     }
-    secret = get_secret_func("dexcom_pfun-app_glucose")
+    secret: str | bytes = get_secret_func("dexcom_pfun-app_glucose")
     oauth_info["creds"] = json.loads(secret)
     os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
     os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
@@ -619,17 +509,18 @@ def get_oauth_info(event):
         "DEXCOM_HOST", get_params(app, 'DEXCOM_HOST')) or \
         'https://api.dexcom.com'
     oauth_info["login_url"] = urlparse.urljoin(
-        oauth_info["host"], "/v2/oauth2/login")
+        str(oauth_info["host"]), "/v2/oauth2/login")
     oauth_info["redirect_uri"] = os.getenv("DEXCOM_REDIRECT_URI") or \
         '/login-success'
     oauth_info["token_url"] = urlparse.urljoin(
-        oauth_info["host"], "v2/oauth2/token")
+        str(oauth_info["host"]), "v2/oauth2/token")
     oauth_info['refresh_url'] = urlparse.urljoin(
-        oauth_info["host"], "v2/oauth2/token")
+        str(oauth_info["host"]), "v2/oauth2/token")
     oauth_info['endpoint_urls'] = {}
-    for endpoint in DexcomEndpoint.__args__:
+    endpoints: list[str] = vars(DexcomEndpoint)['__args__']
+    for endpoint in endpoints:
         oauth_info["endpoint_urls"][endpoint] = urlparse.urljoin(
-            oauth_info['host'], f"v3/users/{{}}/{endpoint}")
+            str(oauth_info['host']), f"v3/users/{{}}/{endpoint}")
     return oauth_info
 
 
@@ -638,17 +529,19 @@ oauth_info = None
 
 @app.route('/login-dexcom', methods=['GET', 'POST'])
 def oauth2_dexcom():
-    """Handles the Dexcom login request."""
+    """
+    Handles the Dexcom login request.
+    """
 
     global oauth_info
     if oauth_info is None:
-        oauth_info = get_oauth_info(event)
+        oauth_info = get_oauth_info()
 
     # Get the authorization code from the event.
     authorization_code = get_params(app, 'authorization_code')
     if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
         # Exchange the authorization code for an access token.
-        url = oauth_info['token_url']
+        url: str = str(oauth_info['token_url'])
         payload = {
             'client_id': os.environ['DEXCOM_CLIENT_ID'],
             'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
@@ -672,7 +565,7 @@ def oauth2_dexcom():
         }, status_code=200, headers={'Content-Type': 'application/json'})
     elif authorization_code is None and oauth_info['oauth2_tokens'] is None:
         #: Redirect to dexcom, get the authorization code.
-        url = oauth_info['login_url']
+        url = str(oauth_info['login_url'])
         payload = {
             'client_id': os.environ['DEXCOM_CLIENT_ID'],
             'redirect_uri': oauth_info['redirect_uri'],
@@ -687,11 +580,11 @@ def oauth2_dexcom():
         )
     elif oauth_info['oauth2_tokens'] is not None:
         #: Refresh the token.
-        url = oauth_info['refresh_url']
+        url = str(oauth_info['refresh_url'])
         payload = {
             'client_id': os.environ['DEXCOM_CLIENT_ID'],
             'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'refresh_token': oauth_info['oauth2_tokens']['refresh_token'],
+            'refresh_token': str(oauth_info['oauth2_tokens']['refresh_token']),
             'grant_type': 'refresh_token',
             'redirect_uri': oauth_info['redirect_uri']
         }

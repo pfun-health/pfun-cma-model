@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "pfun-cma-model"
-version = "0.1.0"
-description = "PFun CMA Model App"
+name = "pfun-path-helper"
+version = "0.0.2"
+description = "Path helper script"
 authors = ["Robbie Capps <robbie@pfun.me>"]
-readme = "README.md"
-packages = [{include = "runtime"},{include = "frontend"},{include = "embed"}]
+packages = [{include = "pfun_path_helper"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

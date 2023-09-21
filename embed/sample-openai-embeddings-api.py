@@ -8,7 +8,7 @@ import threading
 import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
-import path_helper
+import pfun_path_helper as path_helper
 from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from runtime.chalicelib.secrets import get_secret

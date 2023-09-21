@@ -14,5 +14,10 @@ def append_path(path: Optional[str | os.PathLike] = None) -> list[str]:
         sys.path.insert(0, str(path))
     return sys.path
 
+
 #: automatically append the repo root to sys.path when imported
 append_path()
+
+if __name__ == '__main__':
+    print(get_lib_path())
+    print(sys.path)
