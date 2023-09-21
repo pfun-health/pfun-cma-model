@@ -31,7 +31,7 @@ jobs:
         AWS_DEFAULT_REGION: us-east-1
 
     - name: Run tests
-      run: make test  # Replace with your actual test command
+      run: make tests
 
     - name: Deploy prod stage
       if: success()  # Only runs if previous steps were successful
