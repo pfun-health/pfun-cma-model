@@ -7,11 +7,12 @@ import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
 import pfun_path_helper as path_helper
-path_helper.append_path(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
+path_helper.append_path(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))  # type: ignore
 from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from runtime.chalicelib.secrets import get_secret_func as get_secret
 import paramiko
+
 
 def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
     transport = ssh_client.get_transport()
@@ -31,7 +32,7 @@ class Embedder:
     def __init__(self, ssh_params={}):
         self.ssh_client = None
         self.tunnel_channel = None
-        # self.setup_ssh_tunnel(**ssh_params)
+        self.setup_ssh_tunnel(**ssh_params)
         self.completed_proc = None
         self.opensearch_client = self.connect_opensearch()
         self.param_grid = self.create_parameter_search_grid()
@@ -39,15 +40,15 @@ class Embedder:
     def setup_ssh_tunnel(self, **kwds):
         # ssh server config
         server_config = dict(
-            hostname = 'd2bd',
-            port = 22,
-            username = 'robbie'
+            hostname='d2bd',
+            port=22,
+            username='robbie'
         )
         # tunnel config
         tunnel_config = dict(
-            remote_host = '10.1.78.132',
-            local_port = 9201,
-            remote_port = 9200
+            remote_host='10.1.78.132',
+            local_port=9201,
+            remote_port=9200
         )
         # Initialize SSH client
         self.ssh_client = paramiko.SSHClient()
@@ -56,7 +57,7 @@ class Embedder:
         private_key_path = os.path.expanduser('~/.ssh/d2bd_id_rsa')
         privkey = paramiko.RSAKey(filename=private_key_path)
         self.ssh_client.connect(
-            server_config['hostname'], port=server_config['port'], username=server_config['username'], pkey=privkey) # type: ignore
+            server_config['hostname'], port=server_config['port'], username=server_config['username'], pkey=privkey)  # type: ignore
         # Create tunnel
         self.tunnel_channel = forward_tunnel(tunnel_config['local_port'], tunnel_config['remote_host'], tunnel_config['remote_port'], self.ssh_client)
 
@@ -64,7 +65,7 @@ class Embedder:
         sample_text = requests.get('api.dev.pfun.app/api/params/default', headers={'Content-Type': 'application/json'}, timeout=5).json()
         return sample_text
 
-    def create_parameter_search_grid(self):
+    def create_parameter_search_grid(self, num: int = 5):
         param_grid = {}
         cmap = CMAModelParams()
         if hasattr(cmap.bounds, 'json'):
@@ -72,7 +73,7 @@ class Embedder:
         else:
             bds = cmap.bounds  # type: ignore
         cdict = cmap.model_dump()
-        param_grid = {k: np.linspace(bds['lb'][j], bds['ub'][j], num=5) for j, k in zip(range(len(cmap.model_fields)), cdict.get('bounded_param_keys'))}  # type: ignore
+        param_grid = {k: np.linspace(bds['lb'][j], bds['ub'][j], num=num) for j, k in zip(range(len(cmap.model_fields)), cdict.get('bounded_param_keys'))}  # type: ignore
         param_grid = ParameterGrid(param_grid)
         return param_grid
 
@@ -96,7 +97,7 @@ class Embedder:
     def get_embeddings(self, text) -> str:
         model = "text-embedding-ada-002"  # Replace with the model you want to use
         response = openai.Embedding.create(input=text, model=model, )
-        return response.get('data')
+        return response.get('data')  # type: ignore
 
     def save_to_opensearch(self, embedding, doc_id):
         action = {
@@ -129,5 +130,5 @@ class Embedder:
 if __name__ == "__main__":
     embedder = Embedder()
     embeddings = embedder.run()
-    # embedder.ssh_client.close()
+    embedder.ssh_client.close()
     print(embeddings[:5])
