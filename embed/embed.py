@@ -116,7 +116,8 @@ class Embedder:
         print('Creating embeddings...')
         for pset in self.param_grid:
             print('\nCreating embedding for:\n\t' + str(pset))
-            raw_text = CMASleepWakeModel(**pset).json()
+            model = CMASleepWakeModel(**pset)
+            raw_text = model.run().to_json()
             print(f'\nraw_text:\n\t{raw_text}\n')
             embedding = self.get_embeddings(raw_text)
             doc_id = "embedding-" + str(uuid.uuid4())
@@ -131,5 +132,5 @@ class Embedder:
 if __name__ == "__main__":
     embedder = Embedder()
     embeddings = embedder.run()
-    embedder.ssh_client.close()
+    # embedder.ssh_client.close()
     print(embeddings[:5])
