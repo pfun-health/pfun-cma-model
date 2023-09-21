@@ -3,8 +3,6 @@ import openai
 from opensearchpy import OpenSearch, helpers
 import certifi
 import uuid
-import subprocess
-import threading
 import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
@@ -14,7 +12,6 @@ from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from runtime.chalicelib.secrets import get_secret_func as get_secret
 import paramiko
-import select
 
 def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
     transport = ssh_client.get_transport()
@@ -59,7 +56,7 @@ class Embedder:
         private_key_path = os.path.expanduser('~/.ssh/d2bd_id_rsa')
         privkey = paramiko.RSAKey(filename=private_key_path)
         self.ssh_client.connect(
-            server_config['hostname'], port=server_config['port'], username=server_config['username'], pkey=privkey)
+            server_config['hostname'], port=server_config['port'], username=server_config['username'], pkey=privkey) # type: ignore
         # Create tunnel
         self.tunnel_channel = forward_tunnel(tunnel_config['local_port'], tunnel_config['remote_host'], tunnel_config['remote_port'], self.ssh_client)
 
