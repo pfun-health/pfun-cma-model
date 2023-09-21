@@ -48,9 +48,9 @@ class Embedder:
         )
         # tunnel config
         tunnel_config = dict(
-            remote_host = '10.1.78.150',
+            remote_host = '10.1.78.132',
             local_port = 9201,
-            remote_port = 9201
+            remote_port = 9200
         )
         # Initialize SSH client
         self.ssh_client = paramiko.SSHClient()
