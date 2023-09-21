@@ -14,6 +14,17 @@ from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from runtime.chalicelib.secrets import get_secret_func as get_secret
 import paramiko
+import select
+
+def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
+    transport = ssh_client.get_transport()
+    channel = transport.open_channel(
+        "direct-tcpip",
+        (remote_host, remote_port),
+        ("127.0.0.1", local_port)
+    )
+    return channel
+
 
 #: set open ai api key
 openai.api_key = get_secret('openai-api-key-emacs', region='us-east-1')
@@ -21,25 +32,32 @@ openai.api_key = get_secret('openai-api-key-emacs', region='us-east-1')
 
 class Embedder:
     def __init__(self, ssh_params={}):
-        self.tunnel_client = self.setup_ssh_tunnel(**ssh_params)
+        self.ssh_client = None
+        self.tunnel_channel = None
+        self.setup_ssh_tunnel(**ssh_params)
         self.completed_proc = None
         self.opensearch_client = self.connect_opensearch()
         self.param_grid = self.create_parameter_search_grid()
 
     def setup_ssh_tunnel(self, **kwds):
-        
-        def start_ssh_tunnel(inst=self):
-            proc = subprocess.Popen(["ssh", "-L", "9201:10.1.78.150:9201", "robbie@d2bd"])
-            inst.completed_proc = proc.wait()
-            if inst.completed_proc is None:
-                raise RuntimeError("Failed to start SSH tunnel.")
-            if inst.completed_proc != 0:
-                raise RuntimeError("Failed to start SSH tunnel.")
-            return True
-        self.tunnel_thread = threading.Thread(target=start_ssh_tunnel, daemon=False)
-        self.tunnel_thread.start()
-        print('Tunnel thread started')
-        return self.tunnel_thread
+        # ssh server config
+        server_config = dict(
+            hostname = 'd2bd',
+            port = 22,
+            username = 'robbie'
+        )
+        # tunnel config
+        tunnel_config = dict(
+            remote_host = '10.1.78.150',
+            local_port = 9201,
+            remote_port = 9201
+        )
+        # Initialize SSH client
+        self.ssh_client = paramiko.SSHClient()
+        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh_client.connect(server_config['hostname'], port=server_config['port'], username=server_config['username'])
+        # Create tunnel
+        self.tunnel_channel = forward_tunnel(tunnel_config['local_port'], tunnel_config['remote_host'], tunnel_config['remote_port'], self.ssh_client)
 
     def get_sample_text(self):
         sample_text = requests.get('api.dev.pfun.app/api/params/default', headers={'Content-Type': 'application/json'}, timeout=5).json()
@@ -109,4 +127,5 @@ class Embedder:
 if __name__ == "__main__":
     embedder = Embedder()
     embeddings = embedder.run()
+    embedder.ssh_client.close()
     print(embeddings[:5])
