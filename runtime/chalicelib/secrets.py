@@ -4,7 +4,6 @@
 # https://aws.amazon.com/developer/language/python/
 from botocore.exceptions import ClientError, ProfileNotFound
 from runtime.chalicelib.sessions import PFunCMASession
-import boto3
 import logging
 from typing import AnyStr
 import uuid
@@ -21,7 +20,7 @@ def set_verbosity(ctx, param, value):
 
 def get_secret_func(
     secret_name,
-    region_name="us-west-1",
+    region="us-west-1",
     profile="robbie",
     get_created_date=False,
     output_fpath=None,
@@ -32,18 +31,18 @@ def get_secret_func(
 
     # Create a Secrets Manager client
     try:
-        session = boto3.Session(
-            profile_name=profile, region_name=region_name)
+        session = PFunCMASession.get_boto3_session(
+            profile_name=profile, region=region)
     except ProfileNotFound:  # handle non-existant profile
         logger.warning(
             "AWS profile %s not found, attempting session without a profile.",
             profile
         )
-        session = boto3.Session()
+        session = PFunCMASession.get_boto3_session()
     finally:
         client = session.client(
             service_name="secretsmanager",
-            region_name=region_name,
+            region_name=region,
         )
 
     try:
@@ -69,12 +68,12 @@ def get_secret_func(
 
 def get_secret(
     secret_name,
-    region_name="us-west-1",
+    region="us-west-1",
     profile="robbie",
     verbosity=logging.WARN,
 ):
     return get_secret_func(
-        secret_name, region_name=region_name,
+        secret_name, region=region,
         profile=profile, verbosity=verbosity)
 
 
@@ -82,7 +81,7 @@ def put_secret_func(
     secret_name: AnyStr,
     secret_value: AnyStr,
     secret_node="secrets.pfun.app",
-    region_name="us-west-1",
+    region="us-west-1",
     profile="robbie",
     verbosity=logging.WARN,
 ):
@@ -93,7 +92,7 @@ def put_secret_func(
     # Create a Secrets Manager client
     try:
         session = boto3.session.Session(
-            profile_name=profile, region_name=region_name)
+            profile_name=profile, region=region)
     except ProfileNotFound:  # handle non-existant profile
         logger.warning(
             f"AWS profile {profile} not found, attempting session without a profile."
@@ -102,7 +101,7 @@ def put_secret_func(
     finally:
         client = session.client(
             service_name="secretsmanager",
-            region_name=region_name,
+            region=region,
         )
 
     try:

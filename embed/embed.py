@@ -1,5 +1,5 @@
+import os
 import openai
-import json
 from opensearchpy import OpenSearch, helpers
 import certifi
 import uuid
@@ -9,36 +9,41 @@ import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
 import pfun_path_helper as path_helper
+path_helper.append_path(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
 from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from runtime.chalicelib.secrets import get_secret_func as get_secret
+import paramiko
+
+#: set open ai api key
+openai.api_key = get_secret('openai-api-key-emacs', region='us-east-1')
 
 
-class Code:
-    def __init__(self):
-        self.tunnel_thread = self.setup_ssh_tunnel()
+class Embedder:
+    def __init__(self, ssh_params={}):
+        self.tunnel_client = self.setup_ssh_tunnel(**ssh_params)
         self.completed_proc = None
         self.opensearch_client = self.connect_opensearch()
         self.param_grid = self.create_parameter_search_grid()
 
-    def setup_ssh_tunnel(self):
+    def setup_ssh_tunnel(self, **kwds):
+        
         def start_ssh_tunnel(inst=self):
-            inst.completed_proc = subprocess.run(["ssh", "-fN", "-L", "9200:10.1.78.156:9200", "robbie@d2bd"], capture_output=True)
+            proc = subprocess.Popen(["ssh", "-L", "9201:10.1.78.150:9201", "robbie@d2bd"])
+            inst.completed_proc = proc.wait()
             if inst.completed_proc is None:
-                print("Failed to start SSH tunnel.")
-                return False
-            if inst.completed_proc.returncode != 0:
-                print("Failed to start SSH tunnel.")
-                return False
+                raise RuntimeError("Failed to start SSH tunnel.")
+            if inst.completed_proc != 0:
+                raise RuntimeError("Failed to start SSH tunnel.")
             return True
-        self.tunnel_thread = threading.Thread(target=start_ssh_tunnel, daemon=True)
+        self.tunnel_thread = threading.Thread(target=start_ssh_tunnel, daemon=False)
         self.tunnel_thread.start()
         print('Tunnel thread started')
         return self.tunnel_thread
 
     def get_sample_text(self):
-        self.sample_text = requests.get('api.dev.pfun.app/api/params/default', headers={'Content-Type': 'application/json'}, timeout=5).json()
-        return self.sample_text
+        sample_text = requests.get('api.dev.pfun.app/api/params/default', headers={'Content-Type': 'application/json'}, timeout=5).json()
+        return sample_text
 
     def create_parameter_search_grid(self):
         param_grid = {}
@@ -46,33 +51,32 @@ class Code:
         if hasattr(cmap.bounds, 'json'):
             bds = cmap.bounds.json()  # type: ignore
         else:
-            bds = cmap.bounds
+            bds = cmap.bounds  # type: ignore
         cdict = cmap.model_dump()
-        param_grid = {k: np.linspace(bds['lb'][j], bds['ub'][j], num=5) for j, k in zip(range(len(cmap.__fields__)), cdict.get('bounded_param_keys'))}
+        param_grid = {k: np.linspace(bds['lb'][j], bds['ub'][j], num=5) for j, k in zip(range(len(cmap.model_fields)), cdict.get('bounded_param_keys'))}  # type: ignore
         param_grid = ParameterGrid(param_grid)
         return param_grid
 
     def connect_opensearch(self):
-        auth = ('admin', 'admin') # For testing only. Don't store credentials in code.
+        auth = ('admin', 'admin')  # For testing only. Don't store credentials in code.
         ca_certs_path = certifi.where()
 
         # Create the client with SSL/TLS enabled, but hostname verification disabled.
         self.opensearch_client = OpenSearch(
-            hosts = [{'host': 'node-0.example.com', 'port': 9200}],
-            http_compress = True, # enables gzip compression for request bodies
-            http_auth = auth,
-            # client_cert = client_cert_path,
-            # client_key = client_key_path,
-            use_ssl = True,
-            verify_certs = True,
-            ssl_assert_hostname = False,
-            ssl_show_warn = False,
-            ca_certs = ca_certs_path
+            hosts=[{'host': 'node-0.example.com', 'port': 9201}],
+            http_compress=True,  # enables gzip compression for request bodies
+            http_auth=auth,
+            use_ssl=True,
+            verify_certs=True,
+            ssl_assert_hostname=False,
+            ssl_show_warn=False,
+            ca_certs=ca_certs_path
         )
+        return self.opensearch_client
 
     def get_embeddings(self, text) -> str:
         model = "text-embedding-ada-002"  # Replace with the model you want to use
-        response = openai.Embedding.create(input=text, model=model)
+        response = openai.Embedding.create(input=text, model=model, )
         return response.get('data')
 
     def save_to_opensearch(self, embedding, doc_id):
@@ -87,10 +91,11 @@ class Code:
 
     def run(self):
         embeddings = []
-        print('Creating embeddings')
+        print('Creating embeddings...')
         for pset in self.param_grid:
-            print('Creating embedding for ' + str(pset))
+            print('\nCreating embedding for:\n\t' + str(pset))
             raw_text = CMASleepWakeModel(**pset).json()
+            print(f'\nraw_text:\n\t{raw_text}\n')
             embedding = self.get_embeddings(raw_text)
             doc_id = "embedding-" + str(uuid.uuid4())
             response = self.save_to_opensearch(embedding, doc_id)
@@ -102,6 +107,6 @@ class Code:
 
 
 if __name__ == "__main__":
-    code = Code()
-    embeddings = code.run()
+    embedder = Embedder()
+    embeddings = embedder.run()
     print(embeddings[:5])

@@ -16,11 +16,14 @@ class PFunCMASession:
     BOTO3_CLIENT = None
 
     @classmethod
-    def get_boto3_session(cls):
+    def get_boto3_session(cls, **kwds):
         with Lock():
-            if cls.BOTO3_SESSION is not None:
+            if cls.BOTO3_SESSION is not None and len(kwds) == 0:
                 return cls.BOTO3_SESSION
-            cls.BOTO3_SESSION = boto3.Session()
+            else:
+                if 'region' in kwds:
+                    kwds['region_name'] = kwds.pop('region')
+                cls.BOTO3_SESSION = boto3.Session(**kwds)
         return cls.BOTO3_SESSION
 
     @classmethod
