@@ -52,7 +52,7 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     lb: Optional[float | Sequence[float]] = _LB_DEFAULTS
     ub: Optional[float | Sequence[float]] = _UB_DEFAULTS
     bounded_param_keys: Optional[Sequence[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
-    bounds: Optional[Annotated[Dict, BoundsType()]] = _DEFAULT_BOUNDS
+    bounds: Optional[Annotated[Dict[str, Sequence[float]], BoundsType()]] = _DEFAULT_BOUNDS
 
     @field_serializer('bounds')
     def serialize_bounds(self, value: Bounds, *args):

@@ -11,22 +11,26 @@ import numpy as np
 import pfun_path_helper as path_helper
 from runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-from runtime.chalicelib.secrets import get_secret
+from runtime.chalicelib.secrets import get_secret_func as get_secret
 
 
 class Code:
     def __init__(self):
-        self.tunnel_thread = None
-        self.sample_text = None
+        self.tunnel_thread = self.setup_ssh_tunnel()
         self.completed_proc = None
-        self.opensearch_client = None
-        self.param_grid = None
+        self.opensearch_client = self.connect_opensearch()
+        self.param_grid = self.create_parameter_search_grid()
 
     def setup_ssh_tunnel(self):
-        def start_ssh_tunnel():
-            self.completed_proc = subprocess.run(["ssh", "-fN", "-L", "9200:10.1.78.156:9200", "robbie@d2bd"], capture_output=True)
-            if self.completed_proc.returncode != 0:
+        def start_ssh_tunnel(inst=self):
+            inst.completed_proc = subprocess.run(["ssh", "-fN", "-L", "9200:10.1.78.156:9200", "robbie@d2bd"], capture_output=True)
+            if inst.completed_proc is None:
                 print("Failed to start SSH tunnel.")
+                return False
+            if inst.completed_proc.returncode != 0:
+                print("Failed to start SSH tunnel.")
+                return False
+            return True
         self.tunnel_thread = threading.Thread(target=start_ssh_tunnel, daemon=True)
         self.tunnel_thread.start()
         print('Tunnel thread started')
@@ -39,8 +43,11 @@ class Code:
     def create_parameter_search_grid(self):
         param_grid = {}
         cmap = CMAModelParams()
-        bds = cmap.bounds.json()
-        cdict = cmap.dict()
+        if hasattr(cmap.bounds, 'json'):
+            bds = cmap.bounds.json()  # type: ignore
+        else:
+            bds = cmap.bounds
+        cdict = cmap.model_dump()
         param_grid = {k: np.linspace(bds['lb'][j], bds['ub'][j], num=5) for j, k in zip(range(len(cmap.__fields__)), cdict.get('bounded_param_keys'))}
         param_grid = ParameterGrid(param_grid)
         return param_grid
@@ -78,7 +85,7 @@ class Code:
         response = helpers.bulk(self.opensearch_client, [action])
         return response
 
-    def main(self):
+    def run(self):
         embeddings = []
         print('Creating embeddings')
         for pset in self.param_grid:
@@ -96,9 +103,5 @@ class Code:
 
 if __name__ == "__main__":
     code = Code()
-    code.tunnel_thread = code.setup_ssh_tunnel()
-    code.sample_text = code.get_sample_text()
-    code.param_grid = code.create_parameter_search_grid()
-    code.connect_opensearch()
-    embeddings = code.main()
+    embeddings = code.run()
     print(embeddings[:5])
