@@ -34,7 +34,7 @@ class Embedder:
     def __init__(self, ssh_params={}):
         self.ssh_client = None
         self.tunnel_channel = None
-        self.setup_ssh_tunnel(**ssh_params)
+        # self.setup_ssh_tunnel(**ssh_params)
         self.completed_proc = None
         self.opensearch_client = self.connect_opensearch()
         self.param_grid = self.create_parameter_search_grid()
@@ -55,7 +55,11 @@ class Embedder:
         # Initialize SSH client
         self.ssh_client = paramiko.SSHClient()
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh_client.connect(server_config['hostname'], port=server_config['port'], username=server_config['username'])
+        # Load private key
+        private_key_path = os.path.expanduser('~/.ssh/d2bd_id_rsa')
+        privkey = paramiko.RSAKey(filename=private_key_path)
+        self.ssh_client.connect(
+            server_config['hostname'], port=server_config['port'], username=server_config['username'], pkey=privkey)
         # Create tunnel
         self.tunnel_channel = forward_tunnel(tunnel_config['local_port'], tunnel_config['remote_host'], tunnel_config['remote_port'], self.ssh_client)
 
