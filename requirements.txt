@@ -1,3 +1,4 @@
 build
+pfun-path-helper>=0.0.2
 -r ./runtime/requirements-dev.txt
--r ./pfun-cma-model-embed/requirements.txt
+-r ./embed/requirements.txt

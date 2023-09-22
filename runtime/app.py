@@ -21,7 +21,7 @@ from botocore.exceptions import ClientError
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-import pfun_path_helper.pfun_path_helper as pfun_path_helper
+import pfun_path_helper
 pfun_path_helper.append_path(Path(__file__).parent.parent)
 import runtime.chalicelib.utils as utils
 from runtime.chalicelib.pathdefs import (
@@ -32,8 +32,6 @@ from runtime.chalicelib.pathdefs import (
 from runtime.chalicelib.secrets import get_secret_func
 from runtime.chalicelib.sessions import PFunCMASession
 from runtime.chalicelib.middleware import authorization_required as authreq
-from functools import partial
-
 
 BOTO3_SESSION = PFunCMASession.get_boto3_session()
 SECRETS_CLIENT = PFunCMASession.get_boto3_client('secretsmanager')
@@ -42,7 +40,6 @@ BASE_URL: Optional[str] = None
 STATIC_BASE_URL: str | None = None
 BODY: Optional[str] = None
 S3_CLIENT = PFunCMASession.get_boto3_client('s3')
-
 
 #: init app, set cors
 cors_config = CORSConfig(
@@ -82,21 +79,36 @@ app.experimental_feature_flags.update([
 ])
 
 
-def get_current_request(app: Chalice = app) -> Request:
+def get_current_request(app: Chalice = app) -> Request:  # pylint: disable=dangerous-default-value
     current_request: Request = app.current_request if app.current_request \
         is not None else Request({})  # to make the linter shut up.
     return current_request
 
 
-authorization_required = partial(
-    authreq, app, get_current_request,
-    PRIVATE_ROUTES, SECRETS_CLIENT, PFunCMASession, logger)
+authorization_required = authreq(
+    app,
+    get_current_request,  # type: ignore
+    PRIVATE_ROUTES,
+    SECRETS_CLIENT,
+    PFunCMASession,
+    logger)
 app.register_middleware(ConvertToMiddleware(authorization_required), event_type='all')
+
+
+@app.route('/api', methods=['GET', 'POST', 'PUT'])
+def dummy_route():
+    path = str(get_current_request(app).path).lstrip('/api')
+    if path == '':
+        path = '/'
+    print('path:', path)
+    app.log.info('Redirect for path: %s', path)
+    return Response(body='redirect...', status_code=303,
+                    headers={'Location': path})
 
 
 @app.route('/sdk', methods=['GET'])
 def generate_sdk():
-    global SDK_CLIENT
+    global SDK_CLIENT  # pylint: disable=global-statement
     logger.info('Generating SDK')
     if SDK_CLIENT is None:
         SDK_CLIENT = PFunCMASession.get_boto3_client('apigateway')
@@ -117,11 +129,13 @@ def generate_sdk():
         status_code=200,
     )
 
+
 @app.route('/params/schema', methods=['GET'])
 def params_schema():
     from chalicelib.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return params.model_json_schema()
+
 
 @app.route('/params/default', methods=['GET'])
 def default_params():
@@ -141,21 +155,20 @@ def static_files():
         pypath = Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2]))
 
     current_request = get_current_request(app)
-    
+
     if current_request.query_params is None:
         return Response(body='No query parameters provided when requesting static resource.', status_code=400)
-    
+
     source = current_request.query_params.get('source', 's3')
+    global STATIC_BASE_URL  # pylint: disable=global-statement
     if STATIC_BASE_URL is None:
-        initialize_base_url(app)
+        STATIC_BASE_URL = initialize_base_url(app, return_static_url=True, return_base_url=False)  # type: ignore
     if source not in ('s3', 'local'):
         return Response(body='Invalid source provided when requesting static resource.', status_code=BadRequestError.STATUS_CODE)
-    
+
     filename = current_request.query_params.get('filename', '/index.template.html')
-    
     if source.lower() == 's3':
-        if S3_CLIENT is None:
-            S3_CLIENT = PFunCMASession.get_boto3_client('s3')
+        S3_CLIENT = PFunCMASession.get_boto3_client('s3')
         s3_filename = filename.lstrip('/')
         stage_name = os.getenv('stage', 'error').lower()
         try:
@@ -165,7 +178,7 @@ def static_files():
             return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filename), status_code=404)
         body = response['Body'].read()
         return Response(body=body, status_code=200, headers={'Content-Type': 'text/*'})
-    
+
     filepath = Path(str(pypath) + '/www/')
     available_files = [f for f in filepath.rglob('*') if f.is_file()]
     filepath = Path(str(filepath) + filename)
@@ -184,8 +197,8 @@ def static_files():
     return Response(body=output, status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
 
 
-def initialize_base_url(app):
-    global BASE_URL, STATIC_BASE_URL, SDK_CLIENT
+def initialize_base_url(app, return_static_url: bool = False, return_base_url: bool = True) -> Optional[str | list[str]]:
+    global BASE_URL, STATIC_BASE_URL, SDK_CLIENT  # pylint: disable=global-statement
     if BASE_URL is not None and STATIC_BASE_URL is not None:
         return BASE_URL
     current_request = get_current_request()
@@ -206,17 +219,27 @@ def initialize_base_url(app):
         if 'https://' not in BASE_URL:
             BASE_URL = f'https://{BASE_URL}'
         if not BASE_URL.endswith('/api'):
-            BASE_URL += '/api'
-    STATIC_BASE_URL = f'{BASE_URL}/static'
-    return BASE_URL
+            BASE_URL = str(urlparse.urljoin(BASE_URL, '/api'))
+    STATIC_BASE_URL = str(urlparse.urljoin(BASE_URL, '/static'))
+    returns = []
+    if return_base_url:
+        returns.append(BASE_URL)
+    if return_static_url:
+        returns.append(STATIC_BASE_URL)
+    if len(returns) == 1:
+        returns = returns[0]
+    elif len(returns) == 0:
+        returns = None
+    return returns
 
 
 def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', content_type: str = 'text/*'):
+    global STATIC_BASE_URL  # pylint: disable=global-statement
     if STATIC_BASE_URL is None:
-        initialize_base_url(app)
-    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):
+        STATIC_BASE_URL = initialize_base_url(app, return_base_url=False, return_static_url=True)  # type: ignore
+    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):  # type: ignore
         source = 'local'  # ! overwrite source to local for localhost
-    url = urlparse.urljoin(STATIC_BASE_URL, path)
+    url = urlparse.urljoin(STATIC_BASE_URL, path)  # type: ignore
     if path[0] != '/':
         path = '/' + path  # ! add leading slash
     url = utils.add_url_params(STATIC_BASE_URL, {
@@ -235,7 +258,7 @@ def icon_static_resource():
     if query_params is None:
         query_params = {}
     source = query_params.get('source', 's3')
-    resp = get_static_resource("icons/mattepfunlogolighter.png", source, "image/png")
+    resp = get_static_resource("icons/mattepfunlogolighter.png", source, "image/png")  # type: ignore
     return Response(body=resp.content, status_code=200, headers={'Content-Type': 'image/png', 'x-version': '4'})
 
 
@@ -244,7 +267,7 @@ def initialize_index_resources():
     if BODY is not None:
         return BODY
     #: initialize base url
-    BASE_URL = initialize_base_url(app)
+    BASE_URL = initialize_base_url(app, return_base_url=True, return_static_url=False)  # type: ignore
     response = get_static_resource('index.template.html')
     body = response.text
     ROUTES = '\n'.join([
@@ -254,7 +277,7 @@ def initialize_index_resources():
     app.log.info('BASE_URL: %s', BASE_URL)
     app.log.info('STATIC_BASE_URL: %s', STATIC_BASE_URL)
     source = 's3'
-    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):
+    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):  # type: ignore
         source = 'local'  # ! overwrite source to local for localhost
     output_static_base_url = str(
         utils.add_url_params(
@@ -328,7 +351,7 @@ def logging_route(level: Literal['info', 'warning', 'error'] = 'info'):
         'error': app.log.error
     }
     loggers[level](msg)
-    return {'message': msg, 'level': level}
+    return Response(body={'message': msg, 'level': level}, status_code=200)
 
 
 def get_params(app: Chalice, key: str, default: Any = None, load_json: bool = False) -> Dict:
@@ -501,7 +524,7 @@ def get_oauth_info():
         "state": str(uuid.uuid4()),
         "oauth2_tokens": None
     }
-    secret: str | bytes = get_secret_func("dexcom_pfun-app_glucose")
+    secret: str | bytes = get_secret_func("dexcom_pfun-app_glucose")  # type: ignore
     oauth_info["creds"] = json.loads(secret)
     os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
     os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
@@ -584,7 +607,7 @@ def oauth2_dexcom():
         payload = {
             'client_id': os.environ['DEXCOM_CLIENT_ID'],
             'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'refresh_token': str(oauth_info['oauth2_tokens']['refresh_token']),
+            'refresh_token': str(oauth_info['oauth2_tokens']['refresh_token']),  # type: ignore
             'grant_type': 'refresh_token',
             'redirect_uri': oauth_info['redirect_uri']
         }
@@ -610,3 +633,20 @@ def oauth2_dexcom():
 @app.route('/login-success', methods=['GET'])
 def login_success():
     return Response(status_code=200, body='<h1>Dexcom Login Success!</h1>')
+
+
+if __name__ == '__main__':
+    import chalice.cli.factory as chalice_factory
+    cli_factory = chalice_factory.CLIFactory(
+        os.path.dirname(__file__),
+        debug=True,
+        profile='robbie',
+        environ=os.environ
+    )
+    local_server = cli_factory.create_local_server(
+        app,
+        config=cli_factory.create_config_obj(),
+        host='127.0.0.1',
+        port=1337
+    )
+    local_server.serve_forever()

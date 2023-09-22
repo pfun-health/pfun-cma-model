@@ -9,6 +9,7 @@
   "autogen_policy": false,
   "iam_policy_file": "policy-dev.json",
   "api_gateway_endpoint_type": "REGIONAL",
+  "project_dir": ".",
   "stages": {
     "dev": {
       "lambda_functions": {

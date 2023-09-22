@@ -18,12 +18,10 @@
 }
 
 #containerDiv {
-    max-height: 1200px;
     overflow: auto;
 }
 
 #bottomRow {
-    max-height: max-content !important;
     overflow: auto;
 }
 

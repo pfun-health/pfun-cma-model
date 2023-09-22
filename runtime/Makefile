@@ -9,7 +9,7 @@ LOG_GROUP_NAME = /aws/lambda/$(APP)-$(STAGE)
 local:
 	@echo "running locally with STAGE=$(STAGE)..."
 	sleep 1s
-	@cd ${HOME}/Git/pfun-cma-model && chalice deploy --stage $(STAGE)
+	@cd ${HOME}/Git/pfun-cma-model/runtime && chalice local --stage $(STAGE)
 	sleep 2s
 
 deploy-dependencies:
@@ -26,22 +26,13 @@ deploy-local: tests
 	@make test_local_deployment
 	sleep 1s;
 
-test-local-deployment:
+test-local:
 	sleep 1s;
 	echo -e '...Testing local deployment...';
 	base_url='http://localhost:8000/' \
-	${HOME}/Git/pfun-cma-model/scripts/sample-local-deployment.sh
+	${HOME}/Git/pfun-cma-model/runtime/scripts/sample-local-deployment.sh
 	sleep 1s
 	@echo '...Success (see above)...done testing.'
-
-deploy-localstack: 
-	@echo "Deploying to localstack..."
-	@echo "AWS_ENDPOINT_URL: ${AWSLOCALSTACK_ENDPOINT_URL}"
-	@echo "AWS_PROFILE: localstack"
-	@bash -c "cd ${HOME}/Git/pfun-cma-model/runtime && \
-		AWS_ENDPOINT_URL=${AWSLOCALSTACK_ENDPOINT_URL} \
-		AWS_PROFILE=localstack chalice-local deploy"
-	@echo "...Done."
 
 deploy-chalice: generate-sdk
 	@echo 'deploying...'
@@ -52,7 +43,7 @@ deploy-chalice: generate-sdk
 test-deployment:
 	@echo 'testing...'
 	sleep 1s
-	(./scripts/sample-endpoint.sh) && \
+	(${HOME}/Git/pfun-cma-model/runtime/scripts/sample-endpoint.sh) && \
 		echo 'Success (see above)...done testing HTTP endpoint.'
 
 tests:

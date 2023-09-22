@@ -87,33 +87,34 @@
           </div>
           <div class="toast-body">Loaded result successfully.</div>
         </div>
-        <div id="topRow" class="bg-white rounded row shadow-sm">
-          <div id="apiFormContainer" class="bg-white rounded">
-            <!-- form container -->
-            <form id="apiForm">
-            </form>
-          </div>
-        </div>
-        <div id="resizableHandle"
-             class="bg-dark row resize-handle border border-dark border-2 shadow rounded text-white text-center text-bold">
-          <i id='arrows-icon' class="bi bi-arrow-down-up"></i>
-        </div>
-        <div id="bottomRow" class="row rounded shadow-sm">
-          <div id="output" class="bg-white rounded">
-            <h2>Output</h2>
-            <hr>
-            <label>Chart</label>
-            <div id="chart-area" class="border border-dark p-2">
-              <canvas id="chart" height="0"></canvas>
-            </div>
-            <label>Raw Output</label>
-            <div id="output-area"
-                 class="border border-dark p-3 overflow-auto"
-                 style="max-height: 300px">
-              <span class="text-muted">Output will appear here</span>
+        <div id="rowsContainer" class="grid container">
+          <h2>Toggle Input</h2>
+          <div id="topRow" class="bg-white rounded row shadow-sm mh-100">
+            <div id="apiFormContainer" class="bg-white rounded">
+              <!-- form container -->
+              <form id="apiForm">
+              </form>
             </div>
           </div>
-        </div>
+          <h2>Toggle Output</h2>
+          <div id="bottomRow" class="row rounded shadow-sm">
+            <div>
+              <div id="output" class="bg-white rounded">
+                  <h2 id="output-title" class="col col-10">Output</h2>
+                  <div>
+                    <hr>
+                    <label>Chart</label>
+                    <div id="chart-area" class="border border-dark p-2">
+                      <canvas id="chart" height="0"></canvas>
+                    </div>
+                    <label>Raw Output</label>
+                        <div id="output-area" class="border border-dark p-3 overflow-auto"><span class="text-muted">Output will appear
+                            here</span></div>
+                        </div>
+                        </div>
+            </div>
+          </div>
+          </div>
       </div>
     </main>
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
@@ -255,10 +256,6 @@
           "background-color": "rgba(0, 0, 0, 0.5)"
         }});
         await ns.link("{STATIC_BASE_URL}/css/resize-handle.css");
-        await ns.require("{STATIC_BASE_URL}/js/resize-handle.js");
-        console.log('...loaded extras.');
-        await setupResizeHandle();
-        console.log('...setup resize handle.');
         try {{
           doToasts(success);
         }} catch (err) {{

@@ -1,4 +1,2 @@
 chalice
-redis
 openai
-pfun-path-helper>=0.0.2

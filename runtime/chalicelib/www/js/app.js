@@ -271,19 +271,6 @@ var model_config = {
 
 var chart = null;
 
-function simulateDrag(dy = null) {
-  const resizableHandle = $("#resizableHandle");
-  const outputBottom = $("#output-area").position().top;
-  if (dy === null) {
-    // update the UI to make room for the output
-    dy = $("#output-area").height() + outputBottom - $("nav").position().top;
-  }
-  resizableHandle.simulate("drag", {
-    dx: resizableHandle.offset().left,
-    dy: -dy,
-  });
-};
-
 
 const funcMap = {
   'run-at-time': 'runAtTime',
@@ -329,8 +316,12 @@ async function submitFunction(event) {
       content_type = 'application/x-www-form-urlencoded';
     }
 
-    // make room for the output
-    simulateDrag();
+    // store the api key locally
+    const apiKeyInput = document.getElementById('apiKey');
+    if (apiKeyInput.value != "") {
+      localStorage.setItem('PFUN_CMA_API_KEY', apiKeyInput.value);
+      console.log('...stored api key locally.');
+    }
 
     // make the request
     var result = await apigClient[selectedFunction + selectedMethod](optionalParams, body, {
@@ -417,8 +408,6 @@ async function submitFunction(event) {
     console.warn(`failed to access the specified endpoint: '${selectedFunction}${selectedMethod}'.\nError:`, err);
     throw err;
   }
-  // make room for the output (after request)
-  simulateDrag();
 }
 
 const initializeApp = async () => {
@@ -433,6 +422,9 @@ const initializeApp = async () => {
 };
 
 async function setupApp() {
+
+  $("#rowsContainer").accordion({ active: 2, collapsible: false });
+
   app = await initializeApp();
   $("select#function").val("/routes");
   $("select#method").val("GET");

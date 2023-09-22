@@ -3,8 +3,8 @@ import sys
 from pathlib import Path
 
 try:
-    from urllib import urlencode, unquote
-    from urlparse import urlparse, parse_qsl, ParseResult
+    from urllib import urlencode, unquote  # Python 2  # type: ignore
+    from urlparse import urlparse, parse_qsl, ParseResult  # type: ignore
 except ImportError:
     # Python 3 fallback
     from urllib.parse import (
