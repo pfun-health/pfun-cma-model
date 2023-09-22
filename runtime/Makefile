@@ -5,16 +5,17 @@ STAGE ?= dev
 DOMAIN_NAME = api.$(STAGE).pfun.app
 APP ?= pfun-cma-model
 LOG_GROUP_NAME = /aws/lambda/$(APP)-$(STAGE)
+ROOT_DIR = ${HOME}/Git/pfun-cma-model
 
 local:
 	@echo "running locally with STAGE=$(STAGE)..."
 	sleep 1s
-	@cd ${HOME}/Git/pfun-cma-model/runtime && chalice local --stage $(STAGE)
+	@cd ${ROOT_DIR}/runtime && chalice local --stage $(STAGE)
 	sleep 2s
 
 deploy-dependencies:
 	echo "deploying dependencies layer..."
-	@cd ${HOME}/Git/pfun-cma-model-deps && chalice deploy --stage ${STAGE}
+	@cd ${ROOT_DIR}-deps && chalice deploy --stage ${STAGE}
 	sleep 2s
 
 deploy-local: tests
@@ -30,7 +31,7 @@ test-local:
 	sleep 1s;
 	echo -e '...Testing local deployment...';
 	base_url='http://localhost:8000/' \
-	${HOME}/Git/pfun-cma-model/runtime/scripts/sample-local-deployment.sh
+	${ROOT_DIR}/runtime/scripts/sample-local-endpoint.sh
 	sleep 1s
 	@echo '...Success (see above)...done testing.'
 
@@ -43,7 +44,7 @@ deploy-chalice: generate-sdk
 test-deployment:
 	@echo 'testing...'
 	sleep 1s
-	(${HOME}/Git/pfun-cma-model/runtime/scripts/sample-endpoint.sh) && \
+	(${ROOT_DIR}/runtime/scripts/sample-endpoint.sh) && \
 		echo 'Success (see above)...done testing HTTP endpoint.'
 
 tests:
@@ -56,12 +57,12 @@ tests-interactive:
 
 plot-interactive:
 	sleep 1s
-	ipython -i ${HOME}/Git/pfun-cma-model/runtime/scripts/plot-interactive.py
+	ipython -i ${ROOT_DIR}/runtime/scripts/plot-interactive.py
 
 clean:
-	rm -rf ${HOME}/Git/pfun-cma-model/runtime/.chalice/deployments/*
-	rm -rf ${HOME}/Git/pfun-cma-model/__pycache__
-	rm -rf ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www/lib
+	rm -rf ${ROOT_DIR}/runtime/.chalice/deployments/*
+	rm -rf ${ROOT_DIR}/__pycache__
+	rm -rf ${ROOT_DIR}/runtime/chalicelib/www/lib
 	echo '...cleaned the deployments and venv.'
 
 docs:
@@ -72,7 +73,7 @@ generate-sdk:
 	sh -c 'chalice local &'
 	echo 'generating SDK...'
 	sleep 1s
-	${HOME}/Git/pfun-cma-model/runtime/scripts/generate-sdk.sh
+	${ROOT_DIR}/runtime/scripts/generate-sdk.sh
 	sleep 1s
 	echo '...generated SDK'
 	pkill chalice
@@ -96,7 +97,7 @@ create-acm-cert:
     --options CertificateTransparencyLoggingPreference=DISABLED
 
 generate-swagger:
-	sh -c 'cd ${HOME}/Git/pfun-cma-model/runtime/chalicelib/www && aws apigateway get-export --rest-api-id oias8ms59c --stage-name api --export-type swagger --parameters extensions='apigateway' swagger.json --output json && cd -'
+	sh -c 'cd ${ROOT_DIR}/runtime/chalicelib/www && aws apigateway get-export --rest-api-id oias8ms59c --stage-name api --export-type swagger --parameters extensions='apigateway' swagger.json --output json && cd -'
 	echo '...generated swagger.json'
 
 clear_logs:

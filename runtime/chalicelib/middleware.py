@@ -23,9 +23,10 @@ def authorization_required(app: Chalice,
         UnauthorizedError: If the authentication parameters are invalid.
 
     """
-    def wrapper_outer(func):
+    def wrapper_outer(func, app=app, get_current_request=get_current_request, PRIVATE_ROUTES=PRIVATE_ROUTES, SECRETS_CLIENT=SECRETS_CLIENT, PFunCMASession=PFunCMASession, logger=logger):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, app=app, get_current_request=get_current_request,
+                    PRIVATE_ROUTES=PRIVATE_ROUTES, SECRETS_CLIENT=SECRETS_CLIENT, PFunCMASession=PFunCMASession, logger=logger, **kwargs):
             if not hasattr(app, 'current_request'):
                 #: skip authorization for lambda functions
                 return func(*args, **kwargs)

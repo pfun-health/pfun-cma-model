@@ -15,6 +15,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
+        PKG_DIRS: ./runtime
+        ROOT_DIR: ./
 
     runs-on: ubuntu-latest
 
@@ -29,20 +31,18 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        pip install poetry && pip install --upgrade -r requirements.txt
+
+    - name: Build package
+      run: poetry build
 
     - name: Run tests
       run: |
-        poetry run pytest
+        cd ${PKG_DIRS} && poetry run pytest
 
     - name: Lint code
       run: |
         poetry run flake8
-
-    - name: Build package
-      run: |
-        poetry build
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
@@ -62,16 +62,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        pip install poetry && pip install --upgrade -r requirements.txt
     - name: Run chalice locally, test endpoints.
       run: |
-        make local &> /dev/null &
+        cd ${PKG_DIRS}
+        make local ROOT_DIR=${ROOT_DIR} &> /dev/null &
         sleep 3s
-        make test-local
-        kill %1
+        make test-local ROOT_DIR=${ROOT_DIR}
+        pkill chalice
+        sleep 1s
   
-  deploy:
+  deploy-dev:
     needs: test-local
     runs-on: ubuntu-latest
     steps:
@@ -83,8 +84,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
+        pip install poetry && pip install --upgrade -r requirements.txt
         poetry install
-    - name: Deploy to S3
+    - name: Deploy dev stage
       run: |
-        make deploy
+        cd ${PKG_DIRS}
+        make deploy ROOT_DIR=${ROOT_DIR} STAGE=dev
