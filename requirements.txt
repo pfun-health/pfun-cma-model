@@ -1,5 +1,5 @@
 pytest
 build
 pfun-path-helper>=0.0.2
--r ./runtime/requirements-dev.txt
--r ./embed/requirements.txt
+-r ./pfun_cma_model/runtime/requirements-dev.txt
+-r ./pfun_cma_model/embed/requirements.txt

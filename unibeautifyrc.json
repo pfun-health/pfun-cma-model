@@ -1,0 +1,110 @@
+{
+  "CSS": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "JS-Beautify",
+      "CSScomb"
+    ]
+  },
+  "EJS": {
+    "beautifiers": [
+      "Pretty Diff",
+      "JS-Beautify"
+    ]
+  },
+  "GraphQL": {
+    "beautifiers": [
+      "Prettier"
+    ]
+  },
+  "HTML": {
+    "beautifiers": [
+      "Pretty Diff",
+      "JS-Beautify"
+    ]
+  },
+  "JSON": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "JS-Beautify"
+    ]
+  },
+  "JSON5": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "JS-Beautify"
+    ]
+  },
+  "JSX": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "JS-Beautify",
+      "ESLint"
+    ]
+  },
+  "Java": {
+    "beautifiers": [
+      "Pretty Diff"
+    ]
+  },
+  "JavaScript": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "JS-Beautify",
+      "ESLint"
+    ]
+  },
+  "Markdown": {
+    "beautifiers": [
+      "Prettier"
+    ]
+  },
+  "Python": {
+    "beautifiers": [
+      "Black",
+      "YAPF"
+    ],
+    "indent_size": 4,
+    "indent_style": "space"
+  },
+  "SCSS": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "CSScomb"
+    ]
+  },
+  "SQL": {
+    "beautifiers": [
+      "sqlformat"
+    ]
+  },
+  "SVG": {
+    "beautifiers": [
+      "Pretty Diff"
+    ]
+  },
+  "TypeScript": {
+    "beautifiers": [
+      "Prettier",
+      "Pretty Diff",
+      "TSLint"
+    ]
+  },
+  "Vue": {
+    "beautifiers": [
+      "Prettier"
+    ]
+  },
+  "XML": {
+    "beautifiers": [
+      "Pretty Diff",
+      "JS-Beautify"
+    ]
+  }
+}

@@ -324,7 +324,7 @@ class CMASleepWakeModel:
             self.update_bounds(kwds['bounded_param_keys'], kwds['lb'], kwds['ub'], kwds.get('keep_feasible', Bounds.True_))
         elif 'bounds' in kwds:
             new_bounds = kwds['bounds']
-            if isinstance(bounds, str):
+            if isinstance(new_bounds, str):
                 new_bounds = json.loads(new_bounds)
             self.update_bounds(**new_bounds)
         self.eps = eps
@@ -762,7 +762,7 @@ class CMAUtils:
         mealtimes = df.loc[df['is_meal'], 't']
         if rounded is not None:
             mealtimes = mealtimes.apply(rounded)
-        tM = tuple(mealtimes)
+        tM = mealtimes.to_numpy(dtype=float).tolist()
         if as_str:
             tM = CMAUtils.get_hour_of_day(tM)
         if not isinstance(tM, tuple):

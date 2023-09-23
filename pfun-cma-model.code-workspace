@@ -2,6 +2,12 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../pfun-endo-frontend-wireframe"
+		},
+		{
+			"path": "../pfun_path_helper"
 		}
 	],
 	"tasks": {
@@ -18,6 +24,7 @@
 		"[python]": {
 			"editor.defaultFormatter": "ms-python.black-formatter"
 		},
-		"python.formatting.provider": "none"
+		"python.formatting.provider": "none",
+		"liveServer.settings.multiRootWorkspaceName": "pfun-endo-frontend-wireframe"
 	}
 }

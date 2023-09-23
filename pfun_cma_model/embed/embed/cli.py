@@ -1,7 +1,10 @@
 import click
 from typing import Union, List, Dict
 import pfun_path_helper
-from embed import Embedder, EmbedGetter
+try:
+    from pfun_cma_model.embed import Embedder, EmbedGetter
+except (ImportError, ModuleNotFoundError):
+    from pfun_cma_model.embed.embed import Embedder, EmbedGetter
 
 
 @click.group()
