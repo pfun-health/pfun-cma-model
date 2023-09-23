@@ -13,4 +13,4 @@ WORKDIR /app
 EXPOSE 8002
 
 # Command to run the application
-CMD ["chalice", "local"]
+CMD ["chalice", "local", "--host", "0.0.0.0", "--port", "8002"]

@@ -198,6 +198,39 @@ class CurveFitNS:
 
 def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
               **kwds):
+    """
+    Curve fitting function that estimates the optimal parameters for a given function based on input data.
+
+    Parameters:
+        fun: callable
+            The function to be fitted.
+        xdata: array-like
+            The input data for the independent variable.
+        ydata: array-like
+            The input data for the dependent variable.
+        p0: array-like, optional
+            Initial guess for the parameters.
+        bounds: tuple or list, optional
+            Bounds on parameters.
+        **kwds: dict
+            Additional keyword arguments.
+
+    Returns:
+        popt: array-like
+            Optimal values for the parameters.
+        pcov: 2-D array
+            Estimated covariance of popt.
+        infodict: dict
+            A dictionary containing additional information.
+        errmsg: str
+            Error message, if any.
+        ier: int
+            An integer flag indicating the convergence status.
+
+    Raises:
+        RuntimeError: If optimal parameters are not found.
+
+    """
     ftol = kwds.get('ftol', 1.49012e-8)
     xtol = kwds.get('xtol', 1.49012e-8)
     gtol = kwds.get('gtol', 0.0)
@@ -227,7 +260,7 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None,
 def fit_model(data: pd.DataFrame | Dict, ycol: str = "G",
               tM: None | Iterable = None, tm_freq: str = "2h",
               curve_fit_kwds: Dict | None = None, **kwds) -> CMAFitResult:
-    """use `scipy.optimize.curve_fit` to fit the model to data
+    """use `curve_fit` to fit the model to data
 
     Arguments:
     ----------
