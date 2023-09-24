@@ -270,11 +270,9 @@ class Embedder(EmbedClient):
         def create_embedding(pset):
             model = CMASleepWakeModel(**pset)
             raw_text = model.run().to_json()
-            print(f"\nraw_text:\n\t{raw_text[20:]}...\n")
             embedding = self.create_embeddings(raw_text)
             doc_id = json.dumps(pset)
             _ = self.save_to_opensearch(embedding, doc_id)
-            print("...Done creating embedding for " + str(pset))
             return embedding
 
         futures = []
