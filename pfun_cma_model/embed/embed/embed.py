@@ -1,13 +1,11 @@
+import concurrent.futures
 import json
 import os
 import logging
-import subprocess
-import time
 from typing import Optional
 import openai
 from opensearchpy import OpenSearch, helpers
 import certifi
-import uuid
 import requests
 from sklearn.model_selection import ParameterGrid
 import numpy as np
@@ -264,18 +262,36 @@ class Embedder(EmbedClient):
         Returns:
             embeddings (list): A list of dictionaries containing the embedding and the response from OpenSearch.
         """
-        embeddings = []
+
         print("Creating embeddings...")
-        for pset in self.param_grid:
-            print("\nCreating embedding for:\n\t" + str(pset))
+
+        embeddings = []
+
+        def create_embedding(pset):
             model = CMASleepWakeModel(**pset)
             raw_text = model.run().to_json()
             print(f"\nraw_text:\n\t{raw_text[20:]}...\n")
             embedding = self.create_embeddings(raw_text)
-            doc_id = "embedding-" + str(uuid.uuid4())
-            response = self.save_to_opensearch(embedding, doc_id)
-            embeddings.append({"embedding": embedding, "response": response})
+            doc_id = json.dumps(pset)
+            _ = self.save_to_opensearch(embedding, doc_id)
             print("...Done creating embedding for " + str(pset))
+            return embedding
+
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            for pset in self.param_grid:
+                future = executor.submit(create_embedding, pset)
+                futures.append(future)
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    embeddings.append(future.result())
+                except Exception as e:
+                    logging.exception(
+                        "(%s) Failed to create embedding.",
+                        type(e), exc_info=True
+                    )
+                else:
+                    print('...Done with: %03d / %03d' % (len(embeddings), len(self.param_grid)))
         print()
         print("...done.")
         return embeddings
