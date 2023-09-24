@@ -313,7 +313,7 @@ class Embedder(EmbedClient):
             return (doc_id, embedding)
 
         futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=24) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             for pset in self.param_grid:
                 future = executor.submit(create_embedding, pset)
                 futures.append(future)
@@ -326,18 +326,23 @@ class Embedder(EmbedClient):
                         type(e), exc_info=True
                     )
                 else:
-                    doc_ids.append(doc_id)
-                    embeddings.append(embedding)
+                    if len(embeddings) < 1000:
+                        doc_ids.append(doc_id)
+                        embeddings.append(embedding)
+                    else:
+                        print('encoding batch...')
+                        encoded_embeddings = encode(embeddings)
+                        print('...done encoding.')
+                        print()
+                        print('Saving embeddings to OpenSearch...')
+                        self.save_to_opensearch(doc_ids, encoded_embeddings)
+                        embeddings = []  # reset embeddings
+                        print('...done with batch.')
+                        print()
                     print('...Done with: %03d / %03d' % (len(embeddings), len(self.param_grid)))
-        print('encoding...')
-        encoded_embeddings = encode(embeddings)
-        print('...done encoding.')
-        print()
-        print('Saving embeddings to OpenSearch...')
-        response = self.save_to_opensearch(doc_ids, encoded_embeddings)
         print()
         print("...done.")
-        return {'doc_ids': doc_ids, 'embeddings': embeddings, 'response': response}
+        return {'doc_ids': doc_ids, 'embeddings': embeddings}
 
 
 class EmbedGetter(EmbedClient):
@@ -421,9 +426,7 @@ def run_embedder(**kwds):
     """
     #: run embedder to create embeddings
     embedder = Embedder(**kwds)
-    embeddings = embedder.run()  # type: ignore
-    print(embeddings[:5])
-    return embeddings
+    embedder.run()  # type: ignore
 
 
 def retrieve_embeddings(
