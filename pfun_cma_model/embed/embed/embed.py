@@ -1,9 +1,12 @@
 import concurrent.futures
 import json
+from typing import Sequence
 import os
+import warnings
+from contextlib import redirect_stdout
 import logging
 from typing import Optional
-import openai
+import tiktoken
 from opensearchpy import OpenSearch, helpers
 import certifi
 import requests
@@ -26,6 +29,36 @@ logger = logging.getLogger(__name__)
 #: OpenSearch Query Type
 OpenSearchQuery = str | list[str] | dict
 
+#: get tiktoken encoding for text-embedding-ada-002
+encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
+
+
+def normalize(x):
+    """
+    Normalizes the given input array or scalar value.
+
+    Parameters:
+        x (array-like or scalar): The input array or scalar value.
+
+    Returns:
+        array-like or scalar: The normalized array or scalar value.
+    """
+    if not hasattr(x, 'min'):
+        x = np.array(x, dtype=float)
+    return (x - x.min()) / (x.max() - x.min())
+
+
+def encode(text: str | Sequence[str],
+           do_norm=True,
+           threads: int = 4
+           ) -> Sequence[float|int|Sequence[float|int]]:
+    if isinstance(text, str):
+        text = [text]
+    out = encoding.encode_batch(text, num_threads=threads)  # type: ignore
+    if do_norm is False:
+        return out
+    return normalize(out)
+
 
 def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
     """
@@ -45,10 +78,6 @@ def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
                                      (remote_host, remote_port),
                                      ("127.0.0.1", local_port))
     return channel
-
-
-#: set open ai api key
-openai.api_key = get_secret("openai-api-key-emacs", region="us-east-1")
 
 
 class EmbedClient:
@@ -221,36 +250,43 @@ class Embedder(EmbedClient):
         return param_grid
 
     @classmethod
-    def create_embeddings(cls, text: OpenSearchQuery) -> str:
-        model = "text-embedding-ada-002"  # Replace with the model you want to use
-        if not isinstance(text, str):
-            text = json.dumps(text)
-        response = openai.Embedding.create(
-            input=text,
-            model=model,
-        )
-        return response.get("data")  # type: ignore
+    def create_embeddings(cls,
+                          text: str | Sequence[str],
+                          **kwds):
+        return encode(text, **kwds)
 
-    def save_to_opensearch(self, embedding, doc_id):
+    def save_to_opensearch(self, doc_id, embedding):
         """
         Saves the given embedding and document ID to OpenSearch.
 
-        :param embedding: The embedding to be saved.
-        :type embedding: any
-
         :param doc_id: The ID of the document.
         :type doc_id: str
+        :param embedding: The embedding to be saved.
+        :type embedding: any
 
         :return: The response from the OpenSearch bulk operation.
         :rtype: dict
         """
-        action = {
-            "_op_type": "index",
-            "_index": "embeddings",
-            "_id": doc_id,
-            "embedding": embedding,
-        }
-        response = helpers.bulk(self.opensearch_client, [action])
+        actions = []
+        if isinstance(embedding, list) and isinstance(doc_id, list):
+            for doc, em in zip(doc_id, embedding):
+                action = {
+                    "_op_type": "index",
+                    "_index": "embeddings",
+                    "_id": doc,
+                    "embedding": em,
+                }
+                actions.append(action)
+        else:
+            actions.append({
+                "_op_type": "index",
+                "_index": "embeddings",
+                "_id": doc_id,
+                "embedding": embedding,
+            })
+        actions = [json.dumps(action) if not isinstance(action, str) else action
+                   for action in actions]
+        response = helpers.bulk(self.opensearch_client, actions)
         return response
 
     def run(self):
@@ -265,34 +301,43 @@ class Embedder(EmbedClient):
 
         print("Creating embeddings...")
 
+        doc_ids = []
         embeddings = []
 
         def create_embedding(pset):
-            model = CMASleepWakeModel(**pset)
-            raw_text = model.run().to_json()
-            embedding = self.create_embeddings(raw_text)
-            doc_id = json.dumps(pset)
-            _ = self.save_to_opensearch(embedding, doc_id)
-            return embedding
+            with open('/tmp/pfun-cma-model-embedder-warnings.log', 'w') as f, redirect_stdout(f):
+                model = CMASleepWakeModel(**pset)
+                raw_text = model.run().to_json()
+                embedding = self.create_embeddings(raw_text)
+                doc_id = json.dumps(pset)
+            return (doc_id, embedding)
 
         futures = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=24) as executor:
             for pset in self.param_grid:
                 future = executor.submit(create_embedding, pset)
                 futures.append(future)
             for future in concurrent.futures.as_completed(futures):
                 try:
-                    embeddings.append(future.result())
+                    doc_id, embedding = future.result()
                 except Exception as e:
                     logging.exception(
                         "(%s) Failed to create embedding.",
                         type(e), exc_info=True
                     )
                 else:
+                    doc_ids.append(doc_id)
+                    embeddings.append(embedding)
                     print('...Done with: %03d / %03d' % (len(embeddings), len(self.param_grid)))
+        print('encoding...')
+        encoded_embeddings = encode(embeddings)
+        print('...done encoding.')
+        print()
+        print('Saving embeddings to OpenSearch...')
+        response = self.save_to_opensearch(doc_ids, encoded_embeddings)
         print()
         print("...done.")
-        return embeddings
+        return {'doc_ids': doc_ids, 'embeddings': embeddings, 'response': response}
 
 
 class EmbedGetter(EmbedClient):

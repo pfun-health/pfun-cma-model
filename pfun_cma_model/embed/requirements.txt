@@ -1,2 +1,5 @@
 chalice
-openai
+tiktoken
+numpy
+opensearch-py
+

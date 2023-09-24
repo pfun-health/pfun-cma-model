@@ -16,7 +16,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
         PKG_DIRS: ./runtime
-        ROOT_DIR: ./
+        ROOT_DIR: ./pfun_cma_model
 
     runs-on: ubuntu-latest
 
