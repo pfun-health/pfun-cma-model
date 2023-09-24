@@ -3,7 +3,7 @@
 # or implementing the sample code, visit the AWS docs:
 # https://aws.amazon.com/developer/language/python/
 from botocore.exceptions import ClientError, ProfileNotFound
-from runtime.chalicelib.sessions import PFunCMASession
+from pfun_cma_model.runtime.chalicelib.sessions import PFunCMASession
 import logging
 from typing import AnyStr
 import uuid

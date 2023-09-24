@@ -1,10 +1,9 @@
 import click
 from typing import Union, List, Dict
 import pfun_path_helper
-try:
-    from pfun_cma_model.embed import Embedder, EmbedGetter
-except (ImportError, ModuleNotFoundError):
-    from pfun_cma_model.embed.embed import Embedder, EmbedGetter
+import os
+import runpy
+globals().update(runpy.run_path(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'embed.py')))
 
 
 @click.group()
@@ -23,7 +22,7 @@ def run_embedder():
 
 
 @cli.command()
-@click.option('--query', '-q', default=Embedder.get_sample_text(), help='Query to retrieve embeddings.')
+@click.option('--query', '-q', default=None, help='Query to retrieve embeddings.')
 def retrieve_embeddings(query: Union[str, List[str], Dict]):
     """
     Retrieve embeddings from opensearch.

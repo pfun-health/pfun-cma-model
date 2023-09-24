@@ -16,7 +16,7 @@ import pfun_path_helper as path_helper
 path_helper.append_path(
     os.path.abspath(
         os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                     "../..")))  # type: ignore
+                     "../../..")))  # type: ignore
 import paramiko
 from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
@@ -68,7 +68,7 @@ class EmbedClient:
         cls,
         ssh_params: Optional[dict] = None,
         opensearch_params: Optional[dict] = None,
-        require_ssh_tunnel: bool = True,
+        require_ssh_tunnel: bool = False,
     ) -> "EmbedClient":
         if cls.opensearch_client is None:
             cls.opensearch_client = cls.connect_opensearch(
@@ -163,15 +163,18 @@ class EmbedClient:
             ssl_assert_hostname=False,
             ssl_show_warn=False,
             ca_certs=ca_certs_path,
+            timeout=120
         )
         return cls.opensearch_client
 
 
 class Embedder(EmbedClient):
 
-    def __init__(self, **ssh_params):
+    def __init__(self, grid_params: Optional[dict] = None, **ssh_params):
         super().__init__(**ssh_params)
-        self.param_grid = self.create_parameter_search_grid()
+        if grid_params is None:
+            grid_params = {}
+        self.param_grid = self.create_parameter_search_grid(**grid_params)
 
     @classmethod
     def get_sample_text(cls):
@@ -198,7 +201,7 @@ class Embedder(EmbedClient):
                 proc.terminate()
         return sample_text
 
-    def create_parameter_search_grid(self, num: int = 5):
+    def create_parameter_search_grid(self, num: int = 10, kind='gaussian'):
         param_grid = {}
         cmap = CMAModelParams()
         if hasattr(cmap.bounds, "json"):
@@ -206,8 +209,13 @@ class Embedder(EmbedClient):
         else:
             bds = cmap.bounds  # type: pfun_cma_model.runtime.chalicelib.engine.bounds.Bounds
         cdict = cmap.model_dump()
+        pspace_func = {
+            'linear': np.linspace,
+            'random': np.random.uniform,
+            'gaussian': lambda lb, ub, num: np.random.normal((lb + ub) / 2, (ub - lb) / 2, num),
+        }[kind]
         param_grid = {
-            k: np.linspace(bds["lb"][j], bds["ub"][j], num=num)
+            k: pspace_func(bds["lb"][j], bds["ub"][j], num)
             for j, k in zip(range(len(cmap.model_fields)),
                             cdict["bounded_param_keys"])
         }  # type: ignore
@@ -341,6 +349,7 @@ class EmbedGetter(EmbedClient):
             query = json.dumps(query)
         query_dict = {"embedding": {"value": query, **query_params}}
         body = {"query": {f"{query_type}": {**query_dict}}}
+        print('Query:\n', json.dumps(body, indent=3))
         response = cls.opensearch_client.search(index=index_name, body=body)
         return response["hits"]["hits"]
 
@@ -359,11 +368,7 @@ def run_embedder(**kwds):
 
 
 def retrieve_embeddings(
-    query: Optional[OpenSearchQuery] = None,
-    ssh_params: Optional[dict] = None,
-    opensearch_params: Optional[dict] = None,
-    require_ssh_tunnel: bool = True,
-    index_name: str = "embeddings",
+    embedder_kwds: Optional[dict] = None, **kwds
 ):
     """
     Retrieve embeddings from opensearch.
@@ -371,19 +376,18 @@ def retrieve_embeddings(
     :param query: A string, or a list of strings, or a dictionary representing the query to retrieve embeddings for. Defaults to the sample text provided by the `Embedder` class.
     :return: A list of embeddings retrieved from opensearch.
     """
-    if query is None:
-        query = Embedder.create_embeddings(Embedder.get_sample_text())[0]['embedding']
+    if kwds.get('query') is None:
+        kwds['query'] = \
+            Embedder.create_embeddings(Embedder.get_sample_text())[0]['embedding']  # type: ignore
     #: retrieve embeddings from opensearch
     embeddings = EmbedGetter(  # pylint: disable=redefined-outer-name
-        ssh_params=ssh_params,
-        opensearch_params=opensearch_params,
-        require_ssh_tunnel=require_ssh_tunnel,
-        query=query,
-        index_name=index_name,
-    ).retrieve_embeddings()
+        **embedder_kwds or {}
+    ).retrieve_embeddings(**kwds)
     print(embeddings[:5])
     return embeddings
 
 
 if __name__ == "__main__":
-    embeddings = retrieve_embeddings(require_ssh_tunnel=False)
+    kwds = dict(query='*', query_type='wildcard')
+    embeddings = retrieve_embeddings(
+        embedder_kwds=dict(require_ssh_tunnel=False), **kwds)
