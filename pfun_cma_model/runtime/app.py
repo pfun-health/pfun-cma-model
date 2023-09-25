@@ -3,35 +3,25 @@ PFun CMA Model API routes.
 """
 import os
 import json
-import sys
-import uuid
 from chalice.app import (
     ConvertToMiddleware,
     Request, BadRequestError, Chalice,
     Response, CORSConfig
 )
-from requests import post
-from requests.sessions import Session
 from pathlib import Path
-import urllib.parse as urlparse
 from typing import (
     Any, Dict, Literal, Optional
 )
-from botocore.exceptions import ClientError
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 import pfun_path_helper
 pfun_path_helper.append_path(Path(__file__).parent.parent)
-import runtime.chalicelib.utils as utils
-from runtime.chalicelib.pathdefs import (
-    FRONTEND_ROUTES,
-    PUBLIC_ROUTES,
+from pfun_cma_model.pathdefs import (
     PRIVATE_ROUTES
 )
-from runtime.chalicelib.secrets import get_secret_func
-from runtime.chalicelib.sessions import PFunCMASession
-from runtime.chalicelib.middleware import authorization_required as authreq
+from pfun_cma_model.sessions import PFunCMASession
+from pfun_cma_model.middleware import authorization_required as authreq
 
 BOTO3_SESSION = PFunCMASession.get_boto3_session()
 SECRETS_CLIENT = PFunCMASession.get_boto3_client('secretsmanager')
@@ -47,6 +37,8 @@ cors_config = CORSConfig(
     allow_headers=['X-RapidAPI-Key',
                    'X-RapidAPI-Proxy-Secret',
                    'X-RapidAPI-Host',
+                   'X-API-Key',
+                   'Authorization',
                    'Access-Control-Allow-Origin'],
     allow_credentials=True,
     max_age=300,
@@ -60,7 +52,7 @@ cors_config = CORSConfig(
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-file_handler = logging.FileHandler('/tmp/chalice-logs.log')
+file_handler = logging.FileHandler('/tmp/chalice-logs-backend.log')
 file_handler.setFormatter(formatter)
 
 logger = logging.getLogger(__name__)
@@ -106,230 +98,18 @@ def dummy_route():
                     headers={'Location': path})
 
 
-@app.route('/sdk', methods=['GET'])
-def generate_sdk():
-    global SDK_CLIENT  # pylint: disable=global-statement
-    logger.info('Generating SDK')
-    if SDK_CLIENT is None:
-        SDK_CLIENT = PFunCMASession.get_boto3_client('apigateway')
-    rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
-                       if item.get('name') == 'PFun CMA Model Backend')['id']
-    response = SDK_CLIENT.get_sdk(
-        restApiId=rest_api_id,
-        stageName='api',
-        sdkType='javascript',
-    )
-    sdk_stream = response['body']
-    sdk_bytes = sdk_stream.read()
-
-    # Return the zipped SDK as binary response
-    return Response(
-        body=sdk_bytes,
-        headers={'Content-Type': 'application/zip'},
-        status_code=200,
-    )
-
-
 @app.route('/params/schema', methods=['GET'])
 def params_schema():
-    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return params.model_json_schema()
 
 
 @app.route('/params/default', methods=['GET'])
 def default_params():
-    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return params.model_dump_json()
-
-
-@app.route('/static', methods=['GET'])
-def static_files():
-    """
-    Serves the static files for the web application.
-    """
-    if not Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2])).exists():
-        pypath = Path(__file__).parent.joinpath("chalicelib")
-    else:
-        pypath = Path('/opt/python/lib/python{0}.{1}/site-packages/chalicelib'.format(*sys.version_info[:2]))
-
-    current_request = get_current_request(app)
-
-    if current_request.query_params is None:
-        return Response(body='No query parameters provided when requesting static resource.', status_code=400)
-
-    source = current_request.query_params.get('source', 's3')
-    global STATIC_BASE_URL  # pylint: disable=global-statement
-    if STATIC_BASE_URL is None:
-        STATIC_BASE_URL = initialize_base_url(app, return_static_url=True, return_base_url=False)  # type: ignore
-    if source not in ('s3', 'local'):
-        return Response(body='Invalid source provided when requesting static resource.', status_code=BadRequestError.STATUS_CODE)
-
-    filename = current_request.query_params.get('filename', '/index.template.html')
-    if source.lower() == 's3':
-        S3_CLIENT = PFunCMASession.get_boto3_client('s3')
-        s3_filename = filename.lstrip('/')
-        stage_name = os.getenv('stage', 'error').lower()
-        try:
-            bucket_name = 'pfun-cma-model-www-{0}'.format(stage_name)
-            response = S3_CLIENT.get_object(Bucket=bucket_name, Key=s3_filename)
-        except ClientError:
-            return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filename), status_code=404)
-        body = response['Body'].read()
-        return Response(body=body, status_code=200, headers={'Content-Type': 'text/*'})
-
-    filepath = Path(str(pypath) + '/www/')
-    available_files = [f for f in filepath.rglob('*') if f.is_file()]
-    filepath = Path(str(filepath) + filename)
-    if not filepath.exists():
-        return Response(body='Requested static resource does not exist (requested static resource: {0}).'.format(filepath), status_code=404)
-    if filepath not in available_files:
-        return Response(body='Requested static resource is not available (requested static resource: {0}).'.format(filepath), status_code=404)
-    content_type = current_request.query_params.get('ContentType', 'text/*')
-    if 'text' in content_type or content_type == '*/*':
-        try:
-            output = filepath.read_text(encoding='utf-8')
-        except UnicodeDecodeError:
-            output = filepath.read_bytes()
-    else:
-        output = filepath.read_bytes()
-    return Response(body=output, status_code=200, headers={'Content-Type': content_type, 'Access-Control-Allow-Origin': '*'})
-
-
-def initialize_base_url(app, return_static_url: bool = False, return_base_url: bool = True) -> Optional[str | list[str]]:
-    global BASE_URL, STATIC_BASE_URL, SDK_CLIENT  # pylint: disable=global-statement
-    if BASE_URL is not None and STATIC_BASE_URL is not None:
-        return BASE_URL
-    current_request = get_current_request()
-    BASE_URL = current_request.headers.get(
-        'host', current_request.headers.get(
-            'origin', current_request.headers.get('referer', '')))
-    if any([BASE_URL == '', not hasattr(app, 'current_request')]):
-        if SDK_CLIENT is None:
-            SDK_CLIENT = PFunCMASession.get_boto3_client('apigateway')
-        rest_api_id = next(item for item in SDK_CLIENT.get_rest_apis()['items']
-                           if item.get('name') == 'PFun CMA Model Backend')['id']
-        BASE_URL = 'https://%s.execute-api.us-east-1.amazonaws.com/api' % (rest_api_id,)
-    if '127.0.0.1' in BASE_URL or 'localhost' in BASE_URL:
-        #: handle localhost
-        BASE_URL = f'http://{BASE_URL}'
-    else:
-        #: handle non-localhost
-        if 'https://' not in BASE_URL:
-            BASE_URL = f'https://{BASE_URL}'
-        if not BASE_URL.endswith('/api'):
-            BASE_URL = str(urlparse.urljoin(BASE_URL, '/api'))
-    STATIC_BASE_URL = str(urlparse.urljoin(BASE_URL, '/static'))
-    returns = []
-    if return_base_url:
-        returns.append(BASE_URL)
-    if return_static_url:
-        returns.append(STATIC_BASE_URL)
-    if len(returns) == 1:
-        returns = returns[0]
-    elif len(returns) == 0:
-        returns = None
-    return returns
-
-
-def get_static_resource(path: str, source: Literal['s3', 'local'] = 's3', content_type: str = 'text/*'):
-    global STATIC_BASE_URL  # pylint: disable=global-statement
-    if STATIC_BASE_URL is None:
-        STATIC_BASE_URL = initialize_base_url(app, return_base_url=False, return_static_url=True)  # type: ignore
-    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):  # type: ignore
-        source = 'local'  # ! overwrite source to local for localhost
-    url = urlparse.urljoin(STATIC_BASE_URL, path)  # type: ignore
-    if path[0] != '/':
-        path = '/' + path  # ! add leading slash
-    url = utils.add_url_params(STATIC_BASE_URL, {
-        'source': source, 'filename': path, 'ContentType': content_type})
-    app.log.info('(static resource) GET: %s', url)
-    response = None
-    with Session() as session:
-        response = session.get(url)
-    return response
-
-
-@app.route('/icons/mattepfunlogolighter.png')
-def icon_static_resource():
-    current_request = get_current_request(app)
-    query_params = current_request.query_params
-    if query_params is None:
-        query_params = {}
-    source = query_params.get('source', 's3')
-    resp = get_static_resource("icons/mattepfunlogolighter.png", source, "image/png")  # type: ignore
-    return Response(body=resp.content, status_code=200, headers={'Content-Type': 'image/png', 'x-version': '4'})
-
-
-def initialize_index_resources():
-    global BODY, BASE_URL, STATIC_BASE_URL
-    if BODY is not None:
-        return BODY
-    #: initialize base url
-    BASE_URL = initialize_base_url(app, return_base_url=True, return_static_url=False)  # type: ignore
-    response = get_static_resource('index.template.html')
-    body = response.text
-    ROUTES = '\n'.join([
-        f'<li><a id="{name}" class="dropdown-item route-link" href="{BASE_URL}{name}">{name}</a></li>'
-        for name in PUBLIC_ROUTES])
-    app.log.debug('BODY: %s', body)
-    app.log.info('BASE_URL: %s', BASE_URL)
-    app.log.info('STATIC_BASE_URL: %s', STATIC_BASE_URL)
-    source = 's3'
-    if any(x in STATIC_BASE_URL for x in ('localhost', '127.0.0.1')):  # type: ignore
-        source = 'local'  # ! overwrite source to local for localhost
-    output_static_base_url = str(
-        utils.add_url_params(
-            STATIC_BASE_URL, {'source': source, 'filename': ''}))
-    PFUN_ICON_PATH = '/icons/mattepfunlogolighter.png'
-    if source != 'local':
-        if '/api' not in output_static_base_url:
-            output_static_base_url = urlparse.urlparse(output_static_base_url)
-            output_static_base_url = str(output_static_base_url).replace(
-                output_static_base_url.path, '/api' + output_static_base_url.path)
-    try:
-        BODY = body.format(
-            STATIC_BASE_URL=output_static_base_url,
-            PFUN_ICON_PATH=PFUN_ICON_PATH,
-            ROUTES=ROUTES
-        )
-    except (ValueError, KeyError) as e:
-        logging.warning(f"Error (index): {e}")
-        logging.warning(f"STATIC_BASE_URL: {STATIC_BASE_URL}\noutput_static_base_url: {output_static_base_url}\nPFUN_ICON_PATH: {PFUN_ICON_PATH}\nROUTES: {str(ROUTES)}")
-    return BODY
-
-
-@app.route("/")
-def index():
-    """
-    Generates the index page for the web application.
-
-    Returns:
-        Response: The HTTP response object containing the index page.
-    """
-    global BODY
-    if BODY is None:
-        BODY = initialize_index_resources()
-    return Response(
-        body=BODY,
-        status_code=200,
-        headers={'Content-Type': 'text/html'}
-    )
-
-
-@app.route("/routes")
-def get_routes():
-    """
-    Retrieves a list of routes available in the application.
-
-    Returns:
-        A Response object with the list of routes in the body and a status code of 200.
-    """
-    routes = json.dumps({
-        k: list(v.keys()) for k, v in app.routes.items()
-        if k in FRONTEND_ROUTES}, indent=4)
-    return Response(body=routes, status_code=200)
 
 
 @app.route("/log", methods=['GET', 'POST'])
@@ -386,8 +166,8 @@ def initialize_model():
     global CMA_MODEL_INSTANCE
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
-    from chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
     model_config = get_model_config(app)
     if model_config is None:
         model_config = {}
@@ -397,7 +177,7 @@ def initialize_model():
     return CMA_MODEL_INSTANCE
 
 
-@app.route('/model/results/translate', methods=['POST', 'GET'])
+@app.route('/translate-results', methods=['POST', 'GET'])
 def translate_model_results_by_language():
     results = get_params(app, 'results')
     from_lang = get_params(app, 'from', 'python', load_json=True)
@@ -449,7 +229,7 @@ def run_at_time_func(app: Chalice) -> str:
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     # pylint-disable=import-outside-toplevel
-    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
     from pandas import DataFrame
     logger.info('model_config: %s', json.dumps(model_config))
     logger.info('calc_params: %s', json.dumps(calc_params))
@@ -487,7 +267,7 @@ def run_at_time_route():
 
 @app.route('/fit', methods=['POST'])
 def fit_model_to_data():
-    from chalicelib.engine.fit import fit_model as cma_fit_model
+    from pfun_cma_model.runtime.chalicelib.engine.fit import fit_model as cma_fit_model
     from pandas import DataFrame
     data = get_params(app, 'data')
     if data is None:
@@ -509,130 +289,6 @@ def fit_model_to_data():
     response = Response(body={"output": output}, status_code=200,
                         headers={'Content-Type': 'application/json'})
     return response
-
-
-DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
-                         "devices", "events"]
-
-
-def get_oauth_info():
-    oauth_info: Dict[str, str | Any | os.PathLike] = {
-        "creds": {},
-        "host": "",
-        "login_url": "",
-        "redirect_uri": "",
-        "state": str(uuid.uuid4()),
-        "oauth2_tokens": None
-    }
-    secret: str | bytes = get_secret_func("dexcom_pfun-app_glucose")  # type: ignore
-    oauth_info["creds"] = json.loads(secret)
-    os.environ['DEXCOM_CLIENT_ID'] = oauth_info['creds']['client_id']
-    os.environ['DEXCOM_CLIENT_SECRET'] = oauth_info['creds']['client_secret']
-    oauth_info["host"] = os.getenv(
-        "DEXCOM_HOST", get_params(app, 'DEXCOM_HOST')) or \
-        'https://api.dexcom.com'
-    oauth_info["login_url"] = urlparse.urljoin(
-        str(oauth_info["host"]), "/v2/oauth2/login")
-    oauth_info["redirect_uri"] = os.getenv("DEXCOM_REDIRECT_URI") or \
-        '/login-success'
-    oauth_info["token_url"] = urlparse.urljoin(
-        str(oauth_info["host"]), "v2/oauth2/token")
-    oauth_info['refresh_url'] = urlparse.urljoin(
-        str(oauth_info["host"]), "v2/oauth2/token")
-    oauth_info['endpoint_urls'] = {}
-    endpoints: list[str] = vars(DexcomEndpoint)['__args__']
-    for endpoint in endpoints:
-        oauth_info["endpoint_urls"][endpoint] = urlparse.urljoin(
-            str(oauth_info['host']), f"v3/users/{{}}/{endpoint}")
-    return oauth_info
-
-
-oauth_info = None
-
-
-@app.route('/login-dexcom', methods=['GET', 'POST'])
-def oauth2_dexcom():
-    """
-    Handles the Dexcom login request.
-    """
-
-    global oauth_info
-    if oauth_info is None:
-        oauth_info = get_oauth_info()
-
-    # Get the authorization code from the event.
-    authorization_code = get_params(app, 'authorization_code')
-    if authorization_code is not None and oauth_info['oauth2_tokens'] is None:
-        # Exchange the authorization code for an access token.
-        url: str = str(oauth_info['token_url'])
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'code': authorization_code,
-            'grant_type': 'authorization_code',
-            'redirect_uri': oauth_info['redirect_uri']
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = post(
-            url, data=payload, timeout=10, headers=headers)
-        data = response.json()
-        oauth_info['oauth2_tokens'] = data
-
-        # Return the refresh, access tokens.
-        response = Response(body={
-            'refresh_token': data['refresh_token'],
-            'access_token': data['access_token'],
-            'expires_in': data['expires_in'],
-            'token_type': data['token_type'],
-            'message': 'Successfully authorized.'
-        }, status_code=200, headers={'Content-Type': 'application/json'})
-    elif authorization_code is None and oauth_info['oauth2_tokens'] is None:
-        #: Redirect to dexcom, get the authorization code.
-        url = str(oauth_info['login_url'])
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'redirect_uri': oauth_info['redirect_uri'],
-            'response_type': 'code',
-            'scope': 'offline_access',
-            'state': oauth_info['state']
-        }
-        response = Response(
-            status_code=301,
-            headers={'Location': url + '?' + urlparse.urlencode(payload)},
-            body=''
-        )
-    elif oauth_info['oauth2_tokens'] is not None:
-        #: Refresh the token.
-        url = str(oauth_info['refresh_url'])
-        payload = {
-            'client_id': os.environ['DEXCOM_CLIENT_ID'],
-            'client_secret': os.environ['DEXCOM_CLIENT_SECRET'],
-            'refresh_token': str(oauth_info['oauth2_tokens']['refresh_token']),  # type: ignore
-            'grant_type': 'refresh_token',
-            'redirect_uri': oauth_info['redirect_uri']
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        response = post(
-            url, data=payload, timeout=10, headers=headers)
-        data = response.json()
-        oauth_info['oauth2_tokens'] = data
-        response = Response(body={
-            'refresh_token': data['refresh_token'],
-            'access_token': data['access_token'],
-            'expires_in': data['expires_in'],
-            'token_type': data['token_type'],
-            'message': 'Successfully refreshed token.'
-        }, status_code=200, headers={'Content-Type': 'application/json'})
-    else:
-        logger.warning(
-            "(oauth2_dexcom) Not sure how this would occur, but thought you should know...")
-        response = Response(body='Unauthorized', status_code=401)
-    return response
-
-
-@app.route('/login-success', methods=['GET'])
-def login_success():
-    return Response(status_code=200, body='<h1>Dexcom Login Success!</h1>')
 
 
 if __name__ == '__main__':
