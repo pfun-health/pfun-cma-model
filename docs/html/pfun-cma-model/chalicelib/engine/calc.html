@@ -35,7 +35,7 @@ from pathlib import Path
 import sys
 import importlib
 try:
-    from chalicelib.decorators import check_is_numpy
+    from pfun_cma_model.decorators import check_is_numpy
 except ModuleNotFoundError:
     root_path = str(Path(__file__).parents[1])
     mod_path = str(Path(__file__).parent)

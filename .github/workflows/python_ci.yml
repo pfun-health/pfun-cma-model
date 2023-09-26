@@ -16,7 +16,11 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
         ROOT_DIR: ./pfun_cma_model
-        PKG_DIRS: ./pfun_cma_model/runtime
+        PKG_DIRS: |
+          - ./pfun_cma_model/runtime
+          - ./pfun_cma_model/frontend
+          - ./pfun_cma_model/reheater
+          - ./pfun_cma_model/dependencies
 
     runs-on: ubuntu-latest
 
@@ -31,14 +35,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry && pip install --upgrade -r requirements.txt
+        pip install poetry && pip install --upgrade -r requirements-dev.txt
 
     - name: Build package
       run: poetry build
 
     - name: Run tests
       run: |
-        cd ${PKG_DIRS} && poetry run pytest
+        poetry run pytest
 
     - name: Lint code
       run: |
@@ -62,15 +66,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry && pip install --upgrade -r requirements.txt
+        pip install poetry && pip install --upgrade -r requirements-dev.txt
     - name: Run chalice locally, test endpoints.
       run: |
-        cd ${PKG_DIRS}
-        make local ROOT_DIR=${ROOT_DIR} &> /dev/null &
-        sleep 3s
-        make test-local ROOT_DIR=${ROOT_DIR}
-        pkill chalice
-        sleep 1s
+        for dir in ${PKG_DIRS}; do
+          cd ${dir}
+          make local ROOT_DIR=${ROOT_DIR} &> /dev/null &
+          sleep 3s
+          make test-local ROOT_DIR=${ROOT_DIR}
+          pkill chalice
+          sleep 1s
+        done
   
   deploy-dev:
     needs: test-local
@@ -88,5 +94,7 @@ jobs:
         poetry install
     - name: Deploy dev stage
       run: |
-        cd ${PKG_DIRS}
-        make deploy ROOT_DIR=${ROOT_DIR} STAGE=dev
+        for dir in ${PKG_DIRS}; do
+          cd ${dir}
+          make deploy ROOT_DIR=${ROOT_DIR} STAGE=dev
+        done

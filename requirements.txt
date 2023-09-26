@@ -3,3 +3,4 @@ build
 pfun-path-helper>=0.0.2
 -r ./pfun_cma_model/runtime/requirements-dev.txt
 -r ./pfun_cma_model/embed/requirements.txt
+./pfun_cma_model/dependencies/includes/minpack-2.0.0-cp310-cp310-linux_x86_64.whl

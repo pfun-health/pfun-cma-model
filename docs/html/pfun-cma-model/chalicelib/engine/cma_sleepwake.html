@@ -49,7 +49,7 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
-    from chalicelib.decorators import check_is_numpy
+    from pfun_cma_model.decorators import check_is_numpy
     from chalicelib.engine.calc import normalize, normalize_glucose
     from chalicelib.engine.data_utils import dt_to_decimal_hours
     from chalicelib.engine.bounds import Bounds

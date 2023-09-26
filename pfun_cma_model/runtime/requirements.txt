@@ -1,5 +1,3 @@
 botocore==1.14.0
 requests
 lumigo-tracer
-
-./pfun_cma_model/runtime/includes/minpack-2.0.0-cp310-cp310-linux_x86_64.whl

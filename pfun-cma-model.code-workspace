@@ -21,10 +21,6 @@
 			"./runtime/chalicelib",
 			"./runtime/chalicelib/engine"
 		],
-		"[python]": {
-			"editor.defaultFormatter": "ms-python.black-formatter"
-		},
-		"python.formatting.provider": "none",
 		"liveServer.settings.multiRootWorkspaceName": "pfun-endo-frontend-wireframe"
 	}
 }

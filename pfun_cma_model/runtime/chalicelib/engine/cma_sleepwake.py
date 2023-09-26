@@ -17,7 +17,6 @@ from numpy import (
     array,
     ndarray,
     nansum,
-    exp,
     log,
     power,
     cos,
@@ -51,33 +50,48 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
-    from chalicelib.decorators import check_is_numpy
-    from chalicelib.engine.calc import normalize, normalize_glucose
-    from chalicelib.engine.data_utils import dt_to_decimal_hours
-    from chalicelib.engine.bounds import Bounds
-    from chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.decorators import check_is_numpy
+    from pfun_cma_model.runtime.chalicelib.engine.calc import exp
+    from pfun_cma_model.runtime.chalicelib.engine.bounds import Bounds
+    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
 except ModuleNotFoundError:
     check_is_numpy = importlib.import_module(
-        ".decorators", package="chalicelib").check_is_numpy
-    normalize = importlib.import_module(
-        ".calc", package="chalicelib.engine").normalize
-    normalize_glucose = importlib.import_module(
-        ".calc", package="chalicelib.engine").normalize_glucose
+        ".decorators", package="pfun_cma_model").check_is_numpy
+    exp = importlib.import_module(
+        ".calc", package="pfun_cma_model.runtime.chalicelib.engine").exp
     dt_to_decimal_hours = importlib.import_module(
-        ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
+        ".data_utils", package="pfun_cma_model.runtime.chalicelib.engine").dt_to_decimal_hours
     Bounds = importlib.import_module(
-        ".bounds", package="chalicelib.engine").Bounds
+        ".bounds", package="pfun_cma_model.runtime.chalicelib.engine").Bounds
     CMAModelParams = importlib.import_module(
-        ".cma_model_params", package="chalicelib.engine").CMAModelParams
+        ".cma_model_params", package="pfun_cma_model.runtime.chalicelib.engine").CMAModelParams
 
 logger = logging.getLogger()
 
 
 def Light(x):
+    """
+    Calculates the light intensity based on the input value.
+
+    Parameters:
+        x (float): The input value.
+
+    Returns:
+        float: The calculated light intensity.
+    """
     return 2.0 / (1.0 + exp(2.0 * power(x, 2)))
 
 
 def E(x):
+    """
+    Compute the exponential function for the given input.
+
+    Parameters:
+        x (float): The input value for the exponential function.
+
+    Returns:
+        float: The computed exponential value.
+    """
     return 1.0 / (1.0 + exp(-2.0 * x))
 
 

@@ -1,0 +1,4 @@
+chalice==1.29.0
+pytest
+botocore==1.14.0
+-r requirements.txt

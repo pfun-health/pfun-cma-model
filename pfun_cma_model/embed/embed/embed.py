@@ -2,7 +2,6 @@ import concurrent.futures
 import json
 from typing import Sequence
 import os
-import warnings
 from contextlib import redirect_stdout
 import logging
 from typing import Optional
@@ -21,7 +20,7 @@ path_helper.append_path(
 import paramiko
 from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-from pfun_cma_model.runtime.chalicelib.secrets import get_secret_func as get_secret
+from pfun_cma_model.secrets import get_secret_func as get_secret
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
@@ -43,21 +42,21 @@ def normalize(x):
     Returns:
         array-like or scalar: The normalized array or scalar value.
     """
-    if not hasattr(x, 'min'):
+    if not hasattr(x, "min"):
         x = np.array(x, dtype=float)
     return (x - x.min()) / (x.max() - x.min())
 
 
 def encode(text: str | Sequence[str],
            do_norm=True,
-           threads: int = 4
-           ) -> Sequence[float|int|Sequence[float|int]]:
+           threads: int = 4) -> Sequence[float | int | Sequence[float | int]]:
     if isinstance(text, str):
         text = [text]
+    text = [json.dumps(t) if not isinstance(t, str) else t for t in text]
     out = encoding.encode_batch(text, num_threads=threads)  # type: ignore
     if do_norm is False:
         return out
-    return normalize(out)
+    return [normalize(o).tolist() for o in out]
 
 
 def forward_tunnel(local_port, remote_host, remote_port, ssh_client):
@@ -96,6 +95,7 @@ class EmbedClient:
         ssh_params: Optional[dict] = None,
         opensearch_params: Optional[dict] = None,
         require_ssh_tunnel: bool = False,
+        **kwds
     ) -> "EmbedClient":
         if cls.opensearch_client is None:
             cls.opensearch_client = cls.connect_opensearch(
@@ -190,7 +190,7 @@ class EmbedClient:
             ssl_assert_hostname=False,
             ssl_show_warn=False,
             ca_certs=ca_certs_path,
-            timeout=120
+            timeout=120,
         )
         return cls.opensearch_client
 
@@ -228,21 +228,27 @@ class Embedder(EmbedClient):
                 proc.terminate()
         return sample_text
 
-    def create_parameter_search_grid(self, num: int = 10, kind='gaussian'):
+    def create_parameter_search_grid(self, num: int = 10, kind="gaussian"):
         param_grid = {}
         cmap = CMAModelParams()
         if hasattr(cmap.bounds, "json"):
             bds = cmap.bounds.json()  # type: ignore
         else:
-            bds = cmap.bounds  # type: pfun_cma_model.runtime.chalicelib.engine.bounds.Bounds
+            bds = (
+                cmap.bounds
+            )
         cdict = cmap.model_dump()
         pspace_func = {
-            'linear': np.linspace,
-            'random': np.random.uniform,
-            'gaussian': lambda lb, ub, num: np.random.normal((lb + ub) / 2, (ub - lb) / 2, num),
+            "linear":
+            np.linspace,
+            "random":
+            np.random.uniform,
+            "gaussian":
+            lambda lb, ub, num: np.random.normal((lb + ub) / 2,
+                                                 (ub - lb) / 2, num),
         }[kind]
         param_grid = {
-            k: pspace_func(bds["lb"][j], bds["ub"][j], num)
+            k: pspace_func(bds["lb"][j], bds["ub"][j], num)  # type: ignore
             for j, k in zip(range(len(cmap.model_fields)),
                             cdict["bounded_param_keys"])
         }  # type: ignore
@@ -250,9 +256,7 @@ class Embedder(EmbedClient):
         return param_grid
 
     @classmethod
-    def create_embeddings(cls,
-                          text: str | Sequence[str],
-                          **kwds):
+    def create_embeddings(cls, text: str | Sequence[str], **kwds):
         return encode(text, **kwds)
 
     def save_to_opensearch(self, doc_id, embedding):
@@ -267,25 +271,31 @@ class Embedder(EmbedClient):
         :return: The response from the OpenSearch bulk operation.
         :rtype: dict
         """
-        actions = []
-        if isinstance(embedding, list) and isinstance(doc_id, list):
-            for doc, em in zip(doc_id, embedding):
-                action = {
-                    "_op_type": "index",
-                    "_index": "embeddings",
-                    "_id": doc,
-                    "embedding": em,
-                }
-                actions.append(action)
-        else:
-            actions.append({
+
+        def format2action(params, embedding):
+            doc_id = params
+            if not isinstance(doc_id, str):
+                doc_id = json.dumps(doc_id)
+            if isinstance(embedding, str):
+                embedding = json.loads(embedding)
+            if isinstance(params, str):
+                params = json.loads(params)
+            action = {
                 "_op_type": "index",
                 "_index": "embeddings",
                 "_id": doc_id,
                 "embedding": embedding,
-            })
-        actions = [json.dumps(action) if not isinstance(action, str) else action
-                   for action in actions]
+                "cma_params": params
+            }
+            return action
+
+        actions = []
+        if isinstance(embedding, list) and isinstance(doc_id, list):
+            for params, em in zip(doc_id, embedding):
+                action = format2action(params, em)
+                actions.append(action)
+        else:
+            actions.append(format2action(doc_id, embedding))
         response = helpers.bulk(self.opensearch_client, actions)
         return response
 
@@ -305,11 +315,11 @@ class Embedder(EmbedClient):
         embeddings = []
 
         def create_embedding(pset):
-            with open('/tmp/pfun-cma-model-embedder-warnings.log', 'w') as f, redirect_stdout(f):
-                model = CMASleepWakeModel(**pset)
-                raw_text = model.run().to_json()
-                embedding = self.create_embeddings(raw_text)
-                doc_id = json.dumps(pset)
+            model = CMASleepWakeModel(**pset)
+            soln = model.run()[['t', 'G']]
+            raw_text = json.dumps(soln.to_numpy(dtype=float).tolist())
+            embedding = self.create_embeddings(raw_text)
+            doc_id = json.dumps(pset)
             return (doc_id, embedding)
 
         futures = []
@@ -321,28 +331,28 @@ class Embedder(EmbedClient):
                 try:
                     doc_id, embedding = future.result()
                 except Exception as e:
-                    logging.exception(
-                        "(%s) Failed to create embedding.",
-                        type(e), exc_info=True
-                    )
+                    logging.exception("(%s) Failed to create embedding.",
+                                      type(e),
+                                      exc_info=True)
                 else:
                     if len(embeddings) < 1000:
                         doc_ids.append(doc_id)
                         embeddings.append(embedding)
                     else:
-                        print('encoding batch...')
+                        print("encoding batch...")
                         encoded_embeddings = encode(embeddings)
-                        print('...done encoding.')
+                        print("...done encoding.")
                         print()
-                        print('Saving embeddings to OpenSearch...')
+                        print("Saving embeddings to OpenSearch...")
                         self.save_to_opensearch(doc_ids, encoded_embeddings)
                         embeddings = []  # reset embeddings
-                        print('...done with batch.')
+                        print("...done with batch.")
                         print()
-                    print('...Done with: %03d / %03d' % (len(embeddings), len(self.param_grid)))
+                    print("...Done with: %03d / %03d" %
+                          (len(embeddings), len(self.param_grid)))
         print()
         print("...done.")
-        return {'doc_ids': doc_ids, 'embeddings': embeddings}
+        return {"doc_ids": doc_ids, "embeddings": embeddings}
 
 
 class EmbedGetter(EmbedClient):
@@ -402,7 +412,7 @@ class EmbedGetter(EmbedClient):
         #: retrieve embeddings from opensearch
         query_params = query_params or {}
         if len(query_params) == 0 and query_type == "fuzzy":
-            query_params = {'fuzziness': 'AUTO'}
+            query_params = {"fuzziness": "AUTO"}
         if query is None:
             query = cls.query
         if index_name is None:
@@ -413,7 +423,55 @@ class EmbedGetter(EmbedClient):
             query = json.dumps(query)
         query_dict = {"embedding": {"value": query, **query_params}}
         body = {"query": {f"{query_type}": {**query_dict}}}
-        print('Query:\n', json.dumps(body, indent=3))
+        # differentiate between a regular and similarity search query
+        if query_type == "script_score":
+            body = {
+                "size": 1,
+                "query": {
+                    "script_score": {
+                        "query": {
+                            "match_all": {}
+                        },
+                        "script": {
+                            "source":
+                            "1.0 + cosineSimilarity(params.query_vector, doc['embedding'])",
+                            "params": {
+                                "query_vector": query
+                            },
+                        },
+                    }
+                },
+            }
+        elif query_type == "random":
+            body = {
+                "size": 1,
+                "query": {
+                    "function_score": {
+                        "query": {
+                            "match_all": {}
+                        },
+                        "random_score": {}
+                    }
+                },
+                "_source": "embedding",
+            }
+        elif query_type == "fuzzy":
+            body = {
+                "size": 1,
+                "query": {
+                    "fuzzy": {
+                        "embedding": {
+                            "value": query,
+                            **query_params,
+                        }
+                    }
+                },
+            }
+        else:
+            query_dict = {"embedding": {"value": query, **query_params}}
+            body = {"query": {f"{query_type}": {**query_dict}}}
+
+        print("Query:\n", json.dumps(body, indent=3))
         response = cls.opensearch_client.search(index=index_name, body=body)
         return response["hits"]["hits"]
 
@@ -429,27 +487,24 @@ def run_embedder(**kwds):
     embedder.run()  # type: ignore
 
 
-def retrieve_embeddings(
-    embedder_kwds: Optional[dict] = None, **kwds
-):
+def retrieve_embeddings(embedder_kwds: Optional[dict] = None, **kwds):
     """
     Retrieve embeddings from opensearch.
 
     :param query: A string, or a list of strings, or a dictionary representing the query to retrieve embeddings for. Defaults to the sample text provided by the `Embedder` class.
     :return: A list of embeddings retrieved from opensearch.
     """
-    if kwds.get('query') is None:
-        kwds['query'] = \
-            Embedder.create_embeddings(Embedder.get_sample_text())[0]['embedding']  # type: ignore
+    if kwds.get("query") is None:
+        kwds["query"] = Embedder.create_embeddings(
+            Embedder.get_sample_text())[0]["embedding"]  # type: ignore
     #: retrieve embeddings from opensearch
     embeddings = EmbedGetter(  # pylint: disable=redefined-outer-name
-        **embedder_kwds or {}
-    ).retrieve_embeddings(**kwds)
+        **embedder_kwds or {}).retrieve_embeddings(**kwds)
     print(embeddings[:5])
     return embeddings
 
 
 if __name__ == "__main__":
-    kwds = dict(query='*', query_type='wildcard')
+    kwds = dict(query="*", query_type="wildcard")
     embeddings = retrieve_embeddings(
         embedder_kwds=dict(require_ssh_tunnel=False), **kwds)
