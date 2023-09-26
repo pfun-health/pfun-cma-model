@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Annotated, Optional, Sequence, Dict
+from typing import Annotated, Optional, Sequence, Dict, Tuple
 from pydantic import BaseModel, field_serializer
 from numpy import ndarray
 import importlib
@@ -51,7 +51,7 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     eps: Optional[float] = 1e-18
     lb: Optional[float | Sequence[float]] = _LB_DEFAULTS
     ub: Optional[float | Sequence[float]] = _UB_DEFAULTS
-    bounded_param_keys: Optional[Sequence[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    bounded_param_keys: Optional[Sequence[str] | Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
     bounds: Optional[Annotated[Dict[str, Sequence[float]], BoundsType()]] = _DEFAULT_BOUNDS
 
     @field_serializer('bounds')

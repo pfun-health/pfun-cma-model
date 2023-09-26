@@ -16,9 +16,9 @@ if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
 CMAFitResult = importlib.import_module(
-    ".fit", package="pfun_cma_model.runtime.chaliceli.engine").CMAFitResult
+    ".fit", package="pfun_cma_model.runtime.chalicelib.engine").CMAFitResult
 fit_model = importlib.import_module(
-    ".fit", package="pfun_cma_model.runtime.chaliceli.engine").fit_model
+    ".fit", package="pfun_cma_model.runtime.chalicelib.engine").fit_model
 
 
 class TestFitModel:

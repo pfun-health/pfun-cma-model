@@ -2,8 +2,8 @@ import concurrent.futures
 import json
 from typing import Sequence
 import os
-from contextlib import redirect_stdout
 import logging
+from pandas import DataFrame, Series
 from typing import Optional
 import tiktoken
 from opensearchpy import OpenSearch, helpers
@@ -21,6 +21,9 @@ import paramiko
 from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from pfun_cma_model.secrets import get_secret_func as get_secret
+from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import Bounds
+from pfun_cma_model.runtime.chalicelib.engine.data_utils import downsample_data, interp_missing_data
+from pfun_cma_model.runtime.chalicelib.engine.calc import normalize
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
@@ -30,21 +33,6 @@ OpenSearchQuery = str | list[str] | dict
 
 #: get tiktoken encoding for text-embedding-ada-002
 encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
-
-
-def normalize(x):
-    """
-    Normalizes the given input array or scalar value.
-
-    Parameters:
-        x (array-like or scalar): The input array or scalar value.
-
-    Returns:
-        array-like or scalar: The normalized array or scalar value.
-    """
-    if not hasattr(x, "min"):
-        x = np.array(x, dtype=float)
-    return (x - x.min()) / (x.max() - x.min())
 
 
 def encode(text: str | Sequence[str],
@@ -95,7 +83,7 @@ class EmbedClient:
         ssh_params: Optional[dict] = None,
         opensearch_params: Optional[dict] = None,
         require_ssh_tunnel: bool = False,
-        **kwds
+        **kwds,
     ) -> "EmbedClient":
         if cls.opensearch_client is None:
             cls.opensearch_client = cls.connect_opensearch(
@@ -234,9 +222,7 @@ class Embedder(EmbedClient):
         if hasattr(cmap.bounds, "json"):
             bds = cmap.bounds.json()  # type: ignore
         else:
-            bds = (
-                cmap.bounds
-            )
+            bds = cmap.bounds
         cdict = cmap.model_dump()
         pspace_func = {
             "linear":
@@ -256,8 +242,18 @@ class Embedder(EmbedClient):
         return param_grid
 
     @classmethod
-    def create_embeddings(cls, text: str | Sequence[str], **kwds):
+    def create_tokenized_embeddings(cls, text: str | Sequence[str], **kwds):
         return encode(text, **kwds)
+
+    @classmethod
+    def create_timeseries_embeddings(cls, df: DataFrame | Series, **kwds):
+        df = downsample_data(df)
+        df = interp_missing_data(df)
+        #: convert embedding to byte integers
+        embedding = df.to_numpy(dtype=float, na_value=0.0).flatten()
+        embedding = normalize(100.0 * embedding, a=-127.0, b=127.0)
+        embedding = embedding.astype("int8")
+        return embedding.tolist()
 
     def save_to_opensearch(self, doc_id, embedding):
         """
@@ -281,11 +277,12 @@ class Embedder(EmbedClient):
             if isinstance(params, str):
                 params = json.loads(params)
             action = {
-                "_op_type": "index",
                 "_index": "embeddings",
                 "_id": doc_id,
-                "embedding": embedding,
-                "cma_params": params
+                "_source": {
+                    "embedding": embedding,
+                    "cma_params": params
+                },
             }
             return action
 
@@ -316,13 +313,14 @@ class Embedder(EmbedClient):
 
         def create_embedding(pset):
             model = CMASleepWakeModel(**pset)
-            soln = model.run()[['t', 'G']]
-            raw_text = json.dumps(soln.to_numpy(dtype=float).tolist())
-            embedding = self.create_embeddings(raw_text)
+            soln = model.run()["G"]
+            #: end up with example 1024 samples
+            embedding = self.create_timeseries_embeddings(soln)
             doc_id = json.dumps(pset)
             return (doc_id, embedding)
 
         futures = []
+        batch_size = min(1000, len(self.param_grid))
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             for pset in self.param_grid:
                 future = executor.submit(create_embedding, pset)
@@ -335,21 +333,17 @@ class Embedder(EmbedClient):
                                       type(e),
                                       exc_info=True)
                 else:
-                    if len(embeddings) < 1000:
+                    if len(embeddings) < batch_size - 1:
                         doc_ids.append(doc_id)
                         embeddings.append(embedding)
                     else:
-                        print("encoding batch...")
-                        encoded_embeddings = encode(embeddings)
-                        print("...done encoding.")
-                        print()
                         print("Saving embeddings to OpenSearch...")
-                        self.save_to_opensearch(doc_ids, encoded_embeddings)
+                        self.save_to_opensearch(doc_ids, embeddings)
+                        print("...Done with: %03d / %03d" %
+                              (len(embeddings), len(self.param_grid)))
                         embeddings = []  # reset embeddings
                         print("...done with batch.")
                         print()
-                    print("...Done with: %03d / %03d" %
-                          (len(embeddings), len(self.param_grid)))
         print()
         print("...done.")
         return {"doc_ids": doc_ids, "embeddings": embeddings}
@@ -495,16 +489,18 @@ def retrieve_embeddings(embedder_kwds: Optional[dict] = None, **kwds):
     :return: A list of embeddings retrieved from opensearch.
     """
     if kwds.get("query") is None:
-        kwds["query"] = Embedder.create_embeddings(
+        kwds["query"] = Embedder.create_tokenized_embeddings(
             Embedder.get_sample_text())[0]["embedding"]  # type: ignore
     #: retrieve embeddings from opensearch
     embeddings = EmbedGetter(  # pylint: disable=redefined-outer-name
         **embedder_kwds or {}).retrieve_embeddings(**kwds)
-    print(embeddings[:5])
+    print("...done retrieving embeddings.")
     return embeddings
 
 
 if __name__ == "__main__":
-    kwds = dict(query="*", query_type="wildcard")
-    embeddings = retrieve_embeddings(
-        embedder_kwds=dict(require_ssh_tunnel=False), **kwds)
+    # kwds = dict(query="*", query_type="wildcard")
+    # embeddings = retrieve_embeddings(
+    #     embedder_kwds=dict(require_ssh_tunnel=False), **kwds)
+    run_embedder(grid_params=dict(num=2, kind="gaussian"),
+                 require_ssh_tunnel=False)

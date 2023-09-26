@@ -6,6 +6,7 @@ from pandas import (
     to_timedelta,
     to_datetime,
     isna,
+    TimedeltaIndex
 )
 from numpy import array, nan, nansum, interp
 import importlib
@@ -94,7 +95,7 @@ def to_tod_hours(ixs):
     )
 
 
-def interp_missing_data(df: DataFrame, cols: list = []):
+def interp_missing_data(df: DataFrame | Series, cols: list = []):
     """
     Interpolates missing data in a DataFrame.
 
@@ -108,9 +109,16 @@ def interp_missing_data(df: DataFrame, cols: list = []):
     #: save the original index
     ix_original = df.index.copy()
     df = df.copy()
+    if isinstance(df, Series):
+        df = df.to_frame()
     if isinstance(df.index, DatetimeIndex):
         df.set_index(
             Series([float(ix.timestamp()) for ix in df.index], dtype=float),
+            inplace=True,
+        )
+    elif isinstance(df.index, TimedeltaIndex):
+        df.set_index(
+            Series([float(dt_to_decimal_secs(ix)) for ix in df.index], dtype=float),
             inplace=True,
         )
     if not isinstance(df.index[0], float):
@@ -125,6 +133,22 @@ def interp_missing_data(df: DataFrame, cols: list = []):
         other_ixs = [ix for ix in df.index if ix not in xvals]
         df.loc[xvals, col] = interp(xvals, other_ixs, df.loc[other_ixs, col])  # type: ignore
     df.set_index(ix_original, inplace=True)
+    return df
+
+
+def downsample_data(df: DataFrame | Series) -> DataFrame | Series:
+    """
+    Downsamples the given DataFrame to obtain 1024 samples.
+
+    Parameters:
+    - df (DataFrame): The DataFrame to be downsampled.
+
+    Returns:
+    - df (DataFrame): The downsampled DataFrame.
+    """
+    #: end up with example 1024 samples
+    freq = Timedelta(hours=(df.index.max() - df.index.min()).total_seconds() / 3600) / 1023
+    df = df.resample(freq).mean()
     return df
 
 
@@ -166,13 +190,10 @@ def format_data(records: Dict | DataFrame,
     df.sort_values(by="time", inplace=True)
     keepers = ["time", "value", "tod", "t", "G"]
     df = df[keepers]
-    #: reindex to have consistent sampling before rounding...
+    #: reindex to have consistent sampling (1024 samples, correspond to bytes)
     df = df.set_index("time", drop=True).sort_index()
-    df = df.resample("30T").mean()
-    df.reset_index(names="time", inplace=True)
-    #: downsample relative to rounded TOD (decimal hours)
-    df["tod"] = df["tod"].apply(lambda d: round(d, 3))
-    df = df.groupby("tod", as_index=False).mean()
+    df = downsample_data(df)
+    df.reset_index(names="time", inplace=True)  # type: ignore
     df = df.set_index("time", drop=True).sort_index()
     #: interpolate missing data
     df = interp_missing_data(df)
