@@ -571,6 +571,8 @@ def retrieve_embeddings(**kwds):
         "fuzzy": FuzzyEmbedGetter,
     }
     klass_ = cls_dict.get(kwds.pop("query_type"))
+    if klass_ is None:
+        raise ValueError(f"Invalid query type: {kwds['query_type']}")
     embeddings = klass_().retrieve_embeddings(**kwds)
     print("...done retrieving embeddings.")
     print(embeddings)
