@@ -1,10 +1,11 @@
 import concurrent.futures
 import json
-from typing import Sequence
+from typing import re, re, Sequence
+import click
+from typing import Optional, List
 import os
 import logging
 from pandas import DataFrame, Series
-from typing import Optional
 import tiktoken
 from opensearchpy import OpenSearch, helpers
 import certifi
@@ -22,7 +23,10 @@ from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelPa
 from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
 from pfun_cma_model.secrets import get_secret_func as get_secret
 from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import Bounds
-from pfun_cma_model.runtime.chalicelib.engine.data_utils import downsample_data, interp_missing_data
+from pfun_cma_model.runtime.chalicelib.engine.data_utils import (
+    downsample_data,
+    interp_missing_data,
+)
 from pfun_cma_model.runtime.chalicelib.engine.calc import normalize
 
 logging.basicConfig(level=logging.WARN)
@@ -357,7 +361,7 @@ class EmbedGetter(EmbedClient):
         cls,
         ssh_params: Optional[dict] = None,
         opensearch_params: Optional[dict] = None,
-        require_ssh_tunnel: bool = True,
+        require_ssh_tunnel: bool = False,
         query: Optional[OpenSearchQuery] = None,
         index_name: str = "embeddings",
     ) -> "EmbedGetter":
@@ -375,13 +379,14 @@ class EmbedGetter(EmbedClient):
             EmbedGetter: A new instance of the EmbedGetter class.
         """
         cls.index_name = index_name
-        cls.query = query
-        return super().__new__(
+        obj = super().__new__(
             cls,
             ssh_params=ssh_params,
             opensearch_params=opensearch_params,
             require_ssh_tunnel=require_ssh_tunnel,
         )  # type: ignore
+        obj.query = query
+        return obj
 
     @classmethod
     def retrieve_embeddings(
@@ -389,99 +394,164 @@ class EmbedGetter(EmbedClient):
         query: Optional[OpenSearchQuery] = None,
         index_name: str = "embeddings",
         query_type: str = "match_all",
+        query_size: int = 1,
         query_params: Optional[dict] = None,
-    ):
+    ) -> List[dict]:
         """
         Retrieve embeddings from opensearch.
 
         Args:
-            query (Optional[OpenSearchQuery], optional): The query to retrieve embeddings. Defaults to None.
+            query (Optional[str], optional): The query to retrieve embeddings. Defaults to None.
             index_name (str, optional): The name of the index. Defaults to 'embeddings'.
             query_type (str, optional): The type of query to use. Defaults to 'match_all'.
+            query_size (int, optional): The size of the query. Defaults to 1.
             query_params (Optional[dict], optional): Additional parameters for search. Defaults to None.
 
         Returns:
-            list: A list of hits containing the retrieved embeddings.
+            List[dict]: A list of hits containing the retrieved embeddings.
         """
-        #: retrieve embeddings from opensearch
         query_params = query_params or {}
-        if len(query_params) == 0 and query_type == "fuzzy":
-            query_params = {"fuzziness": "AUTO"}
-        if query is None:
+        if query == "default":
             query = cls.query
         if index_name is None:
             index_name = cls.index_name
-        if any([query is None, index_name is None]):
-            raise RuntimeError("Must provide query and index name!")
-        if not isinstance(query, (bytes, str)):
-            query = json.dumps(query)
-        query_dict = {"embedding": {"value": query, **query_params}}
-        body = {"query": {f"{query_type}": {**query_dict}}}
-        # differentiate between a regular and similarity search query
-        if query_type == "script_score":
+        if any([index_name is None]):
+            raise RuntimeError("Must provide index name!")
+        if query is not None:
+            if not isinstance(query, (bytes, str)):
+                query = json.dumps(query)
+        query_params.update({"size": query_size})
+        if query is not None:
+            raise NotImplementedError('Not implemented for this class.')
+        if query is None:
             body = {
-                "size": 1,
-                "query": {
-                    "script_score": {
-                        "query": {
-                            "match_all": {}
-                        },
-                        "script": {
-                            "source":
-                            "1.0 + cosineSimilarity(params.query_vector, doc['embedding'])",
-                            "params": {
-                                "query_vector": query
-                            },
-                        },
+                "size": query_size,
+                "sort": [{
+                    "_seq_no": {
+                        "order": "desc"
                     }
-                },
+                }],
+                "_source": ["embedding"],
             }
-        elif query_type == "random":
-            body = {
-                "size": 1,
-                "query": {
-                    "function_score": {
-                        "query": {
-                            "match_all": {}
-                        },
-                        "random_score": {}
-                    }
-                },
-                "_source": "embedding",
-            }
-        elif query_type == "fuzzy":
-            body = {
-                "size": 1,
-                "query": {
-                    "fuzzy": {
-                        "embedding": {
-                            "value": query,
-                            **query_params,
-                        }
-                    }
-                },
-            }
-        else:
-            query_dict = {"embedding": {"value": query, **query_params}}
-            body = {"query": {f"{query_type}": {**query_dict}}}
-
-        print("Query:\n", json.dumps(body, indent=3))
         response = cls.opensearch_client.search(index=index_name, body=body)
         return response["hits"]["hits"]
 
 
+class RandomEmbedGetter(EmbedGetter):
+
+    @classmethod
+    def retrieve_embeddings(
+        cls,
+        index_name: str = "embeddings",
+        query_size: int = 1,
+        **kwds
+    ) -> List[dict]:
+        body = {
+            "size": query_size,
+            "query": {
+                "function_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "random_score": {}
+                }
+            },
+            "_source": "embedding",
+        }
+        response = cls.opensearch_client.search(index=index_name, body=body)
+        return response["hits"]["hits"]
+
+
+class CosineSimilarityEmbedGetter(EmbedGetter):
+
+    @classmethod
+    def retrieve_embeddings(
+        cls,
+        query: OpenSearchQuery | None = None,
+        index_name: str = "embeddings",
+        query_size: int = 1,
+        **kwds
+    ) -> List[dict]:
+        body = {
+            "size": query_size,
+            "query": {
+                "script_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "script": {
+                        "source":
+                        "1.0 + cosineSimilarity(params.query_vector, doc['embedding'])",
+                        "params": {
+                            "query_vector": query
+                        },
+                    },
+                }
+            },
+        }
+        response = cls.opensearch_client.search(index=index_name, body=body)
+        return response["hits"]["hits"]
+
+
+class FuzzyEmbedGetter(EmbedGetter):
+
+    @classmethod
+    def retrieve_embeddings(
+        cls,
+        query: str | None = None,
+        index_name: str = "embeddings",
+        query_size: int = 1,
+        query_params: Optional[dict] = None,
+    ) -> List[dict]:
+        body = {
+            "size": query_size,
+            "query": {
+                "fuzzy": {
+                    "embedding": {
+                        "value": query,
+                        **(query_params or {}),
+                    }
+                }
+            },
+        }
+        response = cls.opensearch_client.search(index=index_name, body=body)
+        return response["hits"]["hits"]
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
 def run_embedder(**kwds):
     """
     Run embedder to create embeddings.
 
     :return: The embeddings created by the embedder.
     """
-    #: run embedder to create embeddings
+    defaults = dict(grid_params=dict(num=8, kind="random"),
+                    require_ssh_tunnel=False)
+    kwds = {**defaults, **kwds}
     embedder = Embedder(**kwds)
     embedder.run()  # type: ignore
 
 
-def retrieve_embeddings(embedder_kwds: Optional[dict] = None, **kwds):
+@cli.command()
+@click.option("--query",
+              default=None,
+              help="The query to retrieve embeddings.")
+@click.option("--index-name",
+              default="embeddings",
+              help="The name of the index.")
+@click.option("--query-type",
+              default="cosine",
+              help="The type of query to use.")
+@click.option("--query-size", default=1, help="The size of the query.")
+@click.option("--query-params",
+              default={'error_trace': True},
+              help="Additional parameters for search.")
+def retrieve_embeddings(**kwds):
     """
     Retrieve embeddings from opensearch.
 
@@ -489,18 +559,23 @@ def retrieve_embeddings(embedder_kwds: Optional[dict] = None, **kwds):
     :return: A list of embeddings retrieved from opensearch.
     """
     if kwds.get("query") is None:
-        kwds["query"] = Embedder.create_tokenized_embeddings(
-            Embedder.get_sample_text())[0]["embedding"]  # type: ignore
+        resp = EmbedGetter().retrieve_embeddings(
+            query=None, query_size=1)[0]
+        print('Default query ID: ', resp["_id"])
+        kwds["query"] = resp["_source"]["embedding"]
     #: retrieve embeddings from opensearch
-    embeddings = EmbedGetter(  # pylint: disable=redefined-outer-name
-        **embedder_kwds or {}).retrieve_embeddings(**kwds)
+    cls_dict = {
+        "match_all": EmbedGetter,
+        "random": RandomEmbedGetter,
+        "cosine": CosineSimilarityEmbedGetter,
+        "fuzzy": FuzzyEmbedGetter,
+    }
+    klass_ = cls_dict.get(kwds.pop("query_type"))
+    embeddings = klass_().retrieve_embeddings(**kwds)
     print("...done retrieving embeddings.")
+    print(embeddings)
     return embeddings
 
 
 if __name__ == "__main__":
-    # kwds = dict(query="*", query_type="wildcard")
-    # embeddings = retrieve_embeddings(
-    #     embedder_kwds=dict(require_ssh_tunnel=False), **kwds)
-    run_embedder(grid_params=dict(num=2, kind="gaussian"),
-                 require_ssh_tunnel=False)
+    cli()
