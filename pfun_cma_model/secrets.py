@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError, ProfileNotFound
 from pfun_cma_model.sessions import PFunCMASession
 import logging
 from typing import AnyStr
-import uuid
+import boto3
 
 logging.basicConfig(encoding="utf-8", level=logging.WARN)
 logger = logging.getLogger()
@@ -31,16 +31,15 @@ def get_secret_func(
 
     # Create a Secrets Manager client
     try:
-        session = PFunCMASession.get_boto3_session(
-            profile_name=profile, region=region)
+        session = PFunCMASession.get_boto3_session(profile_name=profile,
+                                                   region=region)
     except ProfileNotFound:  # handle non-existant profile
         logger.warning(
             "AWS profile %s not found, attempting session without a profile.",
-            profile
-        )
+            profile)
         session = PFunCMASession.get_boto3_session()
     finally:
-        client = session.client(
+        client = session.client(  # pylint: disable=used-before-assignment
             service_name="secretsmanager",
             region_name=region,
         )
@@ -72,15 +71,15 @@ def get_secret(
     profile="robbie",
     verbosity=logging.WARN,
 ):
-    return get_secret_func(
-        secret_name, region=region,
-        profile=profile, verbosity=verbosity)
+    return get_secret_func(secret_name,
+                           region=region,
+                           profile=profile,
+                           verbosity=verbosity)
 
 
 def put_secret_func(
     secret_name: AnyStr,
     secret_value: AnyStr,
-    secret_node="secrets.pfun.app",
     region="us-west-1",
     profile="robbie",
     verbosity=logging.WARN,
@@ -91,28 +90,24 @@ def put_secret_func(
 
     # Create a Secrets Manager client
     try:
-        session = boto3.session.Session(
-            profile_name=profile, region=region)
+        session = boto3.Session(profile_name=profile, region_name=region)
     except ProfileNotFound:  # handle non-existant profile
         logger.warning(
             f"AWS profile {profile} not found, attempting session without a profile."
         )
-        session = boto3.session.Session()
+        session = boto3.Session()
     finally:
-        client = session.client(
+        client = session.client(  # pylint: disable=used-before-assignment
             service_name="secretsmanager",
-            region=region,
+            region_name=region,
         )
 
     try:
-        client.put_secret_value(
-            SecretId=secret_name, SecretString=secret_value
-        )
+        client.put_secret_value(SecretId=secret_name,
+                                SecretString=secret_value)
     except Exception as e:
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         logging.warn(e, exc_info=True)
-        client.create_secret(
-            Name=secret_name, SecretString=secret_value
-        )
+        client.create_secret(Name=secret_name, SecretString=secret_value)
     return

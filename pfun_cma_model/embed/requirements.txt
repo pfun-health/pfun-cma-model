@@ -1,5 +1,0 @@
-chalice
-tiktoken
-numpy
-opensearch-py
-

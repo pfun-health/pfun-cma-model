@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 build = "^0.10.0"
+minpack = { version = "*", source = "https://github.com/rocapp/minpack/releases/download/" }
 
 
 [build-system]

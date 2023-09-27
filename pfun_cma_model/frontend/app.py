@@ -374,7 +374,6 @@ def translate_model_results_by_language():
     return Response(body=translation_dict[from_lang][to_lang](results), status_code=200)
 
 
-
 DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations",
                          "devices", "events"]
 
