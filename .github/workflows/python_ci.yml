@@ -34,7 +34,7 @@ jobs:
     - name: Install dependencies
       run: |
         curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-        micromamba install poetry -c conda-forge
+        bin/micromamba install poetry -c conda-forge
 
     - name: Build package
       run: poetry build
