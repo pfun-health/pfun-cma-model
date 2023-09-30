@@ -1,6 +1,7 @@
 import concurrent.futures
 import json
-from typing import re, re, Sequence
+import subprocess
+from typing import Sequence
 import click
 from typing import Optional, List
 import os
@@ -37,6 +38,11 @@ OpenSearchQuery = str | list[str] | dict
 
 #: get tiktoken encoding for text-embedding-ada-002
 encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
+
+
+def get_opensearch_host():
+    return subprocess.check_output(
+        "kubectl get endpoints/opensearch-deployment-master-hl --output json | jq '.subsets[0].addresses[0].ip'", shell=True).decode("utf-8").strip().replace('"', '')
 
 
 def encode(text: str | Sequence[str],
@@ -127,8 +133,11 @@ class EmbedClient:
         server_config = dict(server_config_default, **kwds)
 
         # tunnel config
-        tunnel_config_default = dict(remote_host="10.1.78.132",
-                                     local_port=9201,
+        remote_host = kwds.get('remote_host')
+        if remote_host is None:
+            remote_host = get_opensearch_host()
+        tunnel_config_default = dict(remote_host=remote_host,
+                                     local_port=9200,
                                      remote_port=9200)
         tunnel_config = dict(tunnel_config_default, **kwds)
 
@@ -159,11 +168,15 @@ class EmbedClient:
     @classmethod
     def connect_opensearch(
         cls,
-        host: str = "node-0.example.com",
-        port: int = 9201,
+        host: Optional[str] = None,
+        port: int = 9200,
         username: str = "admin",
-        password: str = "admin",
+        password: Optional[str] = None,
     ):
+        if password is None:
+            password = subprocess.check_output('pass show opensearch/admin', shell=True).decode("utf-8").strip()
+        if host is None:
+            host = get_opensearch_host()
         auth = (
             username,
             password,
