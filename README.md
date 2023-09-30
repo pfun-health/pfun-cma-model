@@ -1,6 +1,6 @@
 # pfun-cma-model
 
-*CMA model microservice repo.*
+*CMA model microservices repo.*
 
 ## Environment Setup
 
