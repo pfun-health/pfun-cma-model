@@ -1,5 +1,6 @@
 jobs:
   ci:
+    on: push
     strategy:
       matrix:
         python-version: ['3.10']
