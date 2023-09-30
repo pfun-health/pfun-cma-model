@@ -31,13 +31,15 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install poetry
       run: |
-        curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-        bin/micromamba install poetry -c conda-forge
+        pip install poetry flake8
 
     - name: Build package
       run: poetry build
+
+    - name: Install package
+      run: poetry install
 
     - name: Run tests
       run: |
