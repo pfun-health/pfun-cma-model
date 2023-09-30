@@ -4,6 +4,9 @@ channels:
 - nodefaults
 dependencies:
   - mamba
+  - micromamba
+  - paramiko
   - pip
   - pip:
       - "poetry>=1.2"
+      - pfun_path_helper

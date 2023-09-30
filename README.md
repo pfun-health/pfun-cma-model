@@ -39,7 +39,9 @@ poetry init --python=~3.10 # version spec should match the one from environment.
 
 # Fix package versions installed by Conda to prevent upgrades
 
-poetry add --lock ...
+# perhaps not needed:
+
+# poetry add --lock ...
 
 # Add conda-lock (and other packages, as needed) to pyproject.toml and poetry.lock
 
@@ -79,11 +81,15 @@ conda activate pfun-cma-model
 #### Updating the environment
 
 ```bash
+# Update Conda packages based on environment.yml
+
+conda env update
+
 # Re-generate Conda lock file(s) based on environment.yml
-conda-lock -k explicit --conda mamba
+conda-lock --conda mamba
 
 # Update Conda packages based on re-generated lock file
-mamba update --file conda-linux-64.lock
+mamba update --file conda.lock
 
 # Update Poetry packages and re-generate poetry.lock
 poetry update
