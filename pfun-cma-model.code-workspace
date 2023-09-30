@@ -2,12 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../pfun-endo-frontend-wireframe"
-		},
-		{
-			"path": "../pfun_path_helper"
 		}
 	],
 	"tasks": {
