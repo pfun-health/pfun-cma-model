@@ -18,7 +18,7 @@ boto3 = "^1.28.57"
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
-pytest = "^7.4.2"
+pytest = "^6.0"
 
 [build-system]
 requires = ["poetry-core"]
