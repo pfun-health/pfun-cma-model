@@ -7,6 +7,8 @@ dependencies:
   - micromamba
   - paramiko
   - pip
+  - boto3
   - pip:
+      - pydantic==2.4.2
       - "poetry>=1.2"
       - pfun_path_helper
