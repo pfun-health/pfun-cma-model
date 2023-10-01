@@ -2,25 +2,25 @@ provider "local" {}
 
 variable "z38s_ip" {
   description = "IP address of z38s (your desktop)"
-  default     = "192.168.1.2"
+  default     = "192.168.1.64"
 }
 
 variable "d2bd_ip" {
   description = "IP address of d2bd (your local build server)"
-  default     = "192.168.1.3"
+  default     = "192.168.1.158"
 }
 
 resource "local_file" "Dockerfile" {
   content = <<-EOF
     # Use an official Python runtime as a parent image
-    FROM python:3.8-slim as builder
+    FROM python:3.10-slim as builder
 
     # Install any needed packages specified in requirements.txt
     COPY requirements.txt /requirements.txt
     RUN pip install --no-cache-dir -r /requirements.txt
 
     # Use a smaller base image
-    FROM python:3.8-alpine
+    FROM python:3.10-alpine
 
     # Copy installed packages from builder
     COPY --from=builder /usr/local /usr/local
@@ -82,12 +82,18 @@ resource "null_resource" "build_project" {
 resource "null_resource" "test_local_z38s" {
   depends_on = [null_resource.build_project]
 
-  provisioner "local-exec" {
+  provisioner "remote-exec" {
     inline = [
       "cd /home/robertc/Git/pfun-cma-model",
       "docker-compose up -d",
       "poetry run pytest tests/"
     ]
+    connection {
+      type        = "ssh"
+      host        = var.d2bd_ip
+      user        = "your_username"
+      private_key = file("~/.ssh/id_rsa")
+    }
   }
 
   triggers = {

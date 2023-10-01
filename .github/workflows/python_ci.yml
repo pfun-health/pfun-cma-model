@@ -1,4 +1,6 @@
 name: Python Poetry CI
+permissions:
+  contents: read
 on: push
 jobs:
   ci:

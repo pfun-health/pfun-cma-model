@@ -1,0 +1,57 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+permissions:
+    contents: read  # Only read permissions
+jobs:
+  build_and_deploy_local:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    # Build and Test on Local Cluster (z38s and d2bd)
+    - name: Terraform Init and Apply for Local Build
+      run: |
+        cd ${{ github.workspace }}
+        terraform init
+        terraform workspace select local || terraform workspace new local
+        terraform apply -auto-approve -var-file=build-local.tfvars build-local.tf
+
+    # Deploy to Local Kubernetes Cluster
+    - name: Terraform Init and Apply for Local Kubernetes
+      run: |
+        cd ${{ github.workspace }}
+        terraform init
+        terraform workspace select local || terraform workspace new local
+        terraform apply -auto-approve -var-file=deploy-local-k8s.tfvars deploy-local-k8s.tf
+
+  deploy_to_eks:
+    if: startsWith(github.ref, 'refs/tags/release-')  # Only run this job when a tag is pushed
+    runs-on: ubuntu-latest
+    needs: build_and_deploy_local  # This makes it dependent on the local k8s deployment
+    permissions:
+      contents: read
+      deployments: write  # Write permissions only for deployments
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    # Deploy to EKS Cluster
+    - name: Terraform Init and Apply for EKS
+      run: |
+        cd ${{ github.workspace }}
+        terraform init
+        terraform workspace select eks || terraform workspace new eks
+        terraform apply -auto-approve -var-file=deploy-to-eks.tfvars deploy-to-eks.tf
