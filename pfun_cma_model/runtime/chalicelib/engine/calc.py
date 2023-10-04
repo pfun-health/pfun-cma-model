@@ -1,8 +1,10 @@
 """Numba-optimized calculations.
 """
-from numpy import array, nan, power, clip
 from numpy import exp as np_exp
 from numpy import (
+    clip,
+    nan,
+    power,
     array,
     ndarray,
     log,

@@ -17,7 +17,6 @@ from numpy import (
     array,
     ndarray,
     nansum,
-    log,
     power,
     cos,
     pi,

@@ -2,12 +2,12 @@ provider "local" {}
 
 variable "z38s_ip" {
   description = "IP address of z38s (your desktop)"
-  default     = "192.168.1.64"
+  default     = "192.168.2.64"
 }
 
 variable "d2bd_ip" {
   description = "IP address of d2bd (your local build server)"
-  default     = "192.168.1.158"
+  default     = "192.168.2.158"
 }
 
 resource "local_file" "Dockerfile" {
@@ -15,9 +15,9 @@ resource "local_file" "Dockerfile" {
     # Use an official Python runtime as a parent image
     FROM python:3.10-slim as builder
 
-    # Install any needed packages specified in requirements.txt
-    COPY requirements.txt /requirements.txt
-    RUN pip install --no-cache-dir -r /requirements.txt
+    # Install any needed packages
+    COPY pyproject.toml /pyproject.toml
+    RUN pip install poetry && poetry install
 
     # Use a smaller base image
     FROM python:3.10-alpine
@@ -30,7 +30,7 @@ resource "local_file" "Dockerfile" {
     WORKDIR /app
 
     # Run your application
-    CMD ["python", "your_app.py"]
+    CMD ["python", "app.py"]
   EOF
 
   filename = "${path.module}/Dockerfile"
