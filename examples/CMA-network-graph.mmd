@@ -1,0 +1,20 @@
+graph TB
+  HPA["Hypothalamic-Pituitary-Adrenal axis"] -- "Encompasses" 
+    --> C["Cortisol"]
+    --> M["Melatonin"]
+    --> A["Adiponectin"]
+  C -- "Connects to" --> M["Melatonin"]
+  C -- "Connects to" --> A["Adiponectin"]
+  M -- "Opposite Cycle" --> C
+  A -- "Regulates Metabolism of Proteins & Fatty Acids" --> C
+  C -- "Stress Response" --> Insulin["Insulin"]
+  C -- "Stress Response" --> Glucagon["Glucagon"]
+  Insulin -- "Reduces BG" --> BGcirc["Blood Glucose Circadian"]
+  Glucagon -- "Raises BG" --> BGcirc
+  BGcirc -- "24-hour Period" --> BGultds["Blood Glucose Ultradian Descent"]
+  BGultds -- "Faster Descent" --> BGultt1["Blood Glucose Ultradian Time +1"]
+  BGultt1 -- "Subsequent Rise" --> BGcirc
+  C -- "Stress Response" --> Ghrelin["Ghrelin"]
+  C -- "Stress Response" --> Leptin["Leptin"]
+  Ghrelin -- "Stimulates Appetite" --> C
+  Leptin -- "Decreases Appetite" --> C

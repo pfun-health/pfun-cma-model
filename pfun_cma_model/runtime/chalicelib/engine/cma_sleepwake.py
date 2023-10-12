@@ -49,7 +49,6 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
-    from pfun_cma_model.decorators import check_is_numpy
     from pfun_cma_model.runtime.chalicelib.engine.calc import (
         exp,
         Light,
@@ -59,12 +58,8 @@ try:
     from pfun_cma_model.runtime.chalicelib.engine.bounds import Bounds
     from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
 except ModuleNotFoundError:
-    check_is_numpy = importlib.import_module(
-        ".decorators", package="pfun_cma_model").check_is_numpy
     exp = importlib.import_module(
         ".calc", package="pfun_cma_model.runtime.chalicelib.engine").exp
-    dt_to_decimal_hours = importlib.import_module(
-        ".data_utils", package="pfun_cma_model.runtime.chalicelib.engine").dt_to_decimal_hours
     Bounds = importlib.import_module(
         ".bounds", package="pfun_cma_model.runtime.chalicelib.engine").Bounds
     CMAModelParams = importlib.import_module(

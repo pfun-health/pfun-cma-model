@@ -26,17 +26,17 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     Represents the parameters for a CMA model.
 
     Args:
-        t (Optional[type], optional): The value of t. Defaults to None.
-        N (int, optional): The value of N. Defaults to 24.
-        d (float, optional): The value of d. Defaults to 0.0.
-        taup (float, optional): The value of taup. Defaults to 1.0.
-        taug (float, optional): The value of taug. Defaults to 1.0.
-        B (float, optional): The value of B. Defaults to 0.05.
-        Cm (float, optional): The value of Cm. Defaults to 0.0.
-        toff (float, optional): The value of toff. Defaults to 0.0.
-        tM (Tuple[float, float, float], optional): The value of tM. Defaults to (7.0, 11.0, 17.5).
-        seed (Optional[int], optional): The value of seed. Defaults to None.
-        eps (float, optional): The value of eps. Defaults to 1e-18.
+        t (Optional[array_like], optional): Time vector (decimal hours). Defaults to None.
+        N (int, optional): Number of time points. Defaults to 24.
+        d (float, optional): Time zone offset (hours). Defaults to 0.0.
+        taup (float, optional): Circadian-relative photoperiod length. Defaults to 1.0.
+        taug (float, optional): Glucose response time constant. Defaults to 1.0.
+        B (float, optional): Glucose Bias constant. Defaults to 0.05.
+        Cm (float, optional): Cortisol temporal sensitivity coefficient. Defaults to 0.0.
+        toff (float, optional): Solar noon offset (latitude). Defaults to 0.0.
+        tM (Tuple[float, float, float], optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+        seed (Optional[int], optional): Random seed. Defaults to None.
+        eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
     t: Optional[float | Sequence[float] | ndarray] = None
     N: int | None = 24
