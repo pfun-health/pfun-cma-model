@@ -4,7 +4,6 @@ from typing import (
 from botocore.config import Config as ConfigCore
 import boto3
 from botocore.exceptions import ClientError
-from threading import Lock
 
 
 class PFunCMASession:
@@ -17,13 +16,12 @@ class PFunCMASession:
 
     @classmethod
     def get_boto3_session(cls, **kwds):
-        with Lock():
-            if cls.BOTO3_SESSION is not None and len(kwds) == 0:
-                return cls.BOTO3_SESSION
-            else:
-                if 'region' in kwds:
-                    kwds['region_name'] = kwds.pop('region')
-                cls.BOTO3_SESSION = boto3.Session(**kwds)
+        if cls.BOTO3_SESSION is not None and len(kwds) == 0:
+            return cls.BOTO3_SESSION
+        else:
+            if 'region' in kwds:
+                kwds['region_name'] = kwds.pop('region')
+            cls.BOTO3_SESSION = boto3.Session(**kwds)
         return cls.BOTO3_SESSION
 
     @classmethod
@@ -40,9 +38,8 @@ class PFunCMASession:
         Returns:
             boto3.client: The newly created Boto3 client for the specified AWS service.
         """
-        with Lock():
-            config = ConfigCore(region_name='us-east-1')
-            if session is None:
-                session = cls.get_boto3_session()
-            client = session.client(service_name, *args, config=config, **kwds)
+        config = ConfigCore(region_name='us-east-1')
+        if session is None:
+            session = cls.get_boto3_session()
+        client = session.client(service_name, *args, config=config, **kwds)
         return client

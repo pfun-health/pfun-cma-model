@@ -25,6 +25,12 @@ kubernetes = "^28.1.0"
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
 pytest = "^6.0"
+ipykernel = "^6.25.2"
+ipython = "^8.16.1"
+meson = "^1.2.2"
+
+[tool.poetry.scripts]
+build-minpack = "pfun_cma_model.runtime.scripts.build_minpack:main"
 
 [build-system]
 requires = ["poetry-core"]

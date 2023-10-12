@@ -1,0 +1,1 @@
+https://github.com/fortran-lang/minpack/archive/refs/heads/main.zip#egg=minpack&subdirectory=python

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ${HOME}/Git/pfun-cma-model/.envrc
-
 unset AWS_ENDPOINT_URL
 proxy_secret=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapid-api-proxy-secret --region us-east-1 | jq -r '.SecretString')
 api_key=$(aws secretsmanager get-secret-value --secret-id pfun-cma-model-rapidapi-key --region us-east-1 | jq -r '.SecretString')
