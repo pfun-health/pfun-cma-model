@@ -1,10 +1,10 @@
-from minpack import lmdif
 import pandas as pd
 from typing import Any, Dict, Iterable, Container
 import numpy as np
 from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
 import importlib
 import sys
+import os
 from pathlib import Path
 import logging
 
@@ -19,11 +19,26 @@ if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
 CMASleepWakeModel = importlib.import_module(
-    ".cma_sleepwake", package="chalicelib.engine").CMASleepWakeModel
+    ".cma_sleepwake", package="pfun_cma_model.runtime.chalicelib.engine").CMASleepWakeModel
 dt_to_decimal_hours = importlib.import_module(
-    ".data_utils", package="chalicelib.engine").dt_to_decimal_hours
+    ".data_utils", package="pfun_cma_model.runtime.chalicelib.engine").dt_to_decimal_hours
 format_data = importlib.import_module(".data_utils",
-                                      package="chalicelib.engine").format_data
+                                      package="pfun_cma_model.runtime.chalicelib.engine").format_data
+
+try:
+    lmdif = importlib.import_module(
+        'minpack'
+    ).lmdif
+except ImportError:
+    try:
+        import ctypes
+        libpath = os.path.expanduser('~/.local/lib')
+        ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libminpack.so'))
+        lmdif = importlib.import_module(
+            'minpack'
+        ).lmdif
+    except Exception:
+        logger.warning("Failed to load minpack library.", exc_info=True)
 
 
 class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
