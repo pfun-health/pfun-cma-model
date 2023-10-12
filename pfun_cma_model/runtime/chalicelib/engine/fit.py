@@ -390,13 +390,14 @@ def fit_model(
         #: ! ensure we update using a scalar
         p0[cma.bounded_param_keys.index("taug")] = 1.0
     bounds = cma.bounds
-    popt, pcov, infodict, mesg, ier = curve_fit(fun,
+    popt_internal, pcov, infodict, mesg, ier = curve_fit(fun,
                                                 xdata,
                                                 ydata,
                                                 p0=p0,
                                                 bounds=bounds,
                                                 full_output=True,
                                                 **curve_fit_kwds)
+    popt = np.array([cma.params[k] for k in pkeys_include])
 
     #: informed model (best fit)
     p0_cma = dict(zip(pkeys_include, popt, strict=True))

@@ -47,14 +47,14 @@ poetry update
 
 ### Example Fitted Parameters
 
-| Parameter | Value         |
-| --------- | ------------- |
-| d         | -2.144894e-01 |
-| taup      | 4.671609e+00  |
-| taug      | 1.097094e+00  |
-| B         | 1.288179e-01  |
-| Cm        | -1.567360e+06 |
-| toff      | 0.000000e+00  |
+| Parameter | Value         | Example Description (Human provided)                                           |
+| --------- | ------------- | ------------------------------------------------------------------------------ |
+| d         | -2.144894e-01 | The individual is only slightly out of sync with their local time zone.        |
+| taup      | 4.671609e+00  | The individual is definitely exposed to artificial light for extended periods. |
+| taug      | 1.097094e+00  | The individual's glucose response is within a normal range.                    |
+| B         | 1.288179e-01  | The individual has a bias towards higher glucose levels.                       |
+| Cm        | 0.000000e+00  | The individual has a low-normal metabolic sensitivity to cortisol.             |
+| toff      | 0.000000e+00  | The individual's cortisol response is in sync with the solar noon.             |
 
 ### Example ChatGPT Output
 
