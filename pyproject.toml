@@ -20,7 +20,8 @@ paramiko = "^3.3.1"
 pfun_path_helper = "^0.0.2"
 boto3 = "^1.28.57"
 botocore = "^1.31.57"
-kubernetes = "^28.1.0"
+jinja2 = "^3.1.2"
+fastapi = "^0.103.2"
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"

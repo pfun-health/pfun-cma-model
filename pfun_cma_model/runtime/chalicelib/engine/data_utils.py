@@ -8,7 +8,8 @@ from pandas import (
     isna,
     TimedeltaIndex
 )
-from numpy import array, nan, nansum, interp
+from numpy import array, nan, nansum, interp, ndarray
+from numba import njit
 import importlib
 import sys
 from pathlib import Path
@@ -22,6 +23,10 @@ if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 normalize_glucose = importlib.import_module(
     ".calc", package="chalicelib.engine").normalize_glucose
+
+use_fastmath_global = False
+njit_parallel = njit(cache=True, nogil=True, fastmath=use_fastmath_global, parallel=True)
+njit_serial = njit(cache=True, nogil=True, fastmath=use_fastmath_global)
 
 
 def reindex_as_data(mdf, dindex, dt):
@@ -93,6 +98,29 @@ def to_tod_hours(ixs):
         ],
         dtype=float,
     )
+
+
+@njit_serial
+def _diff_tod_hours(tod0, tod1):
+    return (12.0 - abs(abs(tod0 - tod1) - 12.0))
+
+
+def diff_tod_hours(tod0, tod1):
+    """compute the absolute 'clock distance' between two time-of-day (decimal hours) arrays.
+    """
+    def _pre_conv(tod):
+        if isinstance(tod, ndarray):
+            return tod
+        elif isinstance(tod, Series):
+            tod = tod.to_numpy(dtype=float, na_value=nan)
+        elif any([isinstance(tod, float), isinstance(tod, int)]):
+            tod = float(tod)
+        elif isinstance(tod, list):
+            tod = array(tod, dtype=float)
+        return tod
+    tod0, tod1 = _pre_conv(tod0), _pre_conv(tod1)
+    tod_diff = _diff_tod_hours(tod0, tod1)
+    return tod_diff
 
 
 def interp_missing_data(df: DataFrame | Series, cols: list = []):
