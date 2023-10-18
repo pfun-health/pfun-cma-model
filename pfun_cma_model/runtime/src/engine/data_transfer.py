@@ -30,7 +30,7 @@ def main():
     gpu_data = handler.to_device_async(cpu_data)
 
     # Assuming `calc_vdep_current_cuda` is your CUDA kernel
-    from pfun_cma_model.runtime.chalicelib.engine.calc_gpu import calc_vdep_current_cuda
+    from pfun_cma_model.runtime.src.engine.calc_gpu import calc_vdep_current_cuda
     handler.execute_function(calc_vdep_current_cuda, gpu_data, ...)
 
     # Transfer result back to CPU

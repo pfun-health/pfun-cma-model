@@ -1,14 +1,21 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from pfun_cma_model.runtime.chalicelib.engine.cma_posthoc import RecsSummaryModel
-from fastapi.templating import Jinja2Templates
 import os
 
+from fastapi.templating import Jinja2Templates
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import pfun_path_helper
+from pfun_path_helper import get_lib_path
+
+from pfun_cma_model.runtime.src.engine.cma_posthoc import RecsSummaryModel
+
+root_path = get_lib_path()
+
 #: load templates
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"),
+templates_path = os.path.join(root_path, "frontend", "templates")
+templates = Jinja2Templates(directory=templates_path,
                             autoescape=False, auto_reload=True, enable_async=False)
 
 
-def create_prompt(model_result):
+def generate_recs_summary(model_result):
     recs_summary = RecsSummaryModel(model_result=model_result)
     stats = model_result.stats.dict()
     stats["min_bg_value"] = model_result.formatted_data["value"].min()
@@ -20,10 +27,6 @@ def create_prompt(model_result):
             rendered_out = templates.env.from_string(
                 template_str).render(stats=stats)
             recs_summary[strweak][textpart] = rendered_out
-    if bool(int(raw)) is False:
-        context = dict(request=request, recs=None,
-                       summary=recs_summary, stats=stats)
-        return templates.TemplateResponse("recs_summary.html.jinja2", context)
     else:
         content = dict(recs_summary)
         content.pop("model_result")
@@ -46,7 +49,11 @@ def create_prompt(model_result):
                     strength.pop(key)
             ssout.append(strength)
         content["strengths"] = ssout    
-    return prompt
+    return content
+
+
+def create_prompt(summary_content):
+    
 
 class PFunLanguageModel:
     def __init__(self):
@@ -63,4 +70,3 @@ class PFunLanguageModel:
         recommendations = self.tokenizer.decode(
             output[:, input_ids.shape[-1]:][0], skip_special_tokens=True)
         return recommendations
-    

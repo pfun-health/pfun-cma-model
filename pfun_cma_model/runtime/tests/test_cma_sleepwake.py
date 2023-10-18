@@ -13,9 +13,9 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
-    from pfun_cma_model.runtime.chalicelib.engine.bounds import BoundsTypeError
-    from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    from pfun_cma_model.runtime.chalicelib.engine.bounds import Bounds
+    from pfun_cma_model.runtime.src.engine.bounds import BoundsTypeError
+    from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
+    from pfun_cma_model.runtime.src.engine.bounds import Bounds
 except ModuleNotFoundError:
     import importlib
     BoundsTypeError = importlib.import_module(

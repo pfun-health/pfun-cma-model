@@ -10,7 +10,7 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
-from pfun_cma_model.runtime.chalicelib.engine.data_utils import format_data
+from pfun_cma_model.runtime.src.engine.data_utils import format_data
 
 
 import pytest

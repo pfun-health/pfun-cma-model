@@ -49,14 +49,14 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 try:
-    from pfun_cma_model.runtime.chalicelib.engine.calc import (
+    from pfun_cma_model.runtime.src.engine.calc import (
         exp,
         Light,
         E,
         vectorized_G
     )
-    from pfun_cma_model.runtime.chalicelib.engine.bounds import Bounds
-    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.src.engine.bounds import Bounds
+    from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
 except ModuleNotFoundError:
     exp = importlib.import_module(
         ".calc", package="pfun_cma_model.runtime.chalicelib.engine").exp

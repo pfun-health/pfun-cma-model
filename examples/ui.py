@@ -4,7 +4,7 @@ import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
-from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import (
+from pfun_cma_model.runtime.src.engine.cma_sleepwake import (
     CMAModelParams,
     CMASleepWakeModel,
 )

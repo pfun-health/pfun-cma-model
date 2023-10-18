@@ -1,7 +1,7 @@
 import click
 import json
 from sklearn.model_selection import ParameterGrid
-from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
 
 
 @click.group()

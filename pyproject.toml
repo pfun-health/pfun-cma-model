@@ -29,6 +29,7 @@ pytest = "^6.0"
 ipykernel = "^6.25.2"
 ipython = "^8.16.1"
 meson = "^1.2.2"
+zappa = "^0.58.0"
 
 [tool.poetry.scripts]
 build-minpack = "pfun_cma_model.runtime.scripts.build_minpack:main"

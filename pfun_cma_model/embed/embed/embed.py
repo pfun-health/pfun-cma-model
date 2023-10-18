@@ -20,15 +20,15 @@ path_helper.append_path(
         os.path.join(os.path.dirname(os.path.abspath(__file__)),
                      "../../..")))  # type: ignore
 import paramiko
-from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
-from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
+from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
+from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
 from pfun_cma_model.secrets import get_secret_func as get_secret
-from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import Bounds
-from pfun_cma_model.runtime.chalicelib.engine.data_utils import (
+from pfun_cma_model.runtime.src.engine.cma_model_params import Bounds
+from pfun_cma_model.runtime.src.engine.data_utils import (
     downsample_data,
     interp_missing_data,
 )
-from pfun_cma_model.runtime.chalicelib.engine.calc import normalize
+from pfun_cma_model.runtime.src.engine.calc import normalize
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)

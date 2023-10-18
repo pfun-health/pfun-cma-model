@@ -100,14 +100,14 @@ def dummy_route():
 
 @app.route('/params/schema', methods=['GET'])
 def params_schema():
-    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return params.model_json_schema()
 
 
 @app.route('/params/default', methods=['GET'])
 def default_params():
-    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return params.model_dump_json()
 
@@ -166,8 +166,8 @@ def initialize_model():
     global CMA_MODEL_INSTANCE
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
-    from pfun_cma_model.runtime.chalicelib.engine.cma_sleepwake import CMASleepWakeModel
-    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
+    from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
     model_config = get_model_config(app)
     if model_config is None:
         model_config = {}
@@ -229,7 +229,7 @@ def run_at_time_func(app: Chalice) -> str:
     model_config = get_model_config(app)
     calc_params = get_params(app, 'calc_params')
     # pylint-disable=import-outside-toplevel
-    from pfun_cma_model.runtime.chalicelib.engine.cma_model_params import CMAModelParams
+    from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
     from pandas import DataFrame
     logger.info('model_config: %s', json.dumps(model_config))
     logger.info('calc_params: %s', json.dumps(calc_params))
@@ -267,7 +267,7 @@ def run_at_time_route():
 
 @app.route('/fit', methods=['POST'])
 def fit_model_to_data():
-    from pfun_cma_model.runtime.chalicelib.engine.fit import fit_model as cma_fit_model
+    from pfun_cma_model.runtime.src.engine.fit import fit_model as cma_fit_model
     from pandas import DataFrame
     data = get_params(app, 'data')
     if data is None:

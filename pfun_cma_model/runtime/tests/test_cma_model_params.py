@@ -12,7 +12,7 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
-from chalicelib.engine.cma_model_params import CMAModelParams
+from src.engine.cma_model_params import CMAModelParams
 
 
 class TestCMAModelParams:
