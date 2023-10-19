@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import lru_cache
 from jinja2 import Template
 from typing import Dict, Optional
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -39,9 +40,20 @@ class PromptContext(Jinja2Context):
 
 
 class PFunLanguageModel:
-    def __init__(self):
+    def __init__(self, prompt_context: PromptContext):
         self.tokenizer = AutoTokenizer.from_pretrained("stanford-crfm/BioMedLM")
         self.model = AutoModelForCausalLM.from_pretrained("stanford-crfm/BioMedLM")
+        self.prompt_context = prompt_context
+        self.llm_response = None
+
+    @lru_cache(maxsize=128)
+    def get_llm_response(self, prompt_context: Optional[PromptContext] = None):
+        if prompt_context is None:
+            prompt_context = self.prompt_context
+        if not self.llm_response or self.prompt_context != prompt_context:
+            self.prompt_context = prompt_context
+            self.llm_response = self.generate_recommendations()
+        return self.llm_response
 
     def create_embedding(self, prompt: str) -> str:
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt")
@@ -49,8 +61,8 @@ class PFunLanguageModel:
 
     def generate_recommendations(self, prompt: Optional[str] = None,
                                  input_ids: Optional[str] = None) -> str:
-        if all([x is None for x in [prompt, input_ids]]):
-            raise ValueError("Both prompt and input_ids cannot be None")
+        if prompt is None:
+            prompt = self.prompt_context.prompt
         if input_ids is None:
             input_ids = self.create_embedding(prompt)
         output = self.model.generate(input_ids, max_length=150)

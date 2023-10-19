@@ -24,6 +24,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from jinja2 import Template
 from pydantic import BaseModel, Field, root_validator, validator
 from pydantic.json import timedelta_isoformat
 
@@ -272,11 +273,17 @@ class ModelResultSafe(ModelResult, BaseModel):
         return values
 
 
+from typing import Union
+
 RecommendationEndpoints = Literal["summary"]
 QualityNames = Literal["great", "decent", "improve", "poor"]
 QualityTitles = Literal["Great", "Decent", "Not Good", "Poor"]
-QualityColors = Literal["success", "primary", "warning", "danger"]
-QualityRanges = Literal[(8, 10), (5, 7), (3, 4), (1, 2)]
+QualityColors = Union[
+    Literal["success"], Literal["primary"], Literal["warning"], Literal["danger"]
+]
+QualityRanges = Union[
+    Literal[(8, 10)], Literal[(5, 7)], Literal[(3, 4)], Literal[(1, 2)]
+]
 
 
 def _create_cmi_membermap():
@@ -329,13 +336,58 @@ class CMIQuality(Enum, metaclass=CMIQualityMeta):
 
 
 class EndocrineSignalNS(BaseModel):
+    """
+    A class representing an endocrine signal in the model.
+
+    Attributes:
+        column (str): The name of the column in the data file containing the signal data.
+        label (str): The label to use for the signal in plots and other visualizations.
+        color (str | Container): The color to use for the signal in plots and other visualizations.
+        tmin (int | float): Default: 0. The minimum time value for the signal data.
+        tmax (int | float): Default: 0. The maximum time value for the signal data.
+        ymin (Optional[float | None]): Default: None. The minimum value for the signal data. Defaults to None.
+        ymax (Optional[float | None]): Default: None. The maximum value for the signal data.
+    """
+
     column: str
     label: str
     color: str | Container
     tmin: int | float
     tmax: int | float
-    ymin: Optional[float | None] = None
-    ymax: Optional[float | None] = None
+    ymin: Optional[float] = None
+    ymax: Optional[float] = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._update_docstring(*args, **kwargs)
+
+    def _update_docstring(self, *args, **kwargs):
+        # Create a Jinja2 template for the docstring
+        template = Template(
+            """
+        A class representing an endocrine signal in the model.
+
+        Attributes:
+            column (str): The name of the column in the data file containing the signal data.
+            label (str): The label to use for the signal in plots and other visualizations.
+            color (str | Container): The color to use for the signal in plots and other visualizations.
+            tmin (int | float): Default: {{ tmin }}. The minimum time value for the signal data.
+            tmax (int | float): Default: {{ tmax }}. The maximum time value for the signal data.
+            ymin (Optional[float | None]): Default: {{ ymin }}. The minimum value for the signal data. Defaults to None.
+            ymax (Optional[float | None]): Default: {{ ymax }}. The maximum value for the signal data.
+        """
+        )
+
+        # Render the template with the current field values
+        docstring = template.render(
+            tmin=self.tmin,
+            tmax=self.tmax,
+            ymin=self.ymin,
+            ymax=self.ymax,
+        )
+
+        # Update the docstring for the class
+        self.__class__.__doc__ = docstring
 
     class Config:
         arbitrary_types_allowed = True

@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from gradio import Interface, io
-from functools import lru_cache
 from pfun_cma_model.runtime.src.engine.fit import fit_model as fit_pfun_cma_model
 from pfun_cma_model.llm.llm import PFunLanguageModel
 import plotly.express as px
@@ -17,12 +16,6 @@ class PFunCmaAgent:
         }
         self.embedding = fit_pfun_cma_model(cgm_data)
         self.llm_response = None
-
-    @lru_cache(maxsize=128)
-    def get_llm_response(self):
-        if not self.llm_response:
-            self.llm_response = your_pfun_cma_model.get_llm_response(self.embedding)
-        return self.llm_response
 
     def get_responses(self):
         llm_response = self.get_llm_response()
