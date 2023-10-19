@@ -1,10 +1,14 @@
 # This file contains the middleware functions for the API.
-from chalice.app import UnauthorizedError, Response, Chalice
+from fastapi import FastAPI, Request, status, HTTPException, Response
 from functools import wraps
 
 
+class UnauthorizedError(HTTPException):
+    STATUS_CODE = status.HTTP_401_UNAUTHORIZED
+
+
 def authorization_required(
-    app: Chalice,
+    app: FastAPI,
     get_current_request,
     PRIVATE_ROUTES,
     SECRETS_CLIENT,
@@ -83,7 +87,7 @@ def authorization_required(
                     str(rapidapi_authorized),
                 )
                 return Response(
-                    body=
+                    content=
                     "Unauthorized request.\nAuth params:\n\tapi_key: %s,\n\trapidapi_key: %s"
                     % (api_key_given, rapidapi_key_given),
                     status_code=401,

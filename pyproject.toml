@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pfun-cma-model"
-version = "0.2.1"
-description = ""
+version = "0.2.2"
+description = "backend for pfun_cma_model"
 authors = ["Robbie Capps <rocapp@gmail.com>"]
 readme = "README.md"
 packages = [{include = "pfun_cma_model"}]
@@ -22,6 +22,11 @@ boto3 = "^1.28.57"
 botocore = "^1.31.57"
 jinja2 = "^3.1.2"
 fastapi = "^0.103.2"
+transformers = "^4.34.1"
+gunicorn = "^21.2.0"
+PyYAML = "^6.0.1"
+gradio = "^3.50.2"
+plotly = "^5.17.0"
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"

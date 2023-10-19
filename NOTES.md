@@ -1,9 +1,6 @@
 # Notes for PFun Development
 
-## Auth/User Login
-- Golang RPC, authentication
-- Use social login -> create/sign-in -> connect to Dexcom once logged in.
+## TODO
 
-## LLM (Chatbot Interface)
-- use LLM to get user info... don't need to require CGM/BG data.
- - e.g., "how are you feeling? How's your sleep?"
+- gradio integration with pfun-cma-model backend
+- deploy backend (possibly using zappa, or just a docker container)
