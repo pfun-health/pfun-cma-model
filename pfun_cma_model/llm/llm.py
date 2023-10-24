@@ -5,21 +5,24 @@ from typing import Dict, Optional
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from yaml import safe_load
 import pfun_path_helper
+from pfun_cma_model.runtime.src.engine.fit import fit_model as fit_pfun_cma_model
+
 
 
 class Jinja2Context:
-    def __init__(self, template: str, user: Dict):
+    def __init__(self, template: str, user: Dict, summary_content: Dict):
         self.template = Template(template)
         self.user = user
+        self.summary_content = summary_content
 
     def render(self) -> str:
-        return self.template.render(**self.user)
+        return self.template.render(user=self.user, summary=self.summary_content)
 
 
 @dataclass
 class PromptContext(Jinja2Context):
     name: str = "initial"
-    prompt_template: str = """Hi, {{ nickname }}! How are you feeling today?"""
+    prompt_template: str = """Hi, {{ user.nickname }}! How are you feeling today?"""
     user: Dict = field(default_factory=dict)
     summary_content: Dict = field(default_factory=dict)
 
@@ -45,6 +48,11 @@ class PFunLanguageModel:
         self.model = AutoModelForCausalLM.from_pretrained("stanford-crfm/BioMedLM")
         self.prompt_context = prompt_context
         self.llm_response = None
+        self._pfun_model = None
+
+    def fit_model(self, data):
+        self._pfun_model = fit_pfun_cma_model(data)
+        return self._pfun_model
 
     @lru_cache(maxsize=128)
     def get_llm_response(self, prompt_context: Optional[PromptContext] = None):
