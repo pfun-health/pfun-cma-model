@@ -19,11 +19,11 @@ if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
 CMASleepWakeModel = importlib.import_module(
-    ".cma_sleepwake", package="pfun_cma_model.runtime.chalicelib.engine").CMASleepWakeModel
+    ".cma_sleepwake", package="pfun_cma_model.runtime.src.engine").CMASleepWakeModel
 dt_to_decimal_hours = importlib.import_module(
-    ".data_utils", package="pfun_cma_model.runtime.chalicelib.engine").dt_to_decimal_hours
+    ".data_utils", package="pfun_cma_model.runtime.src.engine").dt_to_decimal_hours
 format_data = importlib.import_module(".data_utils",
-                                      package="pfun_cma_model.runtime.chalicelib.engine").format_data
+                                      package="pfun_cma_model.runtime.src.engine").format_data
 
 try:
     lmdif = importlib.import_module(

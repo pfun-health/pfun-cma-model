@@ -1,0 +1,15 @@
+{
+    "user": {
+        "nickname": "Fiona",
+        "age": 24,
+        "sex": "F",
+        "city": "Shanghai",
+        "country": "China",
+        "country_code": "CN",
+        "province": "Shanghai",
+        "province_code": "SH",
+        "city_code": "SHA",
+        "pronouns": "she/her",
+        "health_knowledge_level": "apt"
+    }
+}

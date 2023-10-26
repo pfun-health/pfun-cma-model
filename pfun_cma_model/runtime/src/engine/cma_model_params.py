@@ -6,9 +6,8 @@ from numpy import ndarray
 import importlib
 from pfun_path_helper import append_path
 append_path(Path(__file__).parent.parent.parent)
-# from chalicelib.engine.bounds import Bounds
-bounds = importlib.import_module('.engine.bounds', package='chalicelib')
-Bounds = bounds.Bounds
+bounds = importlib.import_module('.engine.bounds', package='src')
+Bounds = bounds.Bounds  # necessary for typing (linter)
 BoundsType = bounds.BoundsType
 
 _LB_DEFAULTS = (-12.0, 0.5, 0.1, 0.0, 0.0, -3.0)

@@ -22,7 +22,7 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 normalize_glucose = importlib.import_module(
-    ".calc", package="chalicelib.engine").normalize_glucose
+    ".calc", package="src.engine").normalize_glucose
 
 use_fastmath_global = False
 njit_parallel = njit(cache=True, nogil=True, fastmath=use_fastmath_global, parallel=True)

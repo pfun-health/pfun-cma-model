@@ -59,11 +59,11 @@ try:
     from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
 except ModuleNotFoundError:
     exp = importlib.import_module(
-        ".calc", package="pfun_cma_model.runtime.chalicelib.engine").exp
+        ".calc", package="pfun_cma_model.runtime.src.engine").exp
     Bounds = importlib.import_module(
-        ".bounds", package="pfun_cma_model.runtime.chalicelib.engine").Bounds
+        ".bounds", package="pfun_cma_model.runtime.src.engine").Bounds
     CMAModelParams = importlib.import_module(
-        ".cma_model_params", package="pfun_cma_model.runtime.chalicelib.engine").CMAModelParams
+        ".cma_model_params", package="pfun_cma_model.runtime.src.engine").CMAModelParams
 
 logger = logging.getLogger()
 
