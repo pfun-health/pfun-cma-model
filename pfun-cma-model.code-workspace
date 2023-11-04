@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../pfun-app"
+		},
+		{
+			"path": "../pfun_path_helper"
 		}
 	],
 	"tasks": {

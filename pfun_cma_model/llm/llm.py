@@ -24,7 +24,7 @@ class Jinja2Context:
 
 def get_sample_user():
     with open(
-        os.path.join(get_lib_path(), "..", "examples/data/sample_user.json"), "r"
+        os.path.join(get_lib_path(), "..", "examples/data/sample_user.json"), "r", encoding="utf-8"
     ) as f:
         return json.load(f)
 
@@ -43,8 +43,6 @@ class PromptContext(Jinja2Context):
 
     @classmethod
     def from_template(cls, name: str, template: Optional[str] = None):
-        if template is None:
-            cls.
         return PromptContext(name=name, prompt_template=template)
 
     @classmethod

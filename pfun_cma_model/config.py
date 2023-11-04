@@ -1,4 +1,3 @@
-import dotenv
 import pfun_path_helper
 from pfun_path_helper import get_lib_path
 import os
@@ -16,7 +15,11 @@ class Settings:
 
     @classmethod
     def load(cls):
-        env = dotenv.load_dotenv(cls._env_file)
+        env = {}
+        with open(cls._env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                key, value = line.strip().split("=")
+                env[key] = value
         return cls(**env)
 
 

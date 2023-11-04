@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from gradio import Interface
 import gradio.components as io
-from pfun_cma_model.llm.llm import PFunLanguageModel, PromptContext
+import pfun_path_helper as pph
+import os
+pph.append_path(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from pfun_cma_model.llm import PFunLanguageModel, PromptContext
 from typing import Optional
 
 
@@ -10,9 +13,8 @@ app = FastAPI()
 
 class PFunAgent:
     def __init__(self,
-                 template_name: str,
-                 raw_template: Optional[str] = None) -> None:
-        self.prompt_context = PromptContext.from_template(template_name, raw_template)
+                 template_name: str) -> None:
+        self.prompt_context = PromptContext.from_template(template_name)
         self.model = PFunLanguageModel(prompt_context=self.prompt_context)
         self._model_result = None
 
@@ -30,8 +32,8 @@ class PFunAgent:
 
 
 @app.post("/pfun_cma_embed")
-async def pfun_cma_embed(template_name: str = 'initial', raw_template: Optional[str] = None):
-    agent = PFunAgent(template_name, raw_template=raw_template)
+async def pfun_cma_embed(template_name: str = 'initial', user_name: str = 'sample'):
+    agent = PFunAgent(template_name)
     return [
         agent.text_response,
     ]
@@ -42,7 +44,7 @@ def gradio_ui():
         fn=pfun_cma_embed,
         inputs=[
             io.Text(value='initial', placeholder='template_name'),
-            io.Timeseries()
+            io.Text(value='user', placeholder='sample')
         ],
         outputs=[
             io.Textbox(label="Text Response"),
