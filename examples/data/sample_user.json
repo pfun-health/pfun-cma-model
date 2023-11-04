@@ -1,7 +1,7 @@
 {
     "user": {
         "nickname": "Fiona",
-        "age": 24,
+        "age": 26,
         "sex": "F",
         "city": "Shanghai",
         "country": "China",
@@ -10,6 +10,8 @@
         "province_code": "SH",
         "city_code": "SHA",
         "pronouns": "she/her",
-        "health_knowledge_level": "apt"
+        "health_knowledge_level": "expert",
+        "has_dexcom": true,
+        "path_to_cgm_data": "./valid_data.csv"
     }
 }

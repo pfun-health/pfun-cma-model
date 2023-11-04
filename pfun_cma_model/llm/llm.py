@@ -42,7 +42,9 @@ class PromptContext(Jinja2Context):
         return self.render()
 
     @classmethod
-    def from_template(cls, name: str, template: str):
+    def from_template(cls, name: str, template: Optional[str] = None):
+        if template is None:
+            cls.
         return PromptContext(name=name, prompt_template=template)
 
     @classmethod
@@ -65,6 +67,14 @@ class PromptContext(Jinja2Context):
         if path is None:
             path = os.path.join(cls._prompts_dirpath, name)
         return path, name
+
+    @classmethod
+    def read_json(cls, path: Optional[str] = None, name: Optional[str] = None):
+        path, name = cls._check_args(path, name)
+        config = {}
+        with open(path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        return cls(**config)
 
     @classmethod
     def read_yaml(cls, path: Optional[str] = None, name: Optional[str] = None):
