@@ -4,6 +4,7 @@ import gradio.components as io
 import pfun_path_helper as pph
 import os
 pph.append_path(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from pfun_cma_model.config import settings
 from pfun_cma_model.llm import PFunLanguageModel, PromptContext
 from typing import Optional
 
@@ -44,7 +45,7 @@ def gradio_ui():
         fn=pfun_cma_embed,
         inputs=[
             io.Text(value='initial', placeholder='template_name'),
-            io.Text(value='user', placeholder='sample')
+            io.Text(value='sample', placeholder='user_name')
         ],
         outputs=[
             io.Textbox(label="Text Response"),
@@ -52,7 +53,7 @@ def gradio_ui():
             # io.Dataframe(label="Schedule Info")
         ]
     )
-    iface.launch()
+    iface.launch(debug=True)
 
 
 if __name__ == "__main__":
