@@ -21,14 +21,16 @@ pfun_path_helper = "^0.0.4"
 boto3 = "^1.28.57"
 botocore = "^1.31.57"
 jinja2 = "^3.1.2"
-fastapi = "^0.104.0"
+fastapi = "^0.104.1"
 transformers = "^4.34.1"
 gunicorn = "^21.2.0"
 PyYAML = "^6.0.1"
-gradio = "^3.50.2"
+gradio = "^4.1.1"
 plotly = "^5.18.0"
 graphql-core = "^3.2.3"
 torch = "^2.1.0"
+torchvision = "^0.16.0"
+torchaudio = "^2.1.0"
 scikit-learn = "^1.3.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -41,6 +43,7 @@ zappa = "^0.58.0"
 
 [tool.poetry.scripts]
 build-minpack = "pfun_cma_model.runtime.scripts.build_minpack:main"
+pfun-cma-model = "pfun_cma_model.cli:cli"
 
 [build-system]
 requires = ["poetry-core"]

@@ -16,7 +16,13 @@ poetry init --python=~3.10
 #### Install dependencies
 
 ```bash
-poetry run build-minpack # Build minpack (don't forget this)
+# install dependencies for pytorch:
+sudo apt-get update && sudo apt-get install python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libffi-dev libssl-dev -y
+
+# Build minpack (don't forget this!)
+poetry run build-minpack
+
+# install the package
 poetry install
 ```
 

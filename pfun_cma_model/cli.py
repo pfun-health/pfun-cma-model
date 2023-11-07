@@ -13,7 +13,7 @@ from pfun_cma_model.llm.gradio_iface import gradio_ui
 def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = os.path.abspath(
-        os.path.join(pph.get_lib_path(), '../examples/data/valid_data.csv')
+        os.path.join(pph.get_lib_path(), '../examples/data/valid_data.csv'))
 
 
 def process_kwds(ctx, param, value):
