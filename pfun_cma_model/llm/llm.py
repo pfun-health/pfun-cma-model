@@ -12,6 +12,7 @@ except ImportError:
 import json
 import numpy as np
 import torch
+from transformers.tokenization_utils_base import BatchEncoding
 
 import pfun_path_helper
 from pfun_path_helper import get_lib_path
@@ -29,34 +30,41 @@ class Jinja2Context:
         return self.template.render(user=self.user, summary=self.summary_content)
 
 
-def get_sample_user():
-    """
-    Retrieve a sample user from a JSON file.
+@dataclass
+class PFunUser:
+    personal: Dict = field(default_factory=dict)
+    has_dexcom: bool = True
+    data_fpath: str = os.path.join(get_lib_path(), "..", "examples/data/valid_data.csv")
 
-    This function reads a JSON file containing a sample user and returns the user as a dictionary.
+    def read_json(self, path: Optional[str] = None, inplace: bool = True):
+        if path is None:
+            path = os.path.join(get_lib_path(), "..", "examples/data/sample_user.json")
+        data = {}
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if inplace is True:
+            self.__dict__.update(data)
+            return self
+        return data
 
-    Returns:
-        dict: A dictionary representing the sample user.
-
-    """
-    user = {}
-    with open(
-        os.path.join(get_lib_path(), "..", "examples/data/sample_user.json"), "r", encoding="utf-8"
-    ) as f:
-        user = json.load(f)
-    return user
+    @classmethod
+    def dict(cls):
+        if isinstance(cls, PFunUser):
+            return dict(cls)
+        inst = cls().read_json()
+        return dict(inst)
 
 
 @dataclass
 class PromptContext(Jinja2Context):
     name: str = "dummy"
-    prompt_template: str = """Hi, {{ user.nickname }}! How are you feeling today?"""
-    user: Dict = field(default_factory=get_sample_user)
+    template: str = """Hi, {{ user.nickname }}! How are you feeling today?"""
+    user: Dict = field(default_factory=PFunUser.dict)
     summary_content: Dict = field(default_factory=dict)
     _prompts_dirpath: str = os.path.join(os.path.dirname(__file__), "prompts")
 
     def __post_init__(self):
-        Jinja2Context.__init__(self, self.prompt_template, self.user, self.summary_content)
+        Jinja2Context.__init__(self, self.template, self.user, self.summary_content)
 
     @property
     def prompt(self):
@@ -64,7 +72,7 @@ class PromptContext(Jinja2Context):
 
     @classmethod
     def from_template(cls, name: str, template: str = ""):
-        return PromptContext(name=name, prompt_template=template)
+        return PromptContext(name=name, template=template)
 
     @classmethod
     def _check_args(cls, path: Optional[str] = None, name: Optional[str] = None):
@@ -83,21 +91,11 @@ class PromptContext(Jinja2Context):
         """
         if all([path is None, name is None]):
             raise RuntimeError("Must provide a path or name!")
-        if path is None and name is not None:
-            path = os.path.join(cls._prompts_dirpath, name)
+        if path is None:
+            path = os.path.join(cls._prompts_dirpath, str(name))
         if '.yaml' != os.path.splitext(path)[1]:
             path = path + '.yaml'
         return path, name
-
-    @classmethod
-    def read_json(cls, path: Optional[str] = None, name: Optional[str] = None):
-        path, name = cls._check_args(path, name)
-        if path is None:
-            raise RuntimeError("Must provide a path!")
-        config = {}
-        with open(path, "r", encoding="utf-8") as f:
-            config = json.load(f)
-        return cls(**config)
 
     @classmethod
     def read_yaml(cls, path: Optional[str] = None, name: Optional[str] = None):
@@ -142,14 +140,17 @@ class InitialPromptContext(PromptContext):
     name: str = "initial"
 
     def __post_init__(self):
+        super().__post_init__()
         config = self.read_yaml(name=self.name)
-        self.__dict__.update(config)
+        self.template = config["template"]
+        super().__post_init__()
 
 
 class PFunLanguageModel:
     def __init__(self, prompt_context: PromptContext):
         self.tokenizer = AutoTokenizer.from_pretrained("stanford-crfm/BioMedLM")
-        self.model = AutoModelForCausalLM.from_pretrained("stanford-crfm/BioMedLM")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.model = AutoModelForCausalLM.from_pretrained("stanford-crfm/BioMedLM")  # .to("cuda")
         self.prompt_context = prompt_context
         self.llm_response = None
         self._pfun_model = None
@@ -167,27 +168,24 @@ class PFunLanguageModel:
             self.llm_response = self.generate_recommendations()
         return self.llm_response
 
-    def create_embedding(self, prompt: str) -> list[int]:
-        input_ids = self.tokenizer.encode(prompt, return_tensors="pt")
-        return input_ids
+    def create_embedding(self, prompt: str) -> BatchEncoding:
+        model_inputs = self.tokenizer(prompt, return_tensors="pt")  # .to("cuda")
+        return model_inputs
 
     def generate_recommendations(
-        self, prompt: Optional[str] = None, input_ids: Optional[list[int]] = None
+        self, prompt: Optional[str] = None, model_inputs: Optional[BatchEncoding] = None
     ) -> str:
         if prompt is None:
             prompt = self.prompt_context.prompt
-        if input_ids is None:
-            input_ids = self.create_embedding(prompt)
-        if not isinstance(input_ids, np.ndarray):
-            input_ids = np.array(input_ids)  # type: ignore
-        input_ids = torch.from_numpy(input_ids).long().to('cuda')  # type: ignore
-        output = self.model.generate(input_ids, max_length=150)
-        recommendations = self.tokenizer.decode(
-            output[:, input_ids.shape[-1] :][0], skip_special_tokens=True
-        )
+        if model_inputs is None:
+            model_inputs = self.create_embedding(prompt)
+        output = self.model.generate(**model_inputs, max_new_tokens=100, do_sample=True,
+                                     top_p=0.95, top_k=10, pad_token_id=self.tokenizer.pad_token_id)
+        recommendations = self.tokenizer.decode(output[0], skip_special_tokens=True)
         return recommendations
 
 
 if __name__ == "__main__":
-    llm = PFunLanguageModel(InitialPromptContext())
+    context = InitialPromptContext()
+    llm = PFunLanguageModel(context)
     print(llm.get_llm_response())
