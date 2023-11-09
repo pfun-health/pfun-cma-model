@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from functools import lru_cache
 from typing import Dict, Optional
 from jinja2 import Template
@@ -50,9 +50,9 @@ class PFunUser:
     @classmethod
     def dict(cls):
         if isinstance(cls, PFunUser):
-            return dict(cls)
+            return asdict(cls)
         inst = cls().read_json()
-        return dict(inst)
+        return asdict(inst)
 
 
 @dataclass
