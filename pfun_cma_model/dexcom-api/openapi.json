@@ -11,18 +11,30 @@
     ],
     "security": [
         {
-            "OAuth2": [
-                "offline_access"
-            ]
+            "BearerAuth": []
         }
     ],
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "https",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
     "paths": {
-        "/v3/users/self/alerts": {
+        "/v2/oauth2/login": {
             "get": {
-                "operationId": "getAlerts",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "operationId": "userAuthorization",
                 "parameters": [
                     {
-                        "name": "startDate",
+                        "name": "client_id",
                         "in": "query",
                         "required": true,
                         "schema": {
@@ -30,26 +42,262 @@
                         }
                     },
                     {
-                        "name": "endDate",
+                        "name": "redirect_uri",
                         "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "response_type",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "code"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "scope",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "offline_access"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
-                ]
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to authorization code or access denied error",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/oauth2/token": {
+            "post": {
+                "security": [
+                  {
+                    "BearerAuth": []
+                  }
+                ],
+                "operationId": "exchangeAuthorizationCode",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "string"
+                                    },
+                                    "client_secret": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "grant_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "authorization_code"
+                                        ]
+                                    },
+                                    "redirect_uri": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "client_id",
+                                    "client_secret",
+                                    "code",
+                                    "grant_type",
+                                    "redirect_uri"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token and refresh token returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        },
+                                        "refresh_token": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/users/self/alerts": {
+            "get": {
+                "operationId": "getAlerts",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "recordType": {
+                                            "type": "string"
+                                        },
+                                        "recordVersion": {
+                                            "type": "string"
+                                        },
+                                        "userId": {
+                                            "type": "string"
+                                        },
+                                        "records": {
+                                            "maxItems": 100000,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "recordId": {
+                                                        "type": "string"
+                                                    },
+                                                    "systemTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "displayTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "alertName": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "high",
+                                                            "low",
+                                                            "rise",
+                                                            "fall",
+                                                            "outOfRange",
+                                                            "urgentLow",
+                                                            "urgentLowSoon",
+                                                            "noReadings",
+                                                            "fixedLow"
+                                                        ]
+                                                    },
+                                                    "alertState": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "inactive",
+                                                            "activeSnoozed",
+                                                            "activeAlarming"
+                                                        ]
+                                                    },
+                                                    "displayDevice": {
+                                                        "type": "string"
+                                                    },
+                                                    "transmitterGeneration": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "g4",
+                                                            "g5",
+                                                            "g6",
+                                                            "g6+",
+                                                            "dexcomPro",
+                                                            "g7"
+                                                        ]
+                                                    },
+                                                    "transmitterId": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v3/users/self/calibrations": {
             "get": {
                 "operationId": "getCalibrations",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "startDate",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "date-time"
                         }
                     },
                     {
@@ -57,50 +305,106 @@
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "date-time"
                         }
                     }
-                ]
-            }
-        },
-        "/v3/users/self/dataRange": {
-            "get": {
-                "operationId": "getDataRange"
-            }
-        },
-        "/v3/users/self/devices": {
-            "get": {
-                "operationId": "getDevices",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "recordType": {
+                                            "type": "string"
+                                        },
+                                        "recordVersion": {
+                                            "type": "string"
+                                        },
+                                        "userId": {
+                                            "type": "string"
+                                        },
+                                        "records": {
+                                            "maxItems": 100000,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "recordId": {
+                                                        "type": "string"
+                                                    },
+                                                    "unit": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "mg/dL",
+                                                            "mmol/L"
+                                                        ]
+                                                    },
+                                                    "systemTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "displayTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "value": {
+                                                        "type": "integer",
+                                                        "format": "int32"
+                                                    },
+                                                    "displayDevice": {
+                                                        "type": "string"
+                                                    },
+                                                    "transmitterId": {
+                                                        "type": "string"
+                                                    },
+                                                    "transmitterTicks": {
+                                                        "type": "integer",
+                                                        "format": "int64"
+                                                    },
+                                                    "transmitterGeneration": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "g4",
+                                                            "g5",
+                                                            "g6",
+                                                            "g6+",
+                                                            "dexcomPro",
+                                                            "g7"
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                ]
+                }
             }
         },
         "/v3/users/self/egvs": {
             "get": {
                 "operationId": "getEstimatedGlucoseValues",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "startDate",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "date-time"
                         }
                     },
                     {
@@ -108,130 +412,125 @@
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "date-time"
                         }
                     }
-                ]
-            }
-        },
-        "/v3/users/self/events": {
-            "get": {
-                "operationId": "getUserEnteredEvents",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        },
-        "/v2/users/self/calibrations": {
-            "get": {
-                "operationId": "getCalibrations_v2",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        },
-        "/v2/users/self/dataRange": {
-            "get": {
-                "operationId": "getDataRange_v2"
-            }
-        },
-        "/v2/users/self/devices": {
-            "get": {
-                "operationId": "getDevices_v2",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        },
-        "/v2/users/self/egvs": {
-            "get": {
-                "operationId": "getEstimatedGlucoseValues_v2",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        },
-        "/v2/users/self/events": {
-            "get": {
-                "operationId": "getUserEnteredEvents_v2",
-                "parameters": [
-                    {
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "recordType": {
+                                            "type": "string"
+                                        },
+                                        "recordVersion": {
+                                            "type": "string"
+                                        },
+                                        "userId": {
+                                            "type": "string"
+                                        },
+                                        "records": {
+                                            "maxItems": 100000,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "recordId": {
+                                                        "type": "string"
+                                                    },
+                                                    "systemTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "displayTime": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "transmitterId": {
+                                                        "type": "string"
+                                                    },
+                                                    "transmitterTicks": {
+                                                        "type": "integer",
+                                                        "format": "int64"
+                                                    },
+                                                    "value": {
+                                                        "type": "integer",
+                                                        "format": "int32"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "high",
+                                                            "low",
+                                                            "ok"
+                                                        ]
+                                                    },
+                                                    "trend": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "none",
+                                                            "unknown",
+                                                            "doubleUp",
+                                                            "singleUp",
+                                                            "fortyFiveUp",
+                                                            "flat",
+                                                            "fortyFiveDown",
+                                                            "singleDown",
+                                                            "doubleDown",
+                                                            "notComputable",
+                                                            "rateOutOfRange"
+                                                        ]
+                                                    },
+                                                    "trendRate": {
+                                                        "type": "number",
+                                                        "format": "double"
+                                                    },
+                                                    "unit": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "mg/dL",
+                                                            "mmol/L"
+                                                        ]
+                                                    },
+                                                    "rateUnit": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "mg/dL/min",
+                                                            "mmol/L/min"
+                                                        ]
+                                                    },
+                                                    "displayDevice": {
+                                                        "type": "string"
+                                                    },
+                                                    "transmitterGeneration": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "unknown",
+                                                            "g4",
+                                                            "g5",
+                                                            "g6",
+                                                            "g6+",
+                                                            "dexcomPro",
+                                                            "g7"
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                ]
+                }
             }
         }
     }
