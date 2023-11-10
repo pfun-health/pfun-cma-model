@@ -8,6 +8,12 @@ from typing import (
 )
 from pydantic import BaseModel, Field, validator
 
+
+class DexcomCredentials(BaseModel):
+    client_id: str
+    client_secret: str
+    
+
 #: possible dexcom endpoints
 DexcomEndpoint = Literal["dataRange", "egvs", "alerts", "calibrations", "devices", "events"]
 
