@@ -25,7 +25,7 @@ class Settings:
     Settings class for the pfun-cma-model package.
     """
 
-    _env_file = os.path.join(root_path, ".env")
+    _env_file = os.path.abspath(os.path.join(root_path, "..", ".env"))
 
     PFUN_APP_SCHEMA_PATH: str = os.getenv(
         "PFUN_APP_SCHEMA_PATH", "~/Git/pfun-app/amplify/backend/api/pfunapp/schema.graphql")

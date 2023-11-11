@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.getLogger(__name__).setLevel(logging.INFO)
 import os
 from fastapi.templating import Jinja2Templates
 import pfun_path_helper
@@ -9,6 +12,9 @@ from pfun_cma_model.runtime.src.engine.cma_posthoc import (
     CMIQuality,
     CMAPlotConfig
 )
+from pfun_cma_model.runtime.src.engine.fit import (
+    CMAFitResult
+)
 
 root_path = get_lib_path()
 
@@ -18,7 +24,22 @@ templates = Jinja2Templates(directory=templates_path,
                             autoescape=False, auto_reload=True, enable_async=False)
 
 
-def generate_summary_content(model_result: ModelResult):
+def convert_to_model_result(model_result: CMAFitResult | ModelResult):
+    """
+    Convert the given `model_result` to an instance of the `ModelResult` class.
+
+    Args:
+        model_result (CMAFitResult | ModelResult): The result of the model fit.
+
+    Returns:
+        ModelResult: The converted model result.
+    """
+    if not isinstance(model_result, ModelResult):
+        model_result = ModelResult(**{k: getattr(model_result, k) for k, _ in model_result.model_fields.items() if k in ModelResult.model_fields})
+    return model_result
+
+
+def generate_summary_content(model_result: ModelResult | CMAFitResult):
     """
     Generates the summary content based on the provided model result.
 
@@ -28,13 +49,18 @@ def generate_summary_content(model_result: ModelResult):
     Returns:
         dict: The generated summary content.
     """
+    model_result = convert_to_model_result(model_result)
     summary_model = RecsSummaryModel(model_result=model_result)
     stats = model_result.stats.model_dump()
     stats["min_bg_value"] = model_result.formatted_data["value"].min()
     stats["max_bg_value"] = model_result.formatted_data["value"].max()
 
+    summary_model = summary_model.model_dump()
     for category in ['weakness', 'strength']:
         category_obj = summary_model.get(category)
+        if category_obj is None:
+            logging.debug(f"Category {category} not found in summary model.")
+            continue
         for text_part in ["fmt_short", "fmt_title"]:
             template_str = category_obj.get(text_part, "")
             rendered_out = templates.env.from_string(template_str).render(stats=stats)

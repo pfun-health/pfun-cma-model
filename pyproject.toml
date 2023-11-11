@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pfun-cma-model"
-version = "0.2.4"
+version = "0.2.5"
 description = "backend for pfun_cma_model"
 authors = ["Robbie Capps <rocapp@gmail.com>"]
 readme = "README.md"
@@ -10,7 +10,6 @@ packages = [{include = "pfun_cma_model"}]
 [tool.poetry.dependencies]
 python = "~3.10"
 numba = "^0.58.0"
-numpy = ">=1.21,<1.26"
 pandas = "^2.1.1"
 scipy = "^1.11.3"
 matplotlib = "^3.8.0"
@@ -30,8 +29,8 @@ gradio = "^4.1.1"
 plotly = "^5.18.0"
 graphql-core = "^3.2.3"
 scikit-learn = "^1.3.2"
-torch = {url = "https://download.pytorch.org/whl/cu118/torch-2.1.0%2Bcu118-cp310-cp310-linux_x86_64.whl"}
 dexcom-developer-api-client = {file = "./deps/dexcom_developer_api_client-3-py3-none-any.whl"}
+torch = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
