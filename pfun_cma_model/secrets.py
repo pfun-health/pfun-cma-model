@@ -23,8 +23,7 @@ def get_secret_func(
     region="us-west-1",
     profile="robbie",
     get_created_date=False,
-    output_fpath=None,
-    verbosity=logging.WARN,
+    verbosity=logging.WARN
 ):
     #: set logging verbosity
     logger.setLevel(verbosity)

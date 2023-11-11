@@ -30,7 +30,7 @@ class Settings:
     PFUN_APP_SCHEMA_PATH: str = os.getenv(
         "PFUN_APP_SCHEMA_PATH", "~/Git/pfun-app/amplify/backend/api/pfunapp/schema.graphql")
     DEXCOM_CREDS_PATH: str = os.getenv(
-        "DEXCOM_CREDS_PATH", "~/.credentials/dexcom_pfun-app_glucose.json")
+        "DEXCOM_CREDS_PATH", "~/.dexcom_creds.json")
 
     @classmethod
     def load(cls):
@@ -45,7 +45,7 @@ class Settings:
             for line in f:
                 key, value = line.strip().split("=")
                 env[key] = value
-        return cls(**env)
+        return env
 
     def __post_init__(self):
         """
@@ -59,7 +59,9 @@ class Settings:
         Returns:
             None
         """
-        self.__dict__.update(self.load().__dict__)
+        env = self.load()
+        for key in env:
+            self.__dict__[key] = env[key]
         for key in self.__dict__:
             if "_PATH" in key.upper():
                 self.__dict__[key] = path_factory(self.__dict__[key])
