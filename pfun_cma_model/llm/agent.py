@@ -59,13 +59,15 @@ class PFunAgent:
         if user is None:
             user = cls.prompt_context.user
         data_fpath = user['data_fpath']
+        if not os.path.isabs(data_fpath):
+            data_fpath = os.path.join(os.path.dirname(user['_user_fpath']), data_fpath)
         data = pd.read_csv(data_fpath)
         return data
 
     def generate_summary(self, result: Optional[CMAFitResult | ModelResult] = None):
         if result is None:
             result = self.pfun_model_result
-        summary_dict = generate_summary_content(result)
+        summary_dict = generate_summary_content(result, data=self._user_data)
         # convert dict to yaml string
         summary_str = yaml.dump(summary_dict, default_flow_style=False)
         return summary_str
@@ -82,6 +84,8 @@ class PFunAgent:
         """
         if data is not None:
             self._user_data = data
+        if self._user_data is None:
+            self._user_data = self.load_user_data()
         #: fit the pfun cma model
         self._pfun_model_result = self.fit_pfun_cma_model(self._user_data)
         #: generate summary content

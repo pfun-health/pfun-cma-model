@@ -74,7 +74,7 @@ class EgvsRecordModel(DexcomAPIRecordModel):
 
 
 class EgvsResponseModel(DexcomAPIResponseModel, BaseModel):
-    recordType = "egvs"
+    recordType: Literal["egvs"] = "egvs"
     records: List[EgvsRecordModel] | Dict[Any, EgvsRecordModel] | Any
 
     class Config:
@@ -95,7 +95,7 @@ class DatarangeRecordModel(DexcomAPIRecordModel):
 
 
 class DatarangeResponseModel(DexcomAPIResponseModel, BaseModel):
-    recordType = "dataRange"
+    recordType: Literal["dataRange"] = "dataRange"
     records: Optional[List[DatarangeRecordModel]]
 
     class Config:
@@ -104,7 +104,7 @@ class DatarangeResponseModel(DexcomAPIResponseModel, BaseModel):
 
 
 class AlertsResponseModel(DexcomAPIResponseModel, BaseModel):
-    recordType = "alerts"
+    recordType: Literal["alerts"] = "alerts"
     records: List[EgvsRecordModel]
 
     class Config:
@@ -113,7 +113,7 @@ class AlertsResponseModel(DexcomAPIResponseModel, BaseModel):
 
 
 class CalibrationsResponseModel(DexcomAPIResponseModel, BaseModel):
-    recordType = "calibrations"
+    recordType: Literal["calibrations"] = "calibrations"
     records: List[EgvsRecordModel]
 
     class Config:
@@ -122,7 +122,7 @@ class CalibrationsResponseModel(DexcomAPIResponseModel, BaseModel):
 
 
 class DevicesResponseModel(DexcomAPIResponseModel, BaseModel):
-    recordType = "devices"
+    recordType: Literal["devices"] = "devices"
     records: List[EgvsRecordModel]
 
     class Config:
@@ -131,7 +131,7 @@ class DevicesResponseModel(DexcomAPIResponseModel, BaseModel):
 
 
 class EventsResponseModel:
-    recordType = "events"
+    recordType: Literal["events"] = "events"
     records: List[EgvsRecordModel]
 
     class Config:

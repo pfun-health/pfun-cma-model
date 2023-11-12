@@ -20,15 +20,16 @@ from typing import (
 )
 
 import matplotlib as mpl
+mpl.use("Agg")
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from jinja2 import Template
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, model_validator, validator
 from pydantic.json import timedelta_isoformat
 
-from pfun_cma_model.dexcom import DexcomEndpoint
+from pfun_cma_model.dexcom_api.models import DexcomEndpoint
 from pfun_cma_model.runtime.src.engine.calc import normalize
 from pfun_cma_model.runtime.src.engine.cma_plot import CMAPlotConfig
 from pfun_cma_model.runtime.src.engine.data_utils import diff_tod_hours
@@ -81,9 +82,32 @@ def stats_aliaser(stats_name):
 
 
 class CaseInsensitiveBaseModel(BaseModel):
-    @root_validator(pre=True, allow_reuse=True)
+    @model_validator(mode="after")
     def case_insensitive_dict(cls, values):
-        return {k.lower(): v for k, v in values.items()}
+        return {k.lower(): v for k, v in dict(values).items()}
+
+
+def calc_model_stats(cma):
+    """
+    Calculates the model statistics based on the given `cma` object.
+
+    Parameters:
+        cma (CMASleepwakeModel): The CMASleepwakeModel object containing the data.
+
+    Returns:
+        dict: A dictionary containing the calculated model statistics with the following keys:
+            - "G_morn" (float): The average value of `g_morning` in the `cma` object.
+            - "G_eve" (float): The average value of `g_evening` in the `cma` object.
+            - "I_S_morn" (float): The average value of `I_morning` in the `cma` object.
+            - "I_S_eve" (float): The average value of `I_evening` in the `cma` object.
+    """
+    stats = {
+        "g_morn": float(np.nanmean(cma.g_morning)),
+        "g_eve": float(np.nanmean(cma.g_evening)),
+        "i_s_morn": float(np.nanmean(cma.I_morning)),
+        "i_s_eve": float(np.nanmean(cma.I_evening))
+    }
+    return stats
 
 
 class ModelResultStats(CaseInsensitiveBaseModel, BaseModel):
@@ -137,9 +161,8 @@ class ModelResult(BaseModel):
             time_tmp.set_index(name_ix, inplace=True, drop=True)
             time = pd.Series(time_tmp["time"], name="time")
         except Exception:
-            logging.error("failed to fix time vector in ModelResult!", exc_info=1)
-        finally:
-            return time
+            logging.debug("failed to fix time vector in ModelResult!", exc_info=1)
+        return time
 
     @validator("queryDate", allow_reuse=True)
     def fix_queryDate(cls, v):
@@ -159,7 +182,7 @@ class ModelResult(BaseModel):
             Returns:
                 DataFrame: The updated DataFrame with the verified and updated data types.
             """
-            if df.index.name == "t":
+            if df.index.name == "t" and "t" not in df.columns:
                 df.reset_index(inplace=True)
             df.dtypes.update(
                 {"t": float, "tod": float, "G": float, "time": "datetime64[ns]"}
@@ -204,13 +227,14 @@ class ModelResult(BaseModel):
         if is_dict:
             value = value.to_dict()  #: ! convert back to original type
             values["time"] = values["time"].to_dict()
+        values['formatted_data'] = value
         return value
 
-    @validator("soln", allow_reuse=True)
-    def ensureFloatIndex(cls, v, values):
-        soln = v
-        soln.set_index(v.index.astype(float), inplace=True)
-        data = values["formatted_data"]
+    @model_validator(mode="after")
+    def ensureFloatIndex(cls, values):
+        soln = values.soln
+        soln.set_index(soln.index.astype(float), inplace=True)
+        data = values.formatted_data
         g_raw = (
             pd.merge_asof(soln.sort_index().reset_index(), data, on="t")[["G_x", "G_y"]]
             .mean(axis=1)
@@ -218,7 +242,8 @@ class ModelResult(BaseModel):
             .set_index(soln.index)
         )
         soln["g_raw"] = g_raw
-        return soln
+        values.soln = soln
+        return values
 
     class Config:
         arbitrary_types_allowed = True
@@ -265,7 +290,7 @@ class ModelResultSafe(ModelResult, BaseModel):
         v = pd.Timestamp(v).to_pydatetime()
         return v
 
-    @root_validator(allow_reuse=True)
+    @model_validator(mode="after")
     def convertFromDataframe(cls, values):
         for k, v in values.items():
             if isinstance(v, pd.DataFrame) or isinstance(v, pd.Series):
@@ -324,8 +349,8 @@ class CMIQuality(Enum, metaclass=CMIQualityMeta):
         return self.value.color
 
     @property
-    def score_range(self):
-        return self.value.score_range
+    def score_range(self) -> tuple[int, int]:
+        return (int(self.value.score_range.__args__[0]), int(self.value.score_range.__args__[1]))
 
     @classmethod
     def from_score(cls, score: int | float):
@@ -477,7 +502,7 @@ class ExpectedChronoDiffs(Enum):
 
 
 class ChronometabolicDiffCheck(BaseModel):
-    signal_name: Literal["I_S", "G"]
+    signal_name: Literal["I_S", "G", "i_s", "g"]
     signal_morn: float
     signal_eve: float
     nominal: Optional[bool | None] = None
@@ -496,24 +521,25 @@ class ChronometabolicDiffCheck(BaseModel):
     @classmethod
     def calc_nominal(cls, values):
         """True if the difference is within the expected range"""
-        signal_name = values["signal_name"]
+        signal_name = values["signal_name"].upper()
         expected_diff = ExpectedChronoDiffs[signal_name].value
         diff = values["diff"]
         nominal = np.isclose(diff, expected_diff, atol=0.05)
         return nominal
 
-    @root_validator(allow_reuse=True, pre=False)
+    @model_validator(mode="after")
     def check_morn_eve_present(cls, values):
         kvals = ["signal_morn", "signal_eve"]
-        missing = ", ".join([k for k in kvals if k not in values])
-        assert all([k in values for k in kvals]), f'missing from values:\n\t"{missing}"'
-        values["diff"] = cls.calc_diff(values)
-        values["nominal"] = cls.calc_nominal(values)
+        missing = ", ".join([k for k in kvals if k not in dict(values)])
+        assert all([k in dict(values) for k in kvals]), f'missing from values:\n\t"{missing}"'
+        values.diff = cls.calc_diff(values.model_dump())
+        values.nominal = cls.calc_nominal(values.model_dump())
         return values
 
-    @validator("expected_diff", always=True, allow_reuse=True)
-    def get_expected_diff(cls, value, values):
-        return ExpectedChronoDiffs[values["signal_name"]]
+    @model_validator(mode="after")
+    def get_expected_diff(cls, values):
+        values.expected_diff = ExpectedChronoDiffs[values.signal_name.upper()]
+        return values
 
 
 class CMIModel(BaseModel):
@@ -528,9 +554,9 @@ class CMIModel(BaseModel):
             return v
         checks = []
         stats = values["model_result"].stats
-        for signal_name in ["I_S", "G"]:
-            morn = getattr(stats, f"{signal_name}_morn")
-            eve = getattr(stats, f"{signal_name}_eve")
+        for signal_name in ["i_s", "g"]:
+            morn = stats[f"{signal_name}_morn"]
+            eve = stats[f"{signal_name}_eve"]
             check = ChronometabolicDiffCheck(
                 signal_name=signal_name, signal_morn=morn, signal_eve=eve
             )
@@ -538,11 +564,11 @@ class CMIModel(BaseModel):
         v = checks
         return v
 
-    @root_validator(allow_reuse=True)
+    @model_validator(mode="after")
     def compute_posthoc(cls, values):
         #: compute the chronometabolic index (CMI score)
         chrono_dist = []
-        model_result = values["model_result"]
+        model_result = values.model_result
         soln = pd.DataFrame(model_result.soln).sort_index()
         for member in EndocrineSignal:
             estimated_signal = soln[member.value.column]
@@ -556,25 +582,25 @@ class CMIModel(BaseModel):
         #: incorporate chrono_checks (other non-cmi checks, including the morning -> evening percent differences)
         #: ...essentially this is: (1 - frequency_nominal_values)
         other_checks_dist = 1.0 - np.nanmean(
-            [c.nominal for c in values["chrono_checks"]]
+            [c.nominal for c in values.chrono_checks]
         )
         #: continuous checks_dist
         cont_checks_dist = np.nanmax(
-            [np.abs(c.expected_diff.value - c.diff) for c in values["chrono_checks"]]
+            [np.abs(c.expected_diff.value - c.diff) for c in values.chrono_checks]
         )
         # ! take maximum distance value
         final_dist = np.nanmean([normed_cmi_dist, other_checks_dist, cont_checks_dist])
         score_01 = max(1.0 - float(final_dist), 0.0)
         #: ! CMI, defined in range of [1, 10]
-        values["score"] = int(np.floor((1 + 10.0 * score_01)))
-        logging.info(f"\nOverall CMI score: {values['score']:.3f}")
+        values.score = int(np.floor((1 + 10.0 * score_01)))
+        logging.info(f"\nOverall CMI score: {values.score:.3f}")
         logging.info(f"... score_01(raw) = {score_01:.3f}")
         logging.info(
             f"...normed_cmi_dist={normed_cmi_dist:.3f}, other_checks_dist={other_checks_dist:.3f}\n"
         )
         #: get quality from score
-        values["quality"] = CMIQuality.from_score(values["score"])
-        logging.info(f"CMI Quality: {values['quality']}")
+        values.quality = CMIQuality.from_score(values.score)
+        logging.info(f"CMI Quality: {values.quality}")
         return values
 
 
@@ -584,12 +610,12 @@ class StrengthWeaknessItem(BaseModel):
     color: QualityColors
     column: str
     func: Callable
-    column_label: Optional[str]
+    column_label: Optional[str] = None
     vmin: Optional[float] = 0.0
     vmax: Optional[float] = 1.0
-    severity: Optional[float]
+    severity: Optional[float] = None
     tod_hour_goal: Optional[float | int] = -1
-    tod_hour_func: Optional[Callable]
+    tod_hour_func: Optional[Callable] = None
     tod_hour: Optional[float | int] = -1
     kind: Optional[Literal["strength", "weakness"]] = "strength"
     rec_short: Optional[str] = ""
@@ -705,6 +731,7 @@ class Strength(StrengthWeakness, Enum):
         color="success",
         column="is_meal",
         func=lambda tM: (tM[tM].diff() < 7.0).all(),
+        column_label="Meal"
     )
     not_many_highs = StrengthWeaknessItem(
         name="not_many_highs",
@@ -753,6 +780,7 @@ class Weakness(StrengthWeakness, Enum):
         To avoid low blood sugar at night, make sure you're not taking your insulin dose too close to bedtime. Be sure to ask your doctor if you have any questions.""",
     )
     frequent_highs = StrengthWeaknessItem(
+        name="frequent_highs",
         column="G",
         title="Your blood glucose is often too high.",
         color="danger",
@@ -763,6 +791,7 @@ class Weakness(StrengthWeakness, Enum):
         rec_short="Aim to decrease the amount of sugar in your diet. Try to replace sugary foods with complex carbs such as whole-grain rice, pasta, and bread.",
     )
     inconsistent_meals = StrengthWeaknessItem(
+        name="inconsistent_meals",
         title="Inconsistent Meals",
         color="danger",
         column="is_meal",
@@ -773,6 +802,7 @@ class Weakness(StrengthWeakness, Enum):
         rec_short="""If you're hungry between meals, make sure to bring a healthy snack with you during the day (nuts, granola would be good options).""",
     )
     glucose_variability_is_too_high = StrengthWeaknessItem(
+        name="glucose_variability_is_too_high",
         column="G",
         title="Glucose Variability is Too High",
         color="danger",
@@ -781,6 +811,7 @@ class Weakness(StrengthWeakness, Enum):
         vmax=1.0,
     )
     cortisol_peak_early = StrengthWeaknessItem(
+        name="cortisol_peak_early",
         column="c",
         title="Cortisol peaks too early in the day",
         color="danger",
@@ -794,6 +825,7 @@ class Weakness(StrengthWeakness, Enum):
         rec_short="Try to reduce your exposure to bright light in the early morning (before sunrise).",
     )
     cortisol_peak_late = StrengthWeaknessItem(
+        name="cortisol_peak_late",
         column="c",
         title="Cortisol peaks too late in the day.",
         color="danger",
@@ -817,6 +849,7 @@ class Weakness(StrengthWeakness, Enum):
                                               </ul>""",
     )
     melatonin_peak_early = StrengthWeaknessItem(
+        name="melatonin_peak_early",
         column="m",
         title="Melatonin peaks too early in the day.",
         color="danger",
@@ -829,6 +862,7 @@ class Weakness(StrengthWeakness, Enum):
         tod_hour_goal=float(EndocrineSignal.melatonin.value.tmax),
     )
     melatonin_peak_late = StrengthWeaknessItem(
+        name="melatonin_peak_late",
         column="m",
         title="Melatonin peaks too late in the day.",
         goal_short="""Looks like you're staying up too late, and it's affecting your sleep schedule.<br />
@@ -906,7 +940,7 @@ class GoalSolnNS:
     def load_goal_soln(cls):
         #: read the goal solution
         pth = Path(__file__).parent.joinpath(
-            "resources", "www", "static", "cma_goal_response.json"
+            "cma_goal_response.json"
         )
         nsoln = pd.DataFrame(json.loads(pth.read_text()).get("output"))
         nsoln = nsoln.set_index("t", drop=False)
@@ -925,41 +959,57 @@ class RecsSummaryModel(BaseModel):
     cmi: None | CMIModel = None
     weaknesses: Optional[List[StrengthWeaknessItem | str]] = []
     strengths: Optional[List[StrengthWeaknessItem | str]] = []
-    max_weakness: Optional[StrengthWeaknessItem | str] = Field(alias="weakness")
-    max_strength: Optional[StrengthWeaknessItem | str] = Field(alias="strength")
-    weakness_signal_color: Optional[str | Tuple | Any | Container]
-    weakness_signal_color_hex: Optional[str | AnyStr]
-    weakness_goal_color: Optional[str | Tuple | AnyStr | Container]
-    weakness_goal_color_hex: Optional[str | AnyStr]
+    max_weakness: Optional[StrengthWeaknessItem | str] = Field(default=None, alias="weakness")
+    max_strength: Optional[StrengthWeaknessItem | str] = Field(default=None, alias="strength")
+    weakness_signal_color: Optional[str | Tuple | Any | Container] = None
+    weakness_signal_color_hex: Optional[str | AnyStr] = None
+    weakness_goal_color: Optional[str | Tuple | AnyStr | Container] = None
+    weakness_goal_color_hex: Optional[str | AnyStr] = None
     visual_plan: Optional[str] = ""
 
-    @validator("model_result", allow_reuse=True, always=True)
-    def ensure_modelresult_type(cls, v, values):
-        value = v
-        if not isinstance(v, ModelResult):
-            value = ModelResult(**v)
-        return value
-
-    @validator("cmi", always=True)
-    def ensure_cmi_present(cls, value, values):
-        if not isinstance(value, CMIModel):
-            value = CMIModel(model_result=values["model_result"])
-        return value
-
-    @validator("weaknesses", always=True)
+    @classmethod
     def calc_weaknesses(cls, weaknesses, values):
-        weaknesses = calc_strengths_or_weaknesses("weakness", values)
-        values["weaknesses"] = weaknesses
+        weaknesses = calc_strengths_or_weaknesses("weakness", dict(values))
+        values.weaknesses = weaknesses
         return weaknesses
 
-    @root_validator(allow_reuse=True)
+    @classmethod
+    def calc_strengths(cls, strengths, values):
+        strengths = calc_strengths_or_weaknesses("strength", dict(values))
+        values.strengths = strengths
+        return strengths
+
+    @model_validator(mode="after")
     def ensure_all(cls, values):
-        values["weaknesses"] = cls.calc_weaknesses(values.get("weaknesses"), values)
+        """
+        Ensure all values in the given object are valid by calculating weaknesses,
+        strengths, maximum weakness, and maximum strength. 
+
+        Args:
+            values (object): The object containing the values to be validated.
+
+        Returns:
+            object: The validated object with updated values.
+        """
+        values.cmi = CMIModel(model_result=values.model_result)
+        values.weaknesses = cls.calc_weaknesses(values.weaknesses, values)
+        values.max_weakness = cls._calc_max_weakness(None, dict(values))
+        values.strengths = cls.calc_strengths(values.strengths, values)
+        values.max_strength = cls._calc_max_strength(None, dict(values))
+        values.weakness_signal_color = cls.calc_weakness_signal_color(None, dict(values))
+        values.weakness_signal_color_hex = cls.calc_weakness_signal_color_hex(
+            None, dict(values)
+        )
+        values.weakness_goal_color = cls.calc_weakness_goal_color(None, dict(values))
+        values.weakness_goal_color_hex = cls.calc_weakness_goal_color_hex(
+            None, dict(values)
+        )
+        values.visual_plan = cls.calc_visual_plan(dict(values))
         return values
 
     @classmethod
-    def _calc_max_weakness(cls, v, values, exclude: Container | None = None):
-        weaknesses = values.get("weaknesses", None)
+    def _calc_max_weakness(cls, v, values, exclude: List | None = None):
+        weaknesses = values.get('weaknesses')
         if weaknesses is None:
             weaknesses = cls.calc_weaknesses(v, values)
         if len(weaknesses) == 0:  # ! handle zero length case
@@ -977,45 +1027,55 @@ class RecsSummaryModel(BaseModel):
             return None
         if exclude is None:
             #: ! important ! explicitly set values.weaknesses !
-            values["weaknesses"] = weaknesses
+            values['weaknesses'] = weaknesses
         #: get max weakness
         wk_max = max(weaknesses, key=lambda x: x.severity)
         return wk_max
 
-    @validator("max_weakness", always=True, pre=True)
-    def calc_max_weakness(cls, v, values):
-        return cls._calc_max_weakness(v, values)
+    @classmethod
+    def _calc_max_strength(cls, v, values, exclude: List | None = None):
+        strengths = values.get('strengths')
+        if strengths is None:
+            strengths = cls.calc_strengths(v, values)
+        if len(strengths) == 0:  # ! handle zero length case
+            return None
+        #: ! exclude any items specified...
+        if exclude is not None:
+            if hasattr(exclude[0], "column"):
+                excluded_cols = [ex.column for ex in exclude]
+            else:
+                excluded_cols = list(exclude)
+            to_remove = list(filter(lambda st: st.column in excluded_cols, strengths))
+            for rms in to_remove:
+                strengths.remove(rms)
+        if len(strengths) == 0:
+            return None
+        if exclude is None:
+            #: ! important ! explicitly set values.strengths !
+            values['strengths'] = strengths
+        #: get max strength
+        st_max = max(strengths, key=lambda x: x.severity)
+        return st_max
 
-    @validator("strengths", always=True, pre=True)
-    def calc_strengths(cls, v, values):
-        strengths = calc_strengths_or_weaknesses("strength", values)
-        return strengths
-
-    @validator("max_strength", always=True, pre=True)
-    def calc_max_strength(cls, v, values):
-        if "strengths" not in values:
-            values["strengths"] = cls.calc_strengths(v, values)
-        return max(values["strengths"], key=lambda x: x.severity)
-
-    @validator("weakness_signal_color", always=True, allow_reuse=True)
+    @classmethod
     def calc_weakness_signal_color(cls, v, values):
         if values.get("max_weakness") is None:
-            values["max_weakness"] = cls.calc_max_weakness(v, values)
+            values["max_weakness"] = cls._calc_max_weakness(v, values)
         if values.get("max_weakness") is not None:
             return CMAPlotConfig().get_color(values["max_weakness"].column, rgba=True)[
                 :-1
             ]
         return CMAPlotConfig().get_color("G", rgba=True)[:-1]
 
-    @validator("weakness_signal_color_hex", always=True, allow_reuse=True)
+    @classmethod
     def calc_weakness_signal_color_hex(cls, v, values):
         if values.get("max_weakness") is None:
-            values["max_weakness"] = cls.calc_max_weakness(v, values)
+            values["max_weakness"] = cls._calc_max_weakness(v, values)
         return mpl.colors.rgb2hex(
             CMAPlotConfig().get_color(values["max_weakness"].column, rgba=True)
         )
 
-    @validator("weakness_goal_color", always=True, allow_reuse=True)
+    @classmethod
     def calc_weakness_goal_color(cls, v, values):
         if values.get("weakness_signal_color") is None:
             values["weakness_signal_color"] = cls.calc_weakness_signal_color(v, values)
@@ -1024,7 +1084,7 @@ class RecsSummaryModel(BaseModel):
         goal_color[2] *= 0.95
         return goal_color
 
-    @validator("weakness_goal_color_hex", always=True, allow_reuse=True)
+    @classmethod
     def calc_weakness_goal_color_hex(cls, v, values):
         if values.get("weakness_goal_color") is None:
             values["weakness_goal_color"] = cls.calc_weakness_goal_color(v, values)
@@ -1034,7 +1094,7 @@ class RecsSummaryModel(BaseModel):
 
     @classmethod
     def _plot_visual_plan(
-        cls, value, values, exclude=None, skip_glucose=False, return_weakness=False
+        cls, values, exclude=None, skip_glucose=False, return_weakness=False
     ):
         weakness = values.get("max_weakness")
         fig, axs = None, None
@@ -1045,7 +1105,8 @@ class RecsSummaryModel(BaseModel):
 
         #: ! handle missing weakness or excluded plots...
         if weakness is None or exclude is not None:
-            exclude = list(set([e.column for e in exclude]))
+            if exclude is not None:
+                exclude = list(set([e.column for e in exclude]))
             weakness = cls._calc_max_weakness(None, values, exclude=exclude)
         there_is_weakness = all(
             [weakness.column is not None, weakness.column != "is_meal"]
@@ -1225,10 +1286,10 @@ class RecsSummaryModel(BaseModel):
 
         return get_returns(fig, axs, weakness)
 
-    @validator("visual_plan", always=True)
-    def calc_visual_plan(cls, value, values):
+    @classmethod
+    def calc_visual_plan(cls, values):
         #: plot visual plan...
-        fig, axs, weakness = cls._plot_visual_plan(value, values, return_weakness=True)
+        fig, axs, weakness = cls._plot_visual_plan(values, return_weakness=True)
 
         #: set global axis attributes...
         axs = CMAPlotConfig.set_global_axis_attributes(axs)
@@ -1261,7 +1322,6 @@ class RecsSummaryModel(BaseModel):
         iw = 1
         while True:
             fig, axs, weakness = cls._plot_visual_plan(
-                value,
                 values,
                 exclude=weaknesses,
                 return_weakness=True,

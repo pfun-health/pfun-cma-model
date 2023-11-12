@@ -533,6 +533,14 @@ class CMASleepWakeModel:
         return ('t', 'c', 'm', 'a', 'I_S', 'I_E', 'L', 'G')  # type: ignore
 
     @property
+    def I_morning(self):
+        return self.morning(signal_name='I_S')
+
+    @property
+    def I_evening(self):
+        return self.evening(signal_name='I_S')
+
+    @property
     def g_morning(self):
         return self.morning(self.g)
 

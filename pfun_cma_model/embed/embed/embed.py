@@ -22,7 +22,7 @@ path_helper.append_path(
 import paramiko
 from pfun_cma_model.runtime.src.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
-from pfun_cma_model.secrets import get_secret_func as get_secret
+from pfun_cma_model.pfun_secrets import get_secret_func as get_secret
 from pfun_cma_model.runtime.src.engine.cma_model_params import Bounds
 from pfun_cma_model.runtime.src.engine.data_utils import (
     downsample_data,

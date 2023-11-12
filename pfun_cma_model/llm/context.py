@@ -26,11 +26,12 @@ class Jinja2Context:
 class PFunUser:
     personal: Dict = field(default_factory=dict)
     has_dexcom: bool = True
-    data_fpath: str = os.path.join(get_lib_path(), "..", "examples/data/valid_data.csv")
+    data_fpath: str = os.path.abspath(os.path.join(get_lib_path(), "..", "examples/data/valid_data.csv"))
+    _user_fpath: str = os.path.abspath(os.path.join(get_lib_path(), "..", "examples/data/sample_user.json"))
 
     def read_json(self, path: Optional[str] = None, inplace: bool = True):
         if path is None:
-            path = os.path.join(get_lib_path(), "..", "examples/data/sample_user.json")
+            path = self._user_fpath
         data = {}
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)

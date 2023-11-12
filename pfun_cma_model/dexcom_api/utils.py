@@ -3,7 +3,7 @@ import os
 
 import pfun_path_helper as pph  # type: ignore
 from pfun_cma_model.config import settings
-from pfun_cma_model.secrets import get_secret
+from pfun_cma_model.pfun_secrets import get_secret
 
 
 def get_creds(from_aws=True, app_name="pfun-fiona"):
