@@ -135,3 +135,25 @@ Based on the analysis of your CGM data, here's a personalized report on your met
 
 This report suggests overall decent glucose management, but the high glucose episodes and maximum glucose level indicate potential areas for improvement. Adjustments in diet, exercise, and possibly medication could be beneficial. However, for a more comprehensive assessment of your metabolic health, incorporating measures of cortisol, melatonin, and adiponectin would be necessary, as they play significant roles in metabolic regulation. Always consult with your healthcare provider for personalized medical advice.
 ```
+
+### Example ChatGPT Response with PFun Parameters
+
+```markdown
+The additional details you provided, including model parameters and example fitted values, offer valuable insights into your metabolic health, particularly concerning your circadian rhythm and glucose metabolism.
+
+1. **Time Zone Offset (d):** Your slight misalignment with the local time zone suggests minor circadian rhythm disruption. This could be due to travel, work schedule, or lifestyle habits.
+
+2. **Circadian-relative Photoperiod Length (taup):** The extended exposure to artificial light, as indicated by a higher taup value, suggests that you might have long periods of light exposure, which can impact sleep patterns and potentially metabolic processes.
+
+3. **Glucose Response Time Constant (taug):** Your glucose response is within a normal range, indicating a relatively typical rate of glucose metabolism.
+
+4. **Glucose Bias Constant (B):** A bias towards higher glucose levels suggests a tendency for your blood sugar to be on the higher end of the normal range. This could be influenced by diet, physical activity, and overall health.
+
+5. **Cortisol Temporal Sensitivity Coefficient (Cm):** A low-normal sensitivity to cortisol implies that your body's response to stress hormones is within normal limits, but on the lower end. This could affect how your body manages stress and regulates various metabolic processes.
+
+6. **Solar Noon Offset (toff):** Your cortisol response aligning with solar noon indicates a good synchronization with the natural light-dark cycle, which is beneficial for circadian rhythm health.
+
+7. **Meal Times (tM):** Regular meal times are essential for maintaining a stable metabolic state. Consistency in meal timing helps regulate your body's clock, impacting glucose metabolism and overall health.
+
+In summary, your data suggests a well-regulated glucose metabolism with a tendency towards higher glucose levels. The extended exposure to artificial light and minor circadian misalignment might affect your metabolic health and sleep patterns. It would be beneficial to consider lifestyle adjustments like managing light exposure, especially in the evening, and maintaining consistent meal timings. Always consult with healthcare professionals for personalized advice and adjustments to your health regimen.
+```
