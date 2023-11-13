@@ -3,21 +3,15 @@ import os
 
 import requests
 from flask import Flask, redirect, request
+import pfun_path_helper as pph
+from pfun_cma_model.dexcom_api.utils import get_creds
+import ssl
 
 app = Flask(__name__)
 
 
-def get_creds():
-    creds = json.loads(
-        open(os.path.expanduser("~/.credentials/dexcom_pfun-app_glucose.json")).read()
-    )
-    os.environ["DEXCOM_CLIENT_ID"] = creds["client_id"]
-    os.environ["DEXCOM_CLIENT_SECRET"] = creds["client_secret"]
-    return creds["client_id"], creds["client_secret"]
-
-
 client_id, client_secret = get_creds()
-redirect_uri = "http://127.0.0.1:5000/callback"
+redirect_uri = "https://127.0.0.1:5000/callback"
 
 
 @app.route("/")
@@ -39,6 +33,7 @@ def callback():
         "redirect_uri": redirect_uri,
     }
     response = requests.post(token_url, headers=headers, data=data)
+    print(response.json())
     if response.ok:
         access_token = response.json().get("access_token")
         return {"authorization": f"Bearer {access_token}", "access_token": access_token}
@@ -49,4 +44,9 @@ def callback():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    certs_dirpath = os.path.abspath(os.path.join(pph.get_lib_path('pfun_cma_model'), '..', 'certs'))
+    context.load_cert_chain(os.path.join(certs_dirpath, 'cert.pem'), os.path.join(certs_dirpath,'key.pem'))
+
+    app.run(host="127.0.0.1", port=5000, ssl_context=context, debug=True)
