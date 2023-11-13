@@ -119,3 +119,19 @@ B2 -->|Model Parameters| E3["taug: 1.097"]
 B2 -->|Model Parameters| E4["B: 0.129"]
 B3 -->|Model Parameters| E5["Cm: -1.567e+06"]
 ```
+
+### Example Non-PFun ChatGPT Response
+
+```markdown
+Based on the analysis of your CGM data, here's a personalized report on your metabolic health:
+
+- **Average Glucose:** 120.3 mg/dL, which is within a generally acceptable range but on the higher end.
+- **Minimum Glucose:** 95.0 mg/dL, indicating good management of low glucose episodes.
+- **Maximum Glucose:** 262.0 mg/dL, suggesting some episodes of significantly elevated glucose.
+- **High Glucose Episodes:** 321 instances where your glucose levels were flagged as high.
+- **Low Glucose Episodes:** Occurrences of low glucose are less frequent.
+- **Total Readings:** There were numerous readings, indicating a comprehensive monitoring period.
+- **Standard Deviation of Glucose:** 17.7, which reflects moderate variability in your glucose levels.
+
+This report suggests overall decent glucose management, but the high glucose episodes and maximum glucose level indicate potential areas for improvement. Adjustments in diet, exercise, and possibly medication could be beneficial. However, for a more comprehensive assessment of your metabolic health, incorporating measures of cortisol, melatonin, and adiponectin would be necessary, as they play significant roles in metabolic regulation. Always consult with your healthcare provider for personalized medical advice.
+```
