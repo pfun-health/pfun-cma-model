@@ -1940,6 +1940,24 @@ files = [
 ptyprocess = ">=0.5"
 
 [[package]]
+name = "pfun-common"
+version = "0.1.0"
+description = "common resources for pfun projects"
+optional = false
+python-versions = ">=3.10,<4.0"
+files = []
+develop = false
+
+[package.dependencies]
+pfun-path-helper = "^0.0.4"
+
+[package.source]
+type = "git"
+url = "https://github.com/rocapp/pfun-common.git"
+reference = "HEAD"
+resolved_reference = "0318dc5617a8bf2c60b180c340691fcea67f8377"
+
+[[package]]
 name = "pfun-path-helper"
 version = "0.0.4"
 description = "Path helper script"
@@ -3868,4 +3886,4 @@ wheel = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "59f26ef734eb4ebb4fed84eafd19518d8ee5523dc15227391ee71b2ef21256fd"
+content-hash = "66abc440eef561932295f9dfe971e242fda6c5463ae6332b5ec6fe01e825a8f7"

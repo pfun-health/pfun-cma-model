@@ -31,6 +31,7 @@ graphql-core = "^3.2.3"
 scikit-learn = "^1.3.2"
 dexcom-developer-api-client = {file = "./deps/dexcom_developer_api_client-3-py3-none-any.whl"}
 torch = "^2.1.0"
+pfun-common = {git = "https://github.com/rocapp/pfun-common.git"}
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
