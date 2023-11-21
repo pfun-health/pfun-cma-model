@@ -8,7 +8,7 @@ repository = "https://github.com/rocapp/pfun-cma-model"
 packages = [{include = "pfun_cma_model"}]
 
 [tool.poetry.dependencies]
-python = "~3.10"
+python = ">=3.10,<4.0"
 numba = "^0.58.0"
 pandas = "^2.1.1"
 scipy = "^1.11.3"
@@ -22,16 +22,13 @@ boto3 = "^1.28.57"
 botocore = "^1.31.57"
 jinja2 = "^3.1.2"
 fastapi = "^0.104.1"
-transformers = "^4.34.1"
 gunicorn = "^21.2.0"
 PyYAML = "^6.0.1"
-gradio = "^4.1.1"
 plotly = "^5.18.0"
 graphql-core = "^3.2.3"
 scikit-learn = "^1.3.2"
-dexcom-developer-api-client = {file = "./deps/dexcom_developer_api_client-3-py3-none-any.whl"}
-torch = "^2.1.0"
 pfun-common = {git = "https://github.com/rocapp/pfun-common.git"}
+pfun-dexcom-api = {git = "https://github.com/rocapp/pfun-dexcom-api.git"}
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.7"
