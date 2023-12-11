@@ -1,11 +1,14 @@
 import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import json
 import click
 from sklearn.model_selection import ParameterGrid
 import pfun_path_helper as pph
-from pfun_cma_model.runtime.src.engine.cma_plot import CMAPlotConfig
-from pfun_cma_model.runtime.src.engine.cma_sleepwake import CMASleepWakeModel
-from pfun_cma_model.runtime.src.engine.fit import fit_model
-from pfun_cma_model.llm.gradio_iface import gradio_ui
+from pfun_cma_model.engine.cma_plot import CMAPlotConfig
+from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.engine.fit import fit_model
 
 
 @click.group()
@@ -71,8 +74,8 @@ def run_param_grid(ctx):
     pdict = {}
     pdict = {"tM0": [7, ], "tM1": [12, ], "tM2": [
         18, ], "d": [-3.0, -2.0, 0.0, 1.0, 2.0], }
-    # pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
-    # pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
+    pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
+    pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
     pgrid = ParameterGrid(pdict)
     for i, params in enumerate(pgrid):
         print(f"Iteration ({i:03d}/{len(pgrid)}) ...")
@@ -82,11 +85,6 @@ def run_param_grid(ctx):
         out = cma.run()
         fit_result_global.append([params, out])
     print('...done.')
-
-
-@cli.command()
-def run_gradio_ui():
-    gradio_ui()
 
 
 @cli.command()
