@@ -164,7 +164,7 @@ def initialize_model():
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
-    from pfun_cma_model.engine.cma_sleepwake import CMASleepWakeModel
+    from pfun_cma_model.engine.cma import CMASleepWakeModel
 
     model_config = get_model_config(app)
     if model_config is None:
