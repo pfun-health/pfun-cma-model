@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pfun-cma-model"
-version = "0.3.1a0"
+version = "0.3.1a1"
 description = "backend for pfun_cma_model"
 authors = ["Robbie Capps <rocapp@gmail.com>"]
 readme = "README.md"

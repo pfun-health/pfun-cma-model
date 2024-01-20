@@ -28,6 +28,7 @@ _BOUNDED_PARAM_DESCRIPTIONS = (
     'Solar noon offset (latitude)'
 )
 
+
 class QualsMap:
     def __init__(self, serr):
         self.serr = serr
@@ -60,6 +61,7 @@ class QualsMap:
     def very(self):
         """Very"""
         return abs(self.serr) >= 0.23
+
 
 _DEFAULT_BOUNDS = Bounds(
     lb=_LB_DEFAULTS,
@@ -101,7 +103,8 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     bounded_param_keys: Optional[Sequence[str] |
                                  Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
     midbound: Optional[float | Sequence[float]] = _MID_DEFAULTS
-    bounded_param_descriptions: Optional[Sequence[str] | Tuple[str]] = _BOUNDED_PARAM_DESCRIPTIONS
+    bounded_param_descriptions: Optional[Sequence[str]
+                                         | Tuple[str]] = _BOUNDED_PARAM_DESCRIPTIONS
     bounds: Optional[Annotated[Dict[str, Sequence[float]],
                                BoundsType()]] = _DEFAULT_BOUNDS
 
@@ -114,7 +117,7 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         if isinstance(value, ndarray):
             return value.tolist()
         return value
-    
+
     def calc_serr(self, param_key: str):
         """
         Calculate the standard error for the given parameter key.
@@ -130,7 +133,7 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         mid = self.midbound[ix]
         serr = (x - mid) / (self.bounds.ub[ix] - self.bounds.lb[ix])
         return serr
-    
+
     def generate_qualitative_descriptor(self, param_key: str):
         """Generate a qualitative description of the given parameter."""
         return QualsMap(self.calc_serr(param_key)).qualitative_descriptor
@@ -140,10 +143,11 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         ix = list(self.bounded_param_keys).index(param_key)
         description = self.bounded_param_descriptions[ix]
         return description + ' (' + self.generate_qualitative_descriptor(param_key) + ')'
-    
+
     def generate_markdown_table(self):
         """Generate a markdown table of the parameters."""
         table = []
         for param_key in self.bounded_param_keys:
-            table.append([param_key, 'float', self.midbound[list(self.bounded_param_keys).index(param_key)], self.bounds.lb[list(self.bounded_param_keys).index(param_key)], self.bounds.ub[list(self.bounded_param_keys).index(param_key)], self.describe(param_key)])
-        return tabulate(table, headers=['Parameter', 'Type', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
+            table.append([param_key, 'float', getattr(self, param_key), self.midbound[list(self.bounded_param_keys).index(param_key)], self.bounds.lb[list(
+                self.bounded_param_keys).index(param_key)], self.bounds.ub[list(self.bounded_param_keys).index(param_key)], self.describe(param_key)])
+        return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
