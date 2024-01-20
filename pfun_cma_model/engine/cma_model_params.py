@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Annotated, Optional, Sequence, Dict, Tuple
 from pydantic import BaseModel, field_serializer
 from numpy import ndarray
+import logging
+from tabulate import tabulate
 import importlib
 from pfun_path_helper import append_path
 append_path(Path(__file__).parent.parent.parent)
@@ -11,8 +13,54 @@ Bounds = bounds.Bounds  # necessary for typing (linter)
 BoundsType = bounds.BoundsType
 
 _LB_DEFAULTS = (-12.0, 0.5, 0.1, 0.0, 0.0, -3.0)
+_MID_DEFAULTS = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
 _UB_DEFAULTS = (14.0, 3.0, 3.0, 1.0, 2.0, 3.0)
-_BOUNDED_PARAM_KEYS_DEFAULTS = ('d', 'taup', 'taug', 'B', 'Cm', 'toff')
+_BOUNDED_PARAM_KEYS_DEFAULTS = (
+    'd', 'taup', 'taug', 'B', 'Cm', 'toff'
+)
+_EPS = 0.1 + 1e-8
+_BOUNDED_PARAM_DESCRIPTIONS = (
+    'Time zone offset (hours)',
+    'Photoperiod length',
+    'Glucose response time constant',
+    'Glucose Bias constant',
+    'Cortisol temporal sensitivity coefficient',
+    'Solar noon offset (latitude)'
+)
+
+class QualsMap:
+    def __init__(self, serr):
+        self.serr = serr
+
+    @property
+    def qualitative_descriptor(self):
+        """Generate a qualtitative description, use docstrings for matching conditions."""
+        desc = ''
+        for attr in ('very', 'low', 'normal', 'high'):
+            if getattr(self, attr):
+                desc += f'{attr} '
+        return desc.strip().title()
+
+    @property
+    def low(self):
+        """Low"""
+        return self.serr <= -_EPS
+
+    @property
+    def high(self):
+        """High"""
+        return self.serr >= _EPS
+
+    @property
+    def normal(self):
+        """Normal"""
+        return self.serr >= -_EPS and self.serr <= _EPS
+
+    @property
+    def very(self):
+        """Very"""
+        return abs(self.serr) >= 0.23
+
 _DEFAULT_BOUNDS = Bounds(
     lb=_LB_DEFAULTS,
     ub=_UB_DEFAULTS,
@@ -50,8 +98,12 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
     eps: Optional[float] = 1e-18
     lb: Optional[float | Sequence[float]] = _LB_DEFAULTS
     ub: Optional[float | Sequence[float]] = _UB_DEFAULTS
-    bounded_param_keys: Optional[Sequence[str] | Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
-    bounds: Optional[Annotated[Dict[str, Sequence[float]], BoundsType()]] = _DEFAULT_BOUNDS
+    bounded_param_keys: Optional[Sequence[str] |
+                                 Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    midbound: Optional[float | Sequence[float]] = _MID_DEFAULTS
+    bounded_param_descriptions: Optional[Sequence[str] | Tuple[str]] = _BOUNDED_PARAM_DESCRIPTIONS
+    bounds: Optional[Annotated[Dict[str, Sequence[float]],
+                               BoundsType()]] = _DEFAULT_BOUNDS
 
     @field_serializer('bounds')
     def serialize_bounds(self, value: Bounds, *args):
@@ -62,3 +114,36 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         if isinstance(value, ndarray):
             return value.tolist()
         return value
+    
+    def calc_serr(self, param_key: str):
+        """
+        Calculate the standard error for the given parameter key.
+
+        Args:
+            param_key (str): The key of the parameter to calculate the standard error for.
+
+        Returns:
+            float: The standard error value.
+        """
+        x = getattr(self, param_key)
+        ix = list(self.bounded_param_keys).index(param_key)
+        mid = self.midbound[ix]
+        serr = (x - mid) / (self.bounds.ub[ix] - self.bounds.lb[ix])
+        return serr
+    
+    def generate_qualitative_descriptor(self, param_key: str):
+        """Generate a qualitative description of the given parameter."""
+        return QualsMap(self.calc_serr(param_key)).qualitative_descriptor
+
+    def describe(self, param_key: str):
+        """Get the description of the given parameter."""
+        ix = list(self.bounded_param_keys).index(param_key)
+        description = self.bounded_param_descriptions[ix]
+        return description + ' (' + self.generate_qualitative_descriptor(param_key) + ')'
+    
+    def generate_markdown_table(self):
+        """Generate a markdown table of the parameters."""
+        table = []
+        for param_key in self.bounded_param_keys:
+            table.append([param_key, 'float', self.midbound[list(self.bounded_param_keys).index(param_key)], self.bounds.lb[list(self.bounded_param_keys).index(param_key)], self.bounds.ub[list(self.bounded_param_keys).index(param_key)], self.describe(param_key)])
+        return tabulate(table, headers=['Parameter', 'Type', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
