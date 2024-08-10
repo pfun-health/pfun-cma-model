@@ -9,6 +9,7 @@ import pfun_path_helper as pph
 from pfun_cma_model.engine.cma_plot import CMAPlotConfig
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.fit import fit_model
+from pfun_cma_model.app import run_app
 
 
 @click.group()
@@ -17,6 +18,12 @@ def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = os.path.abspath(
         os.path.join(pph.get_lib_path(), '../examples/data/valid_data.csv'))
+
+
+@cli.command()
+@click.pass_context
+def launch(ctx):
+    run_app()
 
 
 def process_kwds(ctx, param, value):
