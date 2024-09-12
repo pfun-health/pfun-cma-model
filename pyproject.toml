@@ -38,7 +38,6 @@ meson = "^1.2.2"
 zappa = "^0.58.0"
 
 [tool.poetry.group.optional.dependencies]
-pfun-dexcom-api = {file="./pfun_cma_model/bindist/pfun-dexcom-api-0.0.0-alpha.tar.gz"}
 pfun-data = {file="./pfun_cma_model/bindist/pfun-data-0.0.0-alpha.tar.gz"}
 
 [tool.poetry.scripts]
