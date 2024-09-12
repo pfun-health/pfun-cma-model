@@ -1,40 +1,6 @@
 # pfun-cma-model
 
-_CMA model microservices repo._
-
-## Environment Setup
-
-## First-time setup
-
-```bash
-# Set up Poetry
-poetry init --python=~3.10
-```
-
-## Usage
-
-#### Install dependencies
-
-```bash
-# install dependencies for pytorch (debian-based):
-sudo apt-get update && sudo apt-get install python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libffi-dev libssl-dev -y
-
-# install dependencies for pytorch (arch linux):
-sudo pacman -S cuda cudnn nccl
-
-# Build minpack (don't forget this!)
-poetry run build-minpack
-
-# install the package
-poetry install
-```
-
-#### Updating the environment
-
-```bash
-
-poetry update
-```
+**Branch: `origin/wasm`:** `pfun-cma-model` implemented in WebAssembly.
 
 ## CMA Model
 
