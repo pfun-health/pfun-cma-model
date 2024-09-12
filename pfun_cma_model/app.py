@@ -4,7 +4,7 @@ PFun CMA Model API Backend Routes.
 from fastapi import WebSocket
 from pfun_cma_model.misc.sessions import PFunCMASession
 from pfun_cma_model.misc.errors import BadRequestError
-from pfun_cma_model.misc.pathdefs import PRIVATE_ROUTES
+from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
 from pfun_cma_model.misc.middleware import authorization_required as authreq
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import Middleware
@@ -71,7 +71,7 @@ def get_current_request(app: FastAPI = app) -> Request:
 authorization_required = authreq(
     app,
     get_current_request,  # type: ignore
-    PRIVATE_ROUTES,
+    PFunAPIRoutes.PRIVATE_ROUTES,
     SECRETS_CLIENT,
     PFunCMASession,
     logger,

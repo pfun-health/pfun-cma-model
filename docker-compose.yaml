@@ -5,15 +5,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    user: "${UID}:${GID}"
+    user: "nonroot:nonroot"
     environment:
       - USER=nonroot
+      - GROUP=nonroot
     image: pfun-cma-model:latest
     container_name: pfun-cma-model
     ports:
       - "8000:8000"
+    tty: true
+    stdin_open: true
     command:
       [
+        "/usr/bin/env",
         "/bin/bash",
         "-ce",
         "python",
