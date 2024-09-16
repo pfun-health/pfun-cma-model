@@ -2,7 +2,7 @@
   description = "Flake for the pfun-cma-model project";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "https://github.com/NixOS/nixpkgs/archive/refs/tags/23.05.tar.gz";
   };
 
   outputs = { self, nixpkgs }: 
@@ -26,20 +26,10 @@
         pfun-cma-model-wasm = pkgs.stdenv.mkDerivation {
           name = "pfun-cma-model-wasm";
           src = self;
-          buildInputs = with pkgs; [ emscripten nodejs ];
+          buildInputs = with pkgs; [ emscripten ];
           buildPhase = ''
             # emscripten needs a HOME directory to work
             export HOME=$(mktemp -d)
-            echo "HOME=$HOME"
-
-            # quickfix for emscripten cache (get around read-only filesystem error)
-            # ref: https://github.com/NixOS/nixpkgs/issues/139943#issuecomment-930432045
-            export EMSCRIPTEN_ROOT="$(dirname $(dirname $(which emcc)))/share/emscripten"
-            cp -r $EMSCRIPTEN_ROOT/cache \
-              $HOME/.emscripten_cache && \
-            chmod u+rwX -R $HOME/.emscripten_cache
-            export EM_CACHE=$HOME/.emscripten_cache
-
             emcc -std=c++17 -O2 -I./src/includes \
               -s WASM=1 \
               -s EXPORTED_FUNCTIONS='["_run_calc"]' \
