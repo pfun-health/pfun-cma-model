@@ -98,37 +98,39 @@ void vectorized_G(const double* t, int tn, double I_E, const double* tm, const d
     delete[] meal_dis;
 }
 
-void run_calc() {
-    // Example usage
-    double time[] = {0.0, 1.0, 2.0, 3.0};   // Example time vector
-    double meal_times[] = {1.0, 2.0};       // Example meal times
-    double meal_duration[] = {1.5, 2.0};    // Example meal durations
-    double I_E = 0.1;                       // Example insulin level
-    double B = 0.5;                         // Bias constant
-    double Cm = 1.2;                        // Cortisol coefficient
-    double toff = 1.0;                      // Time offset
+extern "C" {
+    void run_calc() {
+        // Example usage
+        double time[] = {0.0, 1.0, 2.0, 3.0};   // Example time vector
+        double meal_times[] = {1.0, 2.0};       // Example meal times
+        double meal_duration[] = {1.5, 2.0};    // Example meal durations
+        double I_E = 0.1;                       // Example insulin level
+        double B = 0.5;                         // Bias constant
+        double Cm = 1.2;                        // Cortisol coefficient
+        double toff = 1.0;                      // Time offset
 
-    int tn = sizeof(time) / sizeof(time[0]);
-    int m = sizeof(meal_times) / sizeof(meal_times[0]);
+        int tn = sizeof(time) / sizeof(time[0]);
+        int m = sizeof(meal_times) / sizeof(meal_times[0]);
 
-    double** G_values = new double*[m];
-    for (int j = 0; j < m; ++j) {
-        G_values[j] = new double[tn];
-    }
-
-    vectorized_G(time, tn, I_E, meal_times, meal_duration, m, B, Cm, toff, G_values);
-
-    // Output example result
-    for (int j = 0; j < m; ++j) {
-        for (int i = 0; i < tn; ++i) {
-            std::cout << G_values[j][i] << " ";
+        double** G_values = new double*[m];
+        for (int j = 0; j < m; ++j) {
+            G_values[j] = new double[tn];
         }
-        std::cout << std::endl;
-    }
 
-    // Clean up
-    for (int j = 0; j < m; ++j) {
-        delete[] G_values[j];
+        vectorized_G(time, tn, I_E, meal_times, meal_duration, m, B, Cm, toff, G_values);
+
+        // Output example result
+        for (int j = 0; j < m; ++j) {
+            for (int i = 0; i < tn; ++i) {
+                std::cout << G_values[j][i] << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        // Clean up
+        for (int j = 0; j < m; ++j) {
+            delete[] G_values[j];
+        }
+        delete[] G_values;
     }
-    delete[] G_values;
 }

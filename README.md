@@ -12,10 +12,14 @@
 # To build the flake with nix:
 nix build
 
-# ...or, more specifically, the pfun-cma-model binary:
+# ...or, to build only the pfun-cma-model binary:
 nix build .#pfun-cma-model
 
-# ...the compiled program will be in ./result/bin/pfun-cma-model
+# ...or, to build only the pfun-cma-model-wasm binary:
+nix build .#pfun-cma-model-wasm
+
+# ...or, to build both explicitly:
+nix build .#pfun-cma-model-all
 ```
 
 ...The `./result/bin/pfun-cma-model` binary will be available in the `./result/bin` directory.

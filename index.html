@@ -1,0 +1,8 @@
+<html>
+<script src="./result/lib/pfun-cma-model.js"></script>
+<script>
+    Module.onRuntimeInitialized = () => {
+        Module.ccall('run_calc', null, [], []);
+    };
+</script>
+</html>
