@@ -5,11 +5,30 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs }: 
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      packages.${system} = rec {
+        pfun-cma-model = pkgs.stdenv.mkDerivation {
+          name = "pfun-cma-model";
+          src = self;
+          buildInputs = with pkgs; [ gcc ];
+          buildPhase = ''
+            g++ -std=c++17 -O2 -I./src/includes -o pfun-cma-model src/*.cpp
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp pfun-cma-model $out/bin/
+          '';
+        };
+        default = pfun-cma-model;
+      };
 
-    packages.x86_64-linux.pfun-cma-model = nixpkgs.legacyPackages.x86_64-linux.pfun-cma-model;
-
-    packages.x86_64-linux.default = self.packages.x86_64-linux.pfun-cma-model;
-
-  };
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = with pkgs; [ gcc ];
+      };
+    };
 }
+

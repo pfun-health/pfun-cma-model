@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 // Clipping function for overflow control
 double clip(double x, double min_val, double max_val)
@@ -92,7 +93,7 @@ std::vector<std::vector<double>> vectorized_G(const std::vector<double> &t, doub
 
     for (size_t j = 0; j < m; ++j)
     {
-        std::vector<double> k_G = K((t - tm[j]) / std::pow(taug[j], 2));
+        auto k_G = K((t - tm[j]) / std::pow(taug[j], 2));
         std::transform(k_G.begin(), k_G.end(), out[j].begin(), [&](double kg)
                        { return 1.3 * kg / (1.0 + I_E); });
     }

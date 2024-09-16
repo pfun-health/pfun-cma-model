@@ -2,7 +2,33 @@
 
 **Branch: `origin/wasm`:** `pfun-cma-model` implemented in WebAssembly.
 
-## CMA Model
+## Dev & Usage
+
+
+### Build
+
+```bash
+
+# To build the flake with nix:
+nix build
+
+# ...or, more specifically, the pfun-cma-model binary:
+nix build .#pfun-cma-model
+
+# ...the compiled program will be in ./result/bin/pfun-cma-model
+```
+
+...The `./result/bin/pfun-cma-model` binary will be available in the `./result/bin` directory.
+
+### Dev
+
+```bash
+# to enter the dev shell:
+nix develop
+```
+
+
+## Details (CMA Model)
 
 ### Model Parameters
 
