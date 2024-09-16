@@ -40,9 +40,6 @@
             chmod u+rwX -R $HOME/.emscripten_cache
             export EM_CACHE=$HOME/.emscripten_cache
 
-            # install emscripten dependencies (including 'html-minifier-terser')
-            cd $EMSCRIPTEN_ROOT && npm install
-
             emcc -std=c++17 -O2 -I./src/includes \
               -s WASM=1 \
               -s EXPORTED_FUNCTIONS='["_run_calc"]' \
@@ -67,6 +64,15 @@
       };
 
       devShells.${system}.default = pkgs.mkShell {
+        # quickfix for emscripten cache (get around read-only filesystem error)
+        # ref: https://github.com/NixOS/nixpkgs/issues/139943#issuecomment-1753113985
+        EM_CONFIG = pkgs.writeText ".emscripten" ''
+            EMSCRIPTEN_ROOT = '${pkgs.emscripten}/share/emscripten'
+            LLVM_ROOT = '${pkgs.emscripten.llvmEnv}/bin'
+            BINARYEN_ROOT = '${pkgs.binaryen}'
+            NODE_JS = '${pkgs.nodejs-18_x}/bin/node'
+            CACHE = '${toString ./.cache}'
+          '';
         buildInputs = with pkgs; [ gcc emscripten ];
       };
     };
