@@ -96,7 +96,7 @@ void vectorized_G(double* t, int tn, double I_E, double* tm, double* taug, int m
     free(meal_dis);
 }
 
-int main() {
+void run_calc() {
     // Example usage
     double time[] = {0.0, 1.0, 2.0, 3.0};  // Example time vector
     double meal_times[] = {1.0, 2.0};      // Example meal times
@@ -129,6 +129,4 @@ int main() {
         free(G_values[j]);
     }
     free(G_values);
-    
-    return 0;
 }

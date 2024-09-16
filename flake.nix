@@ -16,7 +16,7 @@
           src = self;
           buildInputs = with pkgs; [ gcc ];
           buildPhase = ''
-            g++ -std=c++17 -O2 -I./src/includes -o pfun-cma-model src/*.cpp
+            g++ -std=c++17 -O2 -o pfun-cma-model src/*.cc
           '';
           installPhase = ''
             mkdir -p $out/bin

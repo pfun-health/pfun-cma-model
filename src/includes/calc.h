@@ -36,4 +36,7 @@ void K(double* x, int n, double* out);
 void vectorized_G(double* t, int tn, double I_E, double* tm, double* taug, int m,
                   double B, double Cm, double toff, double** out);
 
+// Run the calc (sample usage)
+void run_calc();
+
 #endif // CALC_H
