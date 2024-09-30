@@ -17,16 +17,27 @@ poetry init --python=~3.10
 
 ```bash
 # install dependencies for pytorch (debian-based):
-sudo apt-get update && sudo apt-get install python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libffi-dev libssl-dev -y
+sudo apt-get update && \
+     sudo apt-get install \
+     	  python3-dev \
+	  python3-pip \
+	  libxml2-dev \
+	  libxslt1-dev \
+	  zlib1g-dev \
+	  libsasl2-dev \
+	  libffi-dev \
+	  libssl-dev \
+	  llvm-14
+	  -y
 
 # install dependencies for pytorch (arch linux):
 sudo pacman -S cuda cudnn nccl
 
-# Build minpack (don't forget this!)
-poetry run build-minpack
+# install proper llvmlite (may not be needed)
+./scripts/install-llvmlite.sh
 
 # install the package
-poetry install
+LLVM_CONFIG=/usr/bin/llvm-config-14 poetry install
 ```
 
 #### Updating the environment

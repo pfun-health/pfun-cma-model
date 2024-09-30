@@ -13,19 +13,14 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8000:8000"
-    tty: true
-    stdin_open: true
     command:
       [
-        "/usr/bin/env",
-        "/bin/bash",
-        "-ce",
-        "python",
-        "-m",
-        "uvicorn",
+        "/usr/bin/uvicorn",
         "pfun_cma_model.main:app",
         "--host",
         "0.0.0.0",
         "--port",
-        "8000"
+        "8000",
+	"--workers",
+	"4"
       ]

@@ -90,7 +90,7 @@ def main():
         new_lines = """
 # paths for minpack
 export LD_LIBRARY_PATH="$HOME/.local/lib:$HOME/.local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PKG_CONFIG_PATH="$HOME/.local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
 """
         bashpath = os.path.expanduser("~/.bashrc")
         if "# paths for minpack" not in open(bashpath, "r", encoding="utf-8").read():

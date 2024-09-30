@@ -25,20 +25,7 @@ dt_to_decimal_hours = importlib.import_module(
 format_data = importlib.import_module(".data_utils",
                                       package="pfun_cma_model.engine").format_data
 
-try:
-    lmdif = importlib.import_module(
-        'minpack'
-    ).lmdif
-except ImportError:
-    try:
-        import ctypes
-        libpath = os.path.expanduser('~/.local/lib')
-        ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libminpack.so'))
-        lmdif = importlib.import_module(
-            'minpack'
-        ).lmdif
-    except Exception:
-        logger.warning("Failed to load minpack library.", exc_info=True)
+from scipy.optimize import leastsq
 
 
 class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
@@ -290,24 +277,22 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
     pmu = np.eye(len(p0), dtype=np.float64)
     Niters = np.zeros(1, dtype=np.int64)
     diag = np.ones(len(p0), dtype=np.dtype("f8"))
-    ier = lmdif(
+    popt, pcov, infodict, mesg, ier = leastsq(
         fun,
         p0,
-        fvec,
         args=(ydata, pcov, pmu, Niters),
         xtol=xtol,
         gtol=gtol,
         maxfev=maxfev,
         diag=diag,
+        full_output=True
     )
-    popt = p0.copy()
     errout = cns.errors[ier]
     if len(errout) == 2:
         errmsg, err = errout
     else:
         err = None
         errmsg = errout
-    infodict = {"message": errmsg, "error": err, "ier": ier}
     if ier not in cns.LEASTSQ_SUCCESS:
         raise RuntimeError(f"Optimal parameters not found: {errmsg}")
     return popt, pcov, infodict, errmsg, ier

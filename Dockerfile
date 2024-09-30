@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     g++ \
     gfortran \
-    meson \
+    pkg-config \
+    uvicorn \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -23,15 +24,12 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install --user --upgrade pip setuptools && \
-    pip install --user . && \
+RUN pip install --user --upgrade pip setuptools meson && \
+    PATH=$PATH:$HOME/.local/bin pip install --user . && \
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc" && \
     export PATH="$HOME/.local/bin:$PATH"
 
 EXPOSE 8000
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
-
-RUN python ./scripts/build_minpack.py
-
-CMD ["/usr/bin/env", "/bin/bash", "-c", "python", "-m", "pfun_cma_model.cli", "launch"]
+ENV LLVM_CONFIG=/usr/bin/llvm-config-14
