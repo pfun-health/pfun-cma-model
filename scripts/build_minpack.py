@@ -43,7 +43,7 @@ def install_arch_specific():
 def main():
     #: Step 0: Install fortran dependencies
     print("Installing Fortran dependencies...")
-    install_arch_specific()
+    # install_arch_specific()  # commented out to avoid errors when building in docker
     subprocess.run(["pip", "install", "--upgrade", "fpm", "ninja"], check=True)
     subprocess.run(["rm", "-rf", "minpack"], check=True)
     # Step 1: Clone the repository
