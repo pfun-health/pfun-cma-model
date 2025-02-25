@@ -312,7 +312,7 @@ class CMASleepWakeModel:
         if 'tM' in kwds:
             self.tM = array(kwds['tM'], dtype=float).flatten()
         if 'N' in kwds and kwds.get('N') is not None:
-            self.t = linspace(0, 24, num=kwds['N'])
+            self.t = linspace(0, 24, num=int(kwds['N']))
         if 'seed' in kwds:
             self.rng = default_rng(seed=kwds['seed'])
         if 'eps' in kwds:
