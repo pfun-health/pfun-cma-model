@@ -18,6 +18,8 @@ def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = os.path.abspath(
         os.path.join(pph.get_lib_path(), '../examples/data/valid_data.csv'))
+    ctx.obj["output_dir"] = os.path.abspath(
+        os.path.join(pph.get_lib_path(), '../examples/output'))
 
 
 @cli.command()
@@ -47,23 +49,38 @@ fit_result_global = None
 
 @cli.command()
 @click.option('--input-fpath', '-i', type=click.Path(exists=True), default=None, required=False)
+@click.option('--output-dir', '--output', '-o', type=click.Path(exists=True), default=None, required=False)
 @click.option("--N", default=288, type=click.INT)
 @click.option("--plot/--no-plot", is_flag=True, default=False)
 @click.option("--opts", "--curve-fit-kwds", multiple=True, type=click.Tuple([str, click.UNPROCESSED]),
               callback=process_kwds)
 @click.option("--model-config", "--config", prompt=True, default="{}", type=str)
 @click.pass_context
-def run_fit_model(ctx, input_fpath, n, plot, opts, model_config):
+def run_fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     global fit_result_global
     model_config = json.loads(model_config)
     if input_fpath is None:
         input_fpath = ctx.obj["sample_data_fpath"]
+    if output_dir is None:
+        output_dir = ctx.obj["output_dir"]
+    # read the input dataset
     data = pd.read_csv(input_fpath)
+    # fit the model
     fit_result = fit_model(data, n=n, plot=plot, opts=opts, **model_config)
     fit_result_global = fit_result
+    # write fitted model parameters (with the corresponding time-series solution) to disk
+    output_fpath = os.path.join(output_dir, "fit_result.json")
+    with open(output_fpath, "w", encoding='utf8') as f:
+        f.write(fit_result.model_dump_json())
+    click.secho(f"...wrote fitted model params to: '{output_fpath}'")
+    # plot the results (if '--plot' is indicated)
     if plot is True:
+        from pfun_cma_model.engine.cma_plot import CMAPlotConfig
+        fig, _ = CMAPlotConfig().plot_model_results(df=fit_result.formatted_data, soln=fit_result.soln, as_blob=False)
+        fig.savefig(os.path.join(output_dir, "fit_result.png"))
         click.confirm("[enter] to exit...", default=True,
                       abort=True, show_default=False)
+        plt.close('all')
 
 
 @cli.command()

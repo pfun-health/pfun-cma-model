@@ -47,7 +47,22 @@ LLVM_CONFIG=/usr/bin/llvm-config-14 poetry install
 poetry update
 ```
 
-## CMA Model
+## Run CLI examples
+
+```bash
+
+# show usage statement for pfun-cma-model CLI
+$ poetry run pfun-cma-model
+...
+
+
+# fit the model, output results
+$ poetry run pfun-cma-model run-fit-model --plot
+...
+
+```
+
+## CMA Model Description
 
 ### Model Parameters
 

@@ -15,7 +15,7 @@ class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
     plot_cols: Optional[Tuple[str]] = (
-        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "g_raw")
+        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value")
     labels: Optional[Tuple[str]] = ("Breakfast", "Lunch", "Dinner",
                                     "Glucose", "Cortisol", "Melatonin",
                                     "Adiponectin", "Photoperiod (irradiance)",
