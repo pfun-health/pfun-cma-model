@@ -3,7 +3,9 @@ from typing import Any, Sequence
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
-
+from pathlib import Path
+import pfun_path_helper as pph
+pph.append_path(Path(__file__).parent.parent.parent)
 from pfun_cma_model.engine.cma import (
     CMAModelParams,
     CMASleepWakeModel,
@@ -12,11 +14,12 @@ from pfun_cma_model.engine.cma import (
 cma = CMASleepWakeModel()
 
 app = dash.Dash(__name__)
+app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
-    [
+    children=[
         html.Div(
-            [
+            children=[
                 html.Button("Toggle Menu", id="toggle-button"),
                 html.Div(
                     [
@@ -128,21 +131,6 @@ app.layout = html.Div(
     style={"overflow": "auto", "clear": "both"},
 )
 
-# JavaScript to toggle the slider menu's visibility
-toggle_script = """
-    document.getElementById('toggle-button').onclick = function() {
-        var menu = document.getElementById('sliders-menu');
-        if (menu.style.display === 'none' || menu.style.display === '') {
-            menu.style.display = 'block';
-        } else {
-            menu.style.display = 'none';
-        }
-    };
-"""
-
-# app.scripts.append_script({"external_url": toggle_script})
-app.external_scripts = 
-
 
 colors = {
     "G": "rgb(255, 0, 0)",
@@ -197,4 +185,9 @@ def update_params(n, d, taup, taug, B, Cm, toff, xaxis_column_name, yaxis_column
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host='0.0.0.0')
+    app.run_server(
+        debug=True,
+        host="0.0.0.0",
+        port=8050,
+        dev_tools_serve_dev_bundles=True
+    )
