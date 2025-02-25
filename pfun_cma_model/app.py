@@ -2,10 +2,8 @@
 PFun CMA Model API Backend Routes.
 """
 from fastapi import WebSocket
-from pfun_cma_model.misc.sessions import PFunCMASession
 from pfun_cma_model.misc.errors import BadRequestError
 from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
-from pfun_cma_model.misc.middleware import authorization_required as authreq
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import Middleware
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -21,18 +19,15 @@ logger = logging.getLogger(__name__)
 
 pfun_path_helper.append_path(Path(__file__).parent.parent)
 
-
-BOTO3_SESSION = PFunCMASession.get_boto3_session()
-SECRETS_CLIENT = PFunCMASession.get_boto3_client("secretsmanager")
 SDK_CLIENT = None
 BASE_URL: Optional[str] = None
 STATIC_BASE_URL: str | None = None
 BODY: Optional[str] = None
-S3_CLIENT = PFunCMASession.get_boto3_client("s3")
 
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
+# trunk-ignore(bandit/B108)
 file_handler = logging.FileHandler("/tmp/FastAPI-logs-backend.log")
 file_handler.setFormatter(formatter)
 
@@ -66,27 +61,6 @@ def get_current_request(app: FastAPI = app) -> Request:
         app.current_request if app.current_request is not None else Request({})
     )  # to make the linter shut up.
     return current_request
-
-
-authorization_required = authreq(
-    app,
-    get_current_request,  # type: ignore
-    PFunAPIRoutes.PRIVATE_ROUTES,
-    SECRETS_CLIENT,
-    PFunCMASession,
-    logger,
-)
-
-
-class AuthRequiredMiddleware:
-    def __init__(self, app: FastAPI):
-        self.app = app
-
-    def __call__(self, request: Request, call_next):  # type: ignore
-        return authorization_required(call_next, self.app)
-
-
-app.add_middleware(Middleware(AuthRequiredMiddleware))
 
 
 @app.route("/params/schema", methods=["GET"])
