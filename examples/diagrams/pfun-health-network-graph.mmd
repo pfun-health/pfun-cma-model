@@ -1,0 +1,16 @@
+graph TB
+  Brain["Brain"] -- "Influences" --> Behavior["Behavior"]
+  Brain -- "Regulates" --> Pain["Pain Sensation"]
+  Brain -- "Controls" --> Heart["Heart"]
+  Brain -- "Regulates" --> Lungs["Lungs"]
+  Brain -- "Influences" --> Vasculature["Vasculature"]
+  Brain -- "Regulates" --> GI["Gastrointestinal System"]
+  Behavior -- "Affects" --> Heart
+  Behavior -- "Affects" --> Lungs
+  Pain -- "Influences" --> Heart
+  Pain -- "Influences" --> Lungs
+  Heart -- "Affects" --> Vasculature
+  Lungs -- "Affects" --> Vasculature
+  Vasculature -- "Affects" --> GI
+  GI -- "Influences" --> Brain
+  %%{init: {'theme':'forest'}}%%
