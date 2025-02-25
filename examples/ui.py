@@ -4,7 +4,7 @@ import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
-from pfun_cma_model.runtime.src.engine.cma_sleepwake import (
+from pfun_cma_model.engine.cma import (
     CMAModelParams,
     CMASleepWakeModel,
 )
@@ -140,7 +140,8 @@ toggle_script = """
     };
 """
 
-app.scripts.append_script({"external_url": toggle_script})
+# app.scripts.append_script({"external_url": toggle_script})
+app.external_scripts = 
 
 
 colors = {
@@ -196,4 +197,4 @@ def update_params(n, d, taup, taug, B, Cm, toff, xaxis_column_name, yaxis_column
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')

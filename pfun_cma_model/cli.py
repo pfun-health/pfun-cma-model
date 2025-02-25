@@ -50,7 +50,7 @@ fit_result_global = None
 @cli.command()
 @click.option('--input-fpath', '-i', type=click.Path(exists=True), default=None, required=False)
 @click.option('--output-dir', '--output', '-o', type=click.Path(exists=True), default=None, required=False)
-@click.option("--N", default=288, type=click.INT)
+@click.option("--N", default=288, type=click.INT, help="Number of time points to produce in the final model solution.")
 @click.option("--plot/--no-plot", is_flag=True, default=False)
 @click.option("--opts", "--curve-fit-kwds", multiple=True, type=click.Tuple([str, click.UNPROCESSED]),
               callback=process_kwds)
