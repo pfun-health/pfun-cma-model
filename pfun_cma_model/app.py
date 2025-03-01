@@ -56,32 +56,28 @@ app.add_middleware(
 )
 
 
-def get_current_request(app: FastAPI = app) -> Request:
-    current_request: Request = (
-        app.current_request if app.current_request is not None else Request({})
-    )  # to make the linter shut up.
-    return current_request
+@app.get("/")
+def root():
+    return Response(content='<h1>Welcome to the pfun_cma_model API</h1><h3>Check out <a href="/docs">/docs</a> to get started...</h3>')
 
 
-@app.route("/params/schema", methods=["GET"])
+@app.get("/params/schema")
 def params_schema():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
-
     params = CMAModelParams()
     return params.model_json_schema()
 
 
-@app.route("/params/default", methods=["GET"])
+@app.get("/params/default")
 def default_params():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
-
     params = CMAModelParams()
     return params.model_dump_json()
 
 
-@app.route("/log", methods=["GET", "POST"])
-def logging_route(level: Literal["info", "warning", "error"] = "info"):
-    current_request = get_current_request(app)
+@app.get("/log")
+def logging_route(request: Request, level: Literal["info", "warning", "error"] = "info"):
+    current_request: Request = request
     if current_request is None:
         raise RuntimeError("Logging error! No request was provided!")
     if current_request.query_params is None:
@@ -105,9 +101,9 @@ def logging_route(level: Literal["info", "warning", "error"] = "info"):
 
 
 def get_params(
-    app: FastAPI, key: str, default: Any = None, load_json: bool = False
+        request: Request, key: str, default: Any = None, load_json: bool = False
 ) -> Dict:
-    current_request = get_current_request(app)
+    current_request: Request = request
     if current_request is None:
         raise RuntimeError("No request was provided!")
     params = {} if current_request.json_body is None else current_request.json_body
@@ -126,8 +122,8 @@ def get_params(
     return params
 
 
-def get_model_config(app: FastAPI, key: str = "model_config") -> Dict:
-    return get_params(app, key=key)
+def get_model_config(request: Request, key: str = "model_config") -> Dict:
+    return get_params(request, key=key)
 
 
 CMA_MODEL_INSTANCE = None
@@ -140,7 +136,7 @@ def initialize_model():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
     from pfun_cma_model.engine.cma import CMASleepWakeModel
 
-    model_config = get_model_config(app)
+    model_config = get_model_config(Request({}))
     if model_config is None:
         model_config = {}
     model_config = CMAModelParams(**model_config)
@@ -149,15 +145,15 @@ def initialize_model():
     return CMA_MODEL_INSTANCE
 
 
-@app.route("/translate-results", methods=["POST", "GET"])
-def translate_model_results_by_language():
-    results = get_params(app, "results")
-    from_lang = get_params(app, "from", "python", load_json=True)
+@app.post("/translate-results")
+def translate_model_results_by_language(request: Request):
+    results = get_params(request, "results")
+    from_lang = get_params(request, "from", "python", load_json=True)
     if from_lang not in ["python", "javascript"]:
         return Response(
             content="Invalid from language.", status_code=BadRequestError.STATUS_CODE
         )
-    to_lang = get_params(app, "to", "javascript", load_json=True)
+    to_lang = get_params(request, "to", "javascript", load_json=True)
     if to_lang not in ["python", "javascript"]:
         return Response(
             content="Invalid to language.", status_code=BadRequestError.STATUS_CODE
@@ -179,13 +175,13 @@ def translate_model_results_by_language():
     )
 
 
-@app.route("/run", methods=["GET", "POST"])
-def run_model_route():
+@app.post("/run")
+@app.get("/run")
+def run_model(request: Request):
     """Runs the CMA model."""
-    request: Request | None = get_current_request(app)
     if request is None:
         raise RuntimeError("No request was provided!")
-    model_config = get_model_config(app)
+    model_config = get_model_config(request)
     model = initialize_model()
     model.update(**model_config)
     df = model.run()
@@ -202,9 +198,9 @@ def run_model_route():
     return response
 
 
-def run_at_time_func(app: FastAPI) -> str:
-    model_config = get_model_config(app)
-    calc_params = get_params(app, "calc_params")
+def run_at_time_func(request: Request) -> str:
+    model_config = get_model_config(request)
+    calc_params = get_params(request, "calc_params")
     # pylint-disable=import-outside-toplevel
     from pandas import DataFrame
 
@@ -227,15 +223,19 @@ def run_at_time_func(app: FastAPI) -> str:
 @app.websocket("/ws/run_at_time")
 async def run_at_time_ws(websocket: WebSocket):
     await websocket.accept()
-    logger.info("Received message: %s", await websocket.receive_text())
-    output: str = run_at_time_func(app)
+    msg = await websocket.receive_text()
+    logger.info("Received message: %s", msg[:20], "...")
+    data = json.loads(msg)
+    interim_response = await requests.post("/run-at-time", data=data)
+    output: str = interim_response.text
     await websocket.send_text(output)
 
 
-@app.route("/run-at-time", methods=["GET", "POST"])
-def run_at_time_route():
+@app.post("/run-at-time")
+@app.get("/run-at-time")
+def run_at_time_route(request: Request):
     try:
-        output = run_at_time_func(app)
+        output = run_at_time_func(request)
         return Response(
             content=output,
             status_code=200,
@@ -253,18 +253,16 @@ def run_at_time_route():
         return error_response
 
 
-@app.route("/fit", methods=["POST"])
-def fit_model_to_data():
+@app.post("/fit")
+def fit_model_to_data(request: Request):
     from pandas import DataFrame
-
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
-
-    data = get_params(app, "data")
+    data = get_params(request, "data")
     if data is None:
         raise RuntimeError("no data was provided!")
     if isinstance(data, str):
         data = json.loads(data)
-    model_config = get_model_config(app)
+    model_config = get_model_config(request)
     if isinstance(model_config, str):
         model_config = json.loads(model_config)
     try:
@@ -290,7 +288,6 @@ def fit_model_to_data():
 
 def run_app():
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 

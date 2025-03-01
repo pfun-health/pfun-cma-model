@@ -6,7 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     gfortran \
     pkg-config \
-    uvicorn \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -21,10 +20,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install --user --upgrade pip setuptools meson && \
-    pip install --user . && \
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc" && \
-    export PATH="$HOME/.local/bin:$PATH"
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+
+RUN export PATH="/home/nonroot/.local/bin:$PATH" && \
+    pip install --user --upgrade pip && \
+    pip install --user .
 
 EXPOSE 8000
 ENV PYTHONUNBUFFERED=1
