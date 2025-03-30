@@ -7,6 +7,7 @@ from pandas import DataFrame
 from pfun_cma_model.misc.errors import BadRequestError
 from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
+from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import Middleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
@@ -85,12 +86,7 @@ async def initialize_model():
     global CMA_MODEL_INSTANCE
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
-    from pfun_cma_model.engine.cma_model_params import CMAModelParams
-    from pfun_cma_model.engine.cma import CMASleepWakeModel
-
-    model_config = {}
-    model_config = CMAModelParams(**model_config)
-    model = CMASleepWakeModel(model_config)
+    model = CMASleepWakeModel()
     CMA_MODEL_INSTANCE = model
     return CMA_MODEL_INSTANCE
 
