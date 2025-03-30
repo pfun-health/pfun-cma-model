@@ -6,8 +6,8 @@ pth = str(Path(__file__).parents[1])
 if pth not in sys.path:
     sys.path.append(pth)
     print('appended %s to sys.path' % pth)
-from src.engine.cma_sleepwake import CMASleepWakeModel
-from src.engine.cma_model_params import CMAModelParams
+from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 cma = CMASleepWakeModel()
 cmap = CMAModelParams()

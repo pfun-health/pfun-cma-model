@@ -161,9 +161,9 @@ async def run_at_time_ws(websocket: WebSocket):
 
 
 @app.post("/run-at-time")
-def run_at_time_route(config: CMAModelParams = None):
+async def run_at_time_route(config: CMAModelParams = None):
     try:
-        output = run_at_time_func(config=config)
+        output = await run_at_time_func(config=config)
         return Response(
             content=json.dumps(output, indent=3),
             status_code=200,
