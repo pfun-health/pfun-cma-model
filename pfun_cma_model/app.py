@@ -163,19 +163,19 @@ async def run_at_time_ws(websocket: WebSocket):
 @app.post("/run-at-time")
 def run_at_time_route(config: CMAModelParams = None):
     try:
-        output = run_at_time_func(model_config=config)
+        output = run_at_time_func(config=config)
         return Response(
-            content=output,
+            content=json.dumps(output, indent=3),
             status_code=200,
             headers={"Content-Type": "application/json"},
         )
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
         error_response = Response(
-            content={
+            content=json.dumps({
                 "error": "failed to run at time. See error message on server log.",
                 "exception": str(err),
-            },
+            }),
             status_code=500,
         )
         return error_response
