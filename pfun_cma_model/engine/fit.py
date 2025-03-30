@@ -42,8 +42,8 @@ except ImportError:
         logger.warning("Failed to load minpack library.", exc_info=True)
 
 
-class CMAFitResult(BaseModel, arbitrary_types_allowed=True):
-    model_config = ConfigDict()
+class CMAFitResult(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     soln: pd.DataFrame
     formatted_data: pd.DataFrame
     cma: Any

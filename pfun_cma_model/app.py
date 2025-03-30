@@ -1,18 +1,20 @@
 """
 PFun CMA Model API Backend Routes.
 """
+import requests
 from fastapi import WebSocket
 from pfun_cma_model.misc.errors import BadRequestError
 from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import Middleware
-from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 import pfun_path_helper
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Annotated
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,70 +77,17 @@ def default_params():
     return params.model_dump_json()
 
 
-@app.get("/log")
-def logging_route(request: Request, level: Literal["info", "warning", "error"] = "info"):
-    current_request: Request = request
-    if current_request is None:
-        raise RuntimeError("Logging error! No request was provided!")
-    if current_request.query_params is None:
-        raise RuntimeError("Logging error! No query parameters were provided!")
-    msg = current_request.query_params.get("msg") or current_request.query_params.get(
-        "message"
-    )
-    level = current_request.query_params.get("level", level)
-    if msg is None:
-        return Response(
-            content="No message provided.", status_code=BadRequestError.STATUS_CODE
-        )
-    loggers = {
-        "debug": logger.debug,
-        "info": logger.info,
-        "warning": logger.warning,
-        "error": logger.error,
-    }
-    loggers[level](msg)
-    return Response(content={"message": msg, "level": level}, status_code=200)
-
-
-def get_params(
-        request: Request, key: str, default: Any = None, load_json: bool = False
-) -> Dict:
-    current_request: Request = request
-    if current_request is None:
-        raise RuntimeError("No request was provided!")
-    params = {} if current_request.json_body is None else current_request.json_body
-    if isinstance(params, (str, bytes)):
-        params = json.loads(params)
-    if key in params:
-        params = params[key]
-    if current_request.query_params is not None:
-        params.update(current_request.query_params)
-    if key in params:
-        params = params[key]
-    if params is None:
-        params = default
-    if load_json and isinstance(params, (str, bytes)):
-        params = json.loads(params)
-    return params
-
-
-def get_model_config(request: Request, key: str = "model_config") -> Dict:
-    return get_params(request, key=key)
-
-
 CMA_MODEL_INSTANCE = None
 
 
-def initialize_model():
+async def initialize_model():
     global CMA_MODEL_INSTANCE
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
     from pfun_cma_model.engine.cma import CMASleepWakeModel
 
-    model_config = get_model_config(Request({}))
-    if model_config is None:
-        model_config = {}
+    model_config = {}
     model_config = CMAModelParams(**model_config)
     model = CMASleepWakeModel(model_config)
     CMA_MODEL_INSTANCE = model
@@ -146,20 +95,8 @@ def initialize_model():
 
 
 @app.post("/translate-results")
-def translate_model_results_by_language(request: Request):
-    results = get_params(request, "results")
-    from_lang = get_params(request, "from", "python", load_json=True)
-    if from_lang not in ["python", "javascript"]:
-        return Response(
-            content="Invalid from language.", status_code=BadRequestError.STATUS_CODE
-        )
-    to_lang = get_params(request, "to", "javascript", load_json=True)
-    if to_lang not in ["python", "javascript"]:
-        return Response(
-            content="Invalid to language.", status_code=BadRequestError.STATUS_CODE
-        )
-    if from_lang == to_lang:
-        return Response(content=json.dumps(results), status_code=200)
+async def translate_model_results_by_language(results: Dict, from_lang: Literal["python", "javascript"]):
+    to_lang = "python" if from_lang == "javascript" else "javascript"
     from pandas import DataFrame
 
     translation_dict = {
@@ -176,14 +113,11 @@ def translate_model_results_by_language(request: Request):
 
 
 @app.post("/run")
-@app.get("/run")
-def run_model(request: Request):
+async def run_model(config: Annotated[CMAModelParams, Body()] = None):
     """Runs the CMA model."""
-    if request is None:
-        raise RuntimeError("No request was provided!")
-    model_config = get_model_config(request)
-    model = initialize_model()
-    model.update(**model_config)
+    model = await initialize_model()
+    if config is not None:
+        model.update(config)
     df = model.run()
     output = df.to_json()
     response = Response(
@@ -194,25 +128,20 @@ def run_model(request: Request):
             "Access-Control-Allow-Origin": "*",
         },
     )
-    logger.info("Response: %s", json.dumps(response.to_dict()))
+    logger.debug("Response: %s", response.body.decode('utf-8'))
     return response
 
 
-def run_at_time_func(request: Request) -> str:
-    model_config = get_model_config(request)
-    calc_params = get_params(request, "calc_params")
+async def run_at_time_func(config: CMAModelParams = None) -> str:
     # pylint-disable=import-outside-toplevel
     from pandas import DataFrame
-
-    from pfun_cma_model.engine.cma_model_params import CMAModelParams
-
-    logger.info("model_config: %s", json.dumps(model_config))
+    logger.info("config: %s", json.dumps(config))
     logger.info("calc_params: %s", json.dumps(calc_params))
-    if model_config is None:
-        model_config = {}
-    model = initialize_model()
-    model_config = CMAModelParams(**model_config)
-    model.update(model_config)  # ! this occurs inplace !
+    model = await initialize_model()
+    calc_params = None
+    if config is not None:
+        model.update(config)
+        calc_params = {"t": config.t, "dt": config.dt, "n": config.N}
     if calc_params is None:
         calc_params = {}
     df: DataFrame = model.calc_Gt(**calc_params)
@@ -232,10 +161,9 @@ async def run_at_time_ws(websocket: WebSocket):
 
 
 @app.post("/run-at-time")
-@app.get("/run-at-time")
-def run_at_time_route(request: Request):
+def run_at_time_route(config: CMAModelParams = None):
     try:
-        output = run_at_time_func(request)
+        output = run_at_time_func(model_config=config)
         return Response(
             content=output,
             status_code=200,
@@ -254,20 +182,16 @@ def run_at_time_route(request: Request):
 
 
 @app.post("/fit")
-def fit_model_to_data(request: Request):
+async def fit_model_to_data(data: dict, config: CMAModelParams | str = None):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
-    data = get_params(request, "data")
-    if data is None:
-        raise RuntimeError("no data was provided!")
     if isinstance(data, str):
         data = json.loads(data)
-    model_config = get_model_config(request)
-    if isinstance(model_config, str):
-        model_config = json.loads(model_config)
+    if isinstance(config, str):
+        config = json.loads(config)
     try:
         df = DataFrame(data)
-        fit_result = cma_fit_model(df, **model_config)
+        fit_result = cma_fit_model(df, **config)
         output = fit_result.model_dump_json()
     except Exception:
         logger.error("failed to fit to data.", exc_info=True)
@@ -288,7 +212,7 @@ def fit_model_to_data(request: Request):
 
 def run_app():
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
 
 
 if __name__ == "__main__":

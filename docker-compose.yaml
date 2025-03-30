@@ -1,5 +1,15 @@
 services:
   app:
+    develop:
+      watch:
+        - path: ./
+          target: /app
+          action: sync
+          ignore:
+            - .git/
+            - .trunk/
+            - pfun-cma-model.code-workspace
+            - poetry.lock
     build:
       context: .
       dockerfile: Dockerfile

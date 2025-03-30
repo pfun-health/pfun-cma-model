@@ -1,4 +1,4 @@
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -26,7 +26,6 @@ RUN export PATH="/home/nonroot/.local/bin:$PATH" && \
     pip install --user --upgrade pip && \
     pip install --user .
 
-EXPOSE 8000
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14

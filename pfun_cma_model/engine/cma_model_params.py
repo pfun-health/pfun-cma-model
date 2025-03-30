@@ -1,13 +1,17 @@
 import sys
 from pathlib import Path
 from typing import Annotated, Optional, Sequence, Dict, Tuple
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, field_serializer, ConfigDict
 from numpy import ndarray
-import logging
 from tabulate import tabulate
 import importlib
 from pfun_path_helper import append_path
 append_path(Path(__file__).parent.parent.parent)
+
+# import custom ndarray schema
+from pfun_cma_model.misc.types import NumpyArray
+
+# import custom bounds types
 bounds = importlib.import_module('.engine.bounds', package='pfun_cma_model')
 Bounds = bounds.Bounds  # necessary for typing (linter)
 BoundsType = bounds.BoundsType
@@ -70,7 +74,7 @@ _DEFAULT_BOUNDS = Bounds(
 )
 
 
-class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
+class CMAModelParams(BaseModel):
     """
     Represents the parameters for a CMA model.
 
@@ -87,11 +91,12 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
         seed (Optional[int], optional): Random seed. Defaults to None.
         eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
-    t: Optional[float | Sequence[float] | ndarray] = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    t: Optional[float | NumpyArray] = None
     N: int | None = 24
     d: float = 0.0
     taup: float = 1.0
-    taug: float | Sequence[float] | ndarray = 1.0
+    taug: float | NumpyArray = 1.0
     B: float = 0.05
     Cm: float = 0.0
     toff: float = 0.0
@@ -109,8 +114,10 @@ class CMAModelParams(BaseModel, arbitrary_types_allowed=True):
                                BoundsType()]] = _DEFAULT_BOUNDS
 
     @field_serializer('bounds')
-    def serialize_bounds(self, value: Bounds, *args):
-        return value.json()
+    def serialize_bounds(self, value: Bounds | dict, *args):
+        if hasattr(value, 'json'):
+            return value.json()
+        return value
 
     @field_serializer('t', 'taug', 'tM', 'lb', 'ub')
     def serialize_ndarrays(self, value, *args):
