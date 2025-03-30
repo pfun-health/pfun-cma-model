@@ -220,7 +220,7 @@ class CMASleepWakeModel:
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
         if t is None:
-            t = linspace(0, 24, num=int(N))  # type: ignore
+            t = self.new_tvector(0, 24, N)
         self.t: Sequence[float] | ndarray = t  # time vector  # type: ignore
         self.tM = asarray(tM, dtype=float)  # mealtimes vector
         self.bounds = copy.copy(self._DEFAULT_PARAMS_MODEL.bounds)
@@ -235,6 +235,11 @@ class CMASleepWakeModel:
         self.rng = None
         if seed is not None:
             self.rng = default_rng(seed=seed)  # type: ignore
+
+    @staticmethod
+    def new_tvector(t0: int | float, t1: int | float, n: int) -> ndarray:
+        """Create a new linear time vector, given initial (t0), final (t1), and number of timepoints (n)"""
+        return linspace(t0, t1, num=int(n))
 
     @property
     def N(self):
@@ -406,12 +411,12 @@ class CMASleepWakeModel:
 
     def calc_Gt(self, t: Optional[ndarray | float | int] = None, dt: Optional[float] = None, n: int = 1) -> DataFrame:
         """
-        Calculates Gt for given parameters.
+        Calculates Gt for given time frame.
 
         Args:
             t (ndarray or None): Array of time values. Defaults to None.
-            dt (float or None): Time step. Defaults to None.
-            n (int): Number of time steps. Defaults to 1.
+            dt (float or None): Time delta (only used if `t` is None). Defaults to None.
+            n (int): Number of time steps (only used if `t` is None). Defaults to 1.
 
         Returns:
             DataFrame: A DataFrame containing Gt values for each column index, with time values as the index.

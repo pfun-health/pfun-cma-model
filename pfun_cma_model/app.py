@@ -3,6 +3,7 @@ PFun CMA Model API Backend Routes.
 """
 import requests
 from fastapi import WebSocket
+from pandas import DataFrame
 from pfun_cma_model.misc.errors import BadRequestError
 from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -132,25 +133,19 @@ async def run_model(config: Annotated[CMAModelParams, Body()] = None):
     return response
 
 
-async def run_at_time_func(config: CMAModelParams = None) -> str:
-    # pylint-disable=import-outside-toplevel
-    from pandas import DataFrame
-    logger.info("config: %s", json.dumps(config))
-    logger.info("calc_params: %s", json.dumps(calc_params))
+async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> str:
+    """calculate the glucose signal for the given timeframe"""
     model = await initialize_model()
-    calc_params = None
-    if config is not None:
-        model.update(config)
-        calc_params = {"t": config.t, "dt": config.dt, "n": config.N}
-    if calc_params is None:
-        calc_params = {}
-    df: DataFrame = model.calc_Gt(**calc_params)
+    model.update(config)
+    t = model.new_tvector(t0, t1, n)
+    df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
     return output
 
 
 @app.websocket("/ws/run_at_time")
 async def run_at_time_ws(websocket: WebSocket):
+    """websocket endpoint for run_at_time"""
     await websocket.accept()
     msg = await websocket.receive_text()
     logger.info("Received message: %s", msg[:20], "...")
@@ -161,9 +156,10 @@ async def run_at_time_ws(websocket: WebSocket):
 
 
 @app.post("/run-at-time")
-async def run_at_time_route(config: CMAModelParams = None):
+async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: Annotated[CMAModelParams, Body()] = None):
     try:
-        output = await run_at_time_func(config=config)
+        config = config.model_dump()
+        output = await run_at_time_func(t0, t1, n, **config)
         return Response(
             content=json.dumps(output, indent=3),
             status_code=200,
