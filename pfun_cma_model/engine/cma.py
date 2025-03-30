@@ -404,7 +404,7 @@ class CMASleepWakeModel:
     def I_E(self):
         return self.a * self.I_S
 
-    def calc_Gt(self, t: ndarray | float | int = None, dt: float = None, n: int = 1) -> DataFrame:
+    def calc_Gt(self, t: Optional[ndarray | float | int] = None, dt: Optional[float] = None, n: int = 1) -> DataFrame:
         """
         Calculates Gt for given parameters.
 
@@ -418,7 +418,7 @@ class CMASleepWakeModel:
         """
         if isinstance(t, (float, int)):
             t = array([t], dtype=float)
-        if t is None:
+        elif t is None:
             if dt is None:
                 dt = np_abs(self.t[-1] - self.t[-2])
             t = mod(linspace(

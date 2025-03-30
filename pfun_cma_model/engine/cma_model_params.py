@@ -16,9 +16,9 @@ bounds = importlib.import_module('.engine.bounds', package='pfun_cma_model')
 Bounds = bounds.Bounds  # necessary for typing (linter)
 BoundsType = bounds.BoundsType
 
-_LB_DEFAULTS = (-12.0, 0.5, 0.1, 0.0, 0.0, -3.0)
-_MID_DEFAULTS = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
-_UB_DEFAULTS = (14.0, 3.0, 3.0, 1.0, 2.0, 3.0)
+_LB_DEFAULTS = [-12.0, 0.5, 0.1, 0.0, 0.0, -3.0]
+_MID_DEFAULTS = [0.0, 1.0, 1.0, 0.05, 0.0, 0.0]
+_UB_DEFAULTS = [14.0, 3.0, 3.0, 1.0, 2.0, 3.0]
 _BOUNDED_PARAM_KEYS_DEFAULTS = (
     'd', 'taup', 'taug', 'B', 'Cm', 'toff'
 )
