@@ -1,46 +1,16 @@
 # pfun-cma-model
 
-_CMA model microservices repo._
+_PFun CMA model repo._
 
-## Environment Setup
-
-## First-time setup
+### Debugging the app locally
 
 ```bash
-# Set up Poetry
-poetry init --python=~3.10
+
+$ fastapi dev pfun_cma_model/app.py --port 8001
+
 ```
 
-## Usage
-
-#### Install dependencies
-
-```bash
-# install dependencies for pytorch (debian-based):
-sudo apt-get update && \
-     sudo apt-get install \
-     	  python3-dev \
-	  python3-pip \
-	  libxml2-dev \
-	  libxslt1-dev \
-	  zlib1g-dev \
-	  libsasl2-dev \
-	  libffi-dev \
-	  libssl-dev \
-	  llvm-14
-	  -y
-
-# install dependencies for pytorch (arch linux):
-sudo pacman -S cuda cudnn nccl
-
-# install proper llvmlite (may not be needed)
-./scripts/install-llvmlite.sh
-
-# install the package
-LLVM_CONFIG=/usr/bin/llvm-config-14 poetry install
-```
-
-#### Updating the environment
+### Updating the environment
 
 ```bash
 
