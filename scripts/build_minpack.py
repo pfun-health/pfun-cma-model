@@ -50,6 +50,11 @@ def main():
         subprocess.run(["rm", "-rf", "minpack"], check=False)
     except:
         pass
+    if os.path.exists("minpack"):
+        print("...removing existing minpack directory.")
+        subprocess.run(["rm", "-rf", "minpack"], check=True)
+    else:
+        print("...no existing minpack directory found.")
     # Step 1: Clone the repository
     subprocess.run(
         ["git", "clone", "https://github.com/rocapp/minpack.git"], check=True

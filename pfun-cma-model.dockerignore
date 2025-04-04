@@ -1,9 +1,10 @@
 # pfun-cma-model.dockerignore
-minpack
-.git
+.venv/
+minpack/
+.git/
 .gitignore
 *.pyc
-__pycache__
-.trunk
-.devcontainer
+__pycache__/
+.trunk/
+.devcontainer/
 *.code-workspace
