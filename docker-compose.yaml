@@ -14,8 +14,6 @@ services:
     build:
       context: .
       dockerfile: ./docker/pfun-cma-model.Dockerfile
-    volumes:
-      - ./minpack:/app/minpack
     user: "nonroot:nonroot"
     environment:
       - USER=nonroot

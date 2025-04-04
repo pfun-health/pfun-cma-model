@@ -7,6 +7,26 @@ import sys
 import importlib
 
 
+def get_app_root():
+    """
+    Returns the root directory of the application.
+
+    This function checks the current working directory and returns the root directory
+    of the application based on the presence of a specific file.
+
+    Returns:
+        str: The root directory of the application.
+    """
+    current_dir = os.getcwd()
+    while True:
+        if os.path.exists(os.path.join(current_dir, "install.sh")):
+            return current_dir
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:
+            raise FileNotFoundError("'install.sh' not found in any parent directory.")
+        current_dir = parent_dir
+
+
 def install_arch_specific():
     """
     Installs architecture-specific packages based on the current platform.
@@ -31,7 +51,7 @@ def install_arch_specific():
 
     if package_manager == "apt":
         subprocess.run(
-            ["sudo", "apt", "install", "-yy", "gfortran", "g++", "meson"], check=True
+            ["sudo", "apt", "install", "-yyq", "gfortran", "g++", "meson"], check=True
         )
     elif package_manager == "pacman":
         subprocess.run(
@@ -45,12 +65,17 @@ def main():
     #: Step 0: Install fortran dependencies
     print("Installing Fortran dependencies...")
     # install_arch_specific()  # commented out to avoid errors when building in docker
-    subprocess.run(["pip", "install", "--upgrade", "fpm", "ninja"], check=True)
-    try:
-        subprocess.run(["rm", "-rf", "minpack"], check=False)
-    except:
-        pass
-    if os.path.exists("minpack"):
+    subprocess.run(["python3", "-m", "pip", "install", "--upgrade", "fpm", "ninja", "meson"], check=True)
+    print("...success.")
+
+    print("getting app root directory...")
+    # get the root directory of the application
+    app_rootdir = get_app_root()
+    print(f"...app root directory: {app_rootdir}")
+    os.chdir(app_rootdir)
+    print("...switched to app root directory.")
+    # Step 1: Check if the minpack repository already exists
+    if os.path.exists(os.path.join(app_rootdir, "minpack")):
         print("minpack directory already exists. No worries.")
         pass
     else:
@@ -58,7 +83,7 @@ def main():
         # Step 1: Clone the minpack repository (as a submodule)
         print("cloning minpack repository...")
         output = subprocess.run(
-            ["git", "pull", "--recurse-submodules"], check=True, capture_output=True
+            ["git", "pull", "--recurse-submodules"], capture_output=True
         )
         if output.returncode != 0:
             print("...failed to clone minpack repository.")
@@ -67,23 +92,25 @@ def main():
         print("...success.")
 
     # Change directory to the cloned repository
-    os.chdir("minpack")
+    os.chdir(os.path.join(app_rootdir, "minpack"))
     print("...switched to minpack directory.")
 
     # Step 2, 3: build the Fortran library & Python module
     print("building Fortran library...")
-    python_version = os.path.join(sys.prefix, "bin", "python")
+    python_version = os.path.join(sys.prefix, "bin", "python3")
     prefix = site.getuserbase()
     output = subprocess.run(
         ["meson", "setup", "_build", "-Dpython=true", f"-Dprefix={prefix}"], check=False,
-        capture_output=True
+        capture_output=True, env=os.environ
     )
     if output.returncode != 0:
         print("...failed to build Fortran library.")
         print(output.stderr.decode())
+        print()
         raise SystemExit(1)
     print("...success.")
-    print("...building Fortran library dependencies...")
+
+    print("...preparing to build Fortran library dependencies...")
     output = subprocess.run(
         [
             "meson",
@@ -96,15 +123,19 @@ def main():
         check=False,
         shell=False,
         capture_output=True,
+        env=os.environ,
     )
     if output.returncode != 0:
         print("...failed to build Fortran library.")
         print(output.stderr.decode())
         raise SystemExit(1)
     print("...success.")
+
+    # Step 3: Build the Fortran library dependencies
     print("...building Fortran library dependencies...")
     output = subprocess.run(
-        ["meson", "compile", "-C", "_build"], check=True, capture_output=True
+        ["meson", "compile", "-C", "_build"], capture_output=True,
+        env=os.environ
     )
     if output.returncode != 0:
         print("...failed to build Fortran library.")
@@ -114,8 +145,12 @@ def main():
 
     # Step 4: Install the Python module
     print("building Python module dependencies...")
-    subprocess.run(["meson", "install", "-C", "_build"], check=True)
-
+    output = subprocess.run(["meson", "install", "-C", "_build"], env=os.environ, capture_output=True)
+    if output.returncode != 0:
+        print("...failed to install Python module.")
+        print(output.stderr.decode())
+        raise SystemExit(1)
+    print("...success.")
     os.chdir("python")
     print("...switched to python directory.")
 
@@ -142,7 +177,7 @@ export PKG_CONFIG_PATH="$HOME/.local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_
             os.environ['LD_LIBRARY_PATH'], "x86_64-linux-gnu")
     os.environ["PKG_CONFIG_PATH"] = os.path.join(
         os.environ['LD_LIBRARY_PATH'], "pkgconfig")
-    subprocess.run(["poetry", "run", "python", "setup.py", "install"], check=True, env=os.environ)
+    subprocess.run(["python", "setup.py", "install"], check=True, env=os.environ)
     print("...success.")
 
     os.chdir("..")

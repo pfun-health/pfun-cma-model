@@ -54,5 +54,5 @@ build-minpack = "scripts.build_minpack:main"
 pfun-cma-model = "pfun_cma_model.cli:cli"
 
 [build-system]
-requires = ["poetry-core", "wheel", "setuptools", "pkgconfig"]
+requires = ["poetry-core", "wheel", "setuptools", "pkgconfig", "meson"]
 build-backend = "scripts.build_backend"

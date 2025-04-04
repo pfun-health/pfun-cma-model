@@ -19,7 +19,6 @@ cleanup-build() {
     # cleanup the existing build
     rm -r ./dist >/dev/null 2>&1 || true
     rm -rf ./build >/dev/null 2>&1 || true
-    rm -rf ./minpack >/dev/null 2>&1 || true
     python -m pip uninstall --yes minpack pfun-cma-model >/dev/null 2>&1 || true
 }
 
@@ -33,10 +32,11 @@ install-package() {
                     poetry run python -m pip install --upgrade dist/*.whl
     else
         echo "Poetry is not installed."
-        python ./scripts/build_minpack.py && \
-            python -m pip install --upgrade build && \
-                python -m build --no-cache && \
-                    python -m pip install --no-cache --upgrade dist/*.whl
+        python -m pip install --no-cache meson && \
+            python ./scripts/build_minpack.py && \
+                python -m pip install --upgrade build && \
+                    python -m build --no-cache && \
+                        python -m pip install --no-cache --upgrade dist/*.whl
     fi
 }
 
