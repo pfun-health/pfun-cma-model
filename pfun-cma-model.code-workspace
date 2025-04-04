@@ -17,10 +17,7 @@
 	},
 	"settings": {
 		"python.analysis.extraPaths": [
-			"./runtime",
-			"./runtime/chalicelib",
-			"./runtime/chalicelib/engine"
-		],
-		"liveServer.settings.multiRootWorkspaceName": "pfun-endo-frontend-wireframe"
+			".",
+		]
 	}
 }

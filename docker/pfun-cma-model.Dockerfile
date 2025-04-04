@@ -24,7 +24,7 @@ RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
 
 RUN export PATH="/home/nonroot/.local/bin:$PATH" && \
     pip install --user --upgrade pip && \
-    pip install --user .
+    ./install.sh
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"

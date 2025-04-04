@@ -17,9 +17,9 @@ from pfun_cma_model.app import run_app
 def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = os.path.abspath(
-        os.path.join(pph.get_lib_path(), '../examples/data/valid_data.csv'))
+        os.path.join(pph.get_lib_path("pfun_data"), 'data/valid_data.csv'))
     ctx.obj["output_dir"] = os.path.abspath(
-        os.path.join(pph.get_lib_path(), '../examples/output'))
+        os.path.join(os.getcwd(), 'examples/output'))
 
 
 @cli.command()

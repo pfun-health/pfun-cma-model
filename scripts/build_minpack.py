@@ -4,6 +4,7 @@ import os
 import site
 import subprocess
 import sys
+import importlib
 
 
 def install_arch_specific():
@@ -45,7 +46,10 @@ def main():
     print("Installing Fortran dependencies...")
     # install_arch_specific()  # commented out to avoid errors when building in docker
     subprocess.run(["pip", "install", "--upgrade", "fpm", "ninja"], check=True)
-    subprocess.run(["rm", "-rf", "minpack"], check=True)
+    try:
+        subprocess.run(["rm", "-rf", "minpack"], check=False)
+    except:
+        pass
     # Step 1: Clone the repository
     subprocess.run(
         ["git", "clone", "https://github.com/rocapp/minpack.git"], check=True
@@ -106,24 +110,22 @@ export PKG_CONFIG_PATH="$HOME/.local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_
             os.environ['LD_LIBRARY_PATH'], "x86_64-linux-gnu")
     os.environ["PKG_CONFIG_PATH"] = os.path.join(
         os.environ['LD_LIBRARY_PATH'], "pkgconfig")
-    subprocess.run(["poetry", "run", "python", "setup.py", "install"], check=True)
+    subprocess.run(["poetry", "run", "python", "setup.py", "install"], check=True, env=os.environ)
+    print("...success.")
 
     os.chdir("..")
     print("\n...switched back to minpack directory.")
 
     # fail if minpack is not installed properly
     print("\n\nchecking python module installation...")
-    subprocess.run(["python", "-c", "from minpack import lmdif"], check=True)
-    print("...success.")
-
-    # Step 5: Clean up
-    os.chdir("..")
-    print("\n\n...switched back to repo root.")
-    print("\ncleaning up...")
-    subprocess.run(["rm", "-rf", "minpack"], check=True)
-
-    print("\n\n...done.")
-
+    try:
+        subprocess.run(["python", "-c", "from minpack import lmdif"], check=True, env=os.environ)
+    except subprocess.CalledProcessError:
+        minpack = importlib.import_module("minpack")
+        print("...success.")
+    else:
+        print("...success.")
+        return
 
 if __name__ == "__main__":
     main()

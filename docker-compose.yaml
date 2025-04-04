@@ -10,9 +10,10 @@ services:
             - .trunk/
             - pfun-cma-model.code-workspace
             - poetry.lock
+            - ./minpack/
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/pfun-cma-model.Dockerfile
     user: "nonroot:nonroot"
     environment:
       - USER=nonroot

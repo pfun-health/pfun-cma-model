@@ -1,1 +1,1 @@
-https://github.com/fortran-lang/minpack/archive/refs/heads/main.zip#egg=minpack&subdirectory=python
+minpack @ git+https://github.com/fortran-lang/minpack.git@main#subdirectory=python

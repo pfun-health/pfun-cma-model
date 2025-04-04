@@ -220,7 +220,7 @@ def format_data(records: Dict | DataFrame,
     #: offset using tz_offset
     time = time + Timedelta(hours=tz_offset)  # type: ignore
     df["tod"] = to_tod_hours(time)
-    df["t"] = to_timedelta(df["tod"], unit="H")
+    df["t"] = to_timedelta(df["tod"], unit="h")
     df["t"] = df["t"].apply(lambda d: dt_to_decimal_hours(d)).astype(float)
     if "value" not in df.columns:
         df["value"] = df["sg"]  # for practice data

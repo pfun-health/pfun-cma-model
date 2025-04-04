@@ -26,21 +26,18 @@ format_data = importlib.import_module(".data_utils",
                                       package="pfun_cma_model.engine").format_data
 
 # load the external library for method `minpack.lmdif`
+from pfun_cma_model.misc.build_utils import import_dynamic_module
 try:
-    lmdif = importlib.import_module(
-        'minpack'
-    ).lmdif
-except ImportError:
-    try:
-        import ctypes
-        libpath = os.path.expanduser('~/.local/lib')
-        ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libminpack.so'))
-        lmdif = importlib.import_module(
-            'minpack'
-        ).lmdif
-    except Exception:
-        logger.warning("Failed to load minpack library.", exc_info=True)
-
+    minpack = import_dynamic_module("minpack")
+    if not hasattr(minpack, "lmdif"):
+        raise ImportError("lmdif function not found in minpack module.")
+    lmdif = minpack.lmdif
+    logger.debug("Successfully imported minpack.lmdif")
+except ImportError as e:
+    logger.warning("Failed to import minpack. Check your installation.")
+    raise ImportError(
+        "Failed to import minpack. Ensure that the library is installed correctly."
+    ) from e
 
 class CMAFitResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
