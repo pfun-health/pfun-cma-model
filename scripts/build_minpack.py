@@ -51,14 +51,20 @@ def main():
     except:
         pass
     if os.path.exists("minpack"):
-        print("...removing existing minpack directory.")
-        subprocess.run(["rm", "-rf", "minpack"], check=True)
+        print("minpack directory already exists. No worries.")
+        pass
     else:
         print("...no existing minpack directory found.")
-    # Step 1: Clone the repository
-    subprocess.run(
-        ["git", "clone", "https://github.com/rocapp/minpack.git"], check=True
-    )
+        # Step 1: Clone the minpack repository (as a submodule)
+        print("cloning minpack repository...")
+        output = subprocess.run(
+            ["git", "pull", "--recurse-submodules"], check=True, capture_output=True
+        )
+        if output.returncode != 0:
+            print("...failed to clone minpack repository.")
+            print(output.stderr.decode())
+            raise SystemExit(1)
+        print("...success.")
 
     # Change directory to the cloned repository
     os.chdir("minpack")
@@ -68,10 +74,17 @@ def main():
     print("building Fortran library...")
     python_version = os.path.join(sys.prefix, "bin", "python")
     prefix = site.getuserbase()
-    subprocess.run(
-        ["meson", "setup", "_build", "-Dpython=true", f"-Dprefix={prefix}"], check=True
+    output = subprocess.run(
+        ["meson", "setup", "_build", "-Dpython=true", f"-Dprefix={prefix}"], check=False,
+        capture_output=True
     )
-    subprocess.run(
+    if output.returncode != 0:
+        print("...failed to build Fortran library.")
+        print(output.stderr.decode())
+        raise SystemExit(1)
+    print("...success.")
+    print("...building Fortran library dependencies...")
+    output = subprocess.run(
         [
             "meson",
             "--reconfigure",
@@ -80,10 +93,24 @@ def main():
             f"--prefix={prefix}",
             "_build",
         ],
-        check=True,
+        check=False,
         shell=False,
+        capture_output=True,
     )
-    subprocess.run(["meson", "compile", "-C", "_build"], check=True)
+    if output.returncode != 0:
+        print("...failed to build Fortran library.")
+        print(output.stderr.decode())
+        raise SystemExit(1)
+    print("...success.")
+    print("...building Fortran library dependencies...")
+    output = subprocess.run(
+        ["meson", "compile", "-C", "_build"], check=True, capture_output=True
+    )
+    if output.returncode != 0:
+        print("...failed to build Fortran library.")
+        print(output.stderr.decode())
+        raise SystemExit(1)
+    print("...success.")
 
     # Step 4: Install the Python module
     print("building Python module dependencies...")
