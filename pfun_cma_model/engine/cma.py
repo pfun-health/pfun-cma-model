@@ -249,6 +249,25 @@ class CMASleepWakeModel:
     def N(self):
         """Number of time steps."""
         return len(self.t)
+    
+    @property
+    def bounded_params_as_dict(self) -> Dict:
+        """Return the current bounded parameters as a python dict."""
+        return {k: self.params[k] for k in self.bounded_param_keys}
+    
+    @property
+    def bounded_params(self) -> CMAModelParams:
+        """Return the current bounded parameters as a CMAModelParams object."""
+        return CMAModelParams(**self.bounded_params_as_dict)
+    
+    @property
+    def bounded_params_as_obj(self) -> CMAModelParams:
+        """
+        Return the current bounded parameters as a CMAModelParams object.
+        
+        Alias method for `self.bounded_params` property.
+        """
+        return self.bounded_params
 
     def update_bounded_params(self, params: Dict | CMAModelParams  # type: ignore
                               ) -> Dict | CMAModelParams:  # type: ignore
@@ -267,7 +286,7 @@ class CMASleepWakeModel:
 
     def update(self, model_params: CMAModelParams | Dict | None = None, inplace=True, **kwds):  # type: ignore
         """
-        Update the current instance with new values.
+        Update the current instance with new values (occurs inplace by default).
 
         Parameters:
             *args: Variable length argument list.

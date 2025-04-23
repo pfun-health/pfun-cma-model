@@ -129,6 +129,16 @@ class CMAModelParams(BaseModel):
         if isinstance(value, ndarray):
             return value.tolist()
         return value
+    
+    @property
+    def bounded_params_dict(self) -> Dict[str, float]:
+        """
+        Generate a dictionary of bounded parameters.
+
+        Returns:
+            dict: A dictionary of bounded parameters.
+        """
+        return {key: getattr(self, key) for key in self.bounded_param_keys}
 
     def calc_serr(self, param_key: str):
         """

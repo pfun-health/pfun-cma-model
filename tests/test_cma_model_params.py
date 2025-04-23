@@ -84,3 +84,7 @@ class TestCMAModelParams:
                                 (0.0, 'Glucose Bias constant (Normal)'),
                                 (0.0, 'Cortisol temporal sensitivity coefficient (Normal)'),
                                 (0.0, 'Solar noon offset (latitude) (Normal)')]
+
+    def test_cma_bounded_param_keys(self):
+        params = CMAModelParams()
+        assert params.bounded_param_keys == ['d', 'taup', 'taug', 'B', 'Cm', 'toff']
