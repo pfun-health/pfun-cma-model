@@ -96,8 +96,12 @@ def run_param_grid(ctx):
     tmL, tmU = [0, 11, 13], [13, 17, 24]
     plist = list(zip(keys, lb, ub))
     pdict = {}
-    pdict = {"tM0": [7, ], "tM1": [12, ], "tM2": [
-        18, ], "d": [-3.0, -2.0, 0.0, 1.0, 2.0], }
+    pdict = {
+        "tM0": [7, ],
+        "tM1": [12, ],
+        "tM2": [18, ],
+        "d": [-3.0, -2.0, 0.0, 1.0, 2.0]
+    }
     pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
     pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
     pgrid = ParameterGrid(pdict)

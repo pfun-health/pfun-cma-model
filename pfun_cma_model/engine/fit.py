@@ -20,6 +20,11 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
+__all__ = [
+    "CMAFitResult",
+    "fit_model",
+    "estimate_mealtimes"
+]
 
 # import custom ndarray schema
 NumpyArray = importlib.import_module(
@@ -302,13 +307,16 @@ def fit_model(
     if curve_fit_kwds is None:
         curve_fit_kwds = {}
 
+    # pre-process data to ensure it is in the correct format
     data = format_data(data)
 
+    # configure curve_fit kwargs
+    max_nfev = data[ycol].size * 500  # set maximum number of function evaluations
     default_cf_kwds = {
         "verbose": 0,
         "ftol": 1e-6,
         "xtol": 1e-6,
-        "max_nfev": data[ycol].size * 500,
+        "max_nfev": max_nfev,
         "method": "L-BFGS-B",
     }
     default_cf_kwds.update(curve_fit_kwds)
@@ -320,7 +328,10 @@ def fit_model(
     if tM is None:
         tM = estimate_mealtimes(data, ycol, tm_freq=tm_freq, **kwds)
 
-    cma = CMASleepWakeModel(t=xdata, N=None, tM=tM, **kwds)
+    if 'N' in kwds and 'n' in kwds:
+        raise ValueError("Cannot specify both 'N' and 'n' in kwargs.")
+    N = kwds.pop("N", kwds.pop('n', None))  # default N timesteps to class default
+    cma = CMASleepWakeModel(t=xdata, N=N, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         logging.debug("taup0=%f", cma.taup)
 

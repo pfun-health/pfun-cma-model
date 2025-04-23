@@ -9,6 +9,10 @@ import pandas as pd
 from io import BytesIO
 from base64 import b64encode
 
+__all__ = [
+    'CMAPlotConfig'
+]
+
 
 @dataclass
 class CMAPlotConfig:

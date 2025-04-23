@@ -67,6 +67,10 @@ except ModuleNotFoundError:
 
 logger = logging.getLogger()
 
+__all__ = [
+    'CMASleepWakeModel',
+]
+
 
 class CMAParamTypeError(TypeError):
     """CMA parameter type error."""
@@ -564,7 +568,7 @@ class CMASleepWakeModel:
     @property
     def dt(self):
         #: TimedeltaIndex (in hours)
-        return to_timedelta(self.t, unit='H')
+        return to_timedelta(self.t, unit='h')  # use 'h' to avoid deprecation warning
 
     @property
     def pvec(self):

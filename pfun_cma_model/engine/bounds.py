@@ -4,6 +4,10 @@ from pydantic import GetCoreSchemaHandler
 import numpy as np
 from pfun_cma_model.misc.errors import BoundsTypeError
 
+__all__ = [
+    'Bounds'
+]
+
 
 #: Aliases for numpy bool types (necessary for type checking).
 True_, False_ = np.bool_(True), np.bool_(False)

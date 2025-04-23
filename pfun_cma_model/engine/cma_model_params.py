@@ -11,6 +11,11 @@ append_path(Path(__file__).parent.parent.parent)
 # import custom ndarray schema
 from pfun_cma_model.misc.types import NumpyArray
 
+__all__ = [
+    'CMAModelParams',
+    'QualsMap'
+]
+
 # import custom bounds types
 bounds = importlib.import_module('.engine.bounds', package='pfun_cma_model')
 Bounds = bounds.Bounds  # necessary for typing (linter)
