@@ -4,6 +4,11 @@ from pydantic_core import CoreSchema, core_schema
 import numpy as np
 
 def numpy_array_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
+    """
+    Custom schema for serialization of numpy arrays in pydantic.
+    This schema allows for the serialization of numpy arrays to lists,
+    while also accepting lists as input.
+    """
     return core_schema.json_or_python_schema(
         json_schema=core_schema.list_schema(),
         python_schema=core_schema.union_schema([
