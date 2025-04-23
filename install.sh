@@ -2,49 +2,32 @@
 
 # install.sh
 
-setup-venv() {
-    # This script is used to install the package in a virtual environment.
-    if [ -d ".venv" ]; then
-        echo "Virtual environment already exists."
-    else
-        echo "Creating virtual environment..."
-        python3 -m venv ./.venv
-    fi
-    # Activate the virtual environment
-    source ./.venv/bin/activate
-}
+# exit on error
+set -e
 
+# get the python version
+PYTHON_VERSION=$(which python3)
+echo -e "(detected) Python version: $PYTHON_VERSION"
 
-cleanup-build() {
-    # cleanup the existing build
-    rm -r ./dist >/dev/null 2>&1 || true
-    rm -rf ./build >/dev/null 2>&1 || true
-    python -m pip uninstall --yes minpack pfun-cma-model >/dev/null 2>&1 || true
-}
+# define the build directory
+BUILDDIR=_build
 
+# Setup the meson build system
+mkdir -p $BUILDDIR
+echo -e "Setting up the meson build system..."
+meson setup --reconfigure $BUILDDIR -Dpython_version=$PYTHON_VERSION
 
-install-package() {
-    # install the package from the source
-    if [[ $(which poetry) ]]; then
-        echo "Poetry is installed" && \
-            poetry run build-minpack && \
-                poetry build --no-cache && \
-                    poetry run python -m pip install --upgrade dist/*.whl
-    else
-        echo "Poetry is not installed."
-        python -m pip install --no-cache meson && \
-            python ./scripts/build_minpack.py && \
-                python -m pip install --upgrade build && \
-                    python -m build --no-cache && \
-                        python -m pip install --no-cache --upgrade dist/*.whl
-    fi
-}
+# Compile the project
+# This will create a build directory and compile the project
+echo -e "Compiling the project..."
+meson compile -C $BUILDDIR
 
-
-##
-# Main script execution
-##
-
-setup-venv
-cleanup-build 
-install-package
+# Install the project
+# This will configure & install the project to the specified prefix (e.g., --prefix=/usr/local)
+echo -e "Configuring the project for installation..."
+PYTHON_PREFIX=$(python3 -c "import sys; print(sys.prefix)")
+echo -e "(detected) Python prefix: $PYTHON_PREFIX"
+meson configure $BUILDDIR --prefix=$PYTHON_PREFIX
+# Install the project
+echo -e "Installing the project..."
+meson install -C $BUILDDIR

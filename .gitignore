@@ -3,13 +3,15 @@
 
 # custom
 /*.env
-/.python-version
 /audio_output/
 *.pem
 /packaged/*.zip
 /lambda_layer/packages/
 /runtime/localstack-package/.terraform/providers/
 
+# meson cache & build
+/_build/
+/subprojects/minpack/
 
 #: chalice stuff
 
@@ -60,6 +62,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+_build/
 build/
 develop-eggs/
 dist/

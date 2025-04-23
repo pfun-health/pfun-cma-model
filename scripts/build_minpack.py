@@ -91,71 +91,44 @@ def main():
             raise SystemExit(1)
         print("...success.")
 
-    # Change directory to the cloned repository
-    os.chdir(os.path.join(app_rootdir, "minpack"))
-    print("...switched to minpack directory.")
+    # Step 2, 3: build the minpack Fortran library & Python module
+    print("building minpack Fortran library & Python module...")
+    print("...running 'MINPACK_ROOT/scripts/install_minpack.sh'...")
+    # run the install script using Popen and stream stdout and stderr
+    try:
+        with subprocess.Popen(
+            ["./scripts/install_minpack.sh"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=os.path.join(app_rootdir, "minpack"),  # ! change to the minpack directory
+            env=os.environ,
+            text=True
+        ) as process:
+            for line in process.stdout:
+                print(line, end="")  # stream stdout
+            stderr_output = process.communicate()[1]  # capture stderr after stdout finishes
 
-    # Step 2, 3: build the Fortran library & Python module
-    print("building Fortran library...")
-    python_version = os.path.join(sys.prefix, "bin", "python3")
-    prefix = site.getuserbase()
-    output = subprocess.run(
-        ["meson", "setup", "_build", "-Dpython=true", f"-Dprefix={prefix}"], check=False,
-        capture_output=True, env=os.environ
-    )
-    if output.returncode != 0:
-        print("...failed to build Fortran library.")
-        print(output.stderr.decode())
-        print()
-        raise SystemExit(1)
-    print("...success.")
-
-    print("...preparing to build Fortran library dependencies...")
-    output = subprocess.run(
-        [
-            "meson",
-            "--reconfigure",
-            f"-Dpython_version={python_version}",
-            "-Dpython=true",
-            f"--prefix={prefix}",
-            "_build",
-        ],
-        check=False,
-        shell=False,
-        capture_output=True,
-        env=os.environ,
-    )
-    if output.returncode != 0:
-        print("...failed to build Fortran library.")
-        print(output.stderr.decode())
-        raise SystemExit(1)
-    print("...success.")
-
-    # Step 3: Build the Fortran library dependencies
-    print("...building Fortran library dependencies...")
-    output = subprocess.run(
-        ["meson", "compile", "-C", "_build"], capture_output=True,
-        env=os.environ
-    )
-    if output.returncode != 0:
-        print("...failed to build Fortran library.")
-        print(output.stderr.decode())
-        raise SystemExit(1)
-    print("...success.")
-
-    # Step 4: Install the Python module
-    print("building Python module dependencies...")
-    output = subprocess.run(["meson", "install", "-C", "_build"], env=os.environ, capture_output=True)
-    if output.returncode != 0:
-        print("...failed to install Python module.")
-        print(output.stderr.decode())
-        raise SystemExit(1)
-    print("...success.")
-    os.chdir("python")
-    print("...switched to python directory.")
+            if process.returncode != 0:
+                print("...failed to build minpack Fortran library & Python module.")
+                print(stderr_output)
+                raise subprocess.CalledProcessError(process.returncode, process.args, output=None, stderr=stderr_output)
+            print("...success.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Ensure the './scripts/install_minpack.sh' script exists and is executable.")
+        raise
+    except subprocess.CalledProcessError as e:
+        print(f"Subprocess failed with return code {e.returncode}.")
+        print(f"Command: {e.cmd}")
+        print(f"Stderr: {e.stderr}")
+        raise
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        raise
 
     # set the paths (if not already set)
     try:
+        print("Testing if the minpack Python module is installed...")
         from minpack import lmdif
     except ImportError:
         new_lines = """
@@ -171,6 +144,7 @@ export PKG_CONFIG_PATH="$HOME/.local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_
             print(f"...added paths:\n\t{new_lines}")
 
     print("\n\nInstalling python module...")
+    prefix = site.getuserbase()  # get the user base directory (e.g., ~/.local)
     os.environ["LD_LIBRARY_PATH"] = os.path.join(prefix, "lib")
     if os.path.exists(os.path.join(os.environ['LD_LIBRARY_PATH'], "x86_64-linux-gnu")):
         os.environ['LD_LIBRARY_PATH'] = os.path.join(
