@@ -1,6 +1,0 @@
-option(
-  'python_version',
-  type: 'string',
-  value: 'python3',
-  description: 'Python version to link against.',
-)

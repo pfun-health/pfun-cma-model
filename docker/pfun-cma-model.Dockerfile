@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     python3-venv \
     python-is-python3 \
-    python3-pip python3-setuptools \
-    python3-wheel ninja-build \
+    python3-pip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,13 +26,7 @@ COPY --chown=nonroot:nonroot . .
 RUN chown -R nonroot:nonroot /app/
 
 USER nonroot
-RUN echo 'export PATH="/home/nonroot/.local/bin:$PATH"' >> "/home/nonroot/.bashrc"
-
-USER nonroot
 WORKDIR /app
-# install meson and build minpack (from the context root directory)
-RUN pip3 install --user meson
-RUN bash -c 'export PATH=/home/nonroot/.local/bin:$PATH; rm -rf ./_build && ./install.sh'
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14

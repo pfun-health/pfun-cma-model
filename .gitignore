@@ -5,18 +5,6 @@
 /*.env
 /audio_output/
 *.pem
-/packaged/*.zip
-/lambda_layer/packages/
-/runtime/localstack-package/.terraform/providers/
-
-# meson cache & build
-/_build/
-/subprojects/minpack/
-
-#: chalice stuff
-
-.chalice/deployments/
-.chalice/venv/
 
 
 #: NPM stuff
