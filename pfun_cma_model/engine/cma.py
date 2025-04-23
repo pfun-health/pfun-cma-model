@@ -194,7 +194,7 @@ class CMASleepWakeModel:
     def params(self, value):
         self._params = value
 
-    def __init__(self, model_config: Dict | CMAModelParams | None = None, **kwds):  # type: ignore
+    def __init__(self, config: Dict | CMAModelParams | None = None, **kwds):  # type: ignore
         """PFun CMA model constructor.
 
         Arguments:
@@ -214,10 +214,10 @@ class CMASleepWakeModel:
         self._params: Dict = {}
         defaults = self._DEFAULT_PARAMS
         self._params.update(defaults)  # type: ignore
-        if model_config is not None:
-            if isinstance(model_config, CMAModelParams):
-                model_config = model_config.model_dump()  # type: ignore
-            self._params.update(model_config)  # type: ignore
+        if config is not None:
+            if isinstance(config, CMAModelParams):
+                config = config.model_dump()  # type: ignore
+            self._params.update(config)  # type: ignore
         self._params.update(kwds)
         t, N, tM, seed, eps = self._params.get('t'), self._params.get('N'), self._params.get(
             'tM'), self._params.get('seed'), self._params.get('eps')  # type: ignore
