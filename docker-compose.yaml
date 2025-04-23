@@ -18,7 +18,6 @@ services:
     environment:
       - USER=nonroot
       - GROUP=nonroot
-    image: pfun-cma-model:latest
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
