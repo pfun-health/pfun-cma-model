@@ -24,7 +24,7 @@ WORKDIR /app
 # copy as root
 COPY --chown=nonroot:nonroot . .
 # ensure permissions for nonroot
-# RUN chown -R nonroot:nonroot /app
+RUN chown -R nonroot:nonroot /app/
 
 USER nonroot
 RUN echo 'export PATH="/home/nonroot/.local/bin:$PATH"' >> "/home/nonroot/.bashrc"
@@ -33,7 +33,7 @@ USER nonroot
 WORKDIR /app
 # install meson and build minpack (from the context root directory)
 RUN pip3 install --user meson
-RUN bash -c 'export PATH=/home/nonroot/.local/bin:$PATH; ./install.sh'
+RUN bash -c 'export PATH=/home/nonroot/.local/bin:$PATH; rm -rf ./_build && ./install.sh'
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14

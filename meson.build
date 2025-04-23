@@ -4,7 +4,7 @@ project(
   'pfun_cma_model',
   ['fortran', 'c'],
   version: '0.1.0',
-  meson_version: '>=0.55',
+  meson_version: '>=1.2.0',
   default_options: ['buildtype=release']
 )
 
@@ -17,7 +17,7 @@ py_dep = python.dependency()
 # Configure Minpack with Python bindings (if supported by Minpack's Meson)
 minpack_opts = {
   'python': 'true',
-  'python_version': python.path()
+  'python_version': python.full_path()
 }
 
 minpack_proj = subproject('minpack', default_options: minpack_opts)

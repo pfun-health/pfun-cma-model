@@ -1,1 +1,0 @@
-minpack @ git+https://github.com/fortran-lang/minpack.git@main#subdirectory=python

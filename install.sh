@@ -13,6 +13,12 @@ echo -e "(detected) Python version: $PYTHON_VERSION"
 BUILDDIR=_build
 
 # Setup the meson build system
+# clean up the build directory
+if [ -d $BUILDDIR ]; then
+    echo -e "Cleaning up the build directory..."
+    rm -rf $BUILDDIR
+fi
+# re-create the build directory
 mkdir -p $BUILDDIR
 echo -e "Setting up the meson build system..."
 meson setup --reconfigure $BUILDDIR -Dpython_version=$PYTHON_VERSION
