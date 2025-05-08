@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.3.2a5"
+version = "0.3.2a6"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "rocapp@gmail.com"}]
 readme = "README.md"
@@ -49,11 +49,38 @@ pytest = "^6.0"
 ipykernel = "^6.25.2"
 ipython = "^8.16.1"
 zappa = "^0.58.0"
+tox-poetry-installer = "^0.10.3"
 
 [project.scripts]
+##
+# Scripts configuration:
+##
 pfun-cma-model = "pfun_cma_model.cli:cli"
 
 [build-system]
+##
+# Build system configuration:
+##
 requires = ["poetry-core","wheel", "setuptools"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.tox]
+##
+# Tox configuration:
+##
+requires = ["tox>=4.19", "tox-poetry-installer>=0.10.3"]
+env_list = ["3.11", "type"]
+isolated_build = true
+
+[tool.tox.env_run_base]
+description = "Run test under poetry"
+package = "poetry"
+install_dev_deps = true
+commands = [ ["pytest", ], ]
+
+[tool.tox.env.type]
+description = "run type check on code base"
+deps = ["mypy==1.11.2", "types-cachetools>=5.5.0.20240820", "types-chardet>=5.0.4.6"]
+commands = [["mypy", "--strict", "--ignore-missing-imports", "pfun_cma_model"]]
+
 

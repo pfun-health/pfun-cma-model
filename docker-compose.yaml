@@ -1,5 +1,5 @@
 services:
-  app:
+  pfun-cma-model:
     develop:
       watch:
         - path: ./
@@ -20,14 +20,12 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    command:
-      [
-        "/home/nonroot/.local/bin/uvicorn",
-        "pfun_cma_model.app:app",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8001",
-        "--workers",
-        "2"
+    command: [ "poetry", "run","uvicorn",
+      "pfun_cma_model.app:app",
+      "--host",
+      "0.0.0.0",
+      "--port",
+      "8001",
+      "--workers",
+      "2"
       ]
