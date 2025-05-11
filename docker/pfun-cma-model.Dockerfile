@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm as base
+FROM python:3.11-bookworm-slim as base
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
