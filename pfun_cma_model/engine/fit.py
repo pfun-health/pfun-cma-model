@@ -251,6 +251,10 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
         "maxiter": maxfev,
         "disp": kwds.get("verbose", 0) > 0,
     }
+    # handle method-specific options (bounded/unbounded)
+    bounded_methods = [mm.lower() for mm in ["L-BFGS-B", "Nelder-Mead", "Powell", "TNC", "trust-constr"]]
+    if method.lower() not in bounded_methods:
+        options.pop("maxfun", None)
     # Convert bounds to scipy format if needed
     if bounds is not None:
         if isinstance(bounds, dict):
