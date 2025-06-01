@@ -18,6 +18,14 @@
 	"settings": {
 		"python.analysis.extraPaths": [
 			".",
-		]
+		],
+		"isort.interpreter": [
+			"/home/robbiec/.cache/pypoetry/virtualenvs/pfun-cma-model-G02tHj_2-py3.11/bin/python"
+		],
+		"python.defaultInterpreterPath": "/home/robbiec/.cache/pypoetry/virtualenvs/pfun-cma-model-G02tHj_2-py3.11/bin/python",
+		"autopep8.interpreter": [
+			"/home/robbiec/.cache/pypoetry/virtualenvs/pfun-cma-model-G02tHj_2-py3.11/bin/python"
+		],
+
 	}
 }
