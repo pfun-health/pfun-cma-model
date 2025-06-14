@@ -4,14 +4,10 @@ PFun CMA Model API Backend Routes.
 import requests
 from fastapi import WebSocket
 from pandas import DataFrame
-from pfun_cma_model.misc.errors import BadRequestError
-from pfun_cma_model.misc.pathdefs import PFunAPIRoutes
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware import Middleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
-import pfun_path_helper
 import json
 import logging
 import os
@@ -20,8 +16,6 @@ from typing import Any, Dict, Literal, Optional, Annotated
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-pfun_path_helper.append_path(Path(__file__).parent.parent)
 
 SDK_CLIENT = None
 BASE_URL: Optional[str] = None

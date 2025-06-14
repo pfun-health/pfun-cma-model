@@ -13,7 +13,7 @@ from numba import njit
 import importlib
 import sys
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Union, Optional
 
 root_path = str(Path(__file__).parents[1])
 mod_path = str(Path(__file__).parent)
@@ -28,22 +28,22 @@ njit_parallel = njit(cache=True, nogil=True, fastmath=use_fastmath_global, paral
 njit_serial = njit(cache=True, nogil=True, fastmath=use_fastmath_global)
 
 
-def reindex_as_data(mdf, dindex, dt):
+def reindex_as_data(
+    mdf: DataFrame,
+    dindex: DatetimeIndex,
+    dt: Timedelta
+) -> DataFrame:
     """reindex a dataframe [mdf] to be like an index [dindex], use a tolerance [dt]"""
     return mdf.reindex(index=dindex, method="nearest", tolerance=dt)
 
 
-"""Convert between datetime representations:
-"""
-
-
-def to_decimal_days(ixs: DatetimeIndex):
+def to_decimal_days(ixs: DatetimeIndex) -> ndarray:
     """convert DatetimeIndex -> array[float] (decimal days)"""
     return (ixs.to_series().apply(lambda ix: (ix.year * 365.0) + ix.day_of_year
                                   + (ix.hour / 24.0)).astype(float))
 
 
-def to_decimal_hours(ixs: DatetimeIndex):
+def to_decimal_hours(ixs: DatetimeIndex) -> ndarray:
     """convert DatetimeIndex -> array[float] (decimal hours)"""
     ixs_local = ixs.copy()
     if not isinstance(ixs, DatetimeIndex):
@@ -62,13 +62,13 @@ def to_decimal_hours(ixs: DatetimeIndex):
     )
 
 
-def to_decimal_secs(ixs):
+def to_decimal_secs(ixs: Union[DatetimeIndex, Series, List]) -> ndarray:
     secs = DatetimeIndex(
         ixs).to_series().diff().dt.total_seconds().cumsum().fillna(0.0)
     return 3600.0 * to_decimal_hours(ixs)[0] + secs
 
 
-def dt_to_decimal_hours(dt):
+def dt_to_decimal_hours(dt: Timedelta) -> float:
     """convert Timedelta -> float (decimal hours)"""
     return nansum([
         dt.components.days * 24.0,
@@ -78,7 +78,7 @@ def dt_to_decimal_hours(dt):
     ])
 
 
-def dt_to_decimal_secs(dt):
+def dt_to_decimal_secs(dt: Timedelta) -> float:
     """convert Timedelta -> float (decimal seconds)"""
     return nansum([
         dt.components.days * 24.0 * 3600.0,
@@ -88,7 +88,7 @@ def dt_to_decimal_secs(dt):
     ])
 
 
-def to_tod_hours(ixs):
+def to_tod_hours(ixs: Union[DatetimeIndex, List]) -> ndarray:
     """convert DatetimeIndex -> array[float] (decimal hours, [0.0, 23.99])"""
     return array(
         [
@@ -100,11 +100,14 @@ def to_tod_hours(ixs):
 
 
 @njit_serial
-def _diff_tod_hours(tod0, tod1):
+def _diff_tod_hours(tod0: float, tod1: float) -> float:
     return (12.0 - abs(abs(tod0 - tod1) - 12.0))
 
 
-def diff_tod_hours(tod0, tod1):
+def diff_tod_hours(
+    tod0: Union[ndarray, Series, float, int, List],
+    tod1: Union[ndarray, Series, float, int, List]
+) -> Union[float, ndarray]:
     """compute the absolute 'clock distance' between two time-of-day (decimal hours) arrays.
     """
     def _pre_conv(tod):
@@ -122,7 +125,10 @@ def diff_tod_hours(tod0, tod1):
     return tod_diff
 
 
-def interp_missing_data(df: DataFrame | Series, cols: list = []):
+def interp_missing_data(
+    df: Union[DataFrame, Series],
+    cols: Optional[List[str]] = None
+) -> DataFrame:
     """
     Interpolates missing data in a DataFrame.
 
@@ -151,6 +157,8 @@ def interp_missing_data(df: DataFrame | Series, cols: list = []):
     if not isinstance(df.index[0], float):
         raise RuntimeError(f"df.index (currently: {type(df.index[0])}) "
                            "must be integer type (see `Timestamp.value()`)!")
+    if cols is None:
+        cols = []
     if len(cols) == 0:
         cols = list(df.columns)
     for col in cols:
@@ -163,7 +171,9 @@ def interp_missing_data(df: DataFrame | Series, cols: list = []):
     return df
 
 
-def downsample_data(df: DataFrame | Series) -> DataFrame | Series:
+def downsample_data(
+    df: Union[DataFrame, Series]
+) -> Union[DataFrame, Series]:
     """
     Downsamples the given DataFrame to obtain 1024 samples.
 
@@ -179,8 +189,10 @@ def downsample_data(df: DataFrame | Series) -> DataFrame | Series:
     return df
 
 
-def format_data(records: Dict | DataFrame,
-                tz_offset: None | int | float = None) -> DataFrame:
+def format_data(
+    records: Union[Dict, DataFrame],
+    tz_offset: Optional[Union[int, float]] = None
+) -> DataFrame:
     """Format data for the model.
 
     Notes:

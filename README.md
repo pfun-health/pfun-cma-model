@@ -2,11 +2,16 @@
 
 _PFun CMA model repo._
 
-### Debugging the app locally
+## Development notes
+
+- Using `uv` for super fast dependency management, usage, and publishing.
+
+### To add a development dependency
 
 ```bash
 
-$ fastapi dev pfun_cma_model/app.py --port 8001
+# e.g., 'uv add --dev types-requests'
+$ uv add --dev ...
 
 ```
 
@@ -14,7 +19,16 @@ $ fastapi dev pfun_cma_model/app.py --port 8001
 
 ```bash
 
-poetry update
+uv sync
+
+```
+
+### Debugging the app locally
+
+```bash
+
+$ uv run fastapi dev pfun_cma_model/app.py --port 8001
+
 ```
 
 ## Run CLI examples
@@ -22,12 +36,12 @@ poetry update
 ```bash
 
 # show usage statement for pfun-cma-model CLI
-$ poetry run pfun-cma-model
+$ uv run pfun-cma-model
 ...
 
 
 # fit the model, output results
-$ poetry run pfun-cma-model run-fit-model --plot
+$ uv run pfun-cma-model run-fit-model --plot
 ...
 
 ```
