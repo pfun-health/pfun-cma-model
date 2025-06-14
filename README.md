@@ -4,7 +4,24 @@ _PFun CMA model repo._
 
 ## Development notes
 
+- **[TODO]** check the output of `uvx tox`, fix these errors.
 - Using `uv` for super fast dependency management, usage, and publishing.
+
+### Create a dedicated virtual environment
+
+```bash
+
+uv venv
+
+```
+
+### Run tests locally
+
+```bash
+
+uvx tox
+
+```
 
 ### To add a development dependency
 
@@ -23,7 +40,7 @@ uv sync
 
 ```
 
-### Debugging the app locally
+### Debugging the app locally (run as a local FastAPI server)
 
 ```bash
 
