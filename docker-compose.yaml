@@ -1,5 +1,6 @@
 services:
   pfun-cma-model:
+    restart: unless-stopped
     develop:
       watch:
         - path: ./
