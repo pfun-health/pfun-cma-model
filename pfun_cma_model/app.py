@@ -187,7 +187,7 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
         data = read_sample_data()        
-        logger.info("Sample data retrieved:\n'%s'\n", data[:100])
+        logger.info("\n...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
@@ -197,7 +197,9 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
         fit_result = cma_fit_model(df, **config.model_dump())
         output = fit_result.model_dump_json()
     except Exception as exc:
-        logger.error("failed to fit to data.", exc_info=True)
+        logger.error("Exception encountered. Failed to fit to data. Exception:\n%s",
+                     str(exc),
+                     exc_info=0)
         error_response = Response(
             content={
                 "error": "failed to fit data. See error message on server log.",
@@ -208,7 +210,7 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
         )
         return error_response
     response = Response(
-        content={"output": output},
+        content=output,
         status_code=200,
         headers={"Content-Type": "application/json"},
     )

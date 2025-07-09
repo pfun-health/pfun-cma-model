@@ -88,7 +88,7 @@ def dt_to_decimal_secs(dt: Timedelta) -> float:
     ])
 
 
-def to_tod_hours(ixs: Union[DatetimeIndex, List]) -> ndarray:
+def to_tod_hours(ixs: Union[DatetimeIndex, List, Series]) -> ndarray:
     """convert DatetimeIndex -> array[float] (decimal hours, [0.0, 23.99])"""
     return array(
         [
@@ -172,25 +172,28 @@ def interp_missing_data(
 
 
 def downsample_data(
-    df: Union[DataFrame, Series]
-) -> Union[DataFrame, Series]:
+    df: Union[DataFrame, Series],
+    N: int = 1024
+) -> DataFrame | Series:
     """
-    Downsamples the given DataFrame to obtain 1024 samples.
+    Downsamples the given DataFrame to obtain N (default=1024) samples.
 
     Parameters:
     - df (DataFrame): The DataFrame to be downsampled.
+    - N (integer): Number of samples in the result.
 
     Returns:
-    - df (DataFrame): The downsampled DataFrame.
+    - df (DataFrame): The downsampled DataFrame with 'N' timesteps.
     """
-    #: end up with example 1024 samples
-    freq = Timedelta(hours=(df.index.max() - df.index.min()).total_seconds() / 3600) / 1023
+    #: end up with N samples
+    freq = Timedelta(hours=(df.index.max() - df.index.min()).total_seconds() / 3600) / (N - 1)
     df = df.resample(freq).mean()
     return df
 
 
 def format_data(
     records: Union[Dict, DataFrame],
+    N: int = 1024,
     tz_offset: Optional[Union[int, float]] = None
 ) -> DataFrame:
     """Format data for the model.
@@ -203,6 +206,7 @@ def format_data(
 
     Parameters:
     - records (Dict | DataFrame): The records to be formatted.
+    - N (integer): Desired number of samples in the result (default=1024).
     - tz_offset (None | int | float): The timezone offset in decimal seconds.
 
     Returns:
@@ -243,9 +247,9 @@ def format_data(
     df.sort_values(by="time", inplace=True)
     keepers = ["time", "value", "tod", "t", "G"]
     df = df[keepers]
-    #: reindex to have consistent sampling (1024 samples, correspond to bytes)
+    #: reindex to have consistent sampling (default is 1024 samples, correspond to bytes)
     df = df.set_index("time", drop=True).sort_index()
-    df = downsample_data(df)
+    df = downsample_data(df, N=N)  # type: ignore
     df.reset_index(names="time", inplace=True)  # type: ignore
     df = df.set_index("time", drop=True).sort_index()
     #: interpolate missing data

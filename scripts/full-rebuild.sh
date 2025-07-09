@@ -27,3 +27,6 @@ docker compose up -d \
     --remove-orphans \
     --renew-anon-volumes \
     --build
+sleep 1s
+
+echo -e "...done relaunching compose services."

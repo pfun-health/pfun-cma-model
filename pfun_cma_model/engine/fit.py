@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Any, Dict, Iterable, Container
+from typing import Any, Dict, Iterable, Container, Generator
 import numpy as np
 from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
 import importlib
@@ -39,7 +39,8 @@ dt_to_decimal_hours = importlib.import_module(
     ".data_utils", package="pfun_cma_model.engine").dt_to_decimal_hours
 format_data = importlib.import_module(".data_utils",
                                       package="pfun_cma_model.engine").format_data
-
+downsample_data = importlib.import_module(".data_utils",
+                                          package="pfun_cma_model.engine").downsample_data
 
 class CMAFitResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -73,6 +74,11 @@ class CMAFitResult(BaseModel):
                 self.__dict__[key] = value.tolist()
             if isinstance(value, CMASleepWakeModel):
                 self.__dict__[key] = value.dict()  # type: ignore
+            elif isinstance(value, (Generator)):
+                logging.warning(
+                    "Could not convert '%s' (key=%s, type=%s) to JSON (saving as naive string representation).",
+                    str(key), str(value), type(value))
+                self.__dict__.key[key] = str(value)
             if isinstance(value, dict):
                 for k, v in value.items():
                     if isinstance(v, OptimizeResult):
@@ -234,8 +240,8 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
     Raises:
         RuntimeError: If optimal parameters are not found.
     """
-    ftol = kwds.get("ftol", 1.49012e-8)
-    xtol = kwds.get("xtol", 1.49012e-8)
+    ftol = kwds.get("ftol", 1.49012e-16)
+    xtol = kwds.get("xtol", 1.49012e-16)
     maxfev = kwds.get("max_nfev", 150000)
     method = kwds.get("method", "L-BFGS-B")
     cns = CurveFitNS(xtol, ftol, maxfev, 0.0)
@@ -310,9 +316,14 @@ def fit_model(
     """
     if curve_fit_kwds is None:
         curve_fit_kwds = {}
+    
+    # N takes precedence if passed explicitly in kwds
+    if 'N' in kwds and 'n' in kwds:
+        raise ValueError("Cannot specify both 'N' and 'n' in kwargs.")
+    N = kwds.pop("N", kwds.pop('n', 1024))  # N timestamps for final result (data is downsampled internally)
 
     # pre-process data to ensure it is in the correct format
-    data = format_data(data)
+    data = format_data(data, N=N)  # reformat columns, downsample as needed
 
     # configure curve_fit kwargs
     max_nfev = data[ycol].size * 500  # set maximum number of function evaluations
@@ -326,16 +337,23 @@ def fit_model(
     default_cf_kwds.update(curve_fit_kwds)
     curve_fit_kwds = dict(default_cf_kwds)
 
+    # ! Important to set xdata after 'format_data' has already been called
+    # ! ...to ensure the index is of the correct size  
     xdata = data["t"].to_numpy(dtype=float)
     ydata = data[ycol].to_numpy(dtype=float, na_value=np.nan)
 
     if tM is None:
         tM = estimate_mealtimes(data, ycol, tm_freq=tm_freq, **kwds)
 
-    if 'N' in kwds and 'n' in kwds:
-        raise ValueError("Cannot specify both 'N' and 'n' in kwargs.")
-    N = kwds.pop("N", kwds.pop('n', None))  # default N timesteps to class default
-    cma = CMASleepWakeModel(t=xdata, N=N, tM=tM, **kwds)
+    # ensure there is only one value for t (should not be in kwds)
+    t_kwds = kwds.pop("t", 0)
+    if t_kwds == 0:
+        t = xdata  # use xdata if no other value for t is given
+    if t_kwds is not xdata:
+        logger.warning(
+            "Two values were provided for 't' parameter... Using: '%s'",
+            str(t))
+    cma = CMASleepWakeModel(t=t, N=None, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         logging.debug("taup0=%f", cma.taup)
 

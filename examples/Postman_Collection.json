@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "API Routes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "/",
+      "item": [
+        {
+          "name": "GET /",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "GET /params/schema",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/params/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "params",
+                "schema"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "GET /params/default",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/params/default",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "params",
+                "default"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "GET /data/sample",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/data/sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "data",
+                "sample"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "POST /translate-results",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/translate-results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "translate-results"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "POST /run",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "run"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "POST /run-at-time",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/run-at-time",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "run-at-time"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "POST /fit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fit"
+              ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": []
+}

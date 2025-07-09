@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import (
     Sequence,
     Callable, Container, Dict, Iterable, Tuple,
-    Optional
+    Optional, Generator
 )
 from numpy import (
     array,
@@ -163,6 +163,10 @@ class CMASleepWakeModel:
                 out[key] = value.__json__()
             elif hasattr(value, 'model_dump'):
                 out[key] = value.model_dump()
+            elif isinstance(value, (Generator)):
+                logging.warning(
+                    "Could not convert %s (type=%s) to JSON.", str(value), type(value))
+                out.pop(key)
             elif isinstance(value, (dict)):
                 for k, v in value.items():
                     if isinstance(v, DataFrame):
@@ -170,11 +174,16 @@ class CMASleepWakeModel:
                     elif isinstance(v, ndarray):
                         value[k] = v.tolist()
             try:
+                logging.info("attempting to serialize: %s (value='%s')", key, str(out.get(key)))
                 json.dumps(out[key])
-            except json.JSONDecodeError:
-                logging.warning("Could not convert %s to JSON.", str(value))
-                out.pop(key)  # ! remove any non-JSONable value
-        return json.dumps(out)
+            except (json.JSONDecodeError, TypeError) as exc:
+                logging.warning(
+                    "Exception: '%s'\n...Could not convert %s to JSON.",
+                    str(exc),
+                    str(value),
+                    exc_info=False)
+                out.pop(key, None)  # ! remove any non-JSONable value
+        return json.dumps(out, skipkeys=True)  # ! skipkeys removes all non-basic types
 
     def json(self):
         """JSON serialization."""
