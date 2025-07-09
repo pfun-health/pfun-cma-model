@@ -73,12 +73,18 @@ def default_params():
     return params.model_dump_json()
 
 
-@app.get("/data/sample")
-def get_sample_dataset():
+def read_sample_data(convert2json: bool = True):
     from pfun_cma_model.engine.data_utils import format_data
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
     df = PFunDataPaths().read_sample_data()
-    return df.to_json()
+    if convert2json is False:
+        return df
+    return df.to_json(orient='records')
+ 
+ 
+@app.get("/data/sample")
+def get_sample_dataset(request: Request):
+    return read_sample_data(convert2json=True)
 
 
 CMA_MODEL_INSTANCE = None
@@ -156,15 +162,13 @@ async def run_at_time_ws(websocket: WebSocket):
 
 
 @app.post("/run-at-time")
-async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: Annotated[CMAModelParams, Body()] = None):
+async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CMAModelParams | None = None):
     try:
+        if config is None:
+            config = CMAModelParams()
         config: Mapping = config.model_dump()
-        output = run_at_time_func(t0, t1, n, **config)
-        return Response(
-            content=json.dumps(output, indent=3),
-            status_code=200,
-            headers={"Content-Type": "application/json"},
-        )
+        output = await run_at_time_func(t0, t1, n, **config)
+        return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
         error_response = Response(
@@ -178,25 +182,27 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: An
 
 
 @app.post("/fit")
-async def fit_model_to_data(request: Request, data: dict | str, config: CMAModelParams | str = None):
+async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | None = None):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
-        interim_data = requests.get(str(request.url_for("get_sample_dataset")))
-        data = str(interim_data.text)
+        data = read_sample_data()        
+        logger.info("Sample data retrieved:\n'%s'\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
         config: Mapping = json.loads(config)
     try:
         df = DataFrame(data)
-        fit_result = cma_fit_model(df, **config)
+        fit_result = cma_fit_model(df, **config.model_dump())
         output = fit_result.model_dump_json()
-    except Exception:
+    except Exception as exc:
         logger.error("failed to fit to data.", exc_info=True)
         error_response = Response(
             content={
-                "error": "failed to fit data. See error message on server log."},
+                "error": "failed to fit data. See error message on server log.",
+                "exception": str(exc)
+                },
             status_code=500,
             headers={"Content-Type": "application/json"},
         )

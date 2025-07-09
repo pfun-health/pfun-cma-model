@@ -6,6 +6,7 @@ import json
 import click
 from sklearn.model_selection import ParameterGrid
 import pfun_path_helper as pph
+from pfun_cma_model.misc.pathdefs import PFunDataPaths
 from pfun_cma_model.engine.cma_plot import CMAPlotConfig
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.fit import fit_model
@@ -16,10 +17,8 @@ from pfun_cma_model.app import run_app
 @click.pass_context
 def cli(ctx):
     ctx.ensure_object(dict)
-    ctx.obj["sample_data_fpath"] = os.path.abspath(
-        os.path.join(pph.get_lib_path("pfun_data"), 'data/valid_data.csv'))
-    ctx.obj["output_dir"] = os.path.abspath(
-        os.path.join(os.getcwd(), 'examples/output'))
+    ctx.obj["sample_data_fpath"] = PFunDataPaths().pfun_data_dirpath
+    ctx.obj["output_dir"] = os.getcwd()
 
 
 @cli.command()

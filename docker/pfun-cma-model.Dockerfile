@@ -1,17 +1,4 @@
-FROM python:3.11-slim as base
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    g++ \
-    gfortran \
-    pkg-config \
-    python3-venv \
-    python-is-python3 \
-    python3-pip \
-    pipx \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+FROM ghcr.io/astral-sh/uv:debian as base
 
 # create a non-root user
 # and set the app root directory
@@ -23,7 +10,7 @@ WORKDIR /app
 # copy as root
 COPY --chown=nonroot:nonroot . .
 # ensure permissions for nonroot
-RUN chown -R nonroot:nonroot /app/
+RUN chown nonroot:nonroot .
 
 FROM base as deps
 
@@ -35,8 +22,11 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    pipx install uv && \
+    cd /app && \
     uv venv && \
+    uv add fastapi --extra standard && \
+    uv tool install tox && \
+    uv tool install pytest && \
     uv sync && \
     uv build
 
@@ -44,8 +34,10 @@ RUN \
 FROM deps as test
 
 # run tox in uv virtual env
+# also run pytest
 RUN \
-    uvx tox
+    uvx tox && \
+    uvx pytest
 
 
 FROM deps as dist

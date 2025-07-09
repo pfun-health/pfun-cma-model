@@ -4,7 +4,8 @@ _PFun CMA model repo._
 
 ## Development notes
 
-- **[TODO]** check the output of `uvx tox`, fix these errors.
+- **[TODO]** Resolve issues in app.py routes.
+- **[TODO]** Get docker compose build working...
 - Using `uv` for super fast dependency management, usage, and publishing.
 
 ### Create a dedicated virtual environment
@@ -12,6 +13,19 @@ _PFun CMA model repo._
 ```bash
 
 uv venv
+
+```
+
+### Install fastapi with the correct version
+
+```bash
+
+# install fastapi cli for 'uvx'
+uv add fastapi --extra standard
+
+# run the dev server with:
+uv run fastapi dev
+...
 
 ```
 

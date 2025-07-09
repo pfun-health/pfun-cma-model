@@ -1922,13 +1922,13 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.3.2a10"
+version = "0.3.2a13"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "botocore" },
     { name = "click" },
-    { name = "fastapi" },
+    { name = "fastapi", extra = ["standard"] },
     { name = "graphql-core" },
     { name = "gunicorn" },
     { name = "jinja2" },
@@ -1970,6 +1970,8 @@ ui = [
 [package.dev-dependencies]
 dev = [
     { name = "fastapi", extra = ["standard"] },
+    { name = "ipython", version = "8.37.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "ipython", version = "9.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pandas-stubs" },
     { name = "types-requests" },
     { name = "types-tabulate" },
@@ -1982,7 +1984,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
     { name = "click", marker = "extra == 'dev'", specifier = ">=8.1.7" },
     { name = "dash", marker = "extra == 'ui'", specifier = ">=2.18.2" },
-    { name = "fastapi", specifier = ">=0.115.3" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.115.3" },
     { name = "fastapi", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.115.12" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
@@ -2016,6 +2018,7 @@ provides-extras = ["ui", "dev"]
 [package.metadata.requires-dev]
 dev = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
+    { name = "ipython", specifier = ">=8.37.0" },
     { name = "pandas-stubs", specifier = ">=2.2.3.250527" },
     { name = "types-requests", specifier = ">=2.32.4.20250611" },
     { name = "types-tabulate", specifier = ">=0.9.0.20241207" },

@@ -12,3 +12,8 @@ _build/
 __pycache__/
 .devcontainer/
 *.code-workspace
+examples/
+.vscode/
+.mypy_cache/
+.pytest_cache/
+.tox/
