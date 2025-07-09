@@ -12,7 +12,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional, Annotated
+from typing import Any, Dict, Literal, Optional, Annotated, Mapping
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -73,6 +73,14 @@ def default_params():
     return params.model_dump_json()
 
 
+@app.get("/data/sample")
+def get_sample_dataset():
+    from pfun_cma_model.engine.data_utils import format_data
+    from pfun_cma_model.misc.pathdefs import PFunDataPaths
+    df = PFunDataPaths().read_sample_data()
+    return df.to_json()
+
+
 CMA_MODEL_INSTANCE = None
 
 
@@ -119,7 +127,9 @@ async def run_model(config: Annotated[CMAModelParams, Body()] = None):
             "Access-Control-Allow-Origin": "*",
         },
     )
-    logger.debug("Response: %s", response.body.decode('utf-8'))
+    if hasattr(response.body, 'decode'):
+        # maintain backward compatibility
+        logger.debug("Response: %s", response.body.decode('utf-8'))
     return response
 
 
@@ -140,7 +150,7 @@ async def run_at_time_ws(websocket: WebSocket):
     msg = await websocket.receive_text()
     logger.info("Received message: %s", msg[:20], "...")
     data = json.loads(msg)
-    interim_response = await requests.post("/run-at-time", data=data)
+    interim_response = requests.post(app.url_path_for("run-at-time"), data=data)
     output: str = interim_response.text
     await websocket.send_text(output)
 
@@ -148,8 +158,8 @@ async def run_at_time_ws(websocket: WebSocket):
 @app.post("/run-at-time")
 async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: Annotated[CMAModelParams, Body()] = None):
     try:
-        config = config.model_dump()
-        output = await run_at_time_func(t0, t1, n, **config)
+        config: Mapping = config.model_dump()
+        output = run_at_time_func(t0, t1, n, **config)
         return Response(
             content=json.dumps(output, indent=3),
             status_code=200,
@@ -168,13 +178,16 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: An
 
 
 @app.post("/fit")
-async def fit_model_to_data(data: dict, config: CMAModelParams | str = None):
+async def fit_model_to_data(request: Request, data: dict | str, config: CMAModelParams | str = None):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
+    if len(data) == 0:
+        interim_data = requests.get(str(request.url_for("get_sample_dataset")))
+        data = str(interim_data.text)
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
-        config = json.loads(config)
+        config: Mapping = json.loads(config)
     try:
         df = DataFrame(data)
         fit_result = cma_fit_model(df, **config)
@@ -187,7 +200,7 @@ async def fit_model_to_data(data: dict, config: CMAModelParams | str = None):
             status_code=500,
             headers={"Content-Type": "application/json"},
         )
-        return json.dumps(error_response.to_dict())
+        return error_response
     response = Response(
         content={"output": output},
         status_code=200,

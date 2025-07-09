@@ -35,15 +35,17 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    pipx install poetry && \
-    poetry install
+    pipx install uv && \
+    uv venv && \
+    uv sync && \
+    uv build
 
 
 FROM deps as test
 
-# run pytest in poetry virtual env
+# run tox in uv virtual env
 RUN \
-    poetry run pytest
+    uvx tox
 
 
 FROM deps as dist
