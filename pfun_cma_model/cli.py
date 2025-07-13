@@ -9,7 +9,7 @@ import pfun_path_helper as pph
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 from pfun_cma_model.engine.cma_plot import CMAPlotConfig
 from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.engine.fit import fit_model
+from pfun_cma_model.engine.fit import fit_model as call_fit_model
 from pfun_cma_model.app import run_app
 
 
@@ -17,7 +17,7 @@ from pfun_cma_model.app import run_app
 @click.pass_context
 def cli(ctx):
     ctx.ensure_object(dict)
-    ctx.obj["sample_data_fpath"] = PFunDataPaths().pfun_data_dirpath
+    ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
     ctx.obj["output_dir"] = os.getcwd()
 
 
@@ -55,7 +55,7 @@ fit_result_global = None
               callback=process_kwds)
 @click.option("--model-config", "--config", prompt=True, default="{}", type=str)
 @click.pass_context
-def run_fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
+def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     global fit_result_global
     model_config = json.loads(model_config)
     if input_fpath is None:
@@ -65,7 +65,7 @@ def run_fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     # read the input dataset
     data = pd.read_csv(input_fpath)
     # fit the model
-    fit_result = fit_model(data, n=n, plot=plot, opts=opts, **model_config)
+    fit_result = call_fit_model(data, n=n, plot=plot, opts=opts, **model_config)
     fit_result_global = fit_result
     # write fitted model parameters (with the corresponding time-series solution) to disk
     output_fpath = os.path.join(output_dir, "fit_result.json")
@@ -76,9 +76,10 @@ def run_fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     if plot is True:
         from pfun_cma_model.engine.cma_plot import CMAPlotConfig
         fig, _ = CMAPlotConfig().plot_model_results(df=fit_result.formatted_data, soln=fit_result.soln, as_blob=False)
-        fig.savefig(os.path.join(output_dir, "fit_result.png"))
-        click.confirm("[enter] to exit...", default=True,
-                      abort=True, show_default=False)
+        fig_output_fpath = os.path.join(output_dir, "fit_result.png")
+        fig.savefig(fig_output_fpath)
+        click.secho(f"...saved plot to: '{fig_output_fpath}'")
+        click.confirm("[enter] to exit...", default=True, abort=True, show_default=False)
         plt.close('all')
 
 

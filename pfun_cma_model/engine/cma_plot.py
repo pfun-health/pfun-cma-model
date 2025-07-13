@@ -1,5 +1,3 @@
-
-
 from typing import Optional, Tuple, Container, AnyStr
 from dataclasses import dataclass
 import logging
@@ -18,15 +16,18 @@ __all__ = [
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
-    plot_cols: Optional[Tuple[str]] = (
-        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value")
-    labels: Optional[Tuple[str]] = ("Breakfast", "Lunch", "Dinner",
-                                    "Glucose", "Cortisol", "Melatonin",
-                                    "Adiponectin", "Photoperiod (irradiance)",
-                                    "Insulin (secreted)",
-                                    "Insulin (effective)",
-                                    "Meals",
-                                    "Glucose (Data)")
+    plot_cols: Optional[Tuple[str]] = ( "g_0", "g_1", "g_2", "G", "c",
+                                        "m", "a", "L", "I_S", "I_E", "is_meal", "value" )
+
+    labels: Optional[Tuple[str]] = (
+        "Breakfast", "Lunch", "Dinner",
+        "Glucose", "Cortisol", "Melatonin",
+        "Adiponectin", "Photoperiod (irradiance)",
+        "Insulin (secreted)", "Insulin (effective)",
+        "Meals",
+        "Glucose (Data)"
+    )
+
     colors: Optional[Tuple[str]] = (
         "#ec5ef9",
         "#bd4bc7",
@@ -84,7 +85,7 @@ class CMAPlotConfig:
         return cls.set_global_axis_properties(axs)
 
     @classmethod
-    def plot_model_results(cls, df=None, soln=None, plot_cols=None, separate2subplots=False, as_blob=True):
+    def plot_model_results(cls, df=None, soln=None, plot_cols=None, separate2subplots=False, as_blob=True, **subplot_kwds):
         """plot the results of the model"""
         if df is None:
             raise ValueError("df is None")
@@ -102,7 +103,20 @@ class CMAPlotConfig:
         soln = soln.set_index("t")
         df = pd.merge_ordered(df.copy(), soln, suffixes=("", "_soln"), on="t")
         df = df.set_index("t")
-        fig, axs = plt.subplots(nrows=2 if separate2subplots is False else len(plot_cols) + 1)
+        # prepare subplots configuration
+        subplot_kwds_defaults = {
+            "nrows": 2 if separate2subplots is False else len(plot_cols) + 1,
+            "figsize": (14, 10),
+        }
+        # ! override provided value for nrows
+        if 'nrows' in subplot_kwds:
+            subplot_kwds['nrows'] = subplot_kwds_defaults['nrows']
+            logging.warning("Provided value for nrows was overwritten. See options for 'separate2subplots'.")
+        # include other defaults if not provided:
+        for k in subplot_kwds_defaults:
+            if k not in subplot_kwds:
+                subplot_kwds[k] = subplot_kwds_defaults[k]
+        fig, axs = plt.subplots(**subplot_kwds)
         #: plot meal times, meal sizes
         ax = axs[0]
         ax = df.plot.area(y="G_soln", color='k', ax=ax, label="Estimated Meal Size")

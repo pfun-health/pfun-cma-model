@@ -15,10 +15,12 @@ class PFunDataPaths:
     pfun_data_dirpath = os.path.abspath(pph.get_lib_path("pfun_data"))
     sample_data_fpath = os.path.join(pfun_data_dirpath, 'data/valid_data.csv')
 
-    def read_sample_data(self):
+    def read_sample_data(self, fpath: os.PathLike = None):
         """Read sample data from the specified file path."""
+        if fpath is None:
+            fpath = self.sample_data_fpath
         import pandas as pd
-        return pd.read_csv(self.sample_data_fpath)
+        return pd.read_csv(fpath)
 
 
 @dataclass
