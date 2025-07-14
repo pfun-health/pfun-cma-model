@@ -112,8 +112,13 @@ def run_param_grid(ctx):
         params["tM"] = tM
         cma.update(**params)
         out = cma.run()
-        fit_result_global.append([params, out])
-    print('...done.')
+        fit_result_global.append({"params": params, "result": out})
+    import pandas as pd
+    df = pd.DataFrame(fit_result_global, columns=["params", "result"])
+    output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
+    df.to_feather(output_fpath)
+    click.secho(f"...saved result to: '{output_fpath}'")
+    click.secho('...done.')
 
 
 @cli.command()

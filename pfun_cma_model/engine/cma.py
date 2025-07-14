@@ -639,11 +639,11 @@ class CMASleepWakeModel:
         for tm in self.tM:
             time_since_meal = (df['t'] - tm).abs()
             if len(time_since_meal) == 0:
-                logging.warning(f"(no matching data) Skipped record for meal at tm={tm}.")
                 continue
             ismeal.append(time_since_meal.idxmin())
         df['is_meal'] = False
-        df.loc[ismeal, 'is_meal'] = True
+        if len(ismeal) > 0:
+            df.loc[ismeal, 'is_meal'] = True
         return df
 
 
