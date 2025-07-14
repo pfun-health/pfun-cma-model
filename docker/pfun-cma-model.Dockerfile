@@ -32,7 +32,8 @@ RUN \
 
 
 FROM deps as test
-
+USER nonroot
+WORKDIR /app
 # run tox in uv virtual env
 # also run pytest
 RUN \
@@ -41,6 +42,7 @@ RUN \
 
 
 FROM deps as dist
-
+USER nonroot
+WORKDIR /app
 # overridden in compose
 CMD ["bash"]
