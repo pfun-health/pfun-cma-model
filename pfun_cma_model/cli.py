@@ -89,6 +89,7 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 def run_param_grid(ctx):
     global fit_result_global
     fit_result_global = []
+    output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
     cma = CMASleepWakeModel(N=48)
     keys = list(cma.param_keys)
     lb = list(cma.bounds.lb)
@@ -101,13 +102,14 @@ def run_param_grid(ctx):
         "tM0": [7, ],
         "tM1": [12, ],
         "tM2": [18, ],
-        "d": [-3.0, -2.0, 0.0, 1.0, 2.0]
+        "d": [-3.0, 1.0, 2.0]
     }
     pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
     pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
     pgrid = ParameterGrid(pdict)
     for i, params in enumerate(pgrid):
-        print(f"Iteration ({i:03d}/{len(pgrid)}) ...")
+        if i % 7 == 0:
+            click.secho(f"Iteration ({i:03d}/{len(pgrid)}) ...")
         tM = [params.pop(tmk) for tmk in tmK]
         params["tM"] = tM
         cma.update(**params)
@@ -115,7 +117,6 @@ def run_param_grid(ctx):
         fit_result_global.append({"params": params, "result": out})
     import pandas as pd
     df = pd.DataFrame(fit_result_global, columns=["params", "result"])
-    output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
     df.to_feather(output_fpath)
     click.secho(f"...saved result to: '{output_fpath}'")
     click.secho('...done.')
