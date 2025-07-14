@@ -635,7 +635,13 @@ class CMASleepWakeModel:
         #: record instantaneous glucose
         df["G"] = self.g_instant
         #: record estimated meal times
-        ismeal = [(df['t'] - tm).abs().idxmin() for tm in self.tM]
+        ismeal = []
+        for tm in self.tM:
+            time_since_meal = (df['t'] - tm).abs()
+            if len(time_since_meal) == 0:
+                logging.warning(f"(no matching data) Skipped record for meal at tm={tm}.")
+                continue
+            ismeal.append(time_since_meal.idxmin())
         df['is_meal'] = False
         df.loc[ismeal, 'is_meal'] = True
         return df

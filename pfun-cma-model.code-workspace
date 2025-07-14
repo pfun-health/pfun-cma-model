@@ -2,12 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../pfun-app"
-		},
-		{
-			"path": "../pfun_path_helper"
 		}
 	],
 	"tasks": {
@@ -16,6 +10,7 @@
 		]
 	},
 	"settings": {
+		"terminal.integrated.suggest.cdPath": "relative",
 		"python.analysis.extraPaths": [
 			".",
 		],

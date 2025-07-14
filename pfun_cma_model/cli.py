@@ -18,7 +18,9 @@ from pfun_cma_model.app import run_app
 def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
-    ctx.obj["output_dir"] = os.getcwd()
+    ctx.obj["output_dir"] = os.path.abspath(
+        os.path.join(pph.get_lib_path('pfun_cma_model'), '../results')
+    )
 
 
 @cli.command()
@@ -38,8 +40,7 @@ def process_kwds(ctx, param, value):
                 new = int(value[i][1])
             except ValueError:
                 new = float(value[i][1])
-            finally:
-                value[i][1] = new
+            value[i][1] = new
     return value
 
 
