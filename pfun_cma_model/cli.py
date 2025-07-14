@@ -114,7 +114,7 @@ def run_param_grid(ctx):
         params["tM"] = tM
         cma.update(**params)
         out = cma.run()
-        fit_result_global.append({"params": params, "result": out})
+        fit_result_global.append({"params": str(params), "result": str(out)})
     import pandas as pd
     df = pd.DataFrame(fit_result_global, columns=["params", "result"])
     df.to_feather(output_fpath)
