@@ -23,9 +23,9 @@ services:
     ports:
       - "8001:8001"
     command: [
-    "uv", "run","uvicorn",
-    "pfun_cma_model.app:app",
-    "--host", "0.0.0.0",
-    "--port", "8001",
-    "--workers", "2"
+      "uv", "run","uvicorn",
+      "pfun_cma_model.app:app",
+      "--host", "0.0.0.0",
+      "--port", "8001",
+      "--workers", "2"
     ]
