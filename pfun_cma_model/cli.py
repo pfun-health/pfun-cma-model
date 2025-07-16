@@ -91,12 +91,13 @@ def run_param_grid(ctx):
     fit_result_global = []
     output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
     cma = CMASleepWakeModel(N=48)
-    keys = list(cma.param_keys)
+    keys = list(cma.bounded_param_keys)
     lb = list(cma.bounds.lb)
     ub = list(cma.bounds.ub)
-    tmK = ["tM0", "tM1", "tM2"]
-    tmL, tmU = [0, 11, 13], [13, 17, 24]
     plist = list(zip(keys, lb, ub))
+    tmK = ["tM0", "tM1", "tM2"]
+    tmL = [5, 11, 13]
+    tmU = [9, 14, 22]
     pdict = {}
     pdict = {
         "tM0": [7, ],
@@ -114,7 +115,7 @@ def run_param_grid(ctx):
         params["tM"] = tM
         cma.update(**params)
         out = cma.run()
-        fit_result_global.append({"params": str(params), "result": str(out)})
+        fit_result_global.append({"params": str(params), "result": out.to_json()})
     import pandas as pd
     df = pd.DataFrame(fit_result_global, columns=["params", "result"])
     df.to_feather(output_fpath)
