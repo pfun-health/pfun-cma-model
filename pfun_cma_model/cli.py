@@ -87,37 +87,10 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 @cli.command()
 @click.pass_context
 def run_param_grid(ctx):
-    global fit_result_global
-    fit_result_global = []
     output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
-    cma = CMASleepWakeModel(N=48)
-    keys = list(cma.bounded_param_keys)
-    lb = list(cma.bounds.lb)
-    ub = list(cma.bounds.ub)
-    plist = list(zip(keys, lb, ub))
-    tmK = ["tM0", "tM1", "tM2"]
-    tmL = [5, 11, 13]
-    tmU = [9, 14, 22]
-    pdict = {}
-    pdict = {
-        "tM0": [7, ],
-        "tM1": [12, ],
-        "tM2": [18, ],
-        "d": [-3.0, 1.0, 2.0]
-    }
-    pdict = {k: np.linspace(l, u, num=3) for k, l, u in plist}
-    pdict.update({k: list(range(l, u, 3)) for k, l, u in zip(tmK, tmL, tmU)})
-    pgrid = ParameterGrid(pdict)
-    for i, params in enumerate(pgrid):
-        if i % 7 == 0:
-            click.secho(f"Iteration ({i:03d}/{len(pgrid)}) ...")
-        tM = [params.pop(tmk) for tmk in tmK]
-        params["tM"] = tM
-        cma.update(**params)
-        out = cma.run()
-        fit_result_global.append({"params": str(params), "result": out.to_json()})
-    import pandas as pd
-    df = pd.DataFrame(fit_result_global, columns=["params", "result"])
+    from pfun_cma_model.engine.grid import PFunCMAParamsGrid
+    pfun_grid = PFunCMAParamsGrid()
+    df = pfun_grid.run()
     df.to_feather(output_fpath)
     click.secho(f"...saved result to: '{output_fpath}'")
     click.secho('...done.')
