@@ -90,6 +90,8 @@ def run_param_grid(ctx):
     output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
     pfun_grid = PFunCMAParamsGrid()
+    Nparam = len(pfun_grid.pgrid)
+    click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     df = pfun_grid.run()
     df.to_feather(output_fpath)
     click.secho(f"...saved result to: '{output_fpath}'")
