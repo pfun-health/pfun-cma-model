@@ -1,0 +1,61 @@
+# This file is designed for use with Google Cloud Build.
+# It builds a Docker image, pushes it to a container registry,
+# and deploys it to Google Cloud Run.
+
+# Note: Google Artifact Registry is the recommended service for storing container images.
+# To use Artifact Registry, replace 'gcr.io/$PROJECT_ID/' with your repository path,
+# e.g., 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/'.
+steps:
+  # 1. Build the container image using the specified Dockerfile.
+  - name: "gcr.io/cloud-builders/docker"
+    id: Build
+    args:
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"
+      - "-f"
+      - "Dockerfile"
+      - "."
+
+  # 2. Push the container image to Google Container Registry.
+  - name: "gcr.io/cloud-builders/docker"
+    id: Push
+    args: ["push", "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"]
+
+  # 3. Deploy the container image to Google Cloud Run.
+  # This step mirrors the service definition in docker-compose.yaml.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: Deploy
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "pfun-cma-model" # Cloud Run service name
+      - "--image"
+      - "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"
+      - "--region"
+      - "${_REGION}"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated" # Allows public access to the service
+      - "--port"
+      - "8001" # The port your container listens on
+      # The following command and arguments override the Dockerfile's CMD
+      # to match the command in your docker-compose.yaml file.
+      - "--command"
+      - "uv"
+      - "--args"
+      - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1"
+
+# Add the built image to the list of images created by this build.
+images:
+  - "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"
+
+# Substitutions for parameterized values.
+substitutions:
+  _REGION: "us-central1" # Default region for Cloud Run, can be overridden.
+
+# Configure Cloud Build options
+options:
+  # Send build logs straight to Cloud Logging
+  logging: CLOUD_LOGGING_ONLY
