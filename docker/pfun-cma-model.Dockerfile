@@ -22,7 +22,6 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    cd /app && \
     uv venv && \
     uv add fastapi --extra standard && \
     uv tool install tox && \
