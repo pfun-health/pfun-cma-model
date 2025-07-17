@@ -14,7 +14,7 @@ services:
     #         - poetry.lock
     build:
       context: .
-      dockerfile: ./docker/pfun-cma-model.Dockerfile
+      dockerfile: Dockerfile
     user: "nonroot:nonroot"
     environment:
       - USER=nonroot
