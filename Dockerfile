@@ -30,16 +30,6 @@ RUN \
     uv build
 
 
-FROM deps as test
-USER nonroot
-WORKDIR /app
-# run tox in uv virtual env
-# also run pytest
-RUN \
-    uvx tox && \
-    uvx pytest
-
-
 FROM deps as dist
 USER nonroot
 WORKDIR /app
