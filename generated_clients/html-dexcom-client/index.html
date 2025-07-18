@@ -1,0 +1,834 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Dexcom Developer API</title>
+    <style type="text/css">
+      body {
+	font-family: Trebuchet MS, sans-serif;
+	font-size: 15px;
+	color: #444;
+	margin-right: 24px;
+}
+
+h1	{
+	font-size: 25px;
+}
+h2	{
+	font-size: 20px;
+}
+h3	{
+	font-size: 16px;
+	font-weight: bold;
+}
+hr	{
+	height: 1px;
+	border: 0;
+	color: #ddd;
+	background-color: #ddd;
+}
+
+.app-desc {
+  clear: both;
+  margin-left: 20px;
+}
+.param-name {
+  width: 100%;
+}
+.license-info {
+  margin-left: 20px;
+}
+
+.license-url {
+  margin-left: 20px;
+}
+
+.model {
+  margin: 0 0 0px 20px;
+}
+
+.method {
+  margin-left: 20px;
+}
+
+.method-notes	{
+	margin: 10px 0 20px 0;
+	font-size: 90%;
+	color: #555;
+}
+
+pre {
+  padding: 10px;
+  margin-bottom: 2px;
+}
+
+.http-method {
+ text-transform: uppercase;
+}
+
+pre.get {
+  background-color: #0f6ab4;
+}
+
+pre.post {
+  background-color: #10a54a;
+}
+
+pre.put {
+  background-color: #c5862b;
+}
+
+pre.delete {
+  background-color: #a41e22;
+}
+
+.huge	{
+	color: #fff;
+}
+
+pre.example {
+  background-color: #f3f3f3;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+code {
+  white-space: pre;
+}
+
+.nickname {
+  font-weight: bold;
+}
+
+.method-path {
+  font-size: 1.5em;
+  background-color: #0f6ab4;
+}
+
+.up {
+  float:right;
+}
+
+.parameter {
+  width: 500px;
+}
+
+.param {
+  width: 500px;
+  padding: 10px 0 0 20px;
+  font-weight: bold;
+}
+
+.param-desc {
+  width: 700px;
+  padding: 0 0 0 20px;
+  color: #777;
+}
+
+.param-type {
+  font-style: italic;
+}
+
+.param-enum-header {
+width: 700px;
+padding: 0 0 0 60px;
+color: #777;
+font-weight: bold;
+}
+
+.param-enum {
+width: 700px;
+padding: 0 0 0 80px;
+color: #777;
+font-style: italic;
+}
+
+.field-label {
+  padding: 0;
+  margin: 0;
+  clear: both;
+}
+
+.field-items	{
+	padding: 0 0 15px 0;
+	margin-bottom: 15px;
+}
+
+.return-type {
+  clear: both;
+  padding-bottom: 10px;
+}
+
+.param-header {
+  font-weight: bold;
+}
+
+.method-tags {
+  text-align: right;
+}
+
+.method-tag {
+  background: none repeat scroll 0% 0% #24A600;
+  border-radius: 3px;
+  padding: 2px 10px;
+  margin: 2px;
+  color: #FFF;
+  display: inline-block;
+  text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body>
+  <h1>Dexcom Developer API</h1>
+    <div class="app-desc">This API provides access to Dexcom continuous glucose monitoring data for authorized users.</div>
+    <div class="app-desc">More information: <a href="https://openapi-generator.tech">https://openapi-generator.tech</a></div>
+    <div class="app-desc">Contact Info: <a href="team@openapitools.org">team@openapitools.org</a></div>
+    <div class="app-desc">Version: v3</div>
+    <div class="app-desc">BasePath:</div>
+    <div class="license-info">All rights reserved</div>
+    <div class="license-url">http://apache.org/licenses/LICENSE-2.0.html</div>
+  <h2>Access</h2>
+    <ol>
+      <li>HTTP Bearer Token authentication (JWT)</li>
+    </ol>
+
+  <h2><a name="__Methods">Methods</a></h2>
+  [ Jump to <a href="#__Models">Models</a> ]
+
+  <h3>Table of Contents </h3>
+  <div class="method-summary"></div>
+  <h4><a href="#Default">Default</a></h4>
+  <ul>
+  <li><a href="#exchangeAuthorizationCode"><code><span class="http-method">post</span> /v2/oauth2/token</code></a></li>
+  <li><a href="#getAlerts"><code><span class="http-method">get</span> /v3/users/self/alerts</code></a></li>
+  <li><a href="#getCalibrations"><code><span class="http-method">get</span> /v3/users/self/calibrations</code></a></li>
+  <li><a href="#getDataRange"><code><span class="http-method">get</span> /v3/users/self/dataRange</code></a></li>
+  <li><a href="#getDevicesV3"><code><span class="http-method">get</span> /v3/users/self/devices</code></a></li>
+  <li><a href="#getEstimatedGlucoseValues"><code><span class="http-method">get</span> /v3/users/self/egvs</code></a></li>
+  <li><a href="#getEventsV3"><code><span class="http-method">get</span> /v3/users/self/events</code></a></li>
+  <li><a href="#userAuthorization"><code><span class="http-method">get</span> /v2/oauth2/login</code></a></li>
+  </ul>
+
+  <h1><a name="Default">Default</a></h1>
+  <div class="method"><a name="exchangeAuthorizationCode"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /v2/oauth2/token</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">exchangeAuthorizationCode</span>)</div>
+    <div class="method-notes"></div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/x-www-form-urlencoded</code></li>
+    </ul>
+
+
+
+
+    <h3 class="field-label">Form parameters</h3>
+    <div class="field-items">
+      <div class="param">client_id (required)</div>
+
+      <div class="param-desc"><span class="param-type">Form Parameter</span> &mdash;  default: null </div><div class="param">client_secret (required)</div>
+
+      <div class="param-desc"><span class="param-type">Form Parameter</span> &mdash;  default: null </div><div class="param">code (required)</div>
+
+      <div class="param-desc"><span class="param-type">Form Parameter</span> &mdash;  default: null </div><div class="param">grant_type (required)</div>
+
+      <div class="param-desc"><span class="param-type">Form Parameter</span> &mdash;  default: null </div><div class="param">redirect_uri (required)</div>
+
+      <div class="param-desc"><span class="param-type">Form Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#exchangeAuthorizationCode_200_response">exchangeAuthorizationCode_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "access_token" : "access_token",
+  "refresh_token" : "refresh_token",
+  "token_type" : "token_type",
+  "expires_in" : 0
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Access token and refresh token returned
+        <a href="#exchangeAuthorizationCode_200_response">exchangeAuthorizationCode_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getAlerts"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/alerts</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getAlerts</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">startDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div><div class="param">endDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#AlertRecord">AlertRecord</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "recordId" : "recordId",
+  "displayTime" : "2000-01-23T04:56:07.000+00:00",
+  "displayDevice" : "displayDevice",
+  "alertName" : "unknown",
+  "transmitterGeneration" : "unknown",
+  "alertState" : "unknown",
+  "systemTime" : "2000-01-23T04:56:07.000+00:00",
+  "transmitterId" : "transmitterId"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Ok
+        <a href="#AlertRecord">AlertRecord</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getCalibrations"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/calibrations</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getCalibrations</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">startDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div><div class="param">endDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#CalibrationRecord">CalibrationRecord</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "recordId" : "recordId",
+  "displayTime" : "2000-01-23T04:56:07.000+00:00",
+  "unit" : "unknown",
+  "displayDevice" : "displayDevice",
+  "transmitterGeneration" : "unknown",
+  "systemTime" : "2000-01-23T04:56:07.000+00:00",
+  "value" : 0,
+  "transmitterId" : "transmitterId",
+  "transmitterTicks" : 6
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Ok
+        <a href="#CalibrationRecord">CalibrationRecord</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getDataRange"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/dataRange</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getDataRange</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">lastSyncTime (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#getDataRange_200_response">getDataRange_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "egvs" : {
+    "start" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    },
+    "end" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    }
+  },
+  "calibrations" : {
+    "start" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    },
+    "end" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    }
+  },
+  "recordVersion" : "recordVersion",
+  "recordType" : "recordType",
+  "userId" : "userId",
+  "events" : {
+    "start" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    },
+    "end" : {
+      "displayTime" : "2000-01-23T04:56:07.000+00:00",
+      "systemTime" : "2000-01-23T04:56:07.000+00:00"
+    }
+  }
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Data range retrieved successfully
+        <a href="#getDataRange_200_response">getDataRange_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getDevicesV3"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/devices</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getDevicesV3</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      array[<a href="#getDevicesV3_200_response_inner">getDevicesV3_200_response_inner</a>]
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>[ {
+  "deviceType" : "deviceType",
+  "deactivationDate" : "2000-01-23T04:56:07.000+00:00",
+  "displayDevice" : "",
+  "transmitterGeneration" : "",
+  "activationDate" : "2000-01-23T04:56:07.000+00:00",
+  "deviceId" : "deviceId",
+  "transmitterId" : ""
+}, {
+  "deviceType" : "deviceType",
+  "deactivationDate" : "2000-01-23T04:56:07.000+00:00",
+  "displayDevice" : "",
+  "transmitterGeneration" : "",
+  "activationDate" : "2000-01-23T04:56:07.000+00:00",
+  "deviceId" : "deviceId",
+  "transmitterId" : ""
+} ]</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Ok
+        
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getEstimatedGlucoseValues"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/egvs</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getEstimatedGlucoseValues</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">startDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div><div class="param">endDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#EGVRecord">EGVRecord</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "displayTime" : "2000-01-23T04:56:07.000+00:00",
+  "displayDevice" : "displayDevice",
+  "trend" : "none",
+  "trendRate" : 1.4658129805029452,
+  "rateUnit" : "unknown",
+  "systemTime" : "2000-01-23T04:56:07.000+00:00",
+  "transmitterId" : "transmitterId",
+  "transmitterTicks" : 0,
+  "recordId" : "recordId",
+  "unit" : "unknown",
+  "transmitterGeneration" : "unknown",
+  "value" : 6,
+  "status" : "unknown"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Ok
+        <a href="#EGVRecord">EGVRecord</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getEventsV3"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v3/users/self/events</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">getEventsV3</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">startDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div><div class="param">endDate (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null format: date-time</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      array[<a href="#getEventsV3_200_response_inner">getEventsV3_200_response_inner</a>]
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>[ {
+  "eventId" : "eventId",
+  "displayTime" : "2000-01-23T04:56:07.000+00:00",
+  "unit" : "",
+  "displayDevice" : "",
+  "transmitterGeneration" : "",
+  "eventType" : "eventType",
+  "systemTime" : "2000-01-23T04:56:07.000+00:00",
+  "value" : "",
+  "transmitterId" : ""
+}, {
+  "eventId" : "eventId",
+  "displayTime" : "2000-01-23T04:56:07.000+00:00",
+  "unit" : "",
+  "displayDevice" : "",
+  "transmitterGeneration" : "",
+  "eventType" : "eventType",
+  "systemTime" : "2000-01-23T04:56:07.000+00:00",
+  "value" : "",
+  "transmitterId" : ""
+} ]</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Ok
+        
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="userAuthorization"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /v2/oauth2/login</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">userAuthorization</span>)</div>
+    <div class="method-notes"></div>
+
+
+
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+      <div class="param">client_id (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null </div><div class="param">redirect_uri (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null </div><div class="param">response_type (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null </div><div class="param">scope (required)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null </div><div class="param">state (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">302</h4>
+    Redirect to authorization code or access denied error
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+
+  <h2><a name="__Models">Models</a></h2>
+  [ Jump to <a href="#__Methods">Methods</a> ]
+
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#AlertRecord"><code>AlertRecord</code> - </a></li>
+    <li><a href="#CalibrationRecord"><code>CalibrationRecord</code> - </a></li>
+    <li><a href="#DataRangeMoment"><code>DataRangeMoment</code> - </a></li>
+    <li><a href="#EGVRecord"><code>EGVRecord</code> - </a></li>
+    <li><a href="#exchangeAuthorizationCode_200_response"><code>exchangeAuthorizationCode_200_response</code> - </a></li>
+    <li><a href="#getDataRange_200_response"><code>getDataRange_200_response</code> - </a></li>
+    <li><a href="#getDataRange_200_response_calibrations"><code>getDataRange_200_response_calibrations</code> - </a></li>
+    <li><a href="#getDevicesV3_200_response_inner"><code>getDevicesV3_200_response_inner</code> - </a></li>
+    <li><a href="#getEventsV3_200_response_inner"><code>getEventsV3_200_response_inner</code> - </a></li>
+  </ol>
+
+  <div class="model">
+    <h3><a name="AlertRecord"><code>AlertRecord</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">recordId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">systemTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">displayTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">alertName (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">high</div><div class="param-enum">low</div><div class="param-enum">rise</div><div class="param-enum">fall</div><div class="param-enum">outOfRange</div><div class="param-enum">urgentLow</div><div class="param-enum">urgentLowSoon</div><div class="param-enum">noReadings</div><div class="param-enum">fixedLow</div>
+<div class="param">alertState (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">inactive</div><div class="param-enum">activeSnoozed</div><div class="param-enum">activeAlarming</div>
+<div class="param">displayDevice (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterGeneration (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">g4</div><div class="param-enum">g5</div><div class="param-enum">g6</div><div class="param-enum">g6+</div><div class="param-enum">dexcomPro</div><div class="param-enum">g7</div>
+<div class="param">transmitterId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="CalibrationRecord"><code>CalibrationRecord</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">recordId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">unit (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">mg/dL</div><div class="param-enum">mmol/L</div>
+<div class="param">systemTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">displayTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">value (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  format: int32</div>
+<div class="param">displayDevice (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterTicks (optional)</div><div class="param-desc"><span class="param-type"><a href="#long">Long</a></span>  format: int64</div>
+<div class="param">transmitterGeneration (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">g4</div><div class="param-enum">g5</div><div class="param-enum">g6</div><div class="param-enum">g6+</div><div class="param-enum">dexcomPro</div><div class="param-enum">g7</div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="DataRangeMoment"><code>DataRangeMoment</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">systemTime </div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">displayTime </div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="EGVRecord"><code>EGVRecord</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">recordId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">systemTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">displayTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">transmitterId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterTicks (optional)</div><div class="param-desc"><span class="param-type"><a href="#long">Long</a></span>  format: int64</div>
+<div class="param">value (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  format: int32</div>
+<div class="param">status (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">high</div><div class="param-enum">low</div><div class="param-enum">ok</div>
+<div class="param">trend (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">none</div><div class="param-enum">unknown</div><div class="param-enum">doubleUp</div><div class="param-enum">singleUp</div><div class="param-enum">fortyFiveUp</div><div class="param-enum">flat</div><div class="param-enum">fortyFiveDown</div><div class="param-enum">singleDown</div><div class="param-enum">doubleDown</div><div class="param-enum">notComputable</div><div class="param-enum">rateOutOfRange</div>
+<div class="param">trendRate (optional)</div><div class="param-desc"><span class="param-type"><a href="#double">Double</a></span>  format: double</div>
+<div class="param">unit (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">mg/dL</div><div class="param-enum">mmol/L</div>
+<div class="param">rateUnit (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">mg/dL/min</div><div class="param-enum">mmol/L/min</div>
+<div class="param">displayDevice (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterGeneration (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">unknown</div><div class="param-enum">g4</div><div class="param-enum">g5</div><div class="param-enum">g6</div><div class="param-enum">g6+</div><div class="param-enum">dexcomPro</div><div class="param-enum">g7</div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="exchangeAuthorizationCode_200_response"><code>exchangeAuthorizationCode_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">access_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">expires_in (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  </div>
+<div class="param">token_type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">refresh_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="getDataRange_200_response"><code>getDataRange_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">recordType (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">recordVersion (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">userId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">calibrations (optional)</div><div class="param-desc"><span class="param-type"><a href="#getDataRange_200_response_calibrations">getDataRange_200_response_calibrations</a></span>  </div>
+<div class="param">egvs (optional)</div><div class="param-desc"><span class="param-type"><a href="#getDataRange_200_response_calibrations">getDataRange_200_response_calibrations</a></span>  </div>
+<div class="param">events (optional)</div><div class="param-desc"><span class="param-type"><a href="#getDataRange_200_response_calibrations">getDataRange_200_response_calibrations</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="getDataRange_200_response_calibrations"><code>getDataRange_200_response_calibrations</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">start (optional)</div><div class="param-desc"><span class="param-type"><a href="#DataRangeMoment">DataRangeMoment</a></span>  </div>
+<div class="param">end (optional)</div><div class="param-desc"><span class="param-type"><a href="#DataRangeMoment">DataRangeMoment</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="getDevicesV3_200_response_inner"><code>getDevicesV3_200_response_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">deviceId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">deviceType (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">transmitterGeneration (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">transmitterId (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">displayDevice (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">activationDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">deactivationDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="getEventsV3_200_response_inner"><code>getEventsV3_200_response_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">eventId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">eventType (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">systemTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">displayTime (optional)</div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
+<div class="param">value (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">unit (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">transmitterId (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">transmitterGeneration (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+<div class="param">displayDevice (optional)</div><div class="param-desc"><span class="param-type"><a href="#">oas_any_type_not_mapped</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  </body>
+</html>
