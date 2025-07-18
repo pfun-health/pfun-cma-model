@@ -13,7 +13,7 @@
           inherit system;
         };
 
-        # As per pyproject.toml: >=3.10,<3.13. tox.ini mentions 3.12.
+        # As per pyproject.toml: >3.11,<3.13.
         python = pkgs.python312;
 
         # System-level dependencies for Python packages
@@ -53,7 +53,7 @@
           buildInputs = with pkgs; [
             python
             uv
-            tox
+            python312Packages.tox
 
             # General purpose build tools
             pkg-config
