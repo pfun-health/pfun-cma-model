@@ -3,6 +3,9 @@ import pfun_path_helper
 from pfun_path_helper import get_lib_path
 import os
 from dataclasses import dataclass
+from dotenv import load_dotenv
+
+load_dotenv()
 
 root_path = get_lib_path(package_name="pfun_common")
 
@@ -26,14 +29,9 @@ class Settings:
     Settings class for the pfun-cma-model package.
     """
 
-    _env_file = os.path.abspath(os.path.join(root_path, ".env"))
-
-    PFUN_APP_SCHEMA_PATH: str = os.getenv(
-        "PFUN_APP_SCHEMA_PATH", "~/Git/pfun-app/amplify/backend/api/pfunapp/schema.graphql")
+    _env_file = os.path.abspath(os.path.join(root_path, "..", ".env"))
     DEXCOM_CREDS_PATH: str = os.getenv(
         "DEXCOM_CREDS_PATH", "~/.dexcom_creds.json")
-    PFUN_DEXCOM_API_SCHEMA_PATH: str = os.getenv(
-        "PFUN_DEXCOM_API_SCHEMA_PATH", "~/Git/pfun-dexcom-api/pfun_dexcom_api/schemas/schema.graphql")
 
     @classmethod
     def load(cls):
