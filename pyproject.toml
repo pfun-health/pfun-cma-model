@@ -54,6 +54,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "fastapi[standard]>=0.115.12",
+    "ipykernel>=6.29.5",
     "ipython>=8.37.0",
     "pandas-stubs>=2.2.3.250527",
     "types-requests>=2.32.4.20250611",

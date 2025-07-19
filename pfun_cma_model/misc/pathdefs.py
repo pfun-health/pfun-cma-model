@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+from pathlib import Path
 from dataclasses import dataclass
 import pfun_path_helper as pph
 
@@ -12,10 +14,18 @@ __all__ = [
 class PFunDataPaths:
     """Paths for data files used in the pfun_cma_model package."""
 
-    pfun_data_dirpath = os.path.abspath(pph.get_lib_path("pfun_data"))
-    sample_data_fpath = os.path.join(pfun_data_dirpath, 'data/valid_data.csv')
+    _pfun_data_dirpath: os.PathLike = Path(os.path.abspath(pph.get_lib_path("pfun_data")))
+    _sample_data_fpath: os.PathLike = Path(os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
 
-    def read_sample_data(self, fpath: os.PathLike = None):
+    @property
+    def sample_data_fpath(self) -> Path:
+        return Path(self._sample_data_fpath)
+
+    @property
+    def pfun_data_dirpath(self) -> Path:
+        return Path(self._pfun_data_dirpath)
+
+    def read_sample_data(self, fpath: Optional[os.PathLike] = None):
         """Read sample data from the specified file path."""
         if fpath is None:
             fpath = self.sample_data_fpath

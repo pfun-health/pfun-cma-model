@@ -1599,6 +1599,7 @@ ui = [
 [package.dev-dependencies]
 dev = [
     { name = "fastapi", extra = ["standard"] },
+    { name = "ipykernel" },
     { name = "ipython" },
     { name = "pandas-stubs" },
     { name = "types-requests" },
@@ -1647,6 +1648,7 @@ provides-extras = ["ui", "dev"]
 [package.metadata.requires-dev]
 dev = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
+    { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipython", specifier = ">=8.37.0" },
     { name = "pandas-stubs", specifier = ">=2.2.3.250527" },
     { name = "types-requests", specifier = ">=2.32.4.20250611" },
