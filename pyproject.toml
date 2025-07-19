@@ -29,6 +29,7 @@ dependencies = [
     "tabulate>=0.9.0",
     "requests>=2.32.4",
     "pyarrow>=20.0.0",
+    "ipykernel>=6.29.5",
 ]
 optional-dependencies = {ui = ["dash>=2.18.2"], dev = [
         "click>=8.1.7",

@@ -216,6 +216,11 @@ def format_data(
         df = DataFrame.from_records(records)
     else:
         df = records.copy()
+    if not any([col in df.columns for col in ["ts_utc", "ts_local"]]):
+        raise RuntimeError(
+            "No raw time column ('ts_utc', 'ts_local') was present in the provided dataframe...\n"
+            "Perhaps this data has already been formatted?"
+        )
     if "systemTime" not in df.columns:
         df["systemTime"] = df["ts_utc"]
     if "displayTime" not in df.columns:
