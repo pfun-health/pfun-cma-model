@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.3.2a23"
+version = "0.3.2a24"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "rocapp@gmail.com"}]
 readme = "README.md"
@@ -16,7 +16,7 @@ dependencies = [
     "pydantic==2.4.2",
     "click>=8.1.7",
     "paramiko>=3.3.1",
-    "pfun_path_helper>=0.1.2",
+    "pfun_path_helper>=0.1.4",
     "boto3>=1.28.57",
     "botocore>=1.31.57",
     "jinja2>=3.1.2",

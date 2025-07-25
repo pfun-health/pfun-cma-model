@@ -1551,7 +1551,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.3.2a23"
+version = "0.3.2a24"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
@@ -1628,7 +1628,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "paramiko", specifier = ">=3.3.1" },
-    { name = "pfun-path-helper", specifier = ">=0.1.2" },
+    { name = "pfun-path-helper", specifier = ">=0.1.4" },
     { name = "plotly", specifier = ">=5.18.0" },
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "pydantic", specifier = "==2.4.2" },
@@ -1659,16 +1659,16 @@ dev = [
 
 [[package]]
 name = "pfun-path-helper"
-version = "0.1.2"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "build" },
     { name = "setuptools" },
     { name = "uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/12/ae/1b45fda39d8d0c7c5e9994d4e7946675a114a466c42d6dfaaeb0aaa85aba/pfun_path_helper-0.1.2.tar.gz", hash = "sha256:07a2d0c09a4a0efa8273ccc4ab565cf72df1b0d6c90b19b62a559e18b66dcc82", size = 3278, upload-time = "2025-06-14T20:37:24.497Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/06/8d84a9e44b2689db80f5446d8d018cdb9c380eba37476d51bcf58f1b5173/pfun_path_helper-0.1.4.tar.gz", hash = "sha256:ec48aa910583d251e39b967e69a03e75aa2469188abf3e4479108702a03bf14c", size = 3317, upload-time = "2025-07-25T07:37:02.857Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/87/3c1d909b4dc15fb66358750845025cfb4aab1ad3ca9683d65c72d276f57f/pfun_path_helper-0.1.2-py3-none-any.whl", hash = "sha256:0a12f6ceaf16c008918445bd13ea688ae52c14c87d68036aa29275973e5e4a22", size = 2945, upload-time = "2025-06-14T20:37:22.65Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/c3/0569528b2602c92f225e99bed6dd7a1c6b75cfc3c550f61434d59c4948d8/pfun_path_helper-0.1.4-py3-none-any.whl", hash = "sha256:a7336e17a8969e62d9a1dec7179b85f6c760f1c6ee1b97211677e28ae76a3eb1", size = 2962, upload-time = "2025-07-25T07:37:01.891Z" },
 ]
 
 [[package]]
