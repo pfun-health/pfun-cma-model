@@ -167,7 +167,7 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
         if config is None:
             config = CMAModelParams()
         config: Mapping = config.model_dump()
-        output = await run_at_time_func(t0, t1, n, **config)
+        output = await run_at_time_func(t0, t1, n, **config) # type: ignore
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -194,7 +194,11 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
         config: Mapping = json.loads(config)
     try:
         df = DataFrame(data)
-        fit_result = cma_fit_model(df, **config.model_dump())
+        fit_result = cma_fit_model(df, **config.model_dump()) # type: ignore
+        logger.info("Model fitted successfully.")
+        logger.debug("Fit result: %s", fit_result)
+        if fit_result is None:
+            raise ValueError("Fit result is None. Model fitting failed.")
         output = fit_result.model_dump_json()
     except Exception as exc:
         logger.error("Exception encountered. Failed to fit to data. Exception:\n%s",
