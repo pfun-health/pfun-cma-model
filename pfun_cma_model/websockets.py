@@ -20,14 +20,3 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
-manager = ConnectionManager()
-
-@app.websocket("/ws/run-at-time")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(f"Run at time command: {data}")
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)

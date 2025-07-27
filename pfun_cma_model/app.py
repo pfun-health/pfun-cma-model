@@ -6,6 +6,7 @@ from fastapi import WebSocket
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.websockets import ConnectionManager, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 import json
@@ -149,16 +150,25 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
-@app.websocket("/ws/run_at_time")
-async def run_at_time_ws(websocket: WebSocket):
-    """websocket endpoint for run_at_time"""
-    await websocket.accept()
-    msg = await websocket.receive_text()
-    logger.info("Received message: %s", msg[:20], "...")
-    data = json.loads(msg)
-    interim_response = requests.post(app.url_path_for("run-at-time"), data=data)
-    output: str = interim_response.text
-    await websocket.send_text(output)
+manager = ConnectionManager()
+
+@app.websocket("/ws/run-at-time")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            input_command = await websocket.receive_text()
+            logging.info("Received command: %s", input_command)
+            run_at_time_func_args = json.loads(input_command)
+            t0 = run_at_time_func_args.get("t0", 0)
+            t1 = run_at_time_func_args.get("t1", 100)
+            n = run_at_time_func_args.get("n", 100)
+            config = run_at_time_func_args.get("config", {})
+            output = await run_at_time_func(t0, t1, n, **config)
+            await manager.send_personal_message(output, websocket)
+            logging.info("Sent output: %s", output)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 
 @app.post("/run-at-time")
