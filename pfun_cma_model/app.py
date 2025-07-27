@@ -39,7 +39,7 @@ if os.getenv("DEBUG", "0") in ["1", "true"]:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*.pfun.run"],
     allow_headers=[
         "X-RapidAPI-Key",
         "X-RapidAPI-Proxy-Secret",
