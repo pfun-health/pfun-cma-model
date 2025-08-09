@@ -81,8 +81,8 @@ def read_sample_data(convert2json: bool = True):
     if convert2json is False:
         return df
     return df.to_json(orient='records')
- 
- 
+
+
 @app.get("/data/sample")
 def get_sample_dataset(request: Request):
     return read_sample_data(convert2json=True)
@@ -152,6 +152,7 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
 
 manager = ConnectionManager()
 
+
 @app.websocket("/ws/run-at-time")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
@@ -177,7 +178,7 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
         if config is None:
             config = CMAModelParams()
         config: Mapping = config.model_dump()
-        output = await run_at_time_func(t0, t1, n, **config) # type: ignore
+        output = await run_at_time_func(t0, t1, n, **config)  # type: ignore
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -191,20 +192,39 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
         return error_response
 
 
+@app.get("/demo/run-at-time")
+async def demo_run_at_time(t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
+    """Demo UI endpoint to run the model at a specific time."""
+    # load the static HTML file
+    static_file_path = Path(__file__).parent / \
+        "static" / "run-at-time-demo.html"
+    if not static_file_path.exists():
+        raise HTTPException(status_code=404, detail="Demo file not found.")
+    with open(static_file_path, "r") as file:
+        content = file.read()
+    # @todo: replace with a proper template rendering
+    return Response(
+        content=content,
+        status_code=200,
+        headers={"Content-Type": "text/html"},
+    )
+
+
 @app.post("/fit")
 async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | None = None):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
-        data = read_sample_data()        
+        data = read_sample_data()
         logger.info("\n...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
-        config: Mapping = json.loads(config)  # type: ignore  @note: config CMAModelParams object
+        # type: ignore  @note: config CMAModelParams object
+        config: Mapping = json.loads(config)
     try:
         df = DataFrame(data)
-        fit_result = cma_fit_model(df, **config.model_dump()) # type: ignore
+        fit_result = cma_fit_model(df, **config.model_dump())  # type: ignore
         logger.info("Model fitted successfully.")
         logger.debug("Fit result: %s", fit_result)
         if fit_result is None:
@@ -218,7 +238,7 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
             content={
                 "error": "failed to fit data. See error message on server log.",
                 "exception": str(exc)
-                },
+            },
             status_code=500,
             headers={"Content-Type": "application/json"},
         )
