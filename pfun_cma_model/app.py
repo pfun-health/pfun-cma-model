@@ -177,7 +177,7 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
     try:
         if config is None:
             config = CMAModelParams()
-        config: Mapping = config.model_dump()
+        config: Mapping = config.model_dump()  # type: ignore
         output = await run_at_time_func(t0, t1, n, **config)  # type: ignore
         return output
     except Exception as err:
@@ -194,7 +194,7 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
 
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
-    """Demo UI endpoint to run the model at a specific time."""
+    """Demo UI endpoint to run the model at a specific time (using websockets)."""
     # load the static HTML file
     static_file_path = Path(__file__).parent / \
         "static" / "run-at-time-demo.html"
@@ -220,8 +220,11 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
-        # type: ignore  @note: config CMAModelParams object
-        config: Mapping = json.loads(config)
+        logger.info("Config received as string, parsing JSON.")
+        # @note: config expected as JSON string
+        config_dict = json.loads(config)
+        # @note: config -> CMAModelParams object
+        config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
     try:
         df = DataFrame(data)
         fit_result = cma_fit_model(df, **config.model_dump())  # type: ignore
@@ -231,9 +234,11 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
             raise ValueError("Fit result is None. Model fitting failed.")
         output = fit_result.model_dump_json()
     except Exception as exc:
-        logger.error("Exception encountered. Failed to fit to data. Exception:\n%s",
-                     str(exc),
-                     exc_info=0)
+        logger.error(
+            "Exception encountered. Failed to fit to data. Exception:\n%s",
+            str(exc),
+            exc_info=False
+        )
         error_response = Response(
             content={
                 "error": "failed to fit data. See error message on server log.",

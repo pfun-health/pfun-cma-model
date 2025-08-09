@@ -2,7 +2,16 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from typing import List
 
+
 class ConnectionManager:
+    """Manages WebSocket connections for the FastAPI application.
+
+    This class handles the connections, allowing for sending messages to individual or all connected clients.
+
+    Attributes:
+        active_connections (List[WebSocket]): A list of currently active WebSocket connections.
+    """
+
     def __init__(self):
         self.active_connections: List[WebSocket] = []
 
@@ -19,4 +28,3 @@ class ConnectionManager:
     async def broadcast(self, message: str):
         for connection in self.active_connections:
             await connection.send_text(message)
-
