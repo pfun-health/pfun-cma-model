@@ -48,6 +48,7 @@ else:
 
 # Mount the static directory to serve static files
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+app.mount("/static/run-at-time-plot", StaticFiles(directory=Path(__file__).parent / "clients/run-at-time-client/public"), name="run-at-time-plot")
 
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory=Path(__file__).parent / "static")
