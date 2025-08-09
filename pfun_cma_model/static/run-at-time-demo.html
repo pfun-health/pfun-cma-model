@@ -94,6 +94,28 @@
         pointRadius: 4,
       }]
     };
+    // Custom plugin for onioning/fade effect
+    const onionFadePlugin = {
+      id: 'onionFade',
+      beforeDatasetsDraw(chart, args, options) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          dataset.data.forEach((pt, idx) => {
+            if (pt._fade) {
+              const meta = chart.getDatasetMeta(i);
+              const point = meta.data[idx];
+              if (point) {
+                ctx.save();
+                ctx.globalAlpha = 0.2;
+                point.draw(ctx);
+                ctx.restore();
+              }
+            }
+          });
+        });
+      }
+    };
+
     const scatterChart = new Chart(ctx, {
       type: 'scatter',
       data: scatterData,
@@ -101,6 +123,13 @@
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 900 / 400,
+        animation: {
+          duration: 600,
+          easing: 'easeInOutCubic',
+        },
+        plugins: {
+          onionFade: {},
+        },
         scales: {
           x: {
             type: 'linear',
@@ -112,7 +141,8 @@
             beginAtZero: true
           }
         }
-      }
+      },
+      plugins: [onionFadePlugin]
     });
 
     function appendMessage(msg) {
@@ -123,16 +153,26 @@
     }
 
     function addScatterPoints(points) {
-      // points: array of {x, y} or single {x, y}
+      // Smoothly transition to new points using onioning effect
+      // Keep previous points and fade them out, fade in new points
+      const prevData = scatterData.datasets[0].data.slice();
+      let newData;
       if (Array.isArray(points)) {
-        scatterData.datasets[0].data = points;
+        newData = points;
       } else if (typeof points === 'object' && points !== null && 'x' in points && 'y' in points) {
-        scatterData.datasets[0].data = [points];
+        newData = [points];
       } else {
         console.error('Invalid points format:', points);
         return;
       }
+
+      // Onioning: overlay previous points with alpha, fade in new points
+      scatterData.datasets[0].data = prevData.map(pt => ({...pt, _fade: true}));
       scatterChart.update();
+      setTimeout(() => {
+        scatterData.datasets[0].data = newData.map(pt => ({...pt, _fade: false}));
+        scatterChart.update('active');
+      }, 250); // 250ms fade effect
     }
 
     function createScatterOnePoint(xdatum, ydatum) {
@@ -154,23 +194,21 @@
     }
 
     function connectWebSocket() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
       ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         appendMessage('Connected to WebSocket server.');
       };
       ws.onmessage = (evt) => {
-        // On event: Received WebSocket message...
         appendMessage('Received: ' + evt.data);
-        // Debug: log parsed data
         try {
-          const data = JSON.parse(evt.data);  // parse WebSocket message (json)
+          const data = JSON.parse(evt.data);
           console.log('Parsed WebSocket data:', data);
-          // Accept: Run-At-Time expected output:
-          // Expected object: {Gt0: {x: <value>, y: <value>, ...}, Gt1: {...}, ..., Gt: {...}}
           for (const key in data) {
             if (data.hasOwnProperty(key)) {
-              console.log(`Creating scatterPointArray from data[${key}] ...`);
               let scatterPoints = createScatterPointArrayFromDataObject(data[key]);
               addScatterPoints(scatterPoints);
             }
@@ -187,52 +225,69 @@
       };
     }
 
+    // Helper: trigger chart transition and websocket reconnect
+    function triggerChartUpdateAndReconnect() {
+      connectWebSocket();
+      // Onion fade out current points
+      scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({...pt, _fade: true}));
+      scatterChart.update();
+      setTimeout(() => {
+        scatterData.datasets[0].data = [];
+        scatterChart.update('active');
+      }, 250);
+    }
+
     connectWebSocket();
+
+    // Event-driven: update on parameter change
+    document.querySelectorAll('#runForm input').forEach(input => {
+      input.addEventListener('change', () => {
+        triggerChartUpdateAndReconnect();
+      });
+    });
 
     document.getElementById('runForm').onsubmit = function (e) {
       e.preventDefault();
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
-        appendMessage('WebSocket not connected. Cannot send.');
-        return;
-      }
-      const t0 = parseFloat(document.getElementById('t0').value);
-      const t1 = parseFloat(document.getElementById('t1').value);
-      const N = parseInt(document.getElementById('N').value);
-
-      // Basic validation
-      if (isNaN(t0) || t0 < 0 || t0 > 23.999) {
-        appendMessage('Invalid t0');
-        return;
-      }
-      if (isNaN(t1) || t1 < 0 || t1 > 23.999) {
-        appendMessage('Invalid t1');
-        return;
-      }
-      if (isNaN(N) || N < 1 || N > 10000) {
-        appendMessage('Invalid N');
-        return;
-      }
-
-      const config = {};
-      for (const key in params) {
-        const input = document.getElementById(key);
-        if (input) {
-          let value = input.value;
-          // Attempt to convert to number if it's a numeric value
-          if (!isNaN(value) && value.trim() !== '') {
-            value = parseFloat(value);
-          }
-          config[key] = value;
+      triggerChartUpdateAndReconnect();
+      setTimeout(() => {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          appendMessage('WebSocket not connected. Cannot send.');
+          return;
         }
-      }
+        const t0 = parseFloat(document.getElementById('t0').value);
+        const t1 = parseFloat(document.getElementById('t1').value);
+        const N = parseInt(document.getElementById('N').value);
 
-      // Clear previous points on new run
-      scatterData.datasets[0].data = [];
-      scatterChart.update();
+        // Basic validation
+        if (isNaN(t0) || t0 < 0 || t0 > 23.999) {
+          appendMessage('Invalid t0');
+          return;
+        }
+        if (isNaN(t1) || t1 < 0 || t1 > 23.999) {
+          appendMessage('Invalid t1');
+          return;
+        }
+        if (isNaN(N) || N < 1 || N > 10000) {
+          appendMessage('Invalid N');
+          return;
+        }
 
-      const payload = JSON.stringify({ t0, t1, n: N, config });
-      ws.send(payload);
-      appendMessage('Sent: ' + payload);
+        const config = {};
+        for (const key in params) {
+          const input = document.getElementById(key);
+          if (input) {
+            let value = input.value;
+            if (!isNaN(value) && value.trim() !== '') {
+              value = parseFloat(value);
+            }
+            config[key] = value;
+          }
+        }
+
+        const payload = JSON.stringify({ t0, t1, n: N, config });
+        ws.send(payload);
+        appendMessage('Sent: ' + payload);
+      }, 300); // Wait for fade out and reconnect
     }
   </script>
 </body>
