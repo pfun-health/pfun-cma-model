@@ -1,23 +1,10 @@
-from pfun_data.utils import get_data_dirpath
+from test_base import *
 import pandas as pd
-import pytest
 import sys
 from pathlib import Path
 import matplotlib.pyplot as plt
 import importlib
-from scipy.stats import ks_2samp
-
-root_path = str(Path(__file__).parents[2])
-mod_path = str(Path(__file__).parents[1])
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
-if mod_path not in sys.path:
-    sys.path.insert(0, mod_path)
-
-CMAFitResult = importlib.import_module(
-    ".fit", package="pfun_cma_model.engine").CMAFitResult
-fit_model = importlib.import_module(
-    ".fit", package="pfun_cma_model.engine").fit_model
+from scipy.stats import ks_2samp  # type: ignore
 
 
 class TestFitModel:
@@ -36,6 +23,12 @@ class TestFitModel:
         Returns:
             None
         """
+        from pfun_data.utils import get_data_dirpath
+
+        CMAFitResult = importlib.import_module(
+            ".fit", package="pfun_cma_model.engine").CMAFitResult
+        fit_model = importlib.import_module(
+            ".fit", package="pfun_cma_model.engine").fit_model
 
         data_fpath = str(get_data_dirpath()
                          .joinpath("data", "valid_data.csv"))
@@ -57,10 +50,11 @@ class TestFitModel:
         Returns:
         - None
         """
-
+        from pfun_data.utils import get_data_dirpath
         data_fpath = str(get_data_dirpath()
                          .joinpath("data", "valid_data.csv"))
         data = pd.read_csv(data_fpath)
+        from pfun_cma_model.engine.fit import fit_model
         result = fit_model(data)
         res = ks_2samp(result.formatted_data.G,
                        result.cma.g_instant)  # type: ignore
@@ -79,9 +73,11 @@ class TestFitModel:
         Returns:
         - None
         """
+        from pfun_data.utils import get_data_dirpath
         data_fpath = str(get_data_dirpath()
                          .joinpath("data", "valid_data.csv"))
         data = pd.read_csv(data_fpath)
+        from pfun_cma_model.engine.fit import fit_model
         result = fit_model(data)
         # trunk-ignore(bandit/B101)
         assert isinstance(result.model_dump_json(), str)
@@ -101,9 +97,11 @@ def interactive_plot():
     Returns:
         result (unknown): The result of the fit_model function.
     """
+    from pfun_data.utils import get_data_dirpath
     data_fpath = str(get_data_dirpath()
                      .joinpath("data", "valid_data.csv"))
     data = pd.read_csv(data_fpath)
+    from pfun_cma_model.engine.fit import fit_model
     result = fit_model(data)
     plt.ion()
     result.soln.plot(x='t', y='G', c='r', linestyle='',

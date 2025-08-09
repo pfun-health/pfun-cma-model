@@ -119,7 +119,7 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
 
 
 @app.post("/run")
-async def run_model(config: Annotated[CMAModelParams, Body()] = None):
+async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     """Runs the CMA model."""
     model = await initialize_model()
     if config is not None:
@@ -201,7 +201,7 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
-        config: Mapping = json.loads(config)
+        config: Mapping = json.loads(config)  # type: ignore  @note: config CMAModelParams object
     try:
         df = DataFrame(data)
         fit_result = cma_fit_model(df, **config.model_dump()) # type: ignore
