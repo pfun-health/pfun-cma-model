@@ -8,7 +8,6 @@ readme = "README.md"
 requires-python = ">3.11,<3.13"
 dependencies = [
     "setuptools>=78.1.1",
-    "uvicorn==0.32.0",
     "numba>=0.58.0",
     "pandas>=2.1.1",
     "scipy>=1.11.3",
@@ -20,7 +19,6 @@ dependencies = [
     "boto3>=1.28.57",
     "botocore>=1.31.57",
     "jinja2>=3.1.2",
-    "fastapi[standard]>=0.115.3",
     "gunicorn>=23.0.0",
     "PyYAML>=6.0.1",
     "plotly>=5.18.0",
@@ -30,6 +28,8 @@ dependencies = [
     "requests>=2.32.4",
     "pyarrow>=20.0.0",
     "ipykernel>=6.29.5",
+    "websockets>=15.0.1",
+    "fastapi==0.116.1",
 ]
 optional-dependencies = {ui = ["dash>=2.18.2"], dev = [
         "click>=8.1.7",

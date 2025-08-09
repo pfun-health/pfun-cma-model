@@ -6,7 +6,7 @@ from fastapi import WebSocket
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.websockets import ConnectionManager, WebSocketDisconnect
+from pfun_cma_model.routes.websockets import ConnectionManager, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 import json

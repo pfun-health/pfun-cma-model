@@ -1557,7 +1557,7 @@ dependencies = [
     { name = "boto3" },
     { name = "botocore" },
     { name = "click" },
-    { name = "fastapi", extra = ["standard"] },
+    { name = "fastapi" },
     { name = "graphql-core" },
     { name = "gunicorn" },
     { name = "ipykernel" },
@@ -1576,7 +1576,7 @@ dependencies = [
     { name = "scipy" },
     { name = "setuptools" },
     { name = "tabulate" },
-    { name = "uvicorn" },
+    { name = "websockets" },
 ]
 
 [package.optional-dependencies]
@@ -1614,8 +1614,8 @@ requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
     { name = "click", marker = "extra == 'dev'", specifier = ">=8.1.7" },
     { name = "dash", marker = "extra == 'ui'", specifier = ">=2.18.2" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.115.3" },
     { name = "fastapi", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.115.12" },
+    { name = "fastapi", extras = ["websockets"], specifier = ">=0.115.12" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
@@ -1642,7 +1642,7 @@ requires-dist = [
     { name = "tox-poetry-installer", marker = "extra == 'dev'", specifier = ">=0.10.3" },
     { name = "types-requests", marker = "extra == 'dev'", specifier = ">=2.32.4.20250611" },
     { name = "types-tabulate", marker = "extra == 'dev'", specifier = ">=0.9.0.20241207" },
-    { name = "uvicorn", specifier = "==0.32.0" },
+    { name = "websockets", specifier = ">=9.1" },
     { name = "zappa", marker = "extra == 'dev'", specifier = ">=0.58.0" },
 ]
 provides-extras = ["ui", "dev"]
