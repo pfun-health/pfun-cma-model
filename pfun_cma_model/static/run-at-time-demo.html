@@ -7,6 +7,8 @@
     body { font-family: sans-serif; margin: 2em; }
     label, input { margin: 0.3em; }
     #messages { margin-top: 1em; border: 1px solid #aaa; padding: 1em; height: 200px; overflow-y: auto; }
+    .params-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1em; }
+    .param-item { display: flex; flex-direction: column; }
   </style>
 </head>
 <body>
@@ -23,6 +25,16 @@
     <label for="N">N (1–10000):</label>
     <input type="number" id="N" name="N" min="1" max="10000" required>
     <br>
+
+    <h3>Model Parameters</h3>
+    <div class="params-grid">
+      {% for key, value in params.items() %}
+        <div class="param-item">
+          <label for="{{ key }}">{{ key }}:</label>
+          <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
+        </div>
+      {% endfor %}
+    </div>
 
     <button type="submit">Send</button>
   </form>
@@ -84,7 +96,21 @@
         return;
       }
 
-      const payload = JSON.stringify({ t0, t1, N });
+      const config = {};
+      const params = {{ params | tojson }};
+      for (const key in params) {
+        const input = document.getElementById(key);
+        if (input) {
+          let value = input.value;
+          // Attempt to convert to number if it's a numeric value
+          if (!isNaN(value) && value.trim() !== '') {
+            value = parseFloat(value);
+          }
+          config[key] = value;
+        }
+      }
+
+      const payload = JSON.stringify({ t0, t1, n: N, config });
       ws.send(payload);
       appendMessage('Sent: ' + payload);
     }

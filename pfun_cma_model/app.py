@@ -9,6 +9,8 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.routes.websockets import ConnectionManager, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import json
 import logging
 import os
@@ -37,6 +39,18 @@ logger.setLevel(logging.INFO)
 app = FastAPI(app_name="PFun CMA Model Backend")
 if os.getenv("DEBUG", "0") in ["1", "true"]:
     app.debug = True
+    logging.info("Running in DEBUG mode.")
+    logging.debug("Debug mode is enabled.")
+else:
+    app.debug = False
+    logging.info("Running in PRODUCTION mode.")
+    logging.debug("Debug mode is disabled.")
+
+# Mount the static directory to serve static files
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+
+# Setup Jinja2 templates
+templates = Jinja2Templates(directory=Path(__file__).parent / "static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,7 +71,60 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return Response(content='<h1>Welcome to the pfun_cma_model API</h1><h3>Check out <a href="/docs">/docs</a> to get started...</h3>')
+    return Response(
+        content='''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>pfun_cma_model API Demo</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    color: #333;
+                    margin: 0;
+                    padding: 20px;
+                }
+                h1, h2, h3 {
+                    color: #2c3e50;
+                }
+                a {
+                    color: #2980b9;
+                    text-decoration: none;
+                }
+                a:hover {
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+        <h1>Welcome to the pfun_cma_model API Demo</h1>
+        <p>This API provides endpoints to run the CMA model for sleep-wake prediction.</p>
+        <p>To get started, you can:</p>
+        <ul>
+            <li>View the interactive websocket demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
+            <li>Get the sample dataset using the <a href="/data/sample">/data/sample</a> endpoint.</li>
+            <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
+            <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
+            <li>Use the WebSocket endpoint <a href="/ws/run-at-time">/ws/run-at-time</a> to run the model at specific times.</li>
+            <li>Fit the model to your own data using the <a href="/fit">/fit</a> endpoint.</li>
+        </ul>
+        <p>For more information on how to use the API, please refer to the documentation available at:</p>
+        <ul>
+            <li><a href="/docs">(SwaggerUI) Interactive API Documentation</a></li>
+            <li><a href="/redoc">(ReDoc) Readable API Documentation</a></li>
+            <li><a href="/openapi.json">(JSON) OpenAPI Schema</a></li>
+        </ul>
+        <h2>pfun_cma_model - API Demo Homepage</h2>
+        <h3><a href="/docs">View the API docs</a> to learn more about the available endpoints.</h3>
+        </body>
+        </html>
+        ''', status_code=200,
+        headers={"Content-Type": "text/html"},
+        media_type="text/html"
+    )
 
 
 @app.get("/params/schema")
@@ -155,6 +222,7 @@ manager = ConnectionManager()
 
 @app.websocket("/ws/run-at-time")
 async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint to run the model at specific times."""
     await manager.connect(websocket)
     try:
         while True:
@@ -193,21 +261,14 @@ async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CM
 
 
 @app.get("/demo/run-at-time")
-async def demo_run_at_time(t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
+async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
-    # load the static HTML file
-    static_file_path = Path(__file__).parent / \
-        "static" / "run-at-time-demo.html"
-    if not static_file_path.exists():
-        raise HTTPException(status_code=404, detail="Demo file not found.")
-    with open(static_file_path, "r") as file:
-        content = file.read()
-    # @todo: replace with a proper template rendering
-    return Response(
-        content=content,
-        status_code=200,
-        headers={"Content-Type": "text/html"},
-    )
+    default_config = {
+        "eps": 0.00,  # set noise to zero for this demo
+    }
+    # load default bounded parameters
+    default_config.update(CMAModelParams().bounded_params_dict)
+    return templates.TemplateResponse("run-at-time-demo.html", {"request": request, "params": default_config})
 
 
 @app.post("/fit")
@@ -256,10 +317,29 @@ async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | Non
     return response
 
 
-def run_app():
+def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
+    """Run the FastAPI application."""
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
-
+    # remove unwanted kwargs
+    valid_kwargs = uvicorn.run.__kwdefaults__
+    for key in list(kwargs.keys()):
+        if key not in valid_kwargs:
+            logger.warning(f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")
+            del kwargs[key]
+    logger.info(f"Running FastAPI app on {host}:{port} with kwargs: {kwargs}")
+    # must pass the app parameter as a module path to enable hot-reloading
+    kwargs.pop("host", None)  # avoid duplicate host/port arguments
+    kwargs.pop("port", None)
+    if kwargs.get("reload", False):
+        # with hot-reloading
+        logging.info("Running with hot-reloading enabled.")
+        # remove reload from kwargs to avoid passing it twice
+        reload = kwargs.pop("reload", False)
+        uvicorn.run("pfun_cma_model.app:app", host=host, port=port, reload=reload, **kwargs)
+    else:
+        # without hot-reloading
+        logging.info("Running without hot-reloading.")
+        uvicorn.run(app, host=host, port=port, **kwargs)
 
 if __name__ == "__main__":
     run_app()

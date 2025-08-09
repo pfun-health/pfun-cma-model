@@ -9,8 +9,9 @@ import logging
 import sys
 from pathlib import Path
 from typing import (
-    Sequence,
-    Callable, Container, Dict, Iterable, Tuple,
+    Sequence, Iterable, 
+    Dict, Tuple,
+    Callable, Container,
     Optional, Generator
 )
 from numpy import (
@@ -265,12 +266,12 @@ class CMASleepWakeModel:
         return {k: self.params[k] for k in self.bounded_param_keys}
     
     @property
-    def bounded_params(self) -> CMAModelParams:
+    def bounded_params(self) -> CMAModelParams: # type: ignore
         """Return the current bounded parameters as a CMAModelParams object."""
         return CMAModelParams(**self.bounded_params_as_dict)
     
     @property
-    def bounded_params_as_obj(self) -> CMAModelParams:
+    def bounded_params_as_obj(self) -> CMAModelParams: # type: ignore
         """
         Return the current bounded parameters as a CMAModelParams object.
         
@@ -343,11 +344,31 @@ class CMASleepWakeModel:
         #: update all given params
         self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
         self.params = {k: self.params[k] for k in self.param_keys}  # ! ensure order
-        #: ! Note: Keep params within specified bounds (keep_feasible is handled by Bounds)
-        #: ! Note: that only bounded params are updated
+        #: Important next line:
+        #: ! Keeps params within specified bounds (keep_feasible is handled by Bounds)
+        #: ! Ensures that only bounded params are updated
         self.params = self.update_bounded_params(self.params)
         if 'tM' in kwds:
-            self.tM = array(kwds['tM'], dtype=float).flatten()
+            # clean up tM (handle string inputs, etc.)
+            # ! caution with this (string injection is possible)
+            tM_raw = kwds['tM']
+            if isinstance(tM_raw, str):
+                    # extract numbers from the string
+                    tM = [float(x) for x in tM_raw.split(',') if x.strip().replace('.', '', 1).isdigit()]
+            elif isinstance(tM_raw, (int, float)):
+                tM = [tM_raw]
+            else:
+                try:
+                    tM = list(tM_raw)
+                except TypeError:
+                    raise TypeError(
+                        f"Invalid type for tM: {type(tM_raw)}. Must be a list, tuple, or string of numeric values.")
+            try:
+                tM = [float(x) for x in tM if isinstance(x, (int, float))]  # type: ignore
+            except ValueError:
+                raise ValueError(
+                    f"Invalid value in tM: {tM}. All values must be numeric.")
+            self.tM = array(tM, dtype=float).flatten()
         if 'N' in kwds and kwds.get('N') is not None:
             self.t = linspace(0, 24, num=int(kwds['N']))
         if 'seed' in kwds:
