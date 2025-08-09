@@ -48,7 +48,6 @@ else:
 
 # Mount the static directory to serve static files
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
-app.mount("/static/run-at-time-plot", StaticFiles(directory=Path(__file__).parent / "clients/run-at-time-client/public"), name="run-at-time-plot")
 
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory=Path(__file__).parent / "static")
@@ -204,7 +203,7 @@ async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     )
     if hasattr(response.body, 'decode'):
         # maintain backward compatibility
-        logger.debug("Response: %s", response.body.decode('utf-8'))
+        logger.debug("Response: %s", bytes(response.body).decode('utf-8'))
     return response
 
 
@@ -242,10 +241,22 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.post("/run-at-time")
-async def run_at_time_route(t0: float | int, t1: float | int, n: int, config: CMAModelParams | None = None):
+async def run_at_time_route(t0: float | int,
+                            t1: float | int,
+                            n: int,
+                            config: Optional[CMAModelParams] = None  # type: ignore
+                            ):
+    """Run the CMA model at a specific time.
+
+    Parameters:
+    - t0 (float | int): The start time (in decimal hours).
+    - t1 (float | int): The end time (in decimal hours).
+    - n (int): The number of samples.
+    - config (CMAModelParams): The model configuration parameters.
+    """
     try:
         if config is None:
-            config = CMAModelParams()
+            config = CMAModelParams()  # type: ignore
         config: Mapping = config.model_dump()  # type: ignore
         output = await run_at_time_func(t0, t1, n, **config)  # type: ignore
         return output
@@ -273,7 +284,10 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
 
 
 @app.post("/fit")
-async def fit_model_to_data(data: dict | str, config: CMAModelParams | str | None = None):
+async def fit_model_to_data(
+    data: dict | str | DataFrame,
+    config: Optional[CMAModelParams | str] = None  # type: ignore
+):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
@@ -322,7 +336,7 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
     """Run the FastAPI application."""
     import uvicorn
     # remove unwanted kwargs
-    valid_kwargs = uvicorn.run.__kwdefaults__
+    valid_kwargs: Mapping[str, Any] = getattr(uvicorn.run, "__kwdefaults__", {})  # ensure a mapping
     for key in list(kwargs.keys()):
         if key not in valid_kwargs:
             logger.warning(f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")
@@ -341,6 +355,7 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
         # without hot-reloading
         logging.info("Running without hot-reloading.")
         uvicorn.run(app, host=host, port=port, **kwargs)
+
 
 if __name__ == "__main__":
     run_app()
