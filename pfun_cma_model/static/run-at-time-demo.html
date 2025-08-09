@@ -1,20 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Run-at-Time WebSocket Example</title>
   <style>
-    body { font-family: sans-serif; margin: 2em; }
-    label, input { margin: 0.3em; }
-    #messages { margin-top: 1em; border: 1px solid #aaa; padding: 1em; height: 200px; overflow-y: auto; }
-    .params-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1em; }
-    .param-item { display: flex; flex-direction: column; }
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+    }
+
+    label,
+    input {
+      margin: 0.3em;
+    }
+
+    #messages {
+      margin-top: 1em;
+      border: 1px solid #aaa;
+      padding: 1em;
+      height: 200px;
+      overflow-y: auto;
+    }
+
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1em;
+    }
+
+    .param-item {
+      display: flex;
+      flex-direction: column;
+    }
   </style>
 </head>
+
 <body>
   <h2>Run-at-Time WebSocket Demo</h2>
   <h3>Chart</h3>
-  <canvas id="scatterPlot" width="100%" height="400"></canvas>
+  <div style="width: 100%; max-width: 900px; margin: auto;">
+    <canvas id="scatterPlot" style="width: 100%; height: 400px;"></canvas>
+  </div>
   <form id="runForm">
     <label for="t0">t0 (0–23.999):</label>
     <input type="number" step="0.001" id="t0" name="t0" max="23.999" min="0" required>
@@ -31,10 +58,10 @@
     <h3>Model Parameters</h3>
     <div class="params-grid">
       {% for key, value in params.items() %}
-        <div class="param-item">
-          <label for="{{ key }}">{{ key }}:</label>
-          <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
-        </div>
+      <div class="param-item">
+        <label for="{{ key }}">{{ key }}:</label>
+        <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
+      </div>
       {% endfor %}
     </div>
 
@@ -47,14 +74,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-  const wsUrl = 'ws://localhost:8001/ws/run-at-time';
-  const messagesDiv = document.getElementById('messages');
-  let ws;
-  // Parse params from template variable
-  const params = JSON.parse('{{ params | tojson | safe }}');
+    const wsUrl = 'ws://localhost:8001/ws/run-at-time';
+    const messagesDiv = document.getElementById('messages');
+    let ws;
+    // Parse params from template variable
+    const params = JSON.parse('{{ params | tojson | safe }}');
 
     // Chart.js scatter plot setup
-    const ctx = document.getElementById('scatterPlot').getContext('2d');
+    const canvas = document.getElementById('scatterPlot');
+    // Set explicit pixel size to avoid Chart.js infinite resize bug
+    canvas.width = 900;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
     const scatterData = {
       datasets: [{
         label: 'Realtime Output',
@@ -68,15 +99,16 @@
       data: scatterData,
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 900 / 400,
         scales: {
           x: {
             type: 'linear',
-            title: { display: true, text: 'x' },
+            title: { display: true, text: 'Time (hours)' },
             beginAtZero: true
           },
           y: {
-            title: { display: true, text: 'y' },
+            title: { display: true, text: 'Glucose Response Curve (mg/dL)' },
             beginAtZero: true
           }
         }
@@ -93,11 +125,32 @@
     function addScatterPoints(points) {
       // points: array of {x, y} or single {x, y}
       if (Array.isArray(points)) {
-        scatterData.datasets[0].data.push(...points);
+        scatterData.datasets[0].data = points;
       } else if (typeof points === 'object' && points !== null && 'x' in points && 'y' in points) {
-        scatterData.datasets[0].data.push(points);
+        scatterData.datasets[0].data = [points];
+      } else {
+        console.error('Invalid points format:', points);
+        return;
       }
       scatterChart.update();
+    }
+
+    function createScatterOnePoint(xdatum, ydatum) {
+      /* Create a single scatter plot point datum. */
+      return { x: xdatum, y: ydatum };
+    }
+
+    function createScatterPointArrayFromDataObject(dataObject) {
+      /*
+        Create an array of scatter plot points from a data object formatted as {key: value, ...}.
+        The keys will be used as the x-coordinates and the values as the y-coordinates.
+        ({key: value}) -> {x: key, y: value}
+      */
+      if (typeof(dataObject) === 'object' && dataObject !== null) {
+        return Object.entries(dataObject).map(([key, item]) => createScatterOnePoint(key, item));
+      } else if (Array.isArray(dataObject)) {
+        return dataObject.map((item, index) => createScatterOnePoint(index, item));
+      }
     }
 
     function connectWebSocket() {
@@ -107,25 +160,23 @@
         appendMessage('Connected to WebSocket server.');
       };
       ws.onmessage = (evt) => {
+        // On event: Received WebSocket message...
         appendMessage('Received: ' + evt.data);
-        // Try to parse and plot if JSON and has x/y or array of points
+        // Debug: log parsed data
         try {
-          const data = JSON.parse(evt.data);
-          if (Array.isArray(data)) {
-            // Array of points
-            if (data.length && typeof data[0] === 'object' && 'x' in data[0] && 'y' in data[0]) {
-              addScatterPoints(data);
-            }
-          } else if (typeof data === 'object' && data !== null) {
-            // Single point or object with points
-            if ('x' in data && 'y' in data) {
-              addScatterPoints(data);
-            } else if ('points' in data && Array.isArray(data.points)) {
-              addScatterPoints(data.points);
+          const data = JSON.parse(evt.data);  // parse WebSocket message (json)
+          console.log('Parsed WebSocket data:', data);
+          // Accept: Run-At-Time expected output:
+          // Expected object: {Gt0: {x: <value>, y: <value>, ...}, Gt1: {...}, ..., Gt: {...}}
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              console.log(`Creating scatterPointArray from data[${key}] ...`);
+              let scatterPoints = createScatterPointArrayFromDataObject(data[key]);
+              addScatterPoints(scatterPoints);
             }
           }
         } catch (e) {
-          // Not JSON or not a point, ignore for plot
+          console.warn('WebSocket message not valid JSON or not a point:', e);
         }
       };
       ws.onclose = () => {
@@ -138,7 +189,7 @@
 
     connectWebSocket();
 
-    document.getElementById('runForm').onsubmit = function(e) {
+    document.getElementById('runForm').onsubmit = function (e) {
       e.preventDefault();
       if (!ws || ws.readyState !== WebSocket.OPEN) {
         appendMessage('WebSocket not connected. Cannot send.');
@@ -185,4 +236,5 @@
     }
   </script>
 </body>
+
 </html>

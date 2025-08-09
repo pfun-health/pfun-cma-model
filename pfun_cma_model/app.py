@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Literal, Optional, Annotated, Mapping
 
+# Get the logger (globally accessible)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -25,16 +26,25 @@ BASE_URL: Optional[str] = None
 STATIC_BASE_URL: str | None = None
 BODY: Optional[str] = None
 
-formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-# trunk-ignore(bandit/B108)
-file_handler = logging.FileHandler("/tmp/FastAPI-logs-backend.log")
-file_handler.setFormatter(formatter)
+def setup_logging():
+    """Setup logging configuration."""
+    global logger
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logfile_path = os.path.normpath("/tmp/FastAPI-logs-backend.log")
+    if not os.path.exists(os.path.dirname(logfile_path)):
+        os.makedirs(os.path.dirname(logfile_path))
+    file_handler = logging.FileHandler(logfile_path)
+    file_handler.setFormatter(formatter)
+    # add the file handler to the logger
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
 
-logger = logging.getLogger(__name__)
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
+
+# Perform logging setup...
+setup_logging()
 
 app = FastAPI(app_name="PFun CMA Model Backend")
 if os.getenv("DEBUG", "0") in ["1", "true"]:
@@ -285,7 +295,7 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
 
 @app.post("/fit")
 async def fit_model_to_data(
-    data: dict | str | DataFrame,
+    data: dict | str,
     config: Optional[CMAModelParams | str] = None  # type: ignore
 ):
     from pandas import DataFrame
