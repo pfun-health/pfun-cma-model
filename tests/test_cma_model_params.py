@@ -1,7 +1,5 @@
 
 from test_base import *
-import numpy as np
-import pandas as pd
 
 
 class TestCMAModelParams:
@@ -32,7 +30,7 @@ class TestCMAModelParams:
         taug = [0.5, 1.0, 1.5]
         tM = (5.0, 10.0, 15.0)
         params = self.cma_model_params_(t=t, N=100, d=0.5, taup=2.0, taug=taug,
-                                B=0.1, Cm=1.0, toff=0.5, tM=tM, seed=12345, eps=1e-10)
+                                        B=0.1, Cm=1.0, toff=0.5, tM=tM, seed=12345, eps=1e-10)
         assert params.t == t
         assert params.N == 100
         assert params.d == 0.5
@@ -48,7 +46,7 @@ class TestCMAModelParams:
     # Create an instance of CMAModelParams with a numpy array as t.
     def test_numpy_array_as_t(self):
         import numpy as np
-        
+
         t = np.array([1.0, 2.0, 3.0])
         params = self.cma_model_params_(t=t)
         params_t = np.array(params.t)

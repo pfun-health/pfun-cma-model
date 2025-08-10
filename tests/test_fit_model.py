@@ -1,7 +1,5 @@
 from test_base import *
 import pandas as pd
-import sys
-from pathlib import Path
 import matplotlib.pyplot as plt
 import importlib
 from scipy.stats import ks_2samp  # type: ignore

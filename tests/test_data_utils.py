@@ -1,11 +1,8 @@
+from pfun_cma_model.engine.data_utils import format_data
+from test_base import *
 import pandas as pd
 import pfun_path_helper as pph
 pph.append_path(path=pph.get_lib_path('pfun_cma_model'))
-
-from pfun_cma_model.engine.data_utils import format_data
-
-
-import pytest
 
 
 class TestFormatData:
@@ -27,5 +24,5 @@ class TestFormatData:
         # Check that the output has the expected columns
         assert set(output_df.columns) == {'time', 'value', 'tod', 't', 'G'}
         # Check that the output has the expected number of rows
-        assert len(output_df) == 1024  # 1024 samples, see 'pfun_cma_model.engine.data_utils.downsample_data'
-
+        # 1024 samples, see 'pfun_cma_model.engine.data_utils.downsample_data'
+        assert len(output_df) == 1024

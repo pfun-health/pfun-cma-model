@@ -1,7 +1,6 @@
 """
 PFun CMA Model API Backend Routes.
 """
-import requests
 from fastapi import WebSocket
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -65,7 +64,7 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*.pfun.run"],
+    allow_origins=["*.pfun.run", "localhost", "127.0.0.1"],
     allow_headers=[
         "X-RapidAPI-Key",
         "X-RapidAPI-Proxy-Secret",
@@ -142,18 +141,25 @@ def root():
 def params_schema():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
-    return params.model_json_schema()
+    return Response(
+        content=params.model_json_schema(),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
 
 
 @app.get("/params/default")
 def default_params():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
-    return params.model_dump_json()
+    return Response(
+        content=params.model_dump_json(),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
 
 
 def read_sample_data(convert2json: bool = True):
-    from pfun_cma_model.engine.data_utils import format_data
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
     df = PFunDataPaths().read_sample_data()
     if convert2json is False:
@@ -161,7 +167,7 @@ def read_sample_data(convert2json: bool = True):
     return df.to_json(orient='records')
 
 
-@app.get("/data/sample/{nrows:int}")
+@app.get("/data/sample")
 def get_sample_dataset(request: Request, nrows: int = -1):
     """Get the sample dataset with optional row limit."""
     # Check if nrows is valid

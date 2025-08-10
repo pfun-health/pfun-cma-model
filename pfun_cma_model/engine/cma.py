@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""app.engine.cma_sleepwake: define the Cortisol-Melatonin-Adiponectin model.
+"""app.engine.cma: define the Cortisol-Melatonin-Adiponectin model.
 """
 from functools import cached_property
 import importlib
@@ -21,15 +21,12 @@ from numpy import (
     power,
     cos,
     pi,
-    piecewise,
     logical_and,
     logical_or,
     append,
     mod,
     linspace,
     broadcast_to,
-    atleast_1d,
-    zeros,
     bool_,
     asarray
 )
@@ -233,7 +230,7 @@ class CMASleepWakeModel:
             'tM'), self._params.get('seed'), self._params.get('eps')  # type: ignore
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
-        if t is None:
+        if t is None and N is not None:
             t = self.new_tvector(0, 24, N)
         self.t: Sequence[float] | ndarray = t  # time vector  # type: ignore
         self.tM = asarray(tM, dtype=float)  # mealtimes vector
