@@ -57,7 +57,8 @@ else:
     logging.debug("Debug mode is disabled.")
 
 # Mount the static directory to serve static files
-app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+app.mount("/static", StaticFiles(directory=Path(__file__).parent /
+          "static"), name="static")
 
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory=Path(__file__).parent / "static")
@@ -160,9 +161,40 @@ def read_sample_data(convert2json: bool = True):
     return df.to_json(orient='records')
 
 
-@app.get("/data/sample")
-def get_sample_dataset(request: Request):
-    return read_sample_data(convert2json=True)
+@app.get("/data/sample/{nrows:int}")
+def get_sample_dataset(request: Request, nrows: int = -1):
+    """Get the sample dataset with optional row limit."""
+    # Check if nrows is valid
+    if nrows < -1:
+        logging.error("Invalid nrows value: %s. Must be -1 or greater.", nrows)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="nrows must be -1 (for full dataset) or a non-negative integer.",
+        )
+    # check if nrows is given (nrows >= 0)
+    # essentially, if nrows is -1, we skip the extra collation step...
+    nrows_given = nrows == -1 if nrows < 0 else nrows >= 0
+    logging.debug("Received request for sample dataset with nrows=%s", nrows)
+    logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
+    # nrows < 0, convert the dataset to JSON from DataFrame (else, keep the DataFrame for next steps)
+    dataset = read_sample_data(convert2json=nrows_given)
+    if nrows_given is False:
+        logging.debug("Returning full dataset as JSON.")
+        # if nrows is not given, return the full dataset as JSON
+        return Response(
+            content=dataset,
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
+    # if nrows is given, return only the first nrows of the dataset
+    logging.debug("Returning first %d rows of the dataset as JSON.", nrows)
+    dataset = dataset.iloc[:nrows, :]
+    output = dataset.to_json(orient='records')
+    return Response(
+        content=output,
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
 
 
 CMA_MODEL_INSTANCE = None
@@ -254,7 +286,8 @@ async def websocket_endpoint(websocket: WebSocket):
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
                             n: int,
-                            config: Optional[CMAModelParams] = None  # type: ignore
+                            # type: ignore
+                            config: Optional[CMAModelParams] = None
                             ):
     """Run the CMA model at a specific time.
 
@@ -346,10 +379,12 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
     """Run the FastAPI application."""
     import uvicorn
     # remove unwanted kwargs
-    valid_kwargs: Mapping[str, Any] = getattr(uvicorn.run, "__kwdefaults__", {})  # ensure a mapping
+    valid_kwargs: Mapping[str, Any] = getattr(
+        uvicorn.run, "__kwdefaults__", {})  # ensure a mapping
     for key in list(kwargs.keys()):
         if key not in valid_kwargs:
-            logger.warning(f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")
+            logger.warning(
+                f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")
             del kwargs[key]
     logger.info(f"Running FastAPI app on {host}:{port} with kwargs: {kwargs}")
     # must pass the app parameter as a module path to enable hot-reloading
@@ -360,7 +395,8 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
         logging.info("Running with hot-reloading enabled.")
         # remove reload from kwargs to avoid passing it twice
         reload = kwargs.pop("reload", False)
-        uvicorn.run("pfun_cma_model.app:app", host=host, port=port, reload=reload, **kwargs)
+        uvicorn.run("pfun_cma_model.app:app", host=host,
+                    port=port, reload=reload, **kwargs)
     else:
         # without hot-reloading
         logging.info("Running without hot-reloading.")

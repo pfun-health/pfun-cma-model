@@ -124,20 +124,22 @@
         maintainAspectRatio: true,
         aspectRatio: 900 / 400,
         animation: {
-          duration: 600,
+          duration: 100,
           easing: 'easeInOutCubic',
         },
         plugins: {
-          onionFade: {},
+          onionFade: {
+            fadeDuration: 250 // Duration for fade effect in ms
+          },
         },
         scales: {
           x: {
             type: 'linear',
             title: { display: true, text: 'Time (hours)' },
-            beginAtZero: true
+            beginAtZero: true,
           },
           y: {
-            title: { display: true, text: 'Glucose Response Curve (mg/dL)' },
+            title: { display: true, text: 'Glucose Response Curve (normalised [0.0, 2.0])' },
             beginAtZero: true
           }
         }
@@ -287,7 +289,7 @@
         const payload = JSON.stringify({ t0, t1, n: N, config });
         ws.send(payload);
         appendMessage('Sent: ' + payload);
-      }, 300); // Wait for fade out and reconnect
+      }, 100); // Wait for fade out and reconnect
     }
   </script>
 </body>
