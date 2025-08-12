@@ -1,45 +1,91 @@
 from typing import (
-    Optional,
+    Optional, List
 )
-from botocore.config import Config as ConfigCore
-import boto3
-from botocore.exceptions import ClientError
+from collections.abc import Iterable
+from fastapi.applications import FastAPI
+import socketio
 
 
-class PFunCMASession:
+class PFunSocketIOSession:
     """
-    A session for interacting with the PFun CMA model resources.
+    A session for interacting with Socket.IO.
     """
 
-    BOTO3_SESSION = None
-    BOTO3_CLIENT = None
-
-    @classmethod
-    def get_boto3_session(cls, **kwds):
-        if cls.BOTO3_SESSION is not None and len(kwds) == 0:
-            return cls.BOTO3_SESSION
-        else:
-            if 'region' in kwds:
-                kwds['region_name'] = kwds.pop('region')
-            cls.BOTO3_SESSION = boto3.Session(**kwds)
-        return cls.BOTO3_SESSION
-
-    @classmethod
-    def get_boto3_client(cls, service_name: str, session: Optional[boto3.Session] = None, *args, **kwds):
+    def __init__(self, app: FastAPI, ns: Optional[socketio.AsyncNamespace | List[socketio.AsyncNamespace]] = None):
         """
-        Creates a new Boto3 client for a specified AWS service.
-
-        Args:
-            service_name (str): The name of the AWS service for which the client is being created.
-            session (boto3.Session, optional): An existing Boto3 session to use. If not provided, a new session will be created.
-            *args: Additional arguments that will be passed to the Boto3 client constructor.
-            **kwds: Additional keyword arguments that will be passed to the Boto3 client constructor.
-
-        Returns:
-            boto3.client: The newly created Boto3 client for the specified AWS service.
+        Initialize the PFunSocketIOSession with a FastAPI app.
+        This sets up the Socket.IO server with the provided app.
         """
-        config = ConfigCore(region_name='us-east-1')
-        if session is None:
-            session = cls.get_boto3_session()
-        client = session.client(service_name, *args, config=config, **kwds)
-        return client
+        self.app = app
+        self.ns = ns if isinstance(ns, Iterable) and not isinstance(
+            ns, (str, bytes)) else [ns] if ns else []
+        self.sio: Optional[socketio.AsyncServer] = None
+        self.mgr = None
+        # Setup Socket.IO server and mount it to the FastAPI app
+        self.setup_redis_manager()
+        self.setup_socketio()
+        self.mount_socketio()
+
+    def __getattr__(self, name):
+        """Pass any non-matching attributes to the Socket.IO server.
+        """
+        # First, determine if the attribute exists in the Socket.IO server
+        if hasattr(self.sio, name):
+            # if it does, return it
+            return getattr(self.sio, name)
+        # if it doesn't, check if it's a method of the PFunSocketIOSession class
+        elif hasattr(super(), name):
+            # if it is, return it
+            return getattr(super(), name)
+        # otherwise, raise an AttributeError
+        raise AttributeError(
+            f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+    def setup_socketio(self, mgr: Optional[socketio.AsyncRedisManager] = None) -> socketio.AsyncServer:
+        """
+        Setup Socket.IO server with FastAPI app.
+        This is useful for handling WebSocket connections.
+        """
+        # see https://python-socketio.readthedocs.io/en/latest/server.html#using-a-message-queue
+        # Create a Socket.IO server instance with Redis manager
+        if mgr is None:
+            self.setup_redis_manager()
+        self.sio = socketio.AsyncServer(
+            async_mode="asgi",
+            cors_allowed_origins="*",
+            connection_manager=self.mgr
+        )
+        # Register namespaces if provided
+        if self.ns:
+            for namespace in self.ns:
+                if isinstance(namespace, socketio.AsyncNamespace):
+                    self.sio.register_namespace(namespace)  # type: ignore
+                    namespace._set_server(self.sio)  # set the server instance
+                else:
+                    raise TypeError(
+                        "Namespaces must be instances of socketio.AsyncNamespace")
+        # initialize the Socket.IO server with the FastAPI app
+        self.sio_app = socketio.ASGIApp(
+            socketio_server=self.sio, other_asgi_app=self.app)
+        return self.sio
+
+    def mount_socketio(self, path: str = "/socket.io/") -> None:
+        """
+        Mount the Socket.IO ASGI app to the FastAPI app at a specified path.
+        This allows WebSocket connections to be handled at the given path.
+        """
+        self.app.add_route(
+            path, route=self.sio_app, methods=["GET", "POST"], include_in_schema=False)
+        self.app.add_websocket_route(path, route=self.sio_app)
+
+    def setup_redis_manager(self):
+        """
+        Setup Redis manager for Socket.IO.
+        """
+        self.mgr = socketio.AsyncRedisManager(url="redis://localhost:6379/0")
+        return self.mgr
+
+
+class PFunBotoSession:
+    """@todo: Implement a session for interacting with AWS Boto3."""
+    pass

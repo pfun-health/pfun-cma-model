@@ -1,20 +1,21 @@
 """
 PFun CMA Model API Backend Routes.
 """
-from fastapi import WebSocket
+import importlib
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.routes.websockets import ConnectionManager, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional, Annotated, Mapping
+from typing import Dict, Literal, Optional, Annotated, Mapping
+
 
 # Get the logger (globally accessible)
 logging.basicConfig(level=logging.INFO)
@@ -29,9 +30,12 @@ BODY: Optional[str] = None
 def setup_logging():
     """Setup logging configuration."""
     global logger
+    logfile_path = os.path.normpath(
+        "/tmp/pfun-cma-model--FastAPI-logs.log")
+    logging.info(f"Setting up logging configuration (logs: {logfile_path})")
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    logfile_path = os.path.normpath("/tmp/FastAPI-logs-backend.log")
+
     if not os.path.exists(os.path.dirname(logfile_path)):
         os.makedirs(os.path.dirname(logfile_path))
     file_handler = logging.FileHandler(logfile_path)
@@ -39,7 +43,7 @@ def setup_logging():
     # add the file handler to the logger
     logger.addHandler(file_handler)
     logger.setLevel(logging.INFO)
-    logger.propagate = False
+    logger.propagate = False  # Prevent propagation to root logger
 
 
 # Perform logging setup...
@@ -64,11 +68,10 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*.pfun.run", "localhost", "127.0.0.1"],
+    allow_origins=[
+        # allow all origins for development !! !!
+        "*", "*.pfun.run", "localhost", "127.0.0.1"],
     allow_headers=[
-        "X-RapidAPI-Key",
-        "X-RapidAPI-Proxy-Secret",
-        "X-RapidAPI-Host",
         "X-API-Key",
         "Authorization",
         "Access-Control-Allow-Origin",
@@ -79,62 +82,20 @@ app.add_middleware(
 )
 
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint."""
+    logger.info("Health check endpoint accessed.")
+    return {"status": "ok", "message": "PFun CMA Model API is running."}
+
+
 @app.get("/")
 def root():
-    return Response(
-        content='''
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>pfun_cma_model API Demo</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    background-color: #f4f4f4;
-                    color: #333;
-                    margin: 0;
-                    padding: 20px;
-                }
-                h1, h2, h3 {
-                    color: #2c3e50;
-                }
-                a {
-                    color: #2980b9;
-                    text-decoration: none;
-                }
-                a:hover {
-                    text-decoration: underline;
-                }
-            </style>
-        </head>
-        <body>
-        <h1>Welcome to the pfun_cma_model API Demo</h1>
-        <p>This API provides endpoints to run the CMA model for sleep-wake prediction.</p>
-        <p>To get started, you can:</p>
-        <ul>
-            <li>View the interactive websocket demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
-            <li>Get the sample dataset using the <a href="/data/sample">/data/sample</a> endpoint.</li>
-            <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
-            <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
-            <li>Use the WebSocket endpoint <a href="/ws/run-at-time">/ws/run-at-time</a> to run the model at specific times.</li>
-            <li>Fit the model to your own data using the <a href="/fit">/fit</a> endpoint.</li>
-        </ul>
-        <p>For more information on how to use the API, please refer to the documentation available at:</p>
-        <ul>
-            <li><a href="/docs">(SwaggerUI) Interactive API Documentation</a></li>
-            <li><a href="/redoc">(ReDoc) Readable API Documentation</a></li>
-            <li><a href="/openapi.json">(JSON) OpenAPI Schema</a></li>
-        </ul>
-        <h2>pfun_cma_model - API Demo Homepage</h2>
-        <h3><a href="/docs">View the API docs</a> to learn more about the available endpoints.</h3>
-        </body>
-        </html>
-        ''', status_code=200,
-        headers={"Content-Type": "text/html"},
-        media_type="text/html"
-    )
+    """Root endpoint to display the homepage."""
+    ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    logger.debug("Root endpoint accessed at %s", ts_msg)
+    # Render the index.html template
+    return templates.TemplateResponse("index.html", {"request": {}, "message": f"Accessed at: {ts_msg}"})
 
 
 @app.get("/params/schema")
@@ -160,6 +121,7 @@ def default_params():
 
 
 def read_sample_data(convert2json: bool = True):
+    """Read the sample dataset from the PFunDataPaths."""
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
     df = PFunDataPaths().read_sample_data()
     if convert2json is False:
@@ -169,7 +131,12 @@ def read_sample_data(convert2json: bool = True):
 
 @app.get("/data/sample")
 def get_sample_dataset(request: Request, nrows: int = -1):
-    """Get the sample dataset with optional row limit."""
+    """Get the sample dataset with optional row limit.
+
+    Args:
+        request (Request): The FastAPI request object.
+        nrows (int): The number of rows to return. If -1, return the full dataset.
+    """
     # Check if nrows is valid
     if nrows < -1:
         logging.error("Invalid nrows value: %s. Must be -1 or greater.", nrows)
@@ -180,7 +147,8 @@ def get_sample_dataset(request: Request, nrows: int = -1):
     # check if nrows is given (nrows >= 0)
     # essentially, if nrows is -1, we skip the extra collation step...
     nrows_given = nrows == -1 if nrows < 0 else nrows >= 0
-    logging.debug("Received request for sample dataset with nrows=%s", nrows)
+    logging.debug(
+        "Received request for sample dataset with nrows=%s", nrows)
     logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
     # nrows < 0, convert the dataset to JSON from DataFrame (else, keep the DataFrame for next steps)
     dataset = read_sample_data(convert2json=nrows_given)
@@ -199,14 +167,14 @@ def get_sample_dataset(request: Request, nrows: int = -1):
     return Response(
         content=output,
         status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
+        headers={"Content-Type": "application/json"})
 
 
 CMA_MODEL_INSTANCE = None
 
 
 async def initialize_model():
+    """Initialize the CMA model instance if not already done."""
     global CMA_MODEL_INSTANCE
     if CMA_MODEL_INSTANCE is not None:
         return CMA_MODEL_INSTANCE
@@ -217,6 +185,7 @@ async def initialize_model():
 
 @app.post("/translate-results")
 async def translate_model_results_by_language(results: Dict, from_lang: Literal["python", "javascript"]):
+    """Translate model results between Python and JavaScript formats."""
     to_lang = "python" if from_lang == "javascript" else "javascript"
     from pandas import DataFrame
 
@@ -265,29 +234,6 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
-manager = ConnectionManager()
-
-
-@app.websocket("/ws/run-at-time")
-async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint to run the model at specific times."""
-    await manager.connect(websocket)
-    try:
-        while True:
-            input_command = await websocket.receive_text()
-            logging.info("Received command: %s", input_command)
-            run_at_time_func_args = json.loads(input_command)
-            t0 = run_at_time_func_args.get("t0", 0)
-            t1 = run_at_time_func_args.get("t1", 100)
-            n = run_at_time_func_args.get("n", 100)
-            config = run_at_time_func_args.get("config", {})
-            output = await run_at_time_func(t0, t1, n, **config)
-            await manager.send_personal_message(output, websocket)
-            logging.info("Sent output: %s", output)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-
-
 @app.post("/run-at-time")
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
@@ -321,6 +267,21 @@ async def run_at_time_route(t0: float | int,
         return error_response
 
 
+# Import websockets module to register events
+PFunSocketIOSession = importlib.import_module(
+    "pfun_cma_model.misc.sessions").PFunSocketIOSession
+PFunWebsocketNamespace = importlib.import_module(
+    "pfun_cma_model.routes.ws").PFunWebsocketNamespace
+pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
+
+@app.get("/health/ws/run-at-time")
+async def health_check_run_at_time():
+    """Health check endpoint for the 'run-at-time' WebSocket functionality."""
+    logger.info("Health check for 'run-at-time' WebSocket endpoint accessed.")
+    # @todo: implement actual health check logic if needed
+    return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
+
+
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
@@ -329,13 +290,15 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
     }
     # load default bounded parameters
     default_config.update(CMAModelParams().bounded_params_dict)
-    return templates.TemplateResponse("run-at-time-demo.html", {"request": request, "params": default_config})
+    return templates.TemplateResponse(
+        "run-at-time-demo.html", {"request": request, "params": default_config, "host": request.base_url.hostname, "port": request.base_url.port})
 
 
 @app.post("/fit")
 async def fit_model_to_data(
     data: dict | str,
     config: Optional[CMAModelParams | str] = None  # type: ignore
+
 ):
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
@@ -381,33 +344,5 @@ async def fit_model_to_data(
     return response
 
 
-def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
-    """Run the FastAPI application."""
-    import uvicorn
-    # remove unwanted kwargs
-    valid_kwargs: Mapping[str, Any] = getattr(
-        uvicorn.run, "__kwdefaults__", {})  # ensure a mapping
-    for key in list(kwargs.keys()):
-        if key not in valid_kwargs:
-            logger.warning(
-                f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")
-            del kwargs[key]
-    logger.info(f"Running FastAPI app on {host}:{port} with kwargs: {kwargs}")
-    # must pass the app parameter as a module path to enable hot-reloading
-    kwargs.pop("host", None)  # avoid duplicate host/port arguments
-    kwargs.pop("port", None)
-    if kwargs.get("reload", False):
-        # with hot-reloading
-        logging.info("Running with hot-reloading enabled.")
-        # remove reload from kwargs to avoid passing it twice
-        reload = kwargs.pop("reload", False)
-        uvicorn.run("pfun_cma_model.app:app", host=host,
-                    port=port, reload=reload, **kwargs)
-    else:
-        # without hot-reloading
-        logging.info("Running without hot-reloading.")
-        uvicorn.run(app, host=host, port=port, **kwargs)
-
-
-if __name__ == "__main__":
-    run_app()
+# Setup the Socket.IO session
+socketio_session = PFunSocketIOSession(app)

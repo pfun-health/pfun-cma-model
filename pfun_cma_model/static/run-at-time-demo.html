@@ -4,36 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Run-at-Time WebSocket Example</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 2em;
-    }
-
-    label,
-    input {
-      margin: 0.3em;
-    }
-
-    #messages {
-      margin-top: 1em;
-      border: 1px solid #aaa;
-      padding: 1em;
-      height: 200px;
-      overflow-y: auto;
-    }
-
-    .params-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1em;
-    }
-
-    .param-item {
-      display: flex;
-      flex-direction: column;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
 
 <body>
@@ -44,15 +15,15 @@
   </div>
   <form id="runForm">
     <label for="t0">t0 (0–23.999):</label>
-    <input type="number" step="0.001" id="t0" name="t0" max="23.999" min="0" required>
+    <input type="number" step="0.001" id="t0" name="t0" max="23.999" min="0" value="4" required>
     <br>
 
     <label for="t1">t1 (0–23.999):</label>
-    <input type="number" step="0.001" id="t1" name="t1" max="23.999" min="0" required>
+    <input type="number" step="0.001" id="t1" name="t1" max="23.999" min="0" value="20" required>
     <br>
 
     <label for="N">N (1–10000):</label>
-    <input type="number" id="N" name="N" min="1" max="10000" required>
+    <input type="number" id="N" name="N" min="1" max="10000" value="100" required>
     <br>
 
     <h3>Model Parameters</h3>
@@ -71,12 +42,19 @@
   <div id="messages"></div>
 
   <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js"
+    integrity="sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Socket.IO CDN -->
+  <!-- Note: Ensure you have the correct version matching your server -->
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+    integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+    crossorigin="anonymous"></script>
 
   <script>
-    const wsUrl = 'ws://localhost:8001/ws/run-at-time';
+
     const messagesDiv = document.getElementById('messages');
-    let ws;
+    let socket;
     // Parse params from template variable
     const params = JSON.parse('{{ params | tojson | safe }}');
 
@@ -116,6 +94,7 @@
       }
     };
 
+    const fadeDuration = 50; // ms
     const scatterChart = new Chart(ctx, {
       type: 'scatter',
       data: scatterData,
@@ -123,13 +102,9 @@
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 900 / 400,
-        animation: {
-          duration: 100,
-          easing: 'easeInOutCubic',
-        },
         plugins: {
           onionFade: {
-            fadeDuration: 250 // Duration for fade effect in ms
+            fadeDuration: fadeDuration // Duration for fade effect in ms
           },
         },
         scales: {
@@ -146,6 +121,8 @@
       },
       plugins: [onionFadePlugin]
     });
+    // !!! Disable all animations globally
+    //chart.options.animation = false; // disables all animations
 
     function appendMessage(msg) {
       const el = document.createElement('div');
@@ -169,12 +146,12 @@
       }
 
       // Onioning: overlay previous points with alpha, fade in new points
-      scatterData.datasets[0].data = prevData.map(pt => ({...pt, _fade: true}));
+      scatterData.datasets[0].data = prevData.map(pt => ({ ...pt, _fade: true }));
       scatterChart.update();
       setTimeout(() => {
-        scatterData.datasets[0].data = newData.map(pt => ({...pt, _fade: false}));
+        scatterData.datasets[0].data = newData.map(pt => ({ ...pt, _fade: false }));
         scatterChart.update('active');
-      }, 250); // 250ms fade effect
+      }, fadeDuration); // 250ms fade effect
     }
 
     function createScatterOnePoint(xdatum, ydatum) {
@@ -188,58 +165,68 @@
         The keys will be used as the x-coordinates and the values as the y-coordinates.
         ({key: value}) -> {x: key, y: value}
       */
-      if (typeof(dataObject) === 'object' && dataObject !== null) {
+      if (typeof (dataObject) === 'object' && dataObject !== null) {
         return Object.entries(dataObject).map(([key, item]) => createScatterOnePoint(key, item));
       } else if (Array.isArray(dataObject)) {
         return dataObject.map((item, index) => createScatterOnePoint(index, item));
       }
     }
 
-    function connectWebSocket() {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+    function connectSocketIO() {
+      if (socket && socket.connected) {
+        socket.disconnect();
       }
-      ws = new WebSocket(wsUrl);
+      // Socket.IO expects the base URL, not the full ws path
+      // We'll use the namespace/endpoint as the path
+      const wsUrl = 'ws://{{ host }}:{{ port }}/';
+      socket = io(wsUrl, { transports: ['websocket'] });
 
-      ws.onopen = () => {
-        appendMessage('Connected to WebSocket server.');
-      };
-      ws.onmessage = (evt) => {
-        appendMessage('Received: ' + evt.data);
+      socket.on('connect', () => {
+        appendMessage('Connected to Socket.IO server.');
+      });
+
+      socket.on('disconnect', () => {
+        appendMessage('Socket.IO connection closed.');
+      });
+
+      socket.on('connect_error', (err) => {
+        appendMessage('Socket.IO connection error: ' + err.message);
+      });
+
+      // Listen for messages from server (event name may need to match backend)
+      socket.on('message', (data) => {
+        appendMessage('Received: ' + JSON.stringify(data));
         try {
-          const data = JSON.parse(evt.data);
-          console.log('Parsed WebSocket data:', data);
-          for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-              let scatterPoints = createScatterPointArrayFromDataObject(data[key]);
+          // If data is a string, try to parse as JSON
+          let parsed = data;
+          if (typeof data === 'string') {
+            parsed = JSON.parse(data);
+          }
+          for (const key in parsed) {
+            if (parsed.hasOwnProperty(key)) {
+              let scatterPoints = createScatterPointArrayFromDataObject(parsed[key]);
               addScatterPoints(scatterPoints);
             }
           }
         } catch (e) {
-          console.warn('WebSocket message not valid JSON or not a point:', e);
+          console.warn('Socket.IO message not valid JSON or not a point:', e);
         }
-      };
-      ws.onclose = () => {
-        appendMessage('WebSocket connection closed.');
-      };
-      ws.onerror = (err) => {
-        appendMessage('WebSocket error: ' + err);
-      };
+      });
     }
 
     // Helper: trigger chart transition and websocket reconnect
     function triggerChartUpdateAndReconnect() {
-      connectWebSocket();
+      connectSocketIO();
       // Onion fade out current points
-      scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({...pt, _fade: true}));
+      scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
       scatterChart.update();
       setTimeout(() => {
         scatterData.datasets[0].data = [];
         scatterChart.update('active');
-      }, 250);
+      }, fadeDuration);
     }
 
-    connectWebSocket();
+    connectSocketIO();
 
     // Event-driven: update on parameter change
     document.querySelectorAll('#runForm input').forEach(input => {
@@ -252,8 +239,8 @@
       e.preventDefault();
       triggerChartUpdateAndReconnect();
       setTimeout(() => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-          appendMessage('WebSocket not connected. Cannot send.');
+        if (!socket || !socket.connected) {
+          appendMessage('Socket.IO not connected. Cannot send.');
           return;
         }
         const t0 = parseFloat(document.getElementById('t0').value);
@@ -286,9 +273,10 @@
           }
         }
 
-        const payload = JSON.stringify({ t0, t1, n: N, config });
-        ws.send(payload);
-        appendMessage('Sent: ' + payload);
+        const payload = { t0, t1, n: N, config };
+        // Use a custom event name, e.g. 'run', or 'run-at-time', as expected by backend
+        socket.emit('run', payload);
+        appendMessage('Sent: ' + JSON.stringify(payload));
       }, 100); // Wait for fade out and reconnect
     }
   </script>

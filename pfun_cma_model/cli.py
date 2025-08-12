@@ -1,4 +1,4 @@
-from pfun_cma_model.app import run_app
+from pfun_cma_model.main import run_app
 from pfun_cma_model.engine.fit import fit_model as call_fit_model
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_plot import CMAPlotConfig

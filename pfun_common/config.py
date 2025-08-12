@@ -1,5 +1,4 @@
 import logging
-import pfun_path_helper
 from pfun_path_helper import get_lib_path
 import os
 from dataclasses import dataclass

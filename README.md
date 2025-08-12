@@ -4,8 +4,7 @@ _PFun CMA model repo._
 
 ## Development notes
 
-- **[TODO]** Resolve issues in app.py routes.
-- **[TODO]** Get docker compose build working...
+- **[TODO]** Look at websockets
 - Using `uv` for super fast dependency management, usage, and publishing.
 
 ### Create a dedicated virtual environment
