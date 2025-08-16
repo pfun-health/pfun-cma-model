@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from fastapi import Query
 import importlib
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -115,6 +116,46 @@ def default_params():
     params = CMAModelParams()
     return Response(
         content=params.model_dump_json(),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
+@app.post("/params/describe")
+def describe_params(
+    param_keys: list[str] = Query(
+        default=None, description="List of parameter keys to describe. If not provided, all bounded parameters will be described."),
+    config: dict | None = None
+):
+    """
+    Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
+    Args:
+        param_keys (list[str]): List of parameter keys to describe. If not provided, all bounded parameters will be described.
+        config (dict | None): Optional model config to override defaults.
+    Returns:
+        dict: Dictionary of parameter descriptions and qualitative descriptors.
+    """
+    from pfun_cma_model.engine.cma_model_params import CMAModelParams
+    if config is not None:
+        params = CMAModelParams(**config)
+    else:
+        params = CMAModelParams()
+    if not param_keys:
+        param_keys = list(params.bounded_param_keys)
+    result = {}
+    for key in param_keys:
+        try:
+            desc = params.describe(key)
+            qual = params.generate_qualitative_descriptor(key)
+            result[key] = {
+                "description": desc,
+                "qualitative": qual,
+                "value": getattr(params, key, None)
+            }
+        except Exception as e:
+            result[key] = {"error": str(e)}
+    return Response(
+        content=json.dumps(result),
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
@@ -275,6 +316,7 @@ PFunWebsocketNamespace = importlib.import_module(
     "pfun_cma_model.routes.ws").PFunWebsocketNamespace
 pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
 
+
 @app.get("/health/ws/run-at-time")
 async def health_check_run_at_time():
     """Health check endpoint for the 'run-at-time' WebSocket functionality."""
@@ -291,8 +333,12 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
     }
     # load default bounded parameters
     default_config.update(CMAModelParams().bounded_params_dict)
+    context_dict = {
+        "request": request, "params": default_config,
+        "host": request.base_url.hostname, "port": request.base_url.port,
+    }
     return templates.TemplateResponse(
-        "run-at-time-demo.html", {"request": request, "params": default_config, "host": request.base_url.hostname, "port": request.base_url.port})
+        "run-at-time-demo.html", context=context_dict)
 
 
 @app.post("/fit")
@@ -347,4 +393,3 @@ async def fit_model_to_data(
 
 # Setup the Socket.IO session
 socketio_session = PFunSocketIOSession(app)
-
