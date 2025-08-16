@@ -14,15 +14,20 @@
     <canvas id="scatterPlot" style="width: 100%; height: 400px;"></canvas>
   </div>
   <form id="runForm">
-    <label for="t0">t0 (0–23.999):</label>
-    <input type="number" step="0.001" id="t0" name="t0" max="23.999" min="0" value="4" required>
+    <label for="t0">t0 (0.0, 24.0):</label>
+    <p>Simulation start time (decimal hours).</p>
+    <input type="number" step="0.2" id="t0" name="t0" max="23.999" min="0" value="4" required>
     <br>
 
     <label for="t1">t1 (0–23.999):</label>
-    <input type="number" step="0.001" id="t1" name="t1" max="23.999" min="0" value="20" required>
+    <p>Simulation end time (decimal hours).</p>
+    <p>Note: t1 must be greater than t0.</p>
+    <input type="number" step="0.2" id="t1" name="t1" max="23.999" min="0" value="20" required>
     <br>
 
     <label for="N">N (1–10000):</label>
+    <p>Number of points to simulate.</p>
+    <p>Note: N must be a positive integer.</p>
     <input type="number" id="N" name="N" min="1" max="10000" value="100" required>
     <br>
 

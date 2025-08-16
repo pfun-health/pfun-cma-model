@@ -103,7 +103,7 @@ def params_schema():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
     params = CMAModelParams()
     return Response(
-        content=params.model_json_schema(),
+        content=json.dumps(params.model_json_schema()),
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
@@ -144,19 +144,20 @@ def get_sample_dataset(request: Request, nrows: int = -1):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="nrows must be -1 (for full dataset) or a non-negative integer.",
         )
-    # check if nrows is given (nrows >= 0)
-    # essentially, if nrows is -1, we skip the extra collation step...
-    nrows_given = nrows == -1 if nrows < 0 else nrows >= 0
+    if nrows == -1:
+        nrows_given = False  # -1 means no limit, return full dataset
+    else:
+        nrows_given = True  # nrows is given, return only the first nrows
     logging.debug(
         "Received request for sample dataset with nrows=%s", nrows)
     logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
-    # nrows < 0, convert the dataset to JSON from DataFrame (else, keep the DataFrame for next steps)
-    dataset = read_sample_data(convert2json=nrows_given)
+    # Read sample dataset (keep as DataFrame)
+    dataset = read_sample_data(convert2json=False)
     if nrows_given is False:
         logging.debug("Returning full dataset as JSON.")
         # if nrows is not given, return the full dataset as JSON
         return Response(
-            content=dataset,
+            content=dataset.to_json(orient='records'),
             status_code=200,
             headers={"Content-Type": "application/json"},
         )
@@ -346,3 +347,4 @@ async def fit_model_to_data(
 
 # Setup the Socket.IO session
 socketio_session = PFunSocketIOSession(app)
+

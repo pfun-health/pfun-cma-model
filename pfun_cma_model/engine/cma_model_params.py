@@ -1,3 +1,4 @@
+from pfun_cma_model.misc.types import NumpyArray
 import sys
 from pathlib import Path
 from typing import Annotated, Optional, Sequence, Dict, Tuple
@@ -9,7 +10,6 @@ from pfun_path_helper import append_path
 append_path(Path(__file__).parent.parent.parent)
 
 # import custom ndarray schema
-from pfun_cma_model.misc.types import NumpyArray
 
 __all__ = [
     'CMAModelParams',
@@ -93,30 +93,82 @@ class CMAModelParams(BaseModel):
         Cm (float, optional): Cortisol temporal sensitivity coefficient. Defaults to 0.0.
         toff (float, optional): Solar noon offset (latitude). Defaults to 0.0.
         tM (Tuple[float, float, float], optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
-        seed (Optional[int], optional): Random seed. Defaults to None.
+        seed (Optional[int], optional): Random seed. Set to an integer to enable random noise via parameter 'eps'. Defaults to None.
         eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
     t: Optional[float | NumpyArray] = None
+    """
+    Time vector (decimal hours). Optional.
+    """
     N: int | None = 24
+    """
+    Number of time points. Defaults to 24.
+    """
     d: float = 0.0
+    """
+    Time zone offset (hours). Defaults to 0.0.
+    """
     taup: float = 1.0
+    """
+    Circadian-relative photoperiod length. Defaults to 1.0.
+    """
     taug: float | NumpyArray = 1.0
+    """
+    Glucose response time constant. Defaults to 1.0.
+    """
     B: float = 0.05
+    """
+    Glucose Bias constant. Defaults to 0.05.
+    """
     Cm: float = 0.0
+    """
+    Cortisol temporal sensitivity coefficient. Defaults to 0.0.
+    """
     toff: float = 0.0
+    """
+    Solar noon offset (latitude). Defaults to 0.0.
+    """
     tM: Sequence[float] | float = (7.0, 11.0, 17.5)
+    """
+    Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+    """
     seed: Optional[int | float] = None
+    """
+    Random seed. Set to an integer to enable random noise via parameter 'eps'. Optional.
+    """
     eps: Optional[float] = 1e-18
+    """
+    Random noise scale ("epsilon"). Defaults to 1e-18.
+    """
     lb: Optional[float | Sequence[float]] = _LB_DEFAULTS
+    """
+    Lower bounds for bounded parameters. Defaults to _LB_DEFAULTS.
+    """
     ub: Optional[float | Sequence[float]] = _UB_DEFAULTS
+    """
+    Upper bounds for bounded parameters. Defaults to _UB_DEFAULTS.
+    """
     bounded_param_keys: Optional[Sequence[str] |
                                  Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    """
+    Keys for bounded parameters. Defaults to _BOUNDED_PARAM_KEYS_DEFAULTS.
+    """
     midbound: Optional[float | Sequence[float]] = _MID_DEFAULTS
+    """
+    Midpoint values for bounded parameters. Defaults to _MID_DEFAULTS.
+    """
     bounded_param_descriptions: Optional[Sequence[str]
                                          | Tuple[str]] = _BOUNDED_PARAM_DESCRIPTIONS
+    """
+    Descriptions for bounded parameters. Defaults to _BOUNDED_PARAM_DESCRIPTIONS.
+    """
     bounds: Optional[Annotated[Dict[str, Sequence[float]],
                                BoundsType()]] = _DEFAULT_BOUNDS
+    """
+    Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
+    """
 
     @field_serializer('bounds')
     def serialize_bounds(self, value: Bounds | dict, *args):
@@ -129,7 +181,7 @@ class CMAModelParams(BaseModel):
         if isinstance(value, ndarray):
             return value.tolist()
         return value
-    
+
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
         """
