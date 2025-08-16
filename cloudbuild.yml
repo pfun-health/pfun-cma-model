@@ -29,7 +29,7 @@ steps:
     entrypoint: gcloud
     env:
       - "DEBUG=0"  # Disable debug mode for production
-      - "WS_HOST=pfun-cma-model-446025415469.${_REGION}.run.app" # Host for WebSocket connections
+      - "WS_HOST=pfun-cma-model-446025415469.us-central1.run.app" # Host for WebSocket connections
       - "WS_PORT=443"  # Port for WebSocket connections
     args:
       - "run"
