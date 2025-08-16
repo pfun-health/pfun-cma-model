@@ -29,7 +29,7 @@ class TestCMASleepWakeModel:
         except Exception as e:
             assert isinstance(e, (BoundsTypeError, ValueError, TypeError))
 
-    def test_integrate_G_with_NaN_values(self):        
+    def test_integrate_G_with_NaN_values(self):
         from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
         from pfun_cma_model.engine.cma import CMASleepWakeModel
         # Create an instance of CMASleepWakeModel
@@ -44,7 +44,7 @@ class TestCMASleepWakeModel:
         # Check that the result is correct
         assert np.logical_not(np.isnan(result))
 
-    def test_update_bounds(self):        
+    def test_update_bounds(self):
         from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
         from pfun_cma_model.engine.cma import CMASleepWakeModel
         # Create an instance of CMASleepWakeModel
@@ -65,7 +65,7 @@ class TestCMASleepWakeModel:
         assert np.all(model.bounds[model.param_key_index(
             keys, only_bounded=True)] == expected_bounds)
 
-    def test_cma_bounded_params_as_dict(self):        
+    def test_cma_bounded_params_as_dict(self):
         from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
         from pfun_cma_model.engine.cma import CMASleepWakeModel
         model = CMASleepWakeModel()
@@ -80,21 +80,21 @@ class TestCMASleepWakeModel:
         }
         assert params == expected_dict
 
-    def test_cma_bounded_params_as_obj(self):        
+    def test_cma_bounded_params_as_obj(self):
         from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
         from pfun_cma_model.engine.cma import CMASleepWakeModel
         model = CMASleepWakeModel()
         params = model.bounded_params_as_obj
         expected_dict = {
-            'd': params.d,
-            'taup': params.taup,
-            'taug': params.taug,
-            'B': params.B,
-            'Cm': params.Cm,
-            'toff': params.toff
+            'd': params.bounded.d,
+            'taup': params.bounded.taup,
+            'taug': params.bounded.taug,
+            'B': params.bounded.B,
+            'Cm': params.bounded.Cm,
+            'toff': params.bounded.toff
         }
         from pfun_cma_model.engine.cma_model_params import CMAModelParams
-        expected_obj = CMAModelParams(**expected_dict)
+        expected_obj = CMAModelParams(bounded=params.bounded)
         # Check if the object is the same as the original
         assert params.bounded_params_as_obj == expected_obj
-        assert params.bounded_params_dict == expected_dict
+        assert params.bounded.bounded_params_dict == expected_dict

@@ -1,15 +1,62 @@
+import os
+from datetime import datetime
+from dotenv import load_dotenv
 from json import dumps
 import sys
 from pathlib import Path
+import logging
+logger = logging.getLogger(__name__)
 
 try:
-    from urllib import urlencode, unquote  # Python 2  # type: ignore
+    # Python 2 fallback
+    from urllib import urlencode, unquote  # type: ignore
     from urlparse import urlparse, parse_qsl, ParseResult  # type: ignore
 except ImportError:
     # Python 3 fallback
     from urllib.parse import (
         urlencode, unquote, urlparse, parse_qsl, ParseResult
     )
+
+
+def setup_logging(debug_mode: bool = False):
+    """Setup logging configuration."""
+    global logger
+    # timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    # logfile_path = Path(__file__).parent / "logs" / \
+    #     f"pfun_cma_model--{timestamp}.log"
+    # logging.info(f"Setting up logging configuration (logs: {logfile_path})")
+    # formatter = logging.Formatter(
+    #     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    # if not os.path.exists(os.path.dirname(logfile_path)):
+    #     os.makedirs(os.path.dirname(logfile_path))
+    # file_handler = logging.FileHandler(logfile_path)
+    # file_handler.setFormatter(formatter)
+    # # add the file handler to the logger
+    # logger.addHandler(file_handler)
+    # Set the logger to the desired level
+    if debug_mode:
+        logger.setLevel(logging.DEBUG)
+        logger.debug("Debug mode is enabled. Setting logger level to DEBUG.")
+    else:
+        logger.setLevel(logging.INFO)
+        logger.info("Debug mode is disabled. Setting logger level to INFO.")
+    logger.propagate = False  # Prevent propagation to root logger
+    logging.info("...Logging setup complete.")
+
+
+def load_environment_variables():
+    """Load environment variables from .env file."""
+    logging.info("Attempting to load environment variables from .env file...")
+    env_file = Path(__file__).parent.parent / ".env"
+    if env_file.exists():
+        loaded = load_dotenv(dotenv_path=env_file)
+        if not loaded:
+            logger.warning(
+                f"Failed to load environment variables from {env_file}.")
+        logger.info(f"Loaded environment variables from {env_file}")
+    else:
+        logger.warning(
+            f"No .env file found at {env_file}. Using system environment variables.")
 
 
 def add_url_params(url, params):

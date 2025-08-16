@@ -9,7 +9,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import (
-    Sequence, Iterable, 
+    Sequence, Iterable,
     Dict, Tuple,
     Callable, Container,
     Optional, Generator
@@ -105,7 +105,7 @@ class CMASleepWakeModel:
 
     @cached_property
     def bounded_param_keys(self):
-        return self._DEFAULT_PARAMS_MODEL.bounded_param_keys
+        return self._DEFAULT_PARAMS_MODEL.bounded.bounded_param_keys
 
     @cached_property
     def param_keys(self):
@@ -122,7 +122,8 @@ class CMASleepWakeModel:
             return local_param_keys.index(keys)
         else:
             return [
-                int(self.param_key_index(k, only_bounded=only_bounded))  # type: ignore
+                # type: ignore
+                int(self.param_key_index(k, only_bounded=only_bounded))
                 for k in keys
             ]
 
@@ -172,7 +173,8 @@ class CMASleepWakeModel:
                     elif isinstance(v, ndarray):
                         value[k] = v.tolist()
             try:
-                logging.info("attempting to serialize: %s (value='%s')", key, str(out.get(key)))
+                logging.info(
+                    "attempting to serialize: %s (value='%s')", key, str(out.get(key)))
                 json.dumps(out[key])
             except (json.JSONDecodeError, TypeError) as exc:
                 logging.warning(
@@ -181,7 +183,8 @@ class CMASleepWakeModel:
                     str(value),
                     exc_info=False)
                 out.pop(key, None)  # ! remove any non-JSONable value
-        return json.dumps(out, skipkeys=True)  # ! skipkeys removes all non-basic types
+        # ! skipkeys removes all non-basic types
+        return json.dumps(out, skipkeys=True)
 
     def json(self):
         """JSON serialization."""
@@ -194,8 +197,10 @@ class CMASleepWakeModel:
         return self.to_dict()
 
     @property
-    def params(self):
-        return self._params
+    def params(self) -> type[CMAModelParams]:
+        """Return the current parameters as a CMAModelParams object."""
+        params_dict = {k: self._params[k] for k in self.param_keys}
+        return CMAModelParams(**params_dict)
 
     @params.setter
     def params(self, value):
@@ -227,7 +232,8 @@ class CMASleepWakeModel:
             self._params.update(config)  # type: ignore
         self._params.update(kwds)
         t, N, tM, seed, eps = self._params.get('t'), self._params.get('N'), self._params.get(
-            'tM'), self._params.get('seed'), self._params.get('eps')  # type: ignore
+            # type: ignore
+            'tM'), self._params.get('seed'), self._params.get('eps')
         assert (t is not None or N is not None) and (t is None or N is None), \
             "Must provide either the 't' or 'N' argument (not both)"
         if t is None and N is not None:
@@ -236,7 +242,8 @@ class CMASleepWakeModel:
         self.tM = asarray(tM, dtype=float)  # mealtimes vector
         self.bounds = copy.copy(self._DEFAULT_PARAMS_MODEL.bounds)
         if all([kwds.get('lb', False), kwds.get('ub', False), kwds.get('bounded_param_keys', False)]):
-            self.update_bounds(kwds['bounded_param_keys'], kwds['lb'], kwds['ub'], kwds.get('keep_feasible', Bounds.True_))
+            self.update_bounds(kwds['bounded_param_keys'], kwds['lb'], kwds['ub'], kwds.get(
+                'keep_feasible', Bounds.True_))
         elif 'bounds' in kwds:
             new_bounds = kwds['bounds']
             if isinstance(new_bounds, str):
@@ -256,28 +263,28 @@ class CMASleepWakeModel:
     def N(self):
         """Number of time steps."""
         return len(self.t)
-    
+
     @property
     def bounded_params_as_dict(self) -> Dict:
         """Return the current bounded parameters as a python dict."""
-        return {k: self.params[k] for k in self.bounded_param_keys}
-    
+        return {k: self.params.bounded[k] for k in self.bounded_param_keys}
+
     @property
-    def bounded_params(self) -> CMAModelParams: # type: ignore
+    def bounded_params(self) -> CMAModelParams:  # type: ignore
         """Return the current bounded parameters as a CMAModelParams object."""
         return CMAModelParams(**self.bounded_params_as_dict)
-    
+
     @property
-    def bounded_params_as_obj(self) -> CMAModelParams: # type: ignore
+    def bounded_params_as_obj(self) -> CMAModelParams:  # type: ignore
         """
         Return the current bounded parameters as a CMAModelParams object.
-        
+
         Alias method for `self.bounded_params` property.
         """
         return self.bounded_params
 
     def update_bounded_params(self, params: Dict | CMAModelParams  # type: ignore
-                              ) -> Dict | CMAModelParams:  # type: ignore
+                              ) -> type[CMAModelParams]:  # type: ignore
         """Update the latest parameters to correspond to the current bounds (trim to bounds).
 
         Args:
@@ -286,10 +293,15 @@ class CMASleepWakeModel:
         Returns:
             Dict: updated parameters
         """
-        bounded_params = {k: v for k, v in params.items() if k in self.bounded_param_keys}
+        # get the bounded parameters from the params dict
+        if isinstance(params, CMAModelParams):
+            params = params.model_dump()
+        bounded_params = {k: v for k,
+                          v in params.items() if k in self.bounded_param_keys}
+        # ! ensure the bounded parameters are within bounds
         new_params = self.bounds.update_values(bounded_params)
-        params.update(new_params)
-        return params
+        self.params.bounded.update(**new_params)
+        return self.params
 
     def update(self, model_params: CMAModelParams | Dict | None = None, inplace=True, **kwds):  # type: ignore
         """
@@ -328,7 +340,7 @@ class CMASleepWakeModel:
             new_inst.update(inplace=True, **kwds)
             return new_inst
         #: ! handle case in which taug was given as a vector initially
-        if 'taug' in kwds and isinstance(self.params['taug'], Container):
+        if 'taug' in kwds and isinstance(self.params.get('taug'), Container):
             taug_new = kwds.pop('taug')
             match isinstance(taug_new, Container):
                 case True:
@@ -339,8 +351,8 @@ class CMASleepWakeModel:
                     self.params['taug'] = array(  # type: ignore
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
-        self.params.update({k: kwds[k] for k in kwds if k in self.param_keys})
-        self.params = {k: self.params[k] for k in self.param_keys}  # ! ensure order
+        self.params.update(**{k: kwds[k]
+                           for k in kwds if k in self.param_keys})
         #: Important next line:
         #: ! Keeps params within specified bounds (keep_feasible is handled by Bounds)
         #: ! Ensures that only bounded params are updated
@@ -350,8 +362,9 @@ class CMASleepWakeModel:
             # ! caution with this (string injection is possible)
             tM_raw = kwds['tM']
             if isinstance(tM_raw, str):
-                    # extract numbers from the string
-                    tM = [float(x) for x in tM_raw.split(',') if x.strip().replace('.', '', 1).isdigit()]
+                # extract numbers from the string
+                tM = [float(x) for x in tM_raw.split(',')
+                      if x.strip().replace('.', '', 1).isdigit()]
             elif isinstance(tM_raw, (int, float)):
                 tM = [tM_raw]
             else:
@@ -361,7 +374,8 @@ class CMASleepWakeModel:
                     raise TypeError(
                         f"Invalid type for tM: {type(tM_raw)}. Must be a list, tuple, or string of numeric values.")
             try:
-                tM = [float(x) for x in tM if isinstance(x, (int, float))]  # type: ignore
+                tM = [float(x) for x in tM if isinstance(
+                    x, (int, float))]  # type: ignore
             except ValueError:
                 raise ValueError(
                     f"Invalid value in tM: {tM}. All values must be numeric.")
@@ -374,9 +388,7 @@ class CMASleepWakeModel:
             self.eps = kwds['eps']
         #: check all parameters are present and valid types
         for pkey in self.bounded_param_keys:
-            if pkey not in self.params:
-                raise ValueError(f"Parameter '{pkey}' not found.")
-            if not isinstance(self.params[pkey], (float, int)):
+            if not isinstance(getattr(self.bounded_params, pkey), (float, int)):
                 raise TypeError(f"Parameter '{pkey}' must be numeric.")
 
     @property
@@ -384,14 +396,14 @@ class CMASleepWakeModel:
         """d : float
              Offset from UTC solar noon for the estimated latitude (hours).
         """
-        return self.params["d"]
+        return self.bounded_params.d
 
     @property
     def taup(self) -> float:
         """taup : float
                 Approximate photoperiod (hours).
         """
-        return self.params["taup"]
+        return self.bounded_params.taup
 
     @property
     def n_meals(self):
@@ -401,28 +413,29 @@ class CMASleepWakeModel:
     @property
     def taug(self) -> ndarray:
         """taug: get an array broadcasted to: (, number_of_meals)."""
-        taug_ = self.params["taug"]
+        taug_ = self.bounded_params.taug
         taug_vector = broadcast_to(taug_, (self.n_meals, ))
         return taug_vector
 
     @property
     def B(self) -> float:
         """Return the current bias parameter value (B)."""
-        return self.params["B"]
+        return self.bounded_params.B
 
     @property
     def Cm(self) -> float:
         """return the current Cm param value."""
-        return self.params["Cm"]
+        return self.bounded_params.Cm
 
     @property
     def toff(self) -> float:
-        return self.params["toff"]
+        return self.bounded_params.toff
 
     def E_L(self, t=None):
         if t is None:
             t = self.t
-        return Light(0.025 * power((t - 12.0 - self.d), 2) / (self.eps + self.taup))  # type: ignore
+        # type: ignore
+        return Light(0.025 * power((t - 12.0 - self.d), 2) / (self.eps + self.taup))
 
     @property
     def L(self):
@@ -432,10 +445,13 @@ class CMASleepWakeModel:
         """compute the estimated relative Melatonin signal."""
         if t is None:
             t = self.t
-        m_out = power((1.0 - self.L), 3) * power(cos(-(t - 3.0 - self.d) * pi / 24.0), 2)  # type: ignore
+        m_out = power((1.0 - self.L), 3) * \
+            power(cos(-(t - 3.0 - self.d) * pi / 24.0), 2)  # type: ignore
         if self.rng is not None:
             # ! tiny amount of random noise
-            m_out = m_out + self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)  # type: ignore
+            # type: ignore
+            m_out = m_out + \
+                self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
         return m_out
 
     @property
@@ -445,11 +461,13 @@ class CMASleepWakeModel:
     @property
     def c(self):
         return (4.9 / (1.0 + self.taup)) * pi * E(power((self.L - 0.88), 3)) * \
-            E(0.05 * (8.0 - self.t + self.d)) * E(2.0 * power(-self.m, 3))  # type: ignore
+            E(0.05 * (8.0 - self.t + self.d)) * \
+            E(2.0 * power(-self.m, 3))  # type: ignore
 
     @property
     def a(self):
-        return (E(power((-self.c * self.m), 3)) + exp(-0.025 * power((self.t - 13 - self.d), 2)) * self.E_L(t=0.7 * (27 - self.t + self.d))) / 2.0  # type: ignore
+        # type: ignore
+        return (E(power((-self.c * self.m), 3)) + exp(-0.025 * power((self.t - 13 - self.d), 2)) * self.E_L(t=0.7 * (27 - self.t + self.d))) / 2.0
 
     @property
     def I_S(self):
@@ -477,9 +495,13 @@ class CMASleepWakeModel:
             if dt is None:
                 dt = np_abs(self.t[-1] - self.t[-2])
             t = mod(linspace(
-                self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)  # type: ignore
-        Gt = vectorized_G(t, self.I_E[-1], self.tM, self.taug, self.B, self.Cm, self.toff)  # type: ignore
-        df_gt = DataFrame({'Gt{}'.format(i): Gt[i] for i in range(Gt.shape[0])}, index=t)  # type: ignore
+                # type: ignore
+                self.t[-1] + dt, self.t[-1] + (n - 1) * dt, num=n), 24)
+        Gt = vectorized_G(
+            # type: ignore
+            t, self.I_E[-1], self.tM, self.taug, self.B, self.Cm, self.toff)
+        df_gt = DataFrame({'Gt{}'.format(i): Gt[i] for i in range(
+            Gt.shape[0])}, index=t)  # type: ignore
         df_gt['Gt'] = nansum(Gt, axis=0)
         return df_gt
 
@@ -614,7 +636,8 @@ class CMASleepWakeModel:
     @property
     def dt(self):
         #: TimedeltaIndex (in hours)
-        return to_timedelta(self.t, unit='h')  # use 'h' to avoid deprecation warning
+        # use 'h' to avoid deprecation warning
+        return to_timedelta(self.t, unit='h')
 
     @property
     def pvec(self):

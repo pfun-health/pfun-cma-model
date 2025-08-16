@@ -4,6 +4,9 @@
 # http://git-scm.com/docs/gitignore
 
 # custom
+# Ignore the .env file
+.env
+.envrc
 /*.env
 /audio_output/
 *.pem

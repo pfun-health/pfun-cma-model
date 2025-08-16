@@ -1,6 +1,10 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from pfun_cma_model.engine.cma_model_params import CMAModelParams, BoundedCMAModelParams
+from typing import Dict, Any
+import pfun_cma_model
+from pfun_cma_model.data import read_sample_data
 from fastapi import Query
 import importlib
 from pandas import DataFrame
@@ -16,42 +20,31 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict, Literal, Optional, Annotated, Mapping
+from pfun_common.utils import load_environment_variables, setup_logging
 
-
-# Get the logger (globally accessible)
+# Initially, Get the logger (globally accessible)
+# Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-SDK_CLIENT = None
-BASE_URL: Optional[str] = None
-STATIC_BASE_URL: str | None = None
-BODY: Optional[str] = None
+# Ensure the .env file is loaded
+load_environment_variables()
 
-
-def setup_logging():
-    """Setup logging configuration."""
-    global logger
-    logfile_path = os.path.normpath(
-        "/tmp/pfun-cma-model--FastAPI-logs.log")
-    logging.info(f"Setting up logging configuration (logs: {logfile_path})")
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-    if not os.path.exists(os.path.dirname(logfile_path)):
-        os.makedirs(os.path.dirname(logfile_path))
-    file_handler = logging.FileHandler(logfile_path)
-    file_handler.setFormatter(formatter)
-    # add the file handler to the logger
-    logger.addHandler(file_handler)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False  # Prevent propagation to root logger
+# Global variables and constants
+debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
 
 
 # Perform logging setup...
-setup_logging()
+setup_logging(debug_mode=debug_mode)
 
+# Initialize FastAPI app
 app = FastAPI(app_name="PFun CMA Model Backend")
-if os.getenv("DEBUG", "0") in ["1", "true"]:
+# Set the application title and description
+app.title = "PFun CMA Model Backend"
+app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
+# set the version of the API
+app.version = pfun_cma_model.__version__
+if debug_mode:
     app.debug = True
     logging.info("Running in DEBUG mode.")
     logging.debug("Debug mode is enabled.")
@@ -67,11 +60,21 @@ app.mount("/static", StaticFiles(directory=Path(__file__).parent /
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory=Path(__file__).parent / "static")
 
+# Add CORS middleware to allow cross-origin requests
+allow_all_origins = {
+    True: ["*", "localhost", "127.0.0.1", "::1"],
+    False: [
+        "pfun-cma-model-446025415469.*.run.app",
+        "*.pfun.run",
+        "*.pfun.one",
+        "*.pfun.me",
+        "*.pfun.app",
+        "*.robcapps.com"
+    ]
+}
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # allow all origins for development !! !!
-        "*", "*.pfun.run", "localhost", "127.0.0.1"],
+    allow_origins=allow_all_origins[debug_mode],
     allow_headers=[
         "X-API-Key",
         "Authorization",
@@ -99,6 +102,9 @@ def root():
     return templates.TemplateResponse("index.html", {"request": {}, "message": f"Accessed at: {ts_msg}"})
 
 
+# -- Model Parameters Endpoints --
+
+
 @app.get("/params/schema")
 def params_schema():
     from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -123,27 +129,22 @@ def default_params():
 
 @app.post("/params/describe")
 def describe_params(
-    param_keys: list[str] = Query(
-        default=None, description="List of parameter keys to describe. If not provided, all bounded parameters will be described."),
-    config: dict | None = None
+    params: BoundedCMAModelParams | Mapping[str, Any] = BoundedCMAModelParams(
+    ).bounded_params_dict
 ):
     """
     Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
     Args:
-        param_keys (list[str]): List of parameter keys to describe. If not provided, all bounded parameters will be described.
-        config (dict | None): Optional model config to override defaults.
+        config (Optional[BoundedCMAModelParams | Mapping]): The configuration parameters to describe.
     Returns:
         dict: Dictionary of parameter descriptions and qualitative descriptors.
     """
-    from pfun_cma_model.engine.cma_model_params import CMAModelParams
-    if config is not None:
-        params = CMAModelParams(**config)
+    if params is not None:
+        params = BoundedCMAModelParams(**params)  # type: ignore
     else:
-        params = CMAModelParams()
-    if not param_keys:
-        param_keys = list(params.bounded_param_keys)
+        params = BoundedCMAModelParams()
     result = {}
-    for key in param_keys:
+    for key in params.bounded_param_keys:  # type: ignore
         try:
             desc = params.describe(key)
             qual = params.generate_qualitative_descriptor(key)
@@ -159,15 +160,6 @@ def describe_params(
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
-
-
-def read_sample_data(convert2json: bool = True):
-    """Read the sample dataset from the PFunDataPaths."""
-    from pfun_cma_model.misc.pathdefs import PFunDataPaths
-    df = PFunDataPaths().read_sample_data()
-    if convert2json is False:
-        return df
-    return df.to_json(orient='records')
 
 
 @app.get("/data/sample")
@@ -193,7 +185,7 @@ def get_sample_dataset(request: Request, nrows: int = -1):
         "Received request for sample dataset with nrows=%s", nrows)
     logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
     # Read sample dataset (keep as DataFrame)
-    dataset = read_sample_data(convert2json=False)
+    dataset = DataFrame(read_sample_data(convert2json=False))
     if nrows_given is False:
         logging.debug("Returning full dataset as JSON.")
         # if nrows is not given, return the full dataset as JSON
@@ -269,7 +261,10 @@ async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
 async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> str:
     """calculate the glucose signal for the given timeframe"""
     model = await initialize_model()
+    logging.debug(
+        "Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
     model.update(config)
+    logging.debug("Model parameters updated: %s", model.params)
     t = model.new_tvector(t0, t1, n)
     df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
@@ -332,10 +327,10 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
         "eps": 0.00,  # set noise to zero for this demo
     }
     # load default bounded parameters
-    default_config.update(CMAModelParams().bounded_params_dict)
+    default_config.update(CMAModelParams().bounded.bounded_params_dict)
     context_dict = {
         "request": request, "params": default_config,
-        "host": request.base_url.hostname, "port": request.base_url.port,
+        "host": os.getenv("WS_HOST", request.base_url.hostname), "port": os.getenv("WS_PORT", request.base_url.port),
     }
     return templates.TemplateResponse(
         "run-at-time-demo.html", context=context_dict)
@@ -350,8 +345,9 @@ async def fit_model_to_data(
     from pandas import DataFrame
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
-        data = read_sample_data()
-        logger.info("\n...Sample data retrieved:\n'%s'\n\n", data[:100])
+        data = read_sample_data(convert2json=False)  # type: ignore
+        logger.info("...Sample data loaded as no data provided.")
+        logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):

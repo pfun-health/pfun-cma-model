@@ -1,9 +1,4 @@
 from pfun_cma_model.app import app, logger
-
-
-import uvicorn
-
-
 import logging
 from typing import Any, Mapping
 

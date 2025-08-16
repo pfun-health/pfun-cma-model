@@ -71,7 +71,7 @@ class TestCMAModelParams:
     def test_cma_params_description(self):
         params = self.cma_model_params_()
         descriptions = [(params.calc_serr(b), params.describe(b))
-                        for b in params.bounded_param_keys]
+                        for b in params.bounded.bounded_param_keys]
         assert descriptions == [(0.0, 'Time zone offset (hours) (Normal)'),
                                 (0.0, 'Photoperiod length (Normal)'),
                                 (0.0, 'Glucose response time constant (Normal)'),
@@ -81,5 +81,5 @@ class TestCMAModelParams:
 
     def test_cma_bounded_param_keys(self):
         params = self.cma_model_params_()
-        assert params.bounded_param_keys == [
+        assert params.bounded.bounded_param_keys == [
             'd', 'taup', 'taug', 'B', 'Cm', 'toff']

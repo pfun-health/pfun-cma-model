@@ -186,43 +186,32 @@ class Bounds:
     def update_values(self, arr: np.ndarray | Dict) -> np.ndarray | Dict[str, float | int]:
         """
         Update the values of the input array so that they stay within the specified limits.
-
-        Args:
-            arr (array-like): The input array that needs to be updated.
-
-        Returns:
-            array-like: The updated array with values within the specified limits.
-
-        Raises:
-            ValueError: If the length of the input array does not match the length of the lower
-                        and upper bound arrays.
+        Delegates bounds logic to BoundedCMAModelParams for consistency and maintainability.
         """
+        from pfun_cma_model.engine.cma_model_params import BoundedCMAModelParams
+        # If arr is a dict, use keys for mapping
         keys = None
         if isinstance(arr, dict):
             keys = list(arr.keys())
-            arr = np.array(list(arr.values()))
-        if len(arr) != len(self.lb) or len(arr) != len(self.ub):
-            raise ValueError(
-                "Length of input array does not match the length of lower and upper bound arrays.")
-
-        updated_arr = []
-        for i, val in enumerate(arr):
-            if not isinstance(val, (float, int)):
-                raise BoundsTypeError(i)
-            if not self.keep_feasible[i]:
-                updated_arr.append(val)  # ! make sure to still append
-                continue  # ! skip bounds check if keep_feasible is False for this element
-            if val < self.lb[i]:
-                updated_arr.append(self.lb[i])
-            elif val > self.ub[i]:
-                updated_arr.append(self.ub[i])
-            else:
-                updated_arr.append(val)
-
-        updated_arr = np.array(updated_arr, dtype=arr.dtype)
+            arr_values = [arr[k] for k in keys]
+        else:
+            arr_values = arr
+        # Use BoundedCMAModelParams to trim values to bounds
+        # Only bounded param keys are considered
+        bounded_keys = getattr(BoundedCMAModelParams,
+                               'bounded_param_keys', None)
+        if bounded_keys is None:
+            # fallback: use all indices
+            bounded_keys = range(len(arr_values))
+        # Build a params dict for BoundedCMAModelParams
+        params_dict = {k: v for k, v in zip(bounded_keys, arr_values)}
+        bounded_obj = BoundedCMAModelParams(**params_dict)
+        trimmed = bounded_obj.bounded_params_dict
+        # Return in same format as input
         if keys is not None:
-            updated_arr = {k: v for k, v in zip(keys, updated_arr, strict=True)}
-        return updated_arr
+            return {k: trimmed[k] for k in keys}
+        else:
+            return np.array([trimmed[k] for k in bounded_keys], dtype=float)
 
     def residual(self, x):
         """Calculate the residual (slack) between the input and the bounds
