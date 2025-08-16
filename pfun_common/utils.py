@@ -5,7 +5,6 @@ from json import dumps
 import sys
 from pathlib import Path
 import logging
-logger = logging.getLogger(__name__)
 
 try:
     # Python 2 fallback
@@ -18,21 +17,8 @@ except ImportError:
     )
 
 
-def setup_logging(debug_mode: bool = False):
+def setup_logging(logger: logging.Logger, debug_mode: bool = False):
     """Setup logging configuration."""
-    global logger
-    # timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    # logfile_path = Path(__file__).parent / "logs" / \
-    #     f"pfun_cma_model--{timestamp}.log"
-    # logging.info(f"Setting up logging configuration (logs: {logfile_path})")
-    # formatter = logging.Formatter(
-    #     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    # if not os.path.exists(os.path.dirname(logfile_path)):
-    #     os.makedirs(os.path.dirname(logfile_path))
-    # file_handler = logging.FileHandler(logfile_path)
-    # file_handler.setFormatter(formatter)
-    # # add the file handler to the logger
-    # logger.addHandler(file_handler)
     # Set the logger to the desired level
     if debug_mode:
         logger.setLevel(logging.DEBUG)
@@ -40,11 +26,10 @@ def setup_logging(debug_mode: bool = False):
     else:
         logger.setLevel(logging.INFO)
         logger.info("Debug mode is disabled. Setting logger level to INFO.")
-    logger.propagate = False  # Prevent propagation to root logger
-    logging.info("...Logging setup complete.")
+    logger.info("...Logging setup complete.")
 
 
-def load_environment_variables():
+def load_environment_variables(logger: logging.Logger = logging.getLogger(__name__)):
     """Load environment variables from .env file."""
     logging.info("Attempting to load environment variables from .env file...")
     env_file = Path(__file__).parent.parent / ".env"

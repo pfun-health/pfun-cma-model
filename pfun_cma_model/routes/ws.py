@@ -6,6 +6,7 @@ from fastapi import FastAPI
 import socketio
 from pfun_cma_model.app import run_at_time_func
 from pfun_cma_model.routes.ws_base import NoPrefixNamespace
+logger = logging.getLogger()
 
 
 class PFunWebsocketNamespace(NoPrefixNamespace):

@@ -25,17 +25,18 @@ from pfun_common.utils import load_environment_variables, setup_logging
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+logger.info(
+    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Ensure the .env file is loaded
-load_environment_variables()
+load_environment_variables(logger=logger)
 
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
 
-
 # Perform logging setup...
-setup_logging(debug_mode=debug_mode)
+setup_logging(logger, debug_mode=debug_mode)
 
 # Initialize FastAPI app
 app = FastAPI(app_name="PFun CMA Model Backend")
