@@ -1720,7 +1720,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.3.9"
+version = "0.3.10"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
@@ -1810,7 +1810,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "pydantic", specifier = "==2.4.2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
-    { name = "python-socketio", extras = ["asyncio"], specifier = ">=5.13.0" },
+    { name = "python-socketio", specifier = ">=5.13.0" },
     { name = "python-socketio-stubs", specifier = ">=5.13.0.12.20250809" },
     { name = "pyyaml", specifier = ">=6.0.1" },
     { name = "redis", specifier = ">=6.4.0" },

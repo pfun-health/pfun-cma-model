@@ -197,7 +197,7 @@ class CMASleepWakeModel:
         return self.to_dict()
 
     @property
-    def params(self) -> type[CMAModelParams]:
+    def params(self) -> CMAModelParams:
         """Return the current parameters as a CMAModelParams object."""
         params_dict = {k: self._params[k] for k in self.param_keys}
         return CMAModelParams(**params_dict)
@@ -272,7 +272,7 @@ class CMASleepWakeModel:
     @property
     def bounded_params(self) -> CMAModelParams:  # type: ignore
         """Return the current bounded parameters as a CMAModelParams object."""
-        return CMAModelParams(**self.bounded_params_as_dict)
+        return self.params.bounded
 
     @property
     def bounded_params_as_obj(self) -> CMAModelParams:  # type: ignore
@@ -298,6 +298,7 @@ class CMASleepWakeModel:
             params = params.model_dump()
         bounded_params = {k: v for k,
                           v in params.items() if k in self.bounded_param_keys}
+        bounded_params.update(params.get('bounded', {}))  # type: ignore
         # ! ensure the bounded parameters are within bounds
         new_params = self.bounds.update_values(bounded_params)
         self.params.bounded.update(**new_params)
@@ -333,7 +334,7 @@ class CMASleepWakeModel:
         if model_params is not None:
             if isinstance(model_params, CMAModelParams):
                 model_params: CMAModelParams | Dict = model_params.dict()  # type: ignore
-            model_params.update(kwds)
+            model_params.update(**kwds)
             kwds = dict(model_params)
         if inplace is False:
             new_inst = copy.copy(self)
@@ -351,12 +352,11 @@ class CMASleepWakeModel:
                     self.params['taug'] = array(  # type: ignore
                         self.params['taug'], dtype=float) * float(taug_new)
         #: update all given params
-        self.params.update(**{k: kwds[k]
-                           for k in kwds if k in self.param_keys})
+        self.params = self.params.update(**kwds)  # type: ignore
         #: Important next line:
         #: ! Keeps params within specified bounds (keep_feasible is handled by Bounds)
         #: ! Ensures that only bounded params are updated
-        self.params = self.update_bounded_params(self.params)
+        self.params = self.update_bounded_params(self.params)  # type: ignore
         if 'tM' in kwds:
             # clean up tM (handle string inputs, etc.)
             # ! caution with this (string injection is possible)

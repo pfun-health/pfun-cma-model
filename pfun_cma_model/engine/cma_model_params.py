@@ -145,26 +145,6 @@ class BoundedCMAModelParams(BaseModel):
                 raise KeyError(f"'{key}' not found in CMAModelParams")
         return self
 
-    def __getattr__(self, name):
-        # Forward attribute requests for bounded params to self.bounded
-        if name in self.bounded_param_keys:
-            return getattr(self, name)
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'")
-
-    def __setattr__(self, name, value):
-        # Forward attribute setting for bounded params to self.bounded
-        if name in self.bounded_param_keys:
-            setattr(self.bounded, name, value)
-        else:
-            # Handle unbounded parameters or raise an error
-            if hasattr(self, name):
-                super().__setattr__(name, value)
-            else:
-                raise AttributeError(
-                    f"'{type(self).__name__}' object has no attribute '{name}'")
-        return super().__setattr__(name, value)
-
     @field_serializer('taug')
     def serialize_ndarrays(self, value, *args):
         if isinstance(value, ndarray):
@@ -256,7 +236,7 @@ class CMAModelParams(BaseModel):
         """
         for key, value in kwargs.items():
             if hasattr(self.bounded, key):
-                setattr(self.bounded, key, value)
+                self.bounded[key] = value
             elif hasattr(self, key):
                 setattr(self, key, value)
             else:
