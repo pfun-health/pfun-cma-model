@@ -190,7 +190,11 @@ def get_sample_dataset(request: Request, nrows: int = -1):
         "Received request for sample dataset with nrows=%s", nrows)
     logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
     # Read sample dataset (keep as DataFrame)
+<<<<<<< HEAD
     dataset = DataFrame(read_sample_data(convert2json=False))
+=======
+    dataset = read_sample_data(convert2json=False)
+>>>>>>> c2ce7b3b (added docstrings to cma model params)
     if nrows_given is False:
         logging.debug("Returning full dataset as JSON.")
         # if nrows is not given, return the full dataset as JSON
@@ -417,3 +421,4 @@ async def fit_model_to_data(
 
 # Setup the Socket.IO session
 socketio_session = PFunSocketIOSession(app)
+
