@@ -269,7 +269,7 @@
 
     // Helper: trigger chart transition and websocket reconnect
     function triggerChartUpdateAndReconnect() {
-      connectSocketIO();
+      // connectSocketIO();
       // Onion fade out current points
       scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
       scatterChart.update();
