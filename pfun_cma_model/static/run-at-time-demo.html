@@ -221,13 +221,17 @@
       }
     }
 
+
+    // WebSocket connection setup
+    const wsUrl = '{{ ws_prefix }}://{{ host }}:{{ port }}/';
+
     function connectSocketIO() {
       if (socket && socket.connected) {
         socket.disconnect();
       }
       // Socket.IO expects the base URL, not the full ws path
       // We'll use the namespace/endpoint as the path
-      const wsUrl = 'ws://{{ host }}:{{ port }}/';
+
       socket = io(wsUrl, { transports: ['websocket'] });
 
       socket.on('connect', () => {
