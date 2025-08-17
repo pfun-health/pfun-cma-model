@@ -331,7 +331,7 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
     default_config.update(CMAModelParams().bounded.bounded_params_dict)
     context_dict = {
         "request": request, "params": default_config,
-        "host": os.getenv("WS_HOST", request.base_url.hostname), "port": os.getenv("WS_PORT", 443),
+        "host": os.getenv("WS_HOST", request.base_url.hostname), "port": os.getenv("WS_PORT", ''),
     }
     return templates.TemplateResponse(
         "run-at-time-demo.html", context=context_dict)
