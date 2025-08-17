@@ -332,8 +332,8 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
     ws_port = os.getenv("WS_PORT", 443)
     context_dict = {
         "request": request, "params": default_config,
-        "ws_prefix": 'wss' if request.url.scheme == 'https' else 'ws',
-        "host": os.getenv("WS_HOST", request.base_url.hostname), 
+        "ws_prefix": 'wss' if ws_port == 443 else 'ws',
+        "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,
     }
     return templates.TemplateResponse(
