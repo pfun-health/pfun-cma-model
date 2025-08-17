@@ -3,6 +3,7 @@ from pydantic import GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
 import numpy as np
 
+
 def numpy_array_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
     """
     Custom schema for serialization of numpy arrays in pydantic.
@@ -19,5 +20,6 @@ def numpy_array_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
             lambda x: x.tolist() if isinstance(x, np.ndarray) else x
         ),
     )
+
 
 NumpyArray = Annotated[Any, numpy_array_schema]

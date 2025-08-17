@@ -304,6 +304,7 @@ async def run_at_time_route(t0: float | int,
         )
         return error_response
 
+# -- WebSocket Routes --
 
 # Import websockets module to register events
 PFunSocketIOSession = importlib.import_module(
@@ -331,7 +332,8 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
     default_config.update(CMAModelParams().bounded.bounded_params_dict)
     ws_port = os.getenv("WS_PORT", 443)
     context_dict = {
-        "request": request, "params": default_config,
+        "request": request,
+        "params": default_config,
         "ws_prefix": 'wss' if ws_port == 443 else 'ws',
         "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,

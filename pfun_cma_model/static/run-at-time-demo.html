@@ -80,7 +80,11 @@
       {% for key, value in params.items() %}
       <div class="param-item">
         <label for="{{ key }}">{{ key }}:</label>
-        <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
+        <span class="tooltip">
+          <span class="tooltiptext">{{ value.description }}</span>
+        </span>
+        <input type="numeric" id="{{ key }}" name="{{ key }}" value="{{ value.value }}" step="{{ value.step }}"
+          min="{{ value.min }}" max="{{ value.max }}" required>
       </div>
       {% endfor %}
     </div>
@@ -269,7 +273,6 @@
 
     // Helper: trigger chart transition and websocket reconnect
     function triggerChartUpdateAndReconnect() {
-      // connectSocketIO();
       // Onion fade out current points
       scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
       scatterChart.update();
@@ -279,6 +282,7 @@
       }, fadeDuration);
     }
 
+    // Initial connection
     connectSocketIO();
 
     // Event-driven: update on parameter change

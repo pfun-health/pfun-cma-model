@@ -1,7 +1,17 @@
+from pydantic.functional_serializers import model_serializer
+from typing import Annotated
+from pydantic.functional_serializers import PlainSerializer
+import json
+from typing import Container
+from numbers import Real
+from pydantic import create_model
+from pydantic import Field
+import numpy as np
+from dataclasses import dataclass
 from pfun_cma_model.misc.types import NumpyArray
 import sys
 from pathlib import Path
-from typing import Annotated, Optional, Sequence, Dict, Tuple, ClassVar
+from typing import Optional, Sequence, Dict, Tuple, ClassVar
 from pydantic import BaseModel, field_serializer, ConfigDict
 from numpy import ndarray
 from tabulate import tabulate
@@ -24,6 +34,7 @@ BoundsType = type[bounds.BoundsType]
 _LB_DEFAULTS = [-12.0, 0.5, 0.1, 0.0, 0.0, -3.0]
 _MID_DEFAULTS = [0.0, 1.0, 1.0, 0.05, 0.0, 0.0]
 _UB_DEFAULTS = [14.0, 3.0, 3.0, 1.0, 2.0, 3.0]
+_STEP_DEFAULTS = [0.05, 0.01, 0.01, 0.01, 0.01, 0.01]
 _BOUNDED_PARAM_KEYS_DEFAULTS = (
     'd', 'taup', 'taug', 'B', 'Cm', 'toff'
 )
@@ -79,29 +90,128 @@ _DEFAULT_BOUNDS = Bounds(
 )
 
 
-class BoundedCMAModelParams(BaseModel):
-    """
-    Encapsulates bounded parameters and their metadata for the CMA model.
+class BoundedCMAModelParam(Real, BaseModel):
+    """Encapsulates a bounded parameter with metadata for the CMA model."""
+
+    """Metadata for the bounded parameter.
+    Attributes:
+        index (int): Index of the parameter.
+        name (str): Name of the parameter.
+        value (float): Value of the parameter.
+        default (float): Default value of the parameter.
+        description (str): Description of the parameter.
+        qualitative_descriptor (str): Qualitative description based on the value.
+        serr (float): Standardized error value.
+        step (float): Step size for the parameter.
+        min (float): Minimum bound for the parameter.
+        max (float): Maximum bound for the parameter.
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
+    index: int = -1
+    name: str = ''
+    value: float | Container[float] = 0.0
+    default: float = 0.0
+    description: str = ''
+    qualitative_descriptor: str = ''
+    serr: float = np.nan
+    step: float = 0.01
+    min: float = 0.0
+    max: float = 1.0
 
-    # Bounded parameters
-    d: float = 0.0
-    taup: float = 1.0
-    taug: float | NumpyArray = 1.0
-    B: float = 0.05
-    Cm: float = 0.0
-    toff: float = 0.0
+    @model_serializer()
+    def serialize_model(self):
+        return self.__json__()
 
-    # Metadata (ClassVar for constants, private for instance-specific)
-    lb: ClassVar[Sequence[float]] = _LB_DEFAULTS
-    ub: ClassVar[Sequence[float]] = _UB_DEFAULTS
-    bounded_param_keys: ClassVar[Tuple[str, ...]
-                                 ] = _BOUNDED_PARAM_KEYS_DEFAULTS
-    midbound: ClassVar[Sequence[float]] = _MID_DEFAULTS
-    bounded_param_descriptions: ClassVar[Tuple[str, ...]
-                                         ] = _BOUNDED_PARAM_DESCRIPTIONS
-    bounds: ClassVar[BoundsType] = _DEFAULT_BOUNDS
+    def __repr__(self):
+        return f"{self.__class__.__name__}({vars(self)})"
+
+    def __json__(self):
+        return vars(self)
+
+    def __float__(self):
+        return float(self.value)
+
+    def __abs__(self):
+        return abs(self.value)
+
+    def __add__(self, other):
+        return float(self) + other
+
+    def __ceil__(self):
+        import math
+        return math.ceil(self.value)
+
+    def __eq__(self, other):
+        return float(self) == other
+
+    def __floor__(self):
+        import math
+        return math.floor(self.value)
+
+    def __floordiv__(self, other):
+        return float(self) // other
+
+    def __le__(self, other):
+        return float(self) <= other
+
+    def __lt__(self, other):
+        return float(self) < other
+
+    def __mod__(self, other):
+        return float(self) % other
+
+    def __mul__(self, other):
+        return float(self) * other
+
+    def __neg__(self):
+        return -float(self)
+
+    def __pos__(self):
+        return +float(self)
+
+    def __pow__(self, other):
+        return float(self) ** other
+
+    def __radd__(self, other):
+        return other + float(self)
+
+    def __rfloordiv__(self, other):
+        return other // float(self)
+
+    def __rmod__(self, other):
+        return other % float(self)
+
+    def __rmul__(self, other):
+        return other * float(self)
+
+    def __round__(self, ndigits=None):
+        return round(self.value, ndigits) if ndigits is not None else round(self.value)
+
+    def __rpow__(self, other):
+        return other ** float(self)
+
+    def __rtruediv__(self, other):
+        return other / float(self)
+
+    def __truediv__(self, other):
+        return float(self) / other
+
+    def __trunc__(self):
+        import math
+        return math.trunc(self.value)
+
+
+
+# alias for cma model param
+BoundedModelParam = BoundedCMAModelParam
+
+
+class BaseModelParams(BaseModel):
+    """
+    Base class for model parameters, providing common functionality.
+    This class is not intended to be instantiated directly.
+    """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def get(self, key: str, default=None):
         """
@@ -119,7 +229,7 @@ class BoundedCMAModelParams(BaseModel):
             return getattr(self, key)
         if hasattr(self, key):
             return getattr(self, key)
-        raise KeyError(f"'{key}' not found in CMAModelParams")
+        raise KeyError(f"'{key}' not found in {self.__class__.__name__}")
 
     def __setitem__(self, key: str, value):
         """
@@ -130,7 +240,7 @@ class BoundedCMAModelParams(BaseModel):
         elif hasattr(self, key):
             setattr(self, key, value)
         else:
-            raise KeyError(f"'{key}' not found in CMAModelParams")
+            raise KeyError(f"'{key}' not found in {self.__class__.__name__}")
 
     def update(self, **kwargs):
         """
@@ -142,10 +252,61 @@ class BoundedCMAModelParams(BaseModel):
             elif hasattr(self, key):
                 setattr(self, key, value)
             else:
-                raise KeyError(f"'{key}' not found in CMAModelParams")
+                raise KeyError(
+                    f"'{key}' not found in {self.__class__.__name__}")
         return self
 
-    @field_serializer('taug')
+
+def generate_bounded_params_fields() -> dict[str, Field]:
+    """
+    Generate a set of fields for the bounded parameters 
+    """
+    fields = {}
+    for ix, name in enumerate(_BOUNDED_PARAM_KEYS_DEFAULTS):
+        new_field = BoundedCMAModelParam(
+            value=_MID_DEFAULTS[ix],
+            index=ix,
+            name=name,
+            default=_MID_DEFAULTS[ix],
+            description=_BOUNDED_PARAM_DESCRIPTIONS[ix],
+            min=_LB_DEFAULTS[ix],
+            max=_UB_DEFAULTS[ix],
+            step=_STEP_DEFAULTS[ix]
+        )
+        fields.update({name: new_field})
+    return fields
+
+
+ParamFields = generate_bounded_params_fields()
+BoundedParamSerializer = PlainSerializer(
+    lambda p: p.__json__(),
+    when_used='json'
+)
+BoundedCMAModelParamsBase = create_model(
+    'BoundedCMAModelParamsBase',
+    __annotations__={k: Annotated[BoundedCMAModelParam,
+                                  BoundedParamSerializer] for k in ParamFields},
+    __config__=ConfigDict(arbitrary_types_allowed=True),
+    **ParamFields
+)
+
+
+class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseModel):
+    """
+    Encapsulates bounded parameters and their metadata for the CMA model.
+    """
+    # Metadata (ClassVar for constants, private for instance-specific)
+    lb: ClassVar[Sequence[float]] = _LB_DEFAULTS
+    ub: ClassVar[Sequence[float]] = _UB_DEFAULTS
+    step: ClassVar[Sequence[float]] = _STEP_DEFAULTS
+    bounded_param_keys: ClassVar[Tuple[str, ...]
+                                 ] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    midbound: ClassVar[Sequence[float]] = _MID_DEFAULTS
+    bounded_param_descriptions: ClassVar[Tuple[str, ...]
+                                         ] = _BOUNDED_PARAM_DESCRIPTIONS
+    bounds: ClassVar[BoundsType] = _DEFAULT_BOUNDS
+
+    @field_serializer('taug', check_fields=False)
     def serialize_ndarrays(self, value, *args):
         if isinstance(value, ndarray):
             return value.tolist()
@@ -154,6 +315,24 @@ class BoundedCMAModelParams(BaseModel):
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
         return {key: getattr(self, key) for key in self.bounded_param_keys}
+
+    def get_bounded_param(self, key: str) -> BoundedModelParam:
+        """
+        Get a bounded parameter by key.
+        Returns a BoundedCMAModelParam instance with metadata.
+        """
+        if key not in self.bounded_param_keys:
+            raise KeyError(f"'{key}' is not a bounded parameter.")
+        value = getattr(self, key)
+        ix = self.bounded_param_keys.index(key)
+        return BoundedModelParam(
+            name=key,
+            value=value,
+            description=self.bounded_param_descriptions[ix],
+            step=self.step[ix],
+            min=self.bounds.lb[ix],
+            max=self.bounds.ub[ix]
+        )
 
     def calc_serr(self, param_key: str):
         x = getattr(self, param_key)
