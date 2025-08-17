@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from pfun_cma_model.engine.cma_model_params import BoundedCMAModelParam
 from pfun_cma_model.engine.cma_model_params import CMAModelParams, BoundedCMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
@@ -262,10 +263,13 @@ async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
 async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> str:
     """calculate the glucose signal for the given timeframe"""
     model = await initialize_model()
-    logging.debug(
-        "Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    model.update(config)
-    logging.debug("Model parameters updated: %s", model.params)
+    logger.debug(
+        "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
+    bounded_params = {k: BoundedCMAModelParam(value=v, name=k).model_dump() for k,
+                      v in config.items() if k in model.bounded_param_keys}
+    model.update(model.update_bounded_params(bounded_params))
+    logger.debug(
+        "(run_at_time_func) Model parameters updated: %s", model.params)
     t = model.new_tvector(t0, t1, n)
     df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
@@ -326,10 +330,13 @@ async def health_check_run_at_time():
 async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     default_config = {
-        "eps": 0.00,  # set noise to zero for this demo
+        "eps": BoundedCMAModelParam(
+            # set noise to zero for this demo
+            name="eps", value=1e-18, min=0.0, max=1e-16).model_dump(),
     }
     # load default bounded parameters
     default_config.update(CMAModelParams().bounded.bounded_params_dict)
+    load_environment_variables()
     ws_port = os.getenv("WS_PORT", 443)
     context_dict = {
         "request": request,
@@ -338,6 +345,7 @@ async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | in
         "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,
     }
+    logger.debug("Demo context: %s", context_dict)
     return templates.TemplateResponse(
         "run-at-time-demo.html", context=context_dict)
 

@@ -1,3 +1,6 @@
+from typing import Any
+from pydantic import WrapSerializer
+from pydantic import WithJsonSchema
 from pydantic.functional_serializers import model_serializer
 from typing import Annotated
 from pydantic.functional_serializers import PlainSerializer
@@ -113,20 +116,20 @@ class BoundedCMAModelParam(Real, BaseModel):
     default: float = 0.0
     description: str = ''
     qualitative_descriptor: str = ''
-    serr: float = np.nan
+    serr: float = -1
     step: float = 0.01
     min: float = 0.0
     max: float = 1.0
 
-    @model_serializer()
-    def serialize_model(self):
-        return self.__json__()
+    @field_serializer('index', 'value', 'name', 'description', 'min', 'max', 'step', when_used='json')
+    def serialize_value(self, v: float | int, _info):
+        return v
+    
+    def __json__(self):
+        return vars(self)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({vars(self)})"
-
-    def __json__(self):
-        return vars(self)
 
     def __float__(self):
         return float(self.value)
@@ -201,11 +204,6 @@ class BoundedCMAModelParam(Real, BaseModel):
         return math.trunc(self.value)
 
 
-
-# alias for cma model param
-BoundedModelParam = BoundedCMAModelParam
-
-
 class BaseModelParams(BaseModel):
     """
     Base class for model parameters, providing common functionality.
@@ -273,25 +271,26 @@ def generate_bounded_params_fields() -> dict[str, Field]:
             max=_UB_DEFAULTS[ix],
             step=_STEP_DEFAULTS[ix]
         )
+        Field()
         fields.update({name: new_field})
     return fields
 
 
+def serialize_param(value: BoundedCMAModelParam, handler, info) -> str:
+    return value.model_dump_json()
+
+
 ParamFields = generate_bounded_params_fields()
-BoundedParamSerializer = PlainSerializer(
-    lambda p: p.__json__(),
-    when_used='json'
-)
 BoundedCMAModelParamsBase = create_model(
     'BoundedCMAModelParamsBase',
-    __annotations__={k: Annotated[BoundedCMAModelParam,
-                                  BoundedParamSerializer] for k in ParamFields},
+    __annotations__={k: Annotated[dict, WrapSerializer(
+        serialize_param)] for k in ParamFields},
     __config__=ConfigDict(arbitrary_types_allowed=True),
     **ParamFields
 )
 
 
-class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseModel):
+class BoundedCMAModelParams(BoundedCMAModelParamsBase, BaseModelParams, BaseModel):
     """
     Encapsulates bounded parameters and their metadata for the CMA model.
     """
@@ -306,6 +305,10 @@ class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseMode
                                          ] = _BOUNDED_PARAM_DESCRIPTIONS
     bounds: ClassVar[BoundsType] = _DEFAULT_BOUNDS
 
+    @model_serializer()
+    def serialize_model(self):
+        pass  # TODO
+
     @field_serializer('taug', check_fields=False)
     def serialize_ndarrays(self, value, *args):
         if isinstance(value, ndarray):
@@ -314,9 +317,9 @@ class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseMode
 
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
-        return {key: getattr(self, key) for key in self.bounded_param_keys}
+        return {key: getattr(self, key).__json__() for key in self.bounded_param_keys}
 
-    def get_bounded_param(self, key: str) -> BoundedModelParam:
+    def get_bounded_param(self, key: str) -> BoundedCMAModelParam:
         """
         Get a bounded parameter by key.
         Returns a BoundedCMAModelParam instance with metadata.
@@ -325,7 +328,7 @@ class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseMode
             raise KeyError(f"'{key}' is not a bounded parameter.")
         value = getattr(self, key)
         ix = self.bounded_param_keys.index(key)
-        return BoundedModelParam(
+        return BoundedCMAModelParam(
             name=key,
             value=value,
             description=self.bounded_param_descriptions[ix],
@@ -364,7 +367,7 @@ class BoundedCMAModelParams(BaseModelParams, BoundedCMAModelParamsBase, BaseMode
         return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
 
 
-class CMAModelParams(BaseModel):
+class CMAModelParams(BaseModelParams, BaseModel):
     """
     Represents the parameters for a CMA model, including bounded and unbounded parameters.
     """

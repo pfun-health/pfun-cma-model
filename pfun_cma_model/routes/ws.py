@@ -17,15 +17,15 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
     """
 
     def on_connect(self, sid: str, environ: Mapping[str, str]):
-        logging.debug(f"SocketIO client connected: {sid}")
+        logger.debug(f"SocketIO client connected: {sid}")
         super().on_connect(sid, environ)
 
     async def on_message(self, sid, data):
-        logging.debug(f"Received message from {sid}: {data}")
+        logger.debug(f"Received message from {sid}: {data}")
         await super().on_message(sid, data)
 
     def on_disconnect(self, sid):
-        logging.debug(f"SocketIO client disconnected: {sid}")
+        logger.debug(f"SocketIO client disconnected: {sid}")
         super().on_disconnect(sid)
 
     async def on_run(self, sid, data):
@@ -37,12 +37,12 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
             t1 = run_args.get("t1", 100)
             n = run_args.get("n", 100)
             config = run_args.get("config", {})
-            logging.debug(
+            logger.debug(
                 f"Received run event: t0={t0}, t1={t1}, n={n}, config={config}")
             output = await run_at_time_func(t0, t1, n, **config)
             # Always emit as JSON string
             await self.sio.emit("message", output, to=sid)
-            logging.debug(f"Sent output to {sid}")
+            logger.debug(f"Sent output to {sid}")
         except Exception as e:
-            logging.error(f"Error in handle_run: {e}", exc_info=True)
+            logger.error(f"Error in handle_run: {e}", exc_info=True)
             await self.sio.emit("message", json.dumps({"error": str(e)}), to=sid)

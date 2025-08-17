@@ -300,7 +300,8 @@ class CMASleepWakeModel:
                           v in params.items() if k in self.bounded_param_keys}
         bounded_params.update(params.get('bounded', {}))  # type: ignore
         # ! ensure the bounded parameters are within bounds
-        new_params = self.bounds.update_values(bounded_params)
+        new_params = self.bounds.update_values({
+            k: float(v.get('value')) for k, v in bounded_params.items()})
         self.params.bounded.update(**new_params)
         return self.params
 

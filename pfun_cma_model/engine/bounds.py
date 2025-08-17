@@ -205,13 +205,13 @@ class Bounds:
             bounded_keys = range(len(arr_values))
         # Build a params dict for BoundedCMAModelParams
         params_dict = {k: v for k, v in zip(bounded_keys, arr_values)}
-        bounded_obj = BoundedCMAModelParams(**params_dict)
-        trimmed = bounded_obj.bounded_params_dict
+        # bounded_obj = BoundedCMAModelParams(**params_dict)
+        # trimmed = bounded_obj.bounded_params_dict
         # Return in same format as input
         if keys is not None:
-            return {k: trimmed[k] for k in keys}
+            return {k: params_dict[k] for k in keys}
         else:
-            return np.array([trimmed[k] for k in bounded_keys], dtype=float)
+            return np.array([params_dict[k] for k in bounded_keys], dtype=float)
 
     def residual(self, x):
         """Calculate the residual (slack) between the input and the bounds

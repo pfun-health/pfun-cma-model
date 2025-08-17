@@ -23,3 +23,19 @@ def numpy_array_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
 
 
 NumpyArray = Annotated[Any, numpy_array_schema]
+
+
+def bounded_cma_model_param_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
+    return core_schema.json_or_python_schema(
+        json_schema=core_schema.float_schema(),
+        python_schema=core_schema.union_schema([
+            core_schema.is_instance_schema(np.ndarray),
+            core_schema.float_schema(),
+        ]),
+        serialization=core_schema.plain_serializer_function_schema(
+            lambda x: x.__json__()
+        ),
+    )
+
+
+BoundedModelParamAnnotation = Annotated[Any, bounded_cma_model_param_schema]
