@@ -1,12 +1,17 @@
 """
 PFun CMA Model API Backend Routes.
 """
+import random
+import secrets
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+import base64
+import numpy as np
+from collections.abc import Awaitable
 import urllib.parse as urlparse
-from typing import Optional
+from typing import Callable, Optional
 from pydantic import BaseModel
 from fastapi.routing import Mount
 import hashlib
-from pfun_cma_model.misc.middleware import content_security_policy
 from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
@@ -69,6 +74,8 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 # -- Setup middleware
 
+# Ensure all requests are upgraded to https
+# app.add_middleware(HTTPSRedirectMiddleware)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -78,6 +85,7 @@ allow_all_origins = {
         "127.0.0.1",
         "*.robcapps.com",
         "pfun-cma-model-446025415469.*.run.app",
+        "pfun-cma-model.local.pfun.run",
         "*.pfun.run",
         "*.pfun.one",
         "*.pfun.me",
@@ -111,11 +119,10 @@ def hashit256(data: str) -> str:
 
 
 @app.middleware("http")
-async def set_content_security_policy(request, call_next):
+async def set_content_security_policy(request: Request, call_next: Callable[[Request], Awaitable[Response]]
+                                      ) -> Response:
     cs_policies = [
-        "default-src 'self'",
-        "style-src 'self'",
-        "script-src 'self'",
+        "default-src 'none'",
     ]
     logging.debug("Setting Content-Security-Policy header...")
     # add CSP for static files
@@ -130,12 +137,17 @@ async def set_content_security_policy(request, call_next):
             # compute the sha256 hash digest for security
             h256 = hashit256(subpath.read_text())
             # store for client-side validation
+            fullurl = request.base_url.scheme + "://" + urlparse.urljoin(
+                request.base_url.hostname, subpath.name)  # type: ignore
+            nonce = secrets.token_urlsafe(random.randint(32, 64))
+            # store the nonce and hash in the app.state.csp_hashes dictionary
             app.state.csp_hashes[subpath.name] = {
-                "url": urlparse.urljoin(request.base_url.hostname, subpath.name),
-                "integrity": h256
+                "url": fullurl,
+                "integrity": h256,
+                "nonce": nonce
             }
             # ...also append to the CS policy header value
-            cs_policies.append(cs_key + f" '{h256}'")
+            cs_policies.append(cs_key + f" 'nonce-{nonce}'")
     response = await call_next(request)
     response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
     logging.debug("Content-Security-Policy header set: '' %s ''",
@@ -151,12 +163,17 @@ def health_check():
 
 
 @app.get("/")
-def root():
+def root(request: Request):
     """Root endpoint to display the homepage."""
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse("index.html", {"request": {}, "message": f"Accessed at: {ts_msg}"})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "year": datetime.now().year,
+        "message": f"Accessed at: {ts_msg}",
+        "csp_hashes": app.state.csp_hashes
+    })
 
 
 # -- Model Parameters Endpoints --

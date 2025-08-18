@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Run-at-Time WebSocket Example</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='run-at-time.css') }}" integrity="{{ csp_hashes['run-at-time.css'] }}"
-    crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="{{ url_for('static', path='run-at-time.css') }}"
+    nonce="{{ csp_hashes['run-at-time.css']['nonce'] }}" crossorigin="anonymous" referrerpolicy="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
@@ -62,13 +62,11 @@
   <div id="messages"></div>
 
   <!-- Chart.js CDN -->
-  <script src="{{ }}"
-    integrity="{{}}"
+  <script src="{{ csp_hashes['chartjs']['url'] }}" integrity="{{ csp_hashes['chartjs']['integrity'] }}"
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <!-- Socket.IO CDN -->
   <!-- Note: Ensure you have the correct version matching your server -->
-  <script src="{{}}"
-    integrity="{{}}"
+  <script src="{{ csp_hashes['socketio']['url'] }}" integrity="{{  csp_hashes['socketio']['integrity'] }}"
     crossorigin="anonymous"></script>
 
   <script src="{{ url_for('static', path='run-at-time.js') }}" integrity="{{ csp_hashes['run-at-time.js'] }}"

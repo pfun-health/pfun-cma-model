@@ -4,12 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" integrity="{{ csp_hashes['style.css'] }}"
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-    <title>PFun Glucose -- Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='run-at-time.css') }}"
+        nonce="{{ csp_hashes['run-at-time.css']['nonce'] }}">
+    <title>PFun Glucose</title>
 </head>
 
 <body>
+    <header>
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li><a href="#">Demo Home</a></li>
+                <li><a href="/demo/run-at-time">Interactive Demo</a></li>
+                <li><a href="/docs">API Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
     <h1>PFun Glucose Web API &mdash; Demo</h1>
 
     <p><em>Please note that the API is currently under active development</em></p>
@@ -26,6 +35,13 @@
         <li><a href="/redoc">(ReDoc) Readable API Documentation</a></li>
         <li><a href="/openapi.json">(JSON) OpenAPI Schema</a></li>
     </ul>
+    <hr />
+    <footer>
+        <div>
+            <p><small>{{ message }}</small></p>
+            <p>&copy; {{ year }} PFun Digital Health. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 
 </html>
