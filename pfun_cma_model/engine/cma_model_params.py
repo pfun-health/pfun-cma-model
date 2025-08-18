@@ -144,31 +144,29 @@ class CMAModelParams(BaseModel):
     """
     Random noise scale ("epsilon"). Defaults to 1e-18.
     """
-    lb: Optional[float | Sequence[float]] = _LB_DEFAULTS
+    lb: ClassVar[float | Sequence[float]] = _LB_DEFAULTS
     """
     Lower bounds for bounded parameters. Defaults to _LB_DEFAULTS.
     """
-    ub: Optional[float | Sequence[float]] = _UB_DEFAULTS
+    ub: ClassVar[float | Sequence[float]] = _UB_DEFAULTS
     """
     Upper bounds for bounded parameters. Defaults to _UB_DEFAULTS.
     """
-    bounded_param_keys: Optional[Iterable[str] | Sequence[str]
+    bounded_param_keys: ClassVar[Iterable[str] | Sequence[str]
                                  | Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
     """
     Keys for bounded parameters. Defaults to _BOUNDED_PARAM_KEYS_DEFAULTS.
     """
-    midbound: Optional[Sequence[float]] = _MID_DEFAULTS
+    midbound: ClassVar[Sequence[float]] = _MID_DEFAULTS
     """
     Midpoint values for bounded parameters. Defaults to _MID_DEFAULTS.
     """
-    bounded_param_descriptions: Optional[Sequence[str]
-                                         | Tuple[str]] = _BOUNDED_PARAM_DESCRIPTIONS
+    bounded_param_descriptions: ClassVar[Sequence[str] | Tuple[str]] = \
+        _BOUNDED_PARAM_DESCRIPTIONS
     """
     Descriptions for bounded parameters. Defaults to _BOUNDED_PARAM_DESCRIPTIONS.
     """
-    bounds: Optional[
-        Annotated[Dict[str, Sequence[float]], BoundsType]
-    ] = _DEFAULT_BOUNDS
+    bounds: ClassVar[Annotated[Any, BoundsType]] = _DEFAULT_BOUNDS
     """
     Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
     """
@@ -191,7 +189,7 @@ class CMAModelParams(BaseModel):
         if key not in self.bounded_param_keys:
             raise KeyError(f"'{key}' is not a bounded parameter.")
         value = getattr(self, key)
-        ix = self.bounded_param_keys.index(key)
+        ix = list(self.bounded_param_keys).index(key)
         return dict(
             name=key,
             value=value,

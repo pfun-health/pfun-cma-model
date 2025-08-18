@@ -4,19 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pfun_cma_model API Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" integrity="{{ csp_hashes['style.css'] }}"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <title>PFun Glucose -- Demo</title>
 </head>
 
 <body>
-    <h1>Welcome to the pfun_cma_model API Demo.</h1>
-    <p>This API provides endpoints to run the PFun CMA glucose model.</p>
-    <p>To get started, you can:</p>
+    <h1>PFun Glucose Web API &mdash; Demo</h1>
+
+    <p><em>Please note that the API is currently under active development</em></p>
+    <h2>Endpoints:</h2>
     <ul>
-<<<<<<< HEAD
-        <li>View the interactive demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
-=======
-        <li>View the interactive websocket demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
->>>>>>> c2ce7b3b (added docstrings to cma model params)
+        <li>View the interactive glucose modeling demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
         <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
         <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
     </ul>
