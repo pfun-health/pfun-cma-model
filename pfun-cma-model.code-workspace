@@ -20,5 +20,6 @@
 			"pfun_path_helper/.github/workflows/main.yml"
 		],
 		"nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix",
+		"postman.settings.dotenv-detection-notification-visibility": false,
 	}
 }
