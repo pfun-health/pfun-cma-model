@@ -1,8 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
-from pfun_cma_model.engine.cma_model_params import BoundedCMAModelParam
-from pfun_cma_model.engine.cma_model_params import CMAModelParams, BoundedCMAModelParams
+from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
 from pfun_cma_model.data import read_sample_data
@@ -134,8 +133,7 @@ def default_params():
 
 @app.post("/params/describe")
 def describe_params(
-    params: BoundedCMAModelParams | Mapping[str, Any] = BoundedCMAModelParams(
-    ).bounded_params_dict
+    params: CMAModelParams | Mapping[str, Any]
 ):
     """
     Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
@@ -145,11 +143,12 @@ def describe_params(
         dict: Dictionary of parameter descriptions and qualitative descriptors.
     """
     if params is not None:
-        params = BoundedCMAModelParams(**params)  # type: ignore
+        params = CMAModelParams(**params)  # type: ignore
     else:
-        params = BoundedCMAModelParams()
+        params = CMAModelParams()
+    bounded_keys = list(params.bounded_param_keys)
     result = {}
-    for key in params.bounded_param_keys:  # type: ignore
+    for key in bounded_keys:
         try:
             desc = params.describe(key)
             qual = params.generate_qualitative_descriptor(key)
@@ -162,6 +161,33 @@ def describe_params(
             result[key] = {"error": str(e)}
     return Response(
         content=json.dumps(result),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
+@app.post("/params/tabulate")
+def tabulate_params(
+    params: CMAModelParams | Mapping[str, Any]
+):
+    """
+    Generate a markdown table of a given (single) or set of parameters using CMAModelParams.generate_markdown_table.
+    Args:
+        config (Optional[BoundedCMAModelParams | Mapping]): The configuration parameters to describe.
+    Returns:
+        dict: Dictionary of parameter descriptions and qualitative descriptors.
+    """
+    if params is not None:
+        params = CMAModelParams(**params)  # type: ignore
+    else:
+        params = CMAModelParams()
+    result = {}
+    try:
+        result = params.generate_markdown_table()
+    except Exception as e:
+        result = json.dumps({"error": str(e)})
+    return Response(
+        content=result,
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
@@ -190,11 +216,7 @@ def get_sample_dataset(request: Request, nrows: int = -1):
         "Received request for sample dataset with nrows=%s", nrows)
     logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
     # Read sample dataset (keep as DataFrame)
-<<<<<<< HEAD
     dataset = DataFrame(read_sample_data(convert2json=False))
-=======
-    dataset = read_sample_data(convert2json=False)
->>>>>>> c2ce7b3b (added docstrings to cma model params)
     if nrows_given is False:
         logging.debug("Returning full dataset as JSON.")
         # if nrows is not given, return the full dataset as JSON
@@ -272,11 +294,13 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     model = await initialize_model()
     logger.debug(
         "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    bounded_params = {k: BoundedCMAModelParam(value=v, name=k).model_dump() for k,
-                      v in config.items() if k in model.bounded_param_keys}
-    model.update(model.update_bounded_params(bounded_params))
+    bounded_params = {k: v for k,
+                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+    model.update(bounded_params)
     logger.debug(
         "(run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(
+        f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
     t = model.new_tvector(t0, t1, n)
     df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
@@ -342,7 +366,7 @@ async def demo_run_at_time(request: Request):
         _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
         _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
     )
-    default_config = dict(cma_params.bounded.bounded_params_dict)
+    default_config = dict(cma_params.bounded_params_dict)
     # formatted parameters to appear in the rendered template
     params = {}
     for ix, pk in enumerate(default_config):
@@ -421,4 +445,3 @@ async def fit_model_to_data(
 
 # Setup the Socket.IO session
 socketio_session = PFunSocketIOSession(app)
-

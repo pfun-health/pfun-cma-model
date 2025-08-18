@@ -7,6 +7,7 @@ from numpy import ndarray
 from tabulate import tabulate
 import importlib
 from pfun_path_helper import append_path
+from typing import Annotated, Iterable, Any
 append_path(Path(__file__).parent.parent.parent)
 
 # import custom ndarray schema
@@ -151,12 +152,12 @@ class CMAModelParams(BaseModel):
     """
     Upper bounds for bounded parameters. Defaults to _UB_DEFAULTS.
     """
-    bounded_param_keys: Optional[Sequence[str] |
-                                 Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    bounded_param_keys: Optional[Iterable[str] | Sequence[str]
+                                 | Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
     """
     Keys for bounded parameters. Defaults to _BOUNDED_PARAM_KEYS_DEFAULTS.
     """
-    midbound: Optional[float | Sequence[float]] = _MID_DEFAULTS
+    midbound: Optional[Sequence[float]] = _MID_DEFAULTS
     """
     Midpoint values for bounded parameters. Defaults to _MID_DEFAULTS.
     """
@@ -165,15 +166,12 @@ class CMAModelParams(BaseModel):
     """
     Descriptions for bounded parameters. Defaults to _BOUNDED_PARAM_DESCRIPTIONS.
     """
-    bounds: Optional[Annotated[Dict[str, Sequence[float]],
-                               BoundsType()]] = _DEFAULT_BOUNDS
+    bounds: Optional[
+        Annotated[Dict[str, Sequence[float]], BoundsType]
+    ] = _DEFAULT_BOUNDS
     """
     Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
     """
-
-    @model_serializer()
-    def serialize_model(self):
-        pass  # TODO
 
     @field_serializer('taug', check_fields=False)
     def serialize_ndarrays(self, value, *args):
@@ -183,9 +181,9 @@ class CMAModelParams(BaseModel):
 
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
-        return {key: getattr(self, key).__json__() for key in self.bounded_param_keys}
+        return {key: getattr(self, key) for key in self.bounded_param_keys}
 
-    def get_bounded_param(self, key: str) -> BoundedCMAModelParam:
+    def get_bounded_param(self, key: str) -> dict[str, Any]:
         """
         Get a bounded parameter by key.
         Returns a BoundedCMAModelParam instance with metadata.
@@ -194,11 +192,11 @@ class CMAModelParams(BaseModel):
             raise KeyError(f"'{key}' is not a bounded parameter.")
         value = getattr(self, key)
         ix = self.bounded_param_keys.index(key)
-        return BoundedCMAModelParam(
+        return dict(
             name=key,
             value=value,
             description=self.bounded_param_descriptions[ix],
-            step=self.step[ix],
+            step=_STEP_DEFAULTS[ix],
             min=self.bounds.lb[ix],
             max=self.bounds.ub[ix]
         )
@@ -231,102 +229,3 @@ class CMAModelParams(BaseModel):
                 self.describe(param_key)
             ])
         return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
-
-
-class CMAModelParams(BaseModelParams, BaseModel):
-    """
-    Represents the parameters for a CMA model, including bounded and unbounded parameters.
-    """
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    # Unbounded parameters
-    t: Optional[float | NumpyArray] = None
-    N: int | None = 24
-    tM: Sequence[float] | float = (7.0, 11.0, 17.5)
-    seed: Optional[int | float] = None
-    eps: Optional[float] = 1e-18
-
-    # Bounded parameters (delegated)
-    bounded: BoundedCMAModelParams = BoundedCMAModelParams()
-
-    def get(self, key: str, default=None):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            return getattr(self.bounded, key)
-        return getattr(self, key, default)
-
-    def __getitem__(self, key: str):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            return getattr(self.bounded, key)
-        if hasattr(self, key):
-            return getattr(self, key)
-        raise KeyError(f"'{key}' not found in CMAModelParams")
-
-    def __setitem__(self, key: str, value):
-        """
-        Set a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            setattr(self.bounded, key, value)
-        elif hasattr(self, key):
-            setattr(self, key, value)
-        else:
-            raise KeyError(f"'{key}' not found in CMAModelParams")
-
-    def update(self, **kwargs):
-        """
-        Update parameters with keyword arguments, including bounded parameters.
-        """
-        for key, value in kwargs.items():
-            if hasattr(self.bounded, key):
-                self.bounded[key] = value
-            elif hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                raise KeyError(f"'{key}' not found in CMAModelParams")
-        return self
-
-    def __getattr__(self, name):
-        # Forward attribute requests for bounded params to self.bounded
-        if name in self.bounded.bounded_param_keys:
-            return getattr(self.bounded, name)
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'")
-
-    def __setattr__(self, name, value):
-        # Forward attribute setting for bounded params to self.bounded
-        if name in self.bounded.bounded_param_keys:
-            setattr(self.bounded, name, value)
-        else:
-            # Handle unbounded parameters or raise an error
-            if hasattr(self, name):
-                super().__setattr__(name, value)
-            else:
-                raise AttributeError(
-                    f"'{type(self).__name__}' object has no attribute '{name}'")
-        return super().__setattr__(name, value)
-
-    @property
-    def bounds(self) -> BoundsType:
-        return self.bounded.bounds
-
-    @property
-    def bounded_params_dict(self) -> Dict[str, float]:
-        return self.bounded.bounded_params_dict
-
-    def calc_serr(self, param_key: str):
-        return self.bounded.calc_serr(param_key)
-
-    def generate_qualitative_descriptor(self, param_key: str):
-        return self.bounded.generate_qualitative_descriptor(param_key)
-
-    def describe(self, param_key: str):
-        return self.bounded.describe(param_key)
-
-    def generate_markdown_table(self):
-        return self.bounded.generate_markdown_table()

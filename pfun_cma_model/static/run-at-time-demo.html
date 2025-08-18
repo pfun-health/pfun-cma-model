@@ -52,7 +52,6 @@
     <canvas id="scatterPlot" style="width: 100%; height: 400px;"></canvas>
   </div>
   <form id="runForm">
-<<<<<<< HEAD
 
     <div class="form-row">
       <label for="t0" class="tooltip">t0 (0.0, 24.0):
@@ -67,24 +66,6 @@
       </label>
       <input class="model-params" type="number" step="0.5" id="t1" name="t1" max="24.0" min="0" value="20" required>
     </div>
-=======
-    <label for="t0">t0 (0.0, 24.0):</label>
-    <p>Simulation start time (decimal hours).</p>
-    <input type="number" step="0.2" id="t0" name="t0" max="23.999" min="0" value="4" required>
-    <br>
-
-    <label for="t1">t1 (0–23.999):</label>
-    <p>Simulation end time (decimal hours).</p>
-    <p>Note: t1 must be greater than t0.</p>
-    <input type="number" step="0.2" id="t1" name="t1" max="23.999" min="0" value="20" required>
-    <br>
-
-    <label for="N">N (1–10000):</label>
-    <p>Number of points to simulate.</p>
-    <p>Note: N must be a positive integer.</p>
-    <input type="number" id="N" name="N" min="1" max="10000" value="100" required>
-    <br>
->>>>>>> c2ce7b3b (added docstrings to cma model params)
 
     <div class="form-row">
       <label for="N" class="tooltip">N (1, 10000):
@@ -100,14 +81,6 @@
     <div class="params-grid">
       {% for key, param in params.items() %}
       <div class="param-item">
-<<<<<<< HEAD
-        <label for="{{ key }}">{{ key }}:</label>
-        <span class="tooltip">
-          <span class="tooltiptext">{{ value.description }}</span>
-        </span>
-        <input type="numeric" id="{{ key }}" name="{{ key }}" value="{{ value.value }}" step="{{ value.step }}"
-          min="{{ value.min }}" max="{{ value.max }}" required>
-=======
         <label for="{{ key }}" class="tooltip">{{ key }}:
           <span class="tooltiptext">
             {{ param.description }}<br>
@@ -115,7 +88,6 @@
         </label>
         <input class="model-params" type="number" step="0.05" id="{{ key }}" name="{{ key }}" value="{{ param.value }}"
           min="{{ param.min }}" max="{{ param.max }}" required>
->>>>>>> just-before-accident
       </div>
       {% endfor %}
     </div>
@@ -304,11 +276,7 @@
     }
 
     // Helper: trigger chart transition and websocket reconnect
-<<<<<<< HEAD
-    function triggerChartUpdateAndReconnect() {
-=======
     async function triggerChartUpdateAndReconnect() {
->>>>>>> just-before-accident
       // Onion fade out current points
       scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
       (async () => {
