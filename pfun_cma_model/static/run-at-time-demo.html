@@ -5,6 +5,44 @@
   <meta charset="UTF-8">
   <title>Run-at-Time WebSocket Example</title>
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+  <style>
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+      gap: 1em;
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+      border-bottom: 1px dotted #555;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 220px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -110px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.95em;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
 </head>
 
 <body>
@@ -19,72 +57,46 @@
       <label for="t0" class="tooltip">t0 (0.0, 24.0):
         <span class="tooltiptext">Simulation start time (decimal hours).</span>
       </label>
-      <input type="number" step="0.2" id="t0" name="t0" max="23.999" min="0" value="4" required>
+      <input class="model-params" type="number" step="0.5" id="t0" name="t0" max="24.0" min="0" value="4" required>
     </div>
 
     <div class="form-row">
-      <label for="t1" class="tooltip">t1 (0–23.999):
+      <label for="t1" class="tooltip">t1 (0, 24.0):
         <span class="tooltiptext">Simulation end time (decimal hours).<br>Note: t1 must be greater than t0.</span>
       </label>
-      <input type="number" step="0.2" id="t1" name="t1" max="23.999" min="0" value="20" required>
+      <input class="model-params" type="number" step="0.5" id="t1" name="t1" max="24.0" min="0" value="20" required>
     </div>
 
     <div class="form-row">
-      <label for="N" class="tooltip">N (1–10000):
+      <label for="N" class="tooltip">N (1, 10000):
         <span class="tooltiptext">Number of points to simulate.<br>Note: N must be a positive integer.</span>
       </label>
-      <input type="number" id="N" name="N" min="1" max="10000" value="100" required>
+      <input class="model-params" type="number" id="N" name="N" min="1" max="10000" value="100" required>
     </div>
     </head>
-    <style>
-      .form-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1em;
-        gap: 1em;
-      }
 
-      .tooltip {
-        position: relative;
-        cursor: pointer;
-        border-bottom: 1px dotted #555;
-      }
-
-      .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 220px;
-        background-color: #333;
-        color: #fff;
-        text-align: left;
-        border-radius: 6px;
-        padding: 8px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -110px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.95em;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-      }
-    </style>
-
+    <!-- Model Parameters: -->
+     
     <h3>Model Parameters</h3>
     <div class="params-grid">
-      {% for key, value in params.items() %}
+      {% for key, param in params.items() %}
       <div class="param-item">
+<<<<<<< HEAD
         <label for="{{ key }}">{{ key }}:</label>
         <span class="tooltip">
           <span class="tooltiptext">{{ value.description }}</span>
         </span>
         <input type="numeric" id="{{ key }}" name="{{ key }}" value="{{ value.value }}" step="{{ value.step }}"
           min="{{ value.min }}" max="{{ value.max }}" required>
+=======
+        <label for="{{ key }}" class="tooltip">{{ key }}:
+          <span class="tooltiptext">
+            {{ param.description }}<br>
+          </span>
+        </label>
+        <input class="model-params" type="number" step="0.05" id="{{ key }}" name="{{ key }}" value="{{ param.value }}"
+          min="{{ param.min }}" max="{{ param.max }}" required>
+>>>>>>> just-before-accident
       </div>
       {% endfor %}
     </div>
@@ -114,15 +126,15 @@
     // Chart.js scatter plot setup
     const canvas = document.getElementById('scatterPlot');
     // Set explicit pixel size to avoid Chart.js infinite resize bug
-    canvas.width = 900;
-    canvas.height = 400;
+    canvas.width = window.visualViewport.width * window.devicePixelRatio;
+    canvas.height = window.visualViewport.height * window.devicePixelRatio;
     const ctx = canvas.getContext('2d');
     const scatterData = {
       datasets: [{
         label: 'Glucose Response Curve',
         data: [],
         backgroundColor: 'rgba(54, 162, 235, 0.7)',
-        pointRadius: 4,
+        pointRadius: 2,
       }]
     };
     // Custom plugin for onioning/fade effect
@@ -137,7 +149,7 @@
               const point = meta.data[idx];
               if (point) {
                 ctx.save();
-                ctx.globalAlpha = 0.2;
+                ctx.globalAlpha = 0.5;
                 point.draw(ctx);
                 ctx.restore();
               }
@@ -147,14 +159,14 @@
       }
     };
 
-    const fadeDuration = 50; // ms
+    const fadeDuration = 250; // ms
     const scatterChart = new Chart(ctx, {
       type: 'scatter',
       data: scatterData,
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 900 / 400,
+        aspectRatio: window.visualViewport.width / window.visualViewport.height,
         plugins: {
           onionFade: {
             fadeDuration: fadeDuration // Duration for fade effect in ms
@@ -174,8 +186,6 @@
       },
       plugins: [onionFadePlugin]
     });
-    // !!! Disable all animations globally
-    //chart.options.animation = false; // disables all animations
 
     function appendMessage(msg) {
       const el = document.createElement('div');
@@ -184,7 +194,7 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    function addScatterPoints(points) {
+    async function addScatterPoints(points) {
       // Smoothly transition to new points using onioning effect
       // Keep previous points and fade them out, fade in new points
       const prevData = scatterData.datasets[0].data.slice();
@@ -199,12 +209,15 @@
       }
 
       // Onioning: overlay previous points with alpha, fade in new points
-      scatterData.datasets[0].data = prevData.map(pt => ({ ...pt, _fade: true }));
-      scatterChart.update();
-      setTimeout(() => {
-        scatterData.datasets[0].data = newData.map(pt => ({ ...pt, _fade: false }));
-        scatterChart.update('active');
-      }, fadeDuration); // 250ms fade effect
+      scatterData.datasets[0].data = prevData.map(pt => ({ ...pt, _fade: false }));
+      scatterChart.update('active');
+      await (async () => {
+        await new Promise(resolve => setTimeout(() => {
+          scatterData.datasets[0].data = newData.map(pt => ({ ...pt, _fade: true }));
+          scatterChart.update('active');
+        }, fadeDuration) // Wait for fade effect
+        );
+      })();
     }
 
     function createScatterOnePoint(xdatum, ydatum) {
@@ -272,21 +285,35 @@
     }
 
     // Helper: trigger chart transition and websocket reconnect
+<<<<<<< HEAD
     function triggerChartUpdateAndReconnect() {
+=======
+    async function triggerChartUpdateAndReconnect() {
+>>>>>>> just-before-accident
       // Onion fade out current points
       scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
-      scatterChart.update();
-      setTimeout(() => {
-        scatterData.datasets[0].data = [];
-        scatterChart.update('active');
-      }, fadeDuration);
+      (async () => {
+        await new Promise(resolve => setTimeout(() => {
+          scatterChart.update();
+        }, fadeDuration * 0.5)
+        );
+      })();
+      // Onion fade in new points
+      (async () => {
+        await new Promise(resolve => setTimeout(() => {
+          scatterData.datasets.appendChild(scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: false })));
+          scatterChart.update('active');
+        }, fadeDuration * 0.5)
+        );
+      })();
+      // Reconnect)
     }
 
     // Initial connection
     connectSocketIO();
 
     // Event-driven: update on parameter change
-    document.querySelectorAll('#runForm input').forEach(input => {
+    document.querySelectorAll('#runForm input .model-params').forEach(input => {
       input.addEventListener('change', () => {
         triggerChartUpdateAndReconnect();
       });
@@ -305,11 +332,11 @@
         const N = parseInt(document.getElementById('N').value);
 
         // Basic validation
-        if (isNaN(t0) || t0 < 0 || t0 > 23.999) {
+        if (isNaN(t0) || t0 < 0 || t0 > 24) {
           appendMessage('Invalid t0');
           return;
         }
-        if (isNaN(t1) || t1 < 0 || t1 > 23.999) {
+        if (isNaN(t1) || t1 < 0 || t1 > 24) {
           appendMessage('Invalid t1');
           return;
         }
@@ -334,7 +361,7 @@
         // Use a custom event name, e.g. 'run', or 'run-at-time', as expected by backend
         socket.emit('run', payload);
         appendMessage('Sent: ' + JSON.stringify(payload));
-      }, 100); // Wait for fade out and reconnect
+      }, fadeDuration); // Wait for fade out and reconnect
     }
   </script>
 </body>
