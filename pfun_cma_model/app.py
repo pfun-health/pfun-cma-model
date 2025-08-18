@@ -65,6 +65,9 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "static")
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],
     False: [
+        "localhost",
+        "127.0.0.1",
+        "*.robcapps.com",
         "pfun-cma-model-446025415469.*.run.app",
         "*.pfun.run",
         "*.pfun.one",
@@ -322,7 +325,7 @@ async def health_check_run_at_time():
 
 
 @app.get("/demo/run-at-time")
-async def demo_run_at_time(request: Request, t0: float | int = 0, t1: float | int = 100, n: int = 100, config: CMAModelParams | None = None):
+async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     default_config = {
         "eps": 0.00,  # set noise to zero for this demo
