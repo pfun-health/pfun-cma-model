@@ -30,11 +30,11 @@ _BOUNDED_PARAM_KEYS_DEFAULTS = (
 _EPS = 0.1 + 1e-8
 _BOUNDED_PARAM_DESCRIPTIONS = (
     'Time zone offset (hours)',
-    'Photoperiod length',
+    'Photoperiod length (hours)',
     'Glucose response time constant',
-    'Glucose Bias constant',
+    'Glucose Bias constant (baseline glucose level)',
     'Cortisol temporal sensitivity coefficient',
-    'Solar noon offset (latitude)'
+    'Solar noon offset (effects of latitude)'
 )
 
 

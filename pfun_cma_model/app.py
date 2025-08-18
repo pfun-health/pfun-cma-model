@@ -327,14 +327,29 @@ async def health_check_run_at_time():
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
-    default_config = {
-        "eps": 0.00,  # set noise to zero for this demo
-    }
     # load default bounded parameters
-    default_config.update(CMAModelParams().bounded.bounded_params_dict)
+    cma_params = CMAModelParams()
+    from pfun_cma_model.engine.cma_model_params import (
+        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
+        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
+    )
+    default_config = dict(cma_params.bounded.bounded_params_dict)
+    # formatted parameters to appear in the rendered template
+    params = {}
+    for ix, pk in enumerate(default_config):
+        if pk in default_config:
+            params[pk] = {
+                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
+                "value": default_config[pk],
+                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
+                "min": _LB_DEFAULTS[ix],
+                "max": _UB_DEFAULTS[ix],
+                "default": _MID_DEFAULTS[ix]
+            }
     ws_port = os.getenv("WS_PORT", 443)
     context_dict = {
-        "request": request, "params": default_config,
+        "request": request,
+        "params": params,
         "ws_prefix": 'wss' if ws_port == 443 else 'ws',
         "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,
