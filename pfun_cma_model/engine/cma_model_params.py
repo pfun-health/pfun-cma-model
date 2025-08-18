@@ -1,16 +1,3 @@
-from typing import Any
-from pydantic import WrapSerializer
-from pydantic import WithJsonSchema
-from pydantic.functional_serializers import model_serializer
-from typing import Annotated
-from pydantic.functional_serializers import PlainSerializer
-import json
-from typing import Container
-from numbers import Real
-from pydantic import create_model
-from pydantic import Field
-import numpy as np
-from dataclasses import dataclass
 from pfun_cma_model.misc.types import NumpyArray
 import sys
 from pathlib import Path
@@ -20,6 +7,7 @@ from numpy import ndarray
 from tabulate import tabulate
 import importlib
 from pfun_path_helper import append_path
+from typing import Annotated, Iterable, Any
 append_path(Path(__file__).parent.parent.parent)
 
 # import custom ndarray schema
@@ -93,221 +81,95 @@ _DEFAULT_BOUNDS = Bounds(
 )
 
 
-class BoundedCMAModelParam(Real, BaseModel):
-    """Encapsulates a bounded parameter with metadata for the CMA model."""
-
-    """Metadata for the bounded parameter.
-    Attributes:
-        index (int): Index of the parameter.
-        name (str): Name of the parameter.
-        value (float): Value of the parameter.
-        default (float): Default value of the parameter.
-        description (str): Description of the parameter.
-        qualitative_descriptor (str): Qualitative description based on the value.
-        serr (float): Standardized error value.
-        step (float): Step size for the parameter.
-        min (float): Minimum bound for the parameter.
-        max (float): Maximum bound for the parameter.
+class CMAModelParams(BaseModel):
     """
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    index: int = -1
-    name: str = ''
-    value: float | Container[float] = 0.0
-    default: float = 0.0
-    description: str = ''
-    qualitative_descriptor: str = ''
-    serr: float = -1
-    step: float = 0.01
-    min: float = 0.0
-    max: float = 1.0
+    Represents the parameters for a CMA model.
 
-    @field_serializer('index', 'value', 'name', 'description', 'min', 'max', 'step', when_used='json')
-    def serialize_value(self, v: float | int, _info):
-        return v
-    
-    def __json__(self):
-        return vars(self)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({vars(self)})"
-
-    def __float__(self):
-        return float(self.value)
-
-    def __abs__(self):
-        return abs(self.value)
-
-    def __add__(self, other):
-        return float(self) + other
-
-    def __ceil__(self):
-        import math
-        return math.ceil(self.value)
-
-    def __eq__(self, other):
-        return float(self) == other
-
-    def __floor__(self):
-        import math
-        return math.floor(self.value)
-
-    def __floordiv__(self, other):
-        return float(self) // other
-
-    def __le__(self, other):
-        return float(self) <= other
-
-    def __lt__(self, other):
-        return float(self) < other
-
-    def __mod__(self, other):
-        return float(self) % other
-
-    def __mul__(self, other):
-        return float(self) * other
-
-    def __neg__(self):
-        return -float(self)
-
-    def __pos__(self):
-        return +float(self)
-
-    def __pow__(self, other):
-        return float(self) ** other
-
-    def __radd__(self, other):
-        return other + float(self)
-
-    def __rfloordiv__(self, other):
-        return other // float(self)
-
-    def __rmod__(self, other):
-        return other % float(self)
-
-    def __rmul__(self, other):
-        return other * float(self)
-
-    def __round__(self, ndigits=None):
-        return round(self.value, ndigits) if ndigits is not None else round(self.value)
-
-    def __rpow__(self, other):
-        return other ** float(self)
-
-    def __rtruediv__(self, other):
-        return other / float(self)
-
-    def __truediv__(self, other):
-        return float(self) / other
-
-    def __trunc__(self):
-        import math
-        return math.trunc(self.value)
-
-
-class BaseModelParams(BaseModel):
-    """
-    Base class for model parameters, providing common functionality.
-    This class is not intended to be instantiated directly.
+    Args:
+        t (Optional[array_like], optional): Time vector (decimal hours). Defaults to None.
+        N (int, optional): Number of time points. Defaults to 24.
+        d (float, optional): Time zone offset (hours). Defaults to 0.0.
+        taup (float, optional): Circadian-relative photoperiod length. Defaults to 1.0.
+        taug (float, optional): Glucose response time constant. Defaults to 1.0.
+        B (float, optional): Glucose Bias constant. Defaults to 0.05.
+        Cm (float, optional): Cortisol temporal sensitivity coefficient. Defaults to 0.0.
+        toff (float, optional): Solar noon offset (latitude). Defaults to 0.0.
+        tM (Tuple[float, float, float], optional): Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+        seed (Optional[int], optional): Random seed. Set to an integer to enable random noise via parameter 'eps'. Defaults to None.
+        eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def get(self, key: str, default=None):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self, key):
-            return getattr(self, key)
-        return getattr(self, key, default)
-
-    def __getitem__(self, key: str):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self, key):
-            return getattr(self, key)
-        if hasattr(self, key):
-            return getattr(self, key)
-        raise KeyError(f"'{key}' not found in {self.__class__.__name__}")
-
-    def __setitem__(self, key: str, value):
-        """
-        Set a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self, key):
-            setattr(self, key, value)
-        elif hasattr(self, key):
-            setattr(self, key, value)
-        else:
-            raise KeyError(f"'{key}' not found in {self.__class__.__name__}")
-
-    def update(self, **kwargs):
-        """
-        Update parameters with keyword arguments, including bounded parameters.
-        """
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            elif hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                raise KeyError(
-                    f"'{key}' not found in {self.__class__.__name__}")
-        return self
-
-
-def generate_bounded_params_fields() -> dict[str, Field]:
+    t: Optional[float | NumpyArray] = None
     """
-    Generate a set of fields for the bounded parameters 
+    Time vector (decimal hours). Optional.
     """
-    fields = {}
-    for ix, name in enumerate(_BOUNDED_PARAM_KEYS_DEFAULTS):
-        new_field = BoundedCMAModelParam(
-            value=_MID_DEFAULTS[ix],
-            index=ix,
-            name=name,
-            default=_MID_DEFAULTS[ix],
-            description=_BOUNDED_PARAM_DESCRIPTIONS[ix],
-            min=_LB_DEFAULTS[ix],
-            max=_UB_DEFAULTS[ix],
-            step=_STEP_DEFAULTS[ix]
-        )
-        Field()
-        fields.update({name: new_field})
-    return fields
-
-
-def serialize_param(value: BoundedCMAModelParam, handler, info) -> str:
-    return value.model_dump_json()
-
-
-ParamFields = generate_bounded_params_fields()
-BoundedCMAModelParamsBase = create_model(
-    'BoundedCMAModelParamsBase',
-    __annotations__={k: Annotated[dict, WrapSerializer(
-        serialize_param)] for k in ParamFields},
-    __config__=ConfigDict(arbitrary_types_allowed=True),
-    **ParamFields
-)
-
-
-class BoundedCMAModelParams(BoundedCMAModelParamsBase, BaseModelParams, BaseModel):
+    N: int | None = 24
     """
-    Encapsulates bounded parameters and their metadata for the CMA model.
+    Number of time points. Defaults to 24.
     """
-    # Metadata (ClassVar for constants, private for instance-specific)
-    lb: ClassVar[Sequence[float]] = _LB_DEFAULTS
-    ub: ClassVar[Sequence[float]] = _UB_DEFAULTS
-    step: ClassVar[Sequence[float]] = _STEP_DEFAULTS
-    bounded_param_keys: ClassVar[Tuple[str, ...]
-                                 ] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    d: float = 0.0
+    """
+    Time zone offset (hours). Defaults to 0.0.
+    """
+    taup: float = 1.0
+    """
+    Circadian-relative photoperiod length. Defaults to 1.0.
+    """
+    taug: float | NumpyArray = 1.0
+    """
+    Glucose response time constant. Defaults to 1.0.
+    """
+    B: float = 0.05
+    """
+    Glucose Bias constant. Defaults to 0.05.
+    """
+    Cm: float = 0.0
+    """
+    Cortisol temporal sensitivity coefficient. Defaults to 0.0.
+    """
+    toff: float = 0.0
+    """
+    Solar noon offset (latitude). Defaults to 0.0.
+    """
+    tM: Sequence[float] | float = (7.0, 11.0, 17.5)
+    """
+    Meal times (hours). Defaults to (7.0, 11.0, 17.5).
+    """
+    seed: Optional[int | float] = None
+    """
+    Random seed. Set to an integer to enable random noise via parameter 'eps'. Optional.
+    """
+    eps: Optional[float] = 1e-18
+    """
+    Random noise scale ("epsilon"). Defaults to 1e-18.
+    """
+    lb: ClassVar[float | Sequence[float]] = _LB_DEFAULTS
+    """
+    Lower bounds for bounded parameters. Defaults to _LB_DEFAULTS.
+    """
+    ub: ClassVar[float | Sequence[float]] = _UB_DEFAULTS
+    """
+    Upper bounds for bounded parameters. Defaults to _UB_DEFAULTS.
+    """
+    bounded_param_keys: ClassVar[Iterable[str] | Sequence[str]
+                                 | Tuple[str]] = _BOUNDED_PARAM_KEYS_DEFAULTS
+    """
+    Keys for bounded parameters. Defaults to _BOUNDED_PARAM_KEYS_DEFAULTS.
+    """
     midbound: ClassVar[Sequence[float]] = _MID_DEFAULTS
-    bounded_param_descriptions: ClassVar[Tuple[str, ...]
-                                         ] = _BOUNDED_PARAM_DESCRIPTIONS
-    bounds: ClassVar[BoundsType] = _DEFAULT_BOUNDS
-
-    @model_serializer()
-    def serialize_model(self):
-        pass  # TODO
+    """
+    Midpoint values for bounded parameters. Defaults to _MID_DEFAULTS.
+    """
+    bounded_param_descriptions: ClassVar[Sequence[str] | Tuple[str]] = \
+        _BOUNDED_PARAM_DESCRIPTIONS
+    """
+    Descriptions for bounded parameters. Defaults to _BOUNDED_PARAM_DESCRIPTIONS.
+    """
+    bounds: ClassVar[Annotated[Any, BoundsType]] = _DEFAULT_BOUNDS
+    """
+    Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
+    """
 
     @field_serializer('taug', check_fields=False)
     def serialize_ndarrays(self, value, *args):
@@ -317,9 +179,9 @@ class BoundedCMAModelParams(BoundedCMAModelParamsBase, BaseModelParams, BaseMode
 
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
-        return {key: getattr(self, key).__json__() for key in self.bounded_param_keys}
+        return {key: getattr(self, key) for key in self.bounded_param_keys}
 
-    def get_bounded_param(self, key: str) -> BoundedCMAModelParam:
+    def get_bounded_param(self, key: str) -> dict[str, Any]:
         """
         Get a bounded parameter by key.
         Returns a BoundedCMAModelParam instance with metadata.
@@ -327,12 +189,12 @@ class BoundedCMAModelParams(BoundedCMAModelParamsBase, BaseModelParams, BaseMode
         if key not in self.bounded_param_keys:
             raise KeyError(f"'{key}' is not a bounded parameter.")
         value = getattr(self, key)
-        ix = self.bounded_param_keys.index(key)
-        return BoundedCMAModelParam(
+        ix = list(self.bounded_param_keys).index(key)
+        return dict(
             name=key,
             value=value,
             description=self.bounded_param_descriptions[ix],
-            step=self.step[ix],
+            step=_STEP_DEFAULTS[ix],
             min=self.bounds.lb[ix],
             max=self.bounds.ub[ix]
         )
@@ -365,102 +227,3 @@ class BoundedCMAModelParams(BoundedCMAModelParamsBase, BaseModelParams, BaseMode
                 self.describe(param_key)
             ])
         return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
-
-
-class CMAModelParams(BaseModelParams, BaseModel):
-    """
-    Represents the parameters for a CMA model, including bounded and unbounded parameters.
-    """
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    # Unbounded parameters
-    t: Optional[float | NumpyArray] = None
-    N: int | None = 24
-    tM: Sequence[float] | float = (7.0, 11.0, 17.5)
-    seed: Optional[int | float] = None
-    eps: Optional[float] = 1e-18
-
-    # Bounded parameters (delegated)
-    bounded: BoundedCMAModelParams = BoundedCMAModelParams()
-
-    def get(self, key: str, default=None):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            return getattr(self.bounded, key)
-        return getattr(self, key, default)
-
-    def __getitem__(self, key: str):
-        """
-        Get a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            return getattr(self.bounded, key)
-        if hasattr(self, key):
-            return getattr(self, key)
-        raise KeyError(f"'{key}' not found in CMAModelParams")
-
-    def __setitem__(self, key: str, value):
-        """
-        Set a parameter value by key, including bounded parameters.
-        """
-        if hasattr(self.bounded, key):
-            setattr(self.bounded, key, value)
-        elif hasattr(self, key):
-            setattr(self, key, value)
-        else:
-            raise KeyError(f"'{key}' not found in CMAModelParams")
-
-    def update(self, **kwargs):
-        """
-        Update parameters with keyword arguments, including bounded parameters.
-        """
-        for key, value in kwargs.items():
-            if hasattr(self.bounded, key):
-                self.bounded[key] = value
-            elif hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                raise KeyError(f"'{key}' not found in CMAModelParams")
-        return self
-
-    def __getattr__(self, name):
-        # Forward attribute requests for bounded params to self.bounded
-        if name in self.bounded.bounded_param_keys:
-            return getattr(self.bounded, name)
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'")
-
-    def __setattr__(self, name, value):
-        # Forward attribute setting for bounded params to self.bounded
-        if name in self.bounded.bounded_param_keys:
-            setattr(self.bounded, name, value)
-        else:
-            # Handle unbounded parameters or raise an error
-            if hasattr(self, name):
-                super().__setattr__(name, value)
-            else:
-                raise AttributeError(
-                    f"'{type(self).__name__}' object has no attribute '{name}'")
-        return super().__setattr__(name, value)
-
-    @property
-    def bounds(self) -> BoundsType:
-        return self.bounded.bounds
-
-    @property
-    def bounded_params_dict(self) -> Dict[str, float]:
-        return self.bounded.bounded_params_dict
-
-    def calc_serr(self, param_key: str):
-        return self.bounded.calc_serr(param_key)
-
-    def generate_qualitative_descriptor(self, param_key: str):
-        return self.bounded.generate_qualitative_descriptor(param_key)
-
-    def describe(self, param_key: str):
-        return self.bounded.describe(param_key)
-
-    def generate_markdown_table(self):
-        return self.bounded.generate_markdown_table()

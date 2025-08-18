@@ -1,12 +1,16 @@
 """
 PFun CMA Model API Backend Routes.
 """
-from pfun_cma_model.engine.cma_model_params import BoundedCMAModelParam
-from pfun_cma_model.engine.cma_model_params import CMAModelParams, BoundedCMAModelParams
+import urllib.parse as urlparse
+from typing import Optional
+from pydantic import BaseModel
+from fastapi.routing import Mount
+import hashlib
+from pfun_cma_model.misc.middleware import content_security_policy
+from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
 from pfun_cma_model.data import read_sample_data
-from fastapi import Query
 import importlib
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -56,11 +60,15 @@ else:
     logging.debug("Debug mode is disabled.")
 
 # Mount the static directory to serve static files
-app.mount("/static", StaticFiles(directory=Path(__file__).parent /
-          "static"), name="static")
+STATIC_DIR = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Setup Jinja2 templates
-templates = Jinja2Templates(directory=Path(__file__).parent / "static")
+templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+
+
+# -- Setup middleware
+
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -81,14 +89,58 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_all_origins[debug_mode],
     allow_headers=[
-        "X-API-Key",
         "Authorization",
         "Access-Control-Allow-Origin",
+        'Content-Security-Policy',
+        'Content-Type',
     ],
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "HEAD"],
     allow_credentials=True,
     max_age=300,
 )
+
+# add CSP middleware
+
+# Content security policy mapping
+CSP_MAP = {"js": "script-src", "css": "style-src", }
+
+
+def hashit256(data: str) -> str:
+    """Hash a string using SHA-256."""
+    return 'sha256-' + hashlib.sha256(data.encode('utf8')).hexdigest()
+
+
+@app.middleware("http")
+async def set_content_security_policy(request, call_next):
+    cs_policies = [
+        "default-src 'self'",
+        "style-src 'self'",
+        "script-src 'self'",
+    ]
+    logging.debug("Setting Content-Security-Policy header...")
+    # add CSP for static files
+    if not hasattr(app.state, "csp_hashes"):
+        app.state.csp_hashes = {}
+    for subpath in STATIC_DIR.iterdir():
+        if subpath.is_file():
+            logging.debug("Adding CSP for file: %s", subpath)
+            cs_key = CSP_MAP.get(subpath.suffix[1:], None)
+            if cs_key is None:  # ! skip because it isn't an expected filetype
+                continue
+            # compute the sha256 hash digest for security
+            h256 = hashit256(subpath.read_text())
+            # store for client-side validation
+            app.state.csp_hashes[subpath.name] = {
+                "url": urlparse.urljoin(request.base_url.hostname, subpath.name),
+                "integrity": h256
+            }
+            # ...also append to the CS policy header value
+            cs_policies.append(cs_key + f" '{h256}'")
+    response = await call_next(request)
+    response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
+    logging.debug("Content-Security-Policy header set: '' %s ''",
+                  response.headers['Content-Security-Policy'])
+    return response
 
 
 @app.get("/health")
@@ -134,8 +186,7 @@ def default_params():
 
 @app.post("/params/describe")
 def describe_params(
-    params: BoundedCMAModelParams | Mapping[str, Any] = BoundedCMAModelParams(
-    ).bounded_params_dict
+    params: CMAModelParams | Mapping[str, Any]
 ):
     """
     Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
@@ -145,11 +196,12 @@ def describe_params(
         dict: Dictionary of parameter descriptions and qualitative descriptors.
     """
     if params is not None:
-        params = BoundedCMAModelParams(**params)  # type: ignore
+        params = CMAModelParams(**params)  # type: ignore
     else:
-        params = BoundedCMAModelParams()
+        params = CMAModelParams()
+    bounded_keys = list(params.bounded_param_keys)
     result = {}
-    for key in params.bounded_param_keys:  # type: ignore
+    for key in bounded_keys:
         try:
             desc = params.describe(key)
             qual = params.generate_qualitative_descriptor(key)
@@ -162,6 +214,33 @@ def describe_params(
             result[key] = {"error": str(e)}
     return Response(
         content=json.dumps(result),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
+@app.post("/params/tabulate")
+def tabulate_params(
+    params: CMAModelParams | Mapping[str, Any]
+):
+    """
+    Generate a markdown table of a given (single) or set of parameters using CMAModelParams.generate_markdown_table.
+    Args:
+        config (Optional[BoundedCMAModelParams | Mapping]): The configuration parameters to describe.
+    Returns:
+        dict: Dictionary of parameter descriptions and qualitative descriptors.
+    """
+    if params is not None:
+        params = CMAModelParams(**params)  # type: ignore
+    else:
+        params = CMAModelParams()
+    result = {}
+    try:
+        result = params.generate_markdown_table()
+    except Exception as e:
+        result = json.dumps({"error": str(e)})  # type: ignore
+    return Response(
+        content=result,
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
@@ -268,11 +347,13 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     model = await initialize_model()
     logger.debug(
         "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    bounded_params = {k: BoundedCMAModelParam(value=v, name=k).model_dump() for k,
-                      v in config.items() if k in model.bounded_param_keys}
-    model.update(model.update_bounded_params(bounded_params))
+    bounded_params = {k: v for k,
+                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+    model.update(bounded_params)
     logger.debug(
         "(run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(
+        f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
     t = model.new_tvector(t0, t1, n)
     df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
@@ -329,6 +410,22 @@ async def health_check_run_at_time():
     return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
 
 
+# -- Demo routes --
+
+
+# Defines the expected hashes for external CDN resources
+ContentDeliveryDefs = {
+    "chartjs": {
+        "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js",
+        "integrity": "sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
+    },
+    "socketio": {
+        "url": "https://cdn.socket.io/4.8.1/socket.io.min.js",
+        "integrity": "sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+    },
+}
+
+
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
@@ -338,7 +435,7 @@ async def demo_run_at_time(request: Request):
         _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
         _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
     )
-    default_config = dict(cma_params.bounded.bounded_params_dict)
+    default_config = dict(cma_params.bounded_params_dict)
     # formatted parameters to appear in the rendered template
     params = {}
     for ix, pk in enumerate(default_config):
@@ -352,17 +449,32 @@ async def demo_run_at_time(request: Request):
                 "default": _MID_DEFAULTS[ix]
             }
     ws_port = os.getenv("WS_PORT", 443)
+
+    #  include the ContentSecurityProtocol hash maps
+    app.state.csp_hashes.update(ContentDeliveryDefs)
+
+    # formulate the render context
     context_dict = {
         "request": request,
         "params": params,
         "ws_prefix": 'wss' if ws_port == 443 else 'ws',
         "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,
+        "csp_hashes": app.state.csp_hashes
     }
+
+    # debug output, then return
     logger.debug("Demo context: %s", context_dict)
     return templates.TemplateResponse(
-        "run-at-time-demo.html", context=context_dict)
+        "run-at-time-demo.html",
+        context=context_dict,
+        headers={
+            "Content-Type": "text/html"
+        }
+    )
 
+
+# -- Model Fitting Endpoints --
 
 @app.post("/fit")
 async def fit_model_to_data(
