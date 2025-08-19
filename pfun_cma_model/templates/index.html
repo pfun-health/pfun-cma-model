@@ -1,46 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}PFun Glucose Web API &mdash; Demo{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', path='run-at-time.css') }}"
-        nonce="{{ csp_hashes['run-at-time.css']['nonce'] }}">
-    <title>PFun Glucose</title>
-</head>
+{% block head %}
+{{ super() }}
+{% endblock %}
 
 <body>
     <header>
-        <nav class="navbar">
-            <ul class="nav-list">
-                <li><a href="#">Demo Home</a></li>
-                <li><a href="/demo/run-at-time">Interactive Demo</a></li>
-                <li><a href="/docs">API Documentation</a></li>
-            </ul>
-        </nav>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
     </header>
-    <h1>PFun Glucose Web API &mdash; Demo</h1>
 
-    <p><em>Please note that the API is currently under active development</em></p>
-    <h2>Endpoints:</h2>
-    <ul>
-        <li>View the interactive glucose modeling demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
-        <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
-        <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
-    </ul>
-    <h2>Documentation:</h2>
-    <p>For more information on how to use the API, please refer to the documentation available at:</p>
-    <ul>
-        <li><a href="/docs">(SwaggerUI) Interactive API Documentation</a></li>
-        <li><a href="/redoc">(ReDoc) Readable API Documentation</a></li>
-        <li><a href="/openapi.json">(JSON) OpenAPI Schema</a></li>
-    </ul>
+    <div id="content">
+        {% block content %}
+        <h1>PFun Glucose Web API &mdash; Demo</h1>
+
+        <p><em>Please note that the API is currently under active development</em></p>
+        <h2>Endpoints:</h2>
+        <ul>
+            <li>View the interactive glucose modeling demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
+            <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
+            <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
+        </ul>
+        <h2>Documentation:</h2>
+        <p>For more information on how to use the API, please refer to the documentation available at:</p>
+        <ul>
+            <li><a href="/docs">(SwaggerUI) Interactive API Documentation</a></li>
+            <li><a href="/redoc">(ReDoc) Readable API Documentation</a></li>
+            <li><a href="/openapi.json">(JSON) OpenAPI Schema</a></li>
+        </ul>
+        {% endblock %}
+    </div>
     <hr />
     <footer>
+        {% block footer %}
         <div>
             <p><small>{{ message }}</small></p>
             <p>&copy; {{ year }} PFun Digital Health. All rights reserved.</p>
         </div>
+        {% endblock %}
     </footer>
 </body>
 
