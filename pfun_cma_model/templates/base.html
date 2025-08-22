@@ -1,0 +1,39 @@
+<!-- head.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="{{ (url_for('static', path='run-at-time.css')) | string | replace('http://', 'https://') }}"
+        nonce="{{ csp_hashes['run-at-time.css']['nonce'] }}">
+    <title>{% block title %}{% endblock %} ~ PFun Digital Health</title>
+    {% endblock %}
+</head>
+
+<body>
+    <header>
+        {% block navheader %}
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li><a href="/">Home</a></li>
+                <li><a href="/demo/run-at-time">run-at-time Demo</a></li>
+                <li>&nbsp;&nbsp;</li>
+                <li><a href="/docs">Documentation (SwaggerUI)</a></li>
+                <li><a href="/redoc">Documentation (ReDoc)</a></li>
+                <li><a href="/openapi.json">OpenAPI Schema</a></li>
+            </ul>
+        </nav>
+        {% endblock %}
+    </header>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <footer>
+        {% block footer %}
+        PFun Digital Health ~ {{ year }}. All rights reserved.
+        {% endblock %}
+    </footer>
+</body>
+
+</html>

@@ -200,7 +200,8 @@ document.querySelectorAll('#runForm input .model-params').forEach(input => {
     });
 });
 
-document.getElementById('runForm').onsubmit = function (e) {
+// activated when the relevant parameters change (or when the user clicks 'submit')
+function chart_update_hook(e) {
     e.preventDefault();
     triggerChartUpdateAndReconnect();
     setTimeout(() => {
@@ -244,3 +245,9 @@ document.getElementById('runForm').onsubmit = function (e) {
     appendMessage('Sent: ' + JSON.stringify(payload));
     }, fadeDuration); // Wait for fade out and reconnect
 }
+
+// setup chart_update_hook, triggered on 'submit' or 'input change'
+document.getElementById('runForm').onsubmit = chart_update_hook;
+document.querySelectorAll('#runForm input .model-params').forEach(input => {
+    input.addEventListener('change', chart_update_hook);
+});

@@ -111,6 +111,17 @@ app.add_middleware(
 
 # Content security policy mapping
 CSP_MAP = {"js": "script-src", "css": "style-src", }
+# Defines the expected hashes for external CDN resources
+ContentDeliveryDefs = {
+    "chartjs": {
+        "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js",
+        "integrity": "sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
+    },
+    "socketio": {
+        "url": "https://cdn.socket.io/4.8.1/socket.io.min.js",
+        "integrity": "sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+    },
+}
 
 
 def hashit256(data: str) -> str:
@@ -122,7 +133,7 @@ def hashit256(data: str) -> str:
 async def set_content_security_policy(request: Request, call_next: Callable[[Request], Awaitable[Response]]
                                       ) -> Response:
     cs_policies = [
-        "default-src 'none'",
+        "default-src 'self'",
     ]
     logging.debug("Setting Content-Security-Policy header...")
     # add CSP for static files
@@ -138,7 +149,7 @@ async def set_content_security_policy(request: Request, call_next: Callable[[Req
             h256 = hashit256(subpath.read_text())
             # store for client-side validation
             fullurl = request.base_url.scheme + "://" + urlparse.urljoin(
-                request.base_url.hostname, subpath.name)  # type: ignore
+                app.docs_url.removesuffix("/docs"), subpath.name)  # type: ignore
             nonce = secrets.token_urlsafe(random.randint(32, 64))
             # store the nonce and hash in the app.state.csp_hashes dictionary
             app.state.csp_hashes[subpath.name] = {
@@ -148,6 +159,8 @@ async def set_content_security_policy(request: Request, call_next: Callable[[Req
             }
             # ...also append to the CS policy header value
             cs_policies.append(cs_key + f" 'nonce-{nonce}'")
+            cs_policies.append(cs_key + f" {fullurl}")
+            cs_policies.append(cs_key + f" 'sha256-{h256}'")
     response = await call_next(request)
     response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
     logging.debug("Content-Security-Policy header set: '' %s ''",
@@ -428,19 +441,6 @@ async def health_check_run_at_time():
 
 
 # -- Demo routes --
-
-
-# Defines the expected hashes for external CDN resources
-ContentDeliveryDefs = {
-    "chartjs": {
-        "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js",
-        "integrity": "sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
-    },
-    "socketio": {
-        "url": "https://cdn.socket.io/4.8.1/socket.io.min.js",
-        "integrity": "sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
-    },
-}
 
 
 @app.get("/demo/run-at-time")
