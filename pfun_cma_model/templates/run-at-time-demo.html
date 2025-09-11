@@ -69,14 +69,14 @@
 
     <!-- Chart.js CDN -->
     <script src="{{ csp_hashes['chartjs']['url'] }}" nonce="{{ csp_hashes['chartjs']['nonce'] }}"
-      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      crossorigin="anonymous"></script>
     <!-- Socket.IO CDN -->
     <!-- Note: Ensure you have the correct version matching your server -->
     <script src="{{ csp_hashes['socketio']['url'] }}" nonce="{{ csp_hashes['socketio']['nonce'] }}"
       crossorigin="anonymous"></script>
 
     <script src="{{ url_for('static', path='run-at-time.js') }}" nonce="{{ csp_hashes['run-at-time.js']['nonce'] }}"
-      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      crossorigin="anonymous"></script>
     {% endblock %}
   </div>
 </body>

@@ -44,12 +44,11 @@ load_environment_variables(logger=logger)
 
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-
 # Perform logging setup...
 setup_logging(logger, debug_mode=debug_mode)
-
 # Initialize FastAPI app
 app = FastAPI(app_name="PFun CMA Model Backend")
+base_url: str = os.getenv("WS_HOST", "")
 # Set the application title and description
 app.title = "PFun CMA Model Backend"
 app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
@@ -80,7 +79,7 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],
-    False: [
+    False: set([
         "localhost",
         "127.0.0.1",
         "*.robcapps.com",
@@ -91,7 +90,7 @@ allow_all_origins = {
         "*.pfun.me",
         "*.pfun.app",
         "*.robcapps.com"
-    ]
+    ])
 }
 app.add_middleware(
     CORSMiddleware,
@@ -149,7 +148,7 @@ async def set_content_security_policy(request: Request, call_next: Callable[[Req
             h256 = hashit256(subpath.read_text())
             # store for client-side validation
             fullurl = request.base_url.scheme + "://" + urlparse.urljoin(
-                app.docs_url.removesuffix("/docs"), subpath.name)  # type: ignore
+                base_url, subpath.name)  # type: ignore
             nonce = secrets.token_urlsafe(random.randint(32, 64))
             # store the nonce and hash in the app.state.csp_hashes dictionary
             app.state.csp_hashes[subpath.name] = {
