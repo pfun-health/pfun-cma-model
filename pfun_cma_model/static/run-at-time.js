@@ -6,7 +6,7 @@
 const messagesDiv = document.getElementById('messages');
 let socket;
 // Parse params from template variable
-const params = JSON.parse('{{ params | tojson | safe }}');
+const params = JSON.parse("'{{ params | tojson | safe }}'");
 
 // Chart.js scatter plot setup
 const canvas = document.getElementById('scatterPlot');

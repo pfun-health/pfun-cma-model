@@ -1,6 +1,10 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from redis.asyncio import Redis
+from contextlib import asynccontextmanager
+from dataclasses import dataclass, InitVar
+from dataclasses import dataclass
 import random
 import secrets
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
@@ -46,8 +50,47 @@ load_environment_variables(logger=logger)
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
 # Perform logging setup...
 setup_logging(logger, debug_mode=debug_mode)
-# Initialize FastAPI app
-app = FastAPI(app_name="PFun CMA Model Backend")
+
+# --- Setup app Lifespan events ---
+
+redis_client: Redis | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for FastAPI app."""
+    global redis_client
+
+    # Startup tasks:
+    redis_client = Redis(
+        host=os.getenv("REDIS_HOST", "localhost"),
+        port=int(os.getenv("REDIS_PORT", "6379")),
+        db=int(os.getenv("REDIS_DB", "0")),
+        password=os.getenv("REDIS_PASSWORD", None),
+        decode_responses=True,
+    )
+    try:
+        await redis_client.ping()
+        logging.info("Connected to Redis server successfully.")
+    except Exception as e:
+        logging.error("Failed to connect to Redis server: %s", str(e))
+        redis_client = None
+    yield
+
+    # Shutdown tasks:
+    if redis_client is not None:
+        await redis_client.close()
+        logging.info("Redis client connection closed.")
+
+
+# --- Instantiate FastAPI app ---
+app = FastAPI(
+    app_name="PFun CMA Model Backend",
+    lifespan=lifespan
+)
+
+# --- Application Configuration ---
+
 base_url: str = os.getenv("WS_HOST", "")
 # Set the application title and description
 app.title = "PFun CMA Model Backend"
@@ -106,7 +149,7 @@ app.add_middleware(
     max_age=300,
 )
 
-# add CSP middleware
+# --- add CSP middleware ---
 
 # Content security policy mapping
 CSP_MAP = {"js": "script-src", "css": "style-src", }
@@ -135,9 +178,8 @@ async def set_content_security_policy(request: Request, call_next: Callable[[Req
         "default-src 'self'",
     ]
     logging.debug("Setting Content-Security-Policy header...")
-    # add CSP for static files
-    if not hasattr(app.state, "csp_hashes"):
-        app.state.csp_hashes = {}
+    # ensure CSP headers map is defined as app.state.csp_headers (for external static dependencies)
+    setup_csp_hashes()
     for subpath in STATIC_DIR.iterdir():
         if subpath.is_file():
             logging.debug("Adding CSP for file: %s", subpath)
@@ -157,9 +199,9 @@ async def set_content_security_policy(request: Request, call_next: Callable[[Req
                 "nonce": nonce
             }
             # ...also append to the CS policy header value
-            cs_policies.append(cs_key + f" 'nonce-{nonce}'")
-            cs_policies.append(cs_key + f" {fullurl}")
-            cs_policies.append(cs_key + f" 'sha256-{h256}'")
+            # cs_policies.append(cs_key + f" 'nonce-{nonce}'")
+            # cs_policies.append(cs_key + f" {fullurl}")
+            # cs_policies.append(cs_key + f" 'sha256-{h256}'")
     response = await call_next(request)
     response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
     logging.debug("Content-Security-Policy header set: '' %s ''",
@@ -184,7 +226,7 @@ def root(request: Request):
         "request": request,
         "year": datetime.now().year,
         "message": f"Accessed at: {ts_msg}",
-        "csp_hashes": app.state.csp_hashes
+        "csp_hashes": getattr(app.state, 'csp_hashes', {})
     })
 
 
@@ -275,46 +317,104 @@ def tabulate_params(
     )
 
 
-@app.get("/data/sample")
-def get_sample_dataset(request: Request, nrows: int = -1):
-    """Get the sample dataset with optional row limit.
+@dataclass
+class PFunDatasetResponse:
+    data: DataFrame | None = None
+    nrows: int = 23
+    nrows_given: InitVar[bool | None] = None
+
+    def __post_init__(self):
+        """Post-initialization to parse nrows and data."""
+        self.nrows, self.nrows_given = self._parse_nrows(self.nrows)
+        self.data = self._parse_data(self.data, self.nrows, self.nrows_given)
+
+    @property
+    def response(self) -> Response:
+        """Generate a Response object with the dataset as JSON."""
+        output = self.data.to_json(orient='records')  # type: ignore
+        return Response(
+            content=output,
+            status_code=200,
+            headers={"Content-Type": "application/json"}
+        )
+
+    @classmethod
+    def _parse_data(cls, data: DataFrame | None, nrows: int, nrows_given: bool):
+        """Parse and limit the dataset based on nrows and nrows_given."""
+        # If no data provided, read the default sample dataset
+        if data is None:
+            data = read_sample_data(convert2json=False)
+        # ensure DataFrame
+        dataset = DataFrame(data)
+        logging.debug("Sample dataset loaded with %d rows.", len(dataset))
+        if nrows_given:
+            return dataset.iloc[:nrows, :]
+        return dataset
+
+    @property
+    def _stream(self) -> Any:
+        """Yield the dataset as streamable chunks."""
+        for _, row in self.data.iterrows():  # type: ignore
+            yield json.dumps(row.to_dict()) + '\n'
+
+    @classmethod
+    def _parse_nrows(cls, nrows: int):
+        """Parse and validate the nrows parameter for dataset retrieval.
+        Args:
+            nrows (int): The number of rows to return. If -1, return the full dataset.
+        Returns:
+            tuple: A tuple containing the validated nrows and a boolean indicating if nrows was given.
+        """
+        # Check if nrows is valid
+        if nrows < -1:
+            logging.error(
+                "Invalid nrows value: %s. Must be -1 or greater.", nrows)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="nrows must be -1 (for full dataset) or a non-negative integer.",
+            )
+        if nrows == -1:
+            nrows_given = False  # -1 means no limit, return full dataset
+        else:
+            nrows_given = True  # nrows is given, return only the first nrows
+        logging.debug(
+            "Received request for sample dataset with nrows=%s", nrows)
+        logging.debug("(nrows_given) Was nrows_given? %s",
+                      "'Yes.'" if nrows_given else "'No.'")
+        return nrows, nrows_given
+
+
+def read_data_bg():
+    """Read the sample data in the background."""
+    return
+
+
+@app.get("/data/sample/download")
+def get_sample_dataset(request: Request, nrows: int = 23):
+    """(slow) Download the sample dataset with optional row limit.
 
     Args:
         request (Request): The FastAPI request object.
         nrows (int): The number of rows to return. If -1, return the full dataset.
     """
-    # Check if nrows is valid
-    if nrows < -1:
-        logging.error("Invalid nrows value: %s. Must be -1 or greater.", nrows)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="nrows must be -1 (for full dataset) or a non-negative integer.",
-        )
-    if nrows == -1:
-        nrows_given = False  # -1 means no limit, return full dataset
-    else:
-        nrows_given = True  # nrows is given, return only the first nrows
-    logging.debug(
-        "Received request for sample dataset with nrows=%s", nrows)
-    logging.debug("Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'")
-    # Read sample dataset (keep as DataFrame)
-    dataset = DataFrame(read_sample_data(convert2json=False))
-    if nrows_given is False:
-        logging.debug("Returning full dataset as JSON.")
-        # if nrows is not given, return the full dataset as JSON
-        return Response(
-            content=dataset.to_json(orient='records'),
-            status_code=200,
-            headers={"Content-Type": "application/json"},
-        )
-    # if nrows is given, return only the first nrows of the dataset
-    logging.debug("Returning first %d rows of the dataset as JSON.", nrows)
-    dataset = dataset.iloc[:nrows, :]
-    output = dataset.to_json(orient='records')
+    dataset_response = PFunDatasetResponse(data=data, nrows=nrows)
+    return dataset_response.response
+
+
+@app.get("/data/sample/stream")
+async def stream_sample_dataset(request: Request, nrows: int = 23):
+    """(faster stream) Stream the sample dataset with optional row limit.
+    Args:
+        request (Request): The FastAPI request object.
+        nrows (int): The number of rows to return. If -1, return the full dataset.
+    """
+    dataset_response = PFunDatasetResponse(data=data, nrows=nrows)
     return Response(
-        content=output,
+        content=dataset_response._stream,
+        media_type="application/json",
         status_code=200,
-        headers={"Content-Type": "application/json"})
+        headers={"Content-Type": "application/json"}
+    )
 
 
 CMA_MODEL_INSTANCE = None
@@ -441,6 +541,14 @@ async def health_check_run_at_time():
 
 # -- Demo routes --
 
+def setup_csp_hashes() -> None:
+    """Setup the Content Security Policy hashes in app.state.csp_hashes."""
+    # ensure the csp_hashes dictionary exists in app.state before use
+    if not hasattr(app.state, "csp_hashes"):
+        app.state.csp_hashes = {}
+    #  include the ContentSecurityProtocol hash maps
+    app.state.csp_hashes.update(ContentDeliveryDefs)
+
 
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
@@ -464,10 +572,12 @@ async def demo_run_at_time(request: Request):
                 "max": _UB_DEFAULTS[ix],
                 "default": _MID_DEFAULTS[ix]
             }
-    ws_port = os.getenv("WS_PORT", 443)
 
-    #  include the ContentSecurityProtocol hash maps
-    app.state.csp_hashes.update(ContentDeliveryDefs)
+    # ensure the csp_hashes dictionary exists in app.state before use
+    setup_csp_hashes()
+
+    # determine the websocket port (environment variable or default to 443)
+    ws_port = os.getenv("WS_PORT", 443)
 
     # formulate the render context
     context_dict = {

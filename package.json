@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "openapi-mcp-generator": "^3.2.0"
+  },
+  "scripts": {
+    "generate-mcp": "openapi-mcp-generator --input ./openapi.json --output ./pfun-cma-mcp-server"
+  }
+}

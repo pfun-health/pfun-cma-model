@@ -29,3 +29,25 @@ services:
       "--port", "8001",
       "--workers", "1"
     ]
+
+  pfun-cma-mcp-server:
+    container_name: pfun-cma-mcp-server
+    restart: unless-stopped
+    build:
+      context: ./pfun-cma-mcp-server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    command: ["npm", "run", "start"]
+
+  redis:
+    image: "redis:7.0-alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: [
+      "redis-server", 
+      "--save", "60", "1", 
+      "--appendonly", "no",
+      "--loglevel", "warning"
+      ]
