@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, InitVar
@@ -329,6 +330,14 @@ class PFunDatasetResponse:
         self.data = self._parse_data(self.data, self.nrows, self.nrows_given)
 
     @property
+    def streaming_response(self) -> StreamingResponse:
+        """Generate a streaming Response object with the dataset as JSON."""
+        return StreamingResponse(
+            content=self._stream,
+            media_type="application/json"
+        )
+
+    @property
     def response(self) -> Response:
         """Generate a Response object with the dataset as JSON."""
         output = self.data.to_json(orient='records')  # type: ignore
@@ -343,7 +352,7 @@ class PFunDatasetResponse:
         """Parse and limit the dataset based on nrows and nrows_given."""
         # If no data provided, read the default sample dataset
         if data is None:
-            data = read_sample_data(convert2json=False)
+            data = read_sample_data(convert2json=False)  # type: ignore
         # ensure DataFrame
         dataset = DataFrame(data)
         logging.debug("Sample dataset loaded with %d rows.", len(dataset))
@@ -384,11 +393,6 @@ class PFunDatasetResponse:
         return nrows, nrows_given
 
 
-def read_data_bg():
-    """Read the sample data in the background."""
-    return
-
-
 @app.get("/data/sample/download")
 def get_sample_dataset(request: Request, nrows: int = 23):
     """(slow) Download the sample dataset with optional row limit.
@@ -397,24 +401,21 @@ def get_sample_dataset(request: Request, nrows: int = 23):
         request (Request): The FastAPI request object.
         nrows (int): The number of rows to return. If -1, return the full dataset.
     """
-    dataset_response = PFunDatasetResponse(data=data, nrows=nrows)
+    # Read the sample dataset (data=None means use default sample data)
+    dataset_response = PFunDatasetResponse(data=None, nrows=nrows)
     return dataset_response.response
 
 
 @app.get("/data/sample/stream")
-async def stream_sample_dataset(request: Request, nrows: int = 23):
-    """(faster stream) Stream the sample dataset with optional row limit.
+async def stream_sample_dataset(request: Request, nrows: int = -1):
+    """(fast) Stream the sample dataset with optional row limit.
     Args:
         request (Request): The FastAPI request object.
-        nrows (int): The number of rows to return. If -1, return the full dataset.
+        nrows (int): The number of rows to include in the stream. If -1, stream the full dataset.
     """
-    dataset_response = PFunDatasetResponse(data=data, nrows=nrows)
-    return Response(
-        content=dataset_response._stream,
-        media_type="application/json",
-        status_code=200,
-        headers={"Content-Type": "application/json"}
-    )
+    dataset_response = PFunDatasetResponse(data=None, nrows=nrows)
+    # return the iterable (generating) streaming response
+    return dataset_response.streaming_response
 
 
 CMA_MODEL_INSTANCE = None

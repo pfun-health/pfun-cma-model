@@ -31,6 +31,9 @@ services:
     ]
 
   pfun-cma-mcp-server:
+    depends_on:
+      - redis
+      - pfun-cma-model
     container_name: pfun-cma-mcp-server
     restart: unless-stopped
     build:
