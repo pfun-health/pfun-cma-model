@@ -1,4 +1,5 @@
 services:
+
   pfun-cma-model:
     restart: unless-stopped
     # # Commented this out for compatibility with podman-compose
@@ -30,18 +31,18 @@ services:
       "--workers", "1"
     ]
 
-  pfun-cma-mcp-server:
-    depends_on:
-      - redis
-      - pfun-cma-model
-    container_name: pfun-cma-mcp-server
-    restart: unless-stopped
-    build:
-      context: ./pfun-cma-mcp-server
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
-    command: ["npm", "run", "start"]
+  # pfun-cma-mcp-server:
+  #   depends_on:
+  #     - redis
+  #     - pfun-cma-model
+  #   container_name: pfun-cma-mcp-server
+  #   restart: unless-stopped
+  #   build:
+  #     context: ./pfun-cma-mcp-server
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3001:3001"
+  #   command: ["npm", "run", "start"]
 
   redis:
     image: "redis:7.0-alpine"
