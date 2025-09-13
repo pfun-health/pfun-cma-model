@@ -56,8 +56,7 @@ redis_client: Redis | None = None
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     global redis_client
-
-    # Startup tasks:
+    # --- Startup task: connect to Redis ---
     redis_client = Redis(
         host=os.getenv("REDIS_HOST", "localhost"),
         port=int(os.getenv("REDIS_PORT", "6379")),
@@ -72,14 +71,14 @@ async def lifespan(app: FastAPI):
         logging.error("Failed to connect to Redis server: %s", str(e))
         redis_client = None
     yield
-
-    # Shutdown tasks:
+    # --- Shutdown task: disconnect from Redis ---
     if redis_client is not None:
         await redis_client.close()
         logging.info("Redis client connection closed.")
 
 
 # --- Instantiate FastAPI app ---
+
 app = FastAPI(
     app_name="PFun CMA Model Backend",
     lifespan=lifespan
@@ -87,12 +86,27 @@ app = FastAPI(
 
 # --- Application Configuration ---
 
-base_url: str = os.getenv("WS_HOST", "")
 # Set the application title and description
 app.title = "PFun CMA Model Backend"
 app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
-# set the version of the API
-app.version = pfun_cma_model.__version__
+
+# Set the app version based on package version and file modification time
+
+
+def set_app_version(app: FastAPI = app) -> FastAPI:
+    """Set the application version based on the package version and `app.py` file modification time."""
+    fmod_time = datetime.fromtimestamp(
+        Path(__file__).stat().st_mtime
+    ).strftime("%Y%m%d%H%M%S")
+    app.version = str(pfun_cma_model.__version__) + f"-dev.{fmod_time}"
+    logging.debug("pfun-cma-model version: %s", pfun_cma_model.__version__)
+    logging.debug("FastAPI app version set to: %s", app.version)
+    return app
+
+
+app = set_app_version(app=app)
+
+# Configure debug mode based on environment variable
 if debug_mode:
     app.debug = True
     logging.info("Running in DEBUG mode.")
@@ -111,9 +125,6 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
 # -- Setup middleware
-
-# Ensure all requests are upgraded to https
-# app.add_middleware(HTTPSRedirectMiddleware)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
