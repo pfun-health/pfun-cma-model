@@ -42,6 +42,7 @@ dependencies = [
     "mss>=10.1.0",
     "pip>=25.1.1",
     "pyaudio>=0.2.14",
+    "numpy>=2.2.6",
 ]
 optional-dependencies = {ui = ["dash>=2.18.2"], dev = [
         "click>=8.1.7",

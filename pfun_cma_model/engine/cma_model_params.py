@@ -6,7 +6,7 @@ from pydantic import BaseModel, field_serializer, ConfigDict
 from numpy import ndarray
 from tabulate import tabulate
 import importlib
-from pfun_path_helper import append_path
+from pfun_path_helper import append_path  # type: ignore
 from typing import Annotated, Iterable, Any
 append_path(Path(__file__).parent.parent.parent)
 
@@ -20,7 +20,7 @@ __all__ = [
 # import custom bounds types
 bounds = importlib.import_module('.engine.bounds', package='pfun_cma_model')
 Bounds = bounds.Bounds  # necessary for typing (linter)
-BoundsType = type[bounds.BoundsType]
+# BoundsType = type[bounds.BoundsType]  # Removed because bounds.BoundsType is not defined
 
 _LB_DEFAULTS = (-12.0, 0.5, 0.1, 0.0, 0.0, -3.0)
 _MID_DEFAULTS = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
@@ -166,7 +166,7 @@ class CMAModelParams(BaseModel):
     """
     Descriptions for bounded parameters. Defaults to _BOUNDED_PARAM_DESCRIPTIONS.
     """
-    bounds: ClassVar[Annotated[Any, BoundsType]] = _DEFAULT_BOUNDS
+    bounds: ClassVar[Any] = _DEFAULT_BOUNDS
     """
     Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
     """
@@ -180,6 +180,11 @@ class CMAModelParams(BaseModel):
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
         return {key: getattr(self, key) for key in self.bounded_param_keys}
+    
+    @property
+    def bounded(self) -> Dict[str, float]:
+        """Alias for bounded_params_dict."""
+        return self.bounded_params_dict
 
     def get_bounded_param(self, key: str) -> dict[str, Any]:
         """

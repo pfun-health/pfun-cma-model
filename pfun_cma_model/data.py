@@ -13,7 +13,7 @@ def read_sample_data(convert2json: bool) -> pd.DataFrame | str:
     """Read the sample dataset from the PFunDataPaths.
 
     Args:
-        convert2json (bool): If True, convert the DataFrame to JSON format.
+        convert2json (bool): If True, convert the DataFrame to JSON string format.
 
     Returns:
         pd.DataFrame or str: The sample dataset as a DataFrame or JSON string.

@@ -58,10 +58,11 @@ try:
 except ModuleNotFoundError:
     exp = importlib.import_module(
         ".calc", package="pfun_cma_model.engine").exp
-    Bounds = importlib.import_module(
+    Bounds = importlib.import_module(  # type: ignore
         ".bounds", package="pfun_cma_model.engine").Bounds
-    CMAModelParams = importlib.import_module(
+    _CMAModelParams = importlib.import_module(
         ".cma_model_params", package="pfun_cma_model.engine").CMAModelParams
+    CMAModelParams = _CMAModelParams  # type: ignore
 
 logger = logging.getLogger()
 
@@ -88,9 +89,9 @@ class CMASleepWakeModel:
 
     Methods:
     -------
-    1) Input SG -> Project SG to 24-hour phase plane.
-    2) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -> Model params (d, taup).
-    3) (Fit to projected SG) Compute approximate chronometabolic dynamics:
+    1)) Input SG -> Project SG to 24-hour phase plane.
+    2)) Estimate photoperiod (t_m0 - 1, t_m2 + 3) -> Model params (d, taup).
+    3)) (Fit to projected SG) Compute approximate chronometabolic dynamics:
         F(m, c, a)(t, d, taup) -> ...
          ...  (+/- postprandial insulin, glucose){Late, Early}.
     """
@@ -114,18 +115,13 @@ class CMASleepWakeModel:
     def param_key_index(self,
                         keys: str | Iterable[str] | Sequence[str],
                         only_bounded: bool = False
-                        ) -> int | Iterable[int]:
+                        ) -> int | list[int]:
         """Return the index of the parameter key."""
-        local_param_keys = self.param_keys if not only_bounded else \
-            self.bounded_param_keys
+        local_param_keys = self.param_keys if not only_bounded else self.bounded_param_keys
         if isinstance(keys, str):
             return local_param_keys.index(keys)
         else:
-            return [
-                # type: ignore
-                int(self.param_key_index(k, only_bounded=only_bounded))
-                for k in keys
-            ]
+            return [local_param_keys.index(k) for k in keys]
 
     def update_bounds(self, keys=[], lb=[], ub=[],
                       keep_feasible: bool_ | Iterable[bool_] = Bounds.True_,
@@ -196,8 +192,9 @@ class CMASleepWakeModel:
     def dict(self):
         return self.to_dict()
 
+
     @property
-    def params(self) -> CMAModelParams:
+    def params(self):
         """Return the current parameters as a CMAModelParams object."""
         params_dict = {k: self._params[k] for k in self.param_keys}
         return CMAModelParams(**params_dict)
@@ -223,7 +220,7 @@ class CMASleepWakeModel:
             seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
             eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
         """
-        self._params: Dict = {}
+        self._params: Dict = {}  # type: ignore
         defaults = self._DEFAULT_PARAMS
         self._params.update(defaults)  # type: ignore
         if config is not None:
@@ -296,6 +293,7 @@ class CMASleepWakeModel:
         # get the bounded parameters from the params dict
         if isinstance(params, CMAModelParams):
             params = params.model_dump()
+        # If params is already a dict, do not call model_dump
         bounded_params = {k: v for k,
                           v in params.items() if k in self.bounded_param_keys}
         bounded_params.update(params.get('bounded', {}))  # type: ignore
@@ -334,7 +332,7 @@ class CMASleepWakeModel:
         """
         if model_params is not None:
             if isinstance(model_params, CMAModelParams):
-                model_params: CMAModelParams | Dict = model_params.dict()  # type: ignore
+                model_params: Dict = model_params.dict()  # type: ignore
             model_params.update(**kwds)
             kwds = dict(model_params)
         if inplace is False:
@@ -342,7 +340,7 @@ class CMASleepWakeModel:
             new_inst.update(inplace=True, **kwds)
             return new_inst
         #: ! handle case in which taug was given as a vector initially
-        if 'taug' in kwds and isinstance(self.params.get('taug'), Container):
+        if 'taug' in kwds and isinstance(getattr(self.params, 'taug', None), Container):
             taug_new = kwds.pop('taug')
             match isinstance(taug_new, Container):
                 case True:
