@@ -1,14 +1,13 @@
 import pandas as pd
-from typing import Any, Dict, Iterable, Container, Generator
+from typing import Annotated, Any, Dict, Iterable, Container, Generator
 import numpy as np
-from pydantic import BaseModel, computed_field, ConfigDict, field_serializer
+from pydantic import BaseModel, computed_field, ConfigDict, field_serializer  # type: ignore
 import importlib
 import sys
-import os
 from pathlib import Path
 import logging
-from scipy.optimize import minimize
-from scipy.optimize._optimize import OptimizeResult
+from scipy.optimize import minimize  # type: ignore
+from scipy.optimize._optimize import OptimizeResult  # type: ignore
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
@@ -27,28 +26,23 @@ __all__ = [
 ]
 
 # import custom ndarray schema
-NumpyArray = importlib.import_module(
-    ".types", package="pfun_cma_model.misc").NumpyArray
+from pfun_cma_model.misc.types import NumpyArray
 
 # import custom cma model
-CMASleepWakeModel = importlib.import_module(
-    ".cma", package="pfun_cma_model.engine").CMASleepWakeModel
+from pfun_cma_model.engine.cma import CMASleepWakeModel
 
 # import custom data utils
-dt_to_decimal_hours = importlib.import_module(
-    ".data_utils", package="pfun_cma_model.engine").dt_to_decimal_hours
-format_data = importlib.import_module(".data_utils",
-                                      package="pfun_cma_model.engine").format_data
-downsample_data = importlib.import_module(".data_utils",
-                                          package="pfun_cma_model.engine").downsample_data
+from pfun_cma_model.engine.data_utils import (
+    dt_to_decimal_hours, format_data, downsample_data
+)
 
 class CMAFitResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     soln: pd.DataFrame
     formatted_data: pd.DataFrame
     cma: Any
-    popt: NumpyArray | np.ndarray
-    pcov: NumpyArray | np.ndarray
+    popt: Annotated[np.ndarray, NumpyArray] | np.ndarray
+    pcov: Annotated[np.ndarray, NumpyArray] | np.ndarray
     infodict: Dict
     mesg: str
     ier: int
@@ -78,7 +72,7 @@ class CMAFitResult(BaseModel):
                 logging.warning(
                     "Could not convert '%s' (key=%s, type=%s) to JSON (saving as naive string representation).",
                     str(key), str(value), type(value))
-                self.__dict__.key[key] = str(value)
+                self.__dict__[key] = str(value)
             if isinstance(value, dict):
                 for k, v in value.items():
                     if isinstance(v, OptimizeResult):
@@ -113,7 +107,6 @@ class CMAFitResult(BaseModel):
         return output
 
     @computed_field
-    @property
     def popt_named(self) -> Dict:
         if hasattr(self.cma, "bounded_param_keys"):
             bounded_param_keys = self.cma.bounded_param_keys
@@ -125,13 +118,11 @@ class CMAFitResult(BaseModel):
         }
 
     @computed_field
-    @property
     def cond(self) -> float:
         cond = np.linalg.cond(self.pcov)
         return cond
 
     @computed_field
-    @property
     def diag(self) -> np.ndarray:
         pcov = self.pcov
         return np.diag(pcov)
@@ -143,7 +134,7 @@ class CMAFitResult(BaseModel):
         return df
 
     @field_serializer("popt", "pcov", "diag")
-    def serialize_numpy_array(self, arr: NumpyArray | np.ndarray | list, *args) -> list:
+    def serialize_numpy_array(self, arr: Annotated[np.ndarray, NumpyArray] | np.ndarray | list, *args) -> list:
         if isinstance(arr, np.ndarray):
             return arr.tolist()
         return arr
@@ -193,7 +184,7 @@ class CurveFitNS:
 
     def __init__(self, xtol, ftol, maxfev, gtol) -> None:
         self.xtol, self.ftol, self.maxfev, self.gtol = xtol, ftol, maxfev, gtol
-        self.errors = {}
+        self.errors: dict[int, list[Any]] = {}
         self.get_errors()
 
     def get_errors(self):
@@ -297,6 +288,7 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
 
 def fit_model(
     data: pd.DataFrame | Dict,
+    tcol: str = "t",
     ycol: str = "G",
     tM: None | Iterable = None,
     tm_freq: str = "2h",
@@ -310,6 +302,7 @@ def fit_model(
     - data (pd.DataFrame) : ["t", "ycol"]
         "t"      : 24-hour hour of day
         "<ycol>" : raw egv
+    - tcol (str) : name of timestamp index column)
     - ycol (str) : name of output data column
     - tM (optional) : vector of mealtimes (decimal hours).
         If unspecified, mealtimes will be estimated (default).
@@ -339,7 +332,7 @@ def fit_model(
 
     # ! Important to set xdata after 'format_data' has already been called
     # ! ...to ensure the index is of the correct size  
-    xdata = data["t"].to_numpy(dtype=float)
+    xdata = data[tcol].to_numpy(dtype=float)
     ydata = data[ycol].to_numpy(dtype=float, na_value=np.nan)
 
     if tM is None:
@@ -347,8 +340,8 @@ def fit_model(
 
     # ensure there is only one value for t (should not be in kwds)
     t_kwds = kwds.pop("t", 0)
-    if t_kwds == 0:
-        t = xdata  # use xdata if no other value for t is given
+    if t_kwds == 0: t_kwds = xdata  # use xdata if no other value for t is given
+    t = t_kwds
     if t_kwds is not xdata:
         logger.warning(
             "Two values were provided for 't' parameter... Using: '%s'",

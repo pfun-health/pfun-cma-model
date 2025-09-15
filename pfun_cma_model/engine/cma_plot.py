@@ -1,8 +1,9 @@
-from typing import Optional, Tuple, Container, AnyStr
-from dataclasses import dataclass
+from typing import Annotated, Iterable, Literal, Optional, Tuple, Container, AnyStr, Set
+from dataclasses import dataclass, field
 import logging
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import pandas as pd
 from io import BytesIO
 from base64 import b64encode
@@ -16,10 +17,16 @@ __all__ = [
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
-    plot_cols: Optional[Tuple[str]] = ( "g_0", "g_1", "g_2", "G", "c",
-                                        "m", "a", "L", "I_S", "I_E", "is_meal", "value" )
-
-    labels: Optional[Tuple[str]] = (
+    plot_cols: Tuple[
+        Literal['g_0'], Literal['g_1'], Literal['g_2'], Literal['G'], Literal['c'], Literal['m'], Literal['a'], Literal['L'], Literal['I_S'], Literal['I_E'], Literal['is_meal'], Literal['value']
+    ] = field(default_factory=lambda: (
+        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"
+    ))
+    labels: Annotated[
+        tuple[str],
+        tuple[
+            Literal['Breakfast'], Literal['Lunch'], Literal['Dinner'], Literal['Glucose'], Literal['Cortisol'], Literal['Melatonin'], Literal['Adiponectin'], Literal['Photoperiod (irradiance)'], Literal['Insulin (secreted)'], Literal['Insulin (effective)'], Literal['Meals'], Literal['Glucose (Data)']
+        ]] = (
         "Breakfast", "Lunch", "Dinner",
         "Glucose", "Cortisol", "Melatonin",
         "Adiponectin", "Photoperiod (irradiance)",
@@ -28,7 +35,9 @@ class CMAPlotConfig:
         "Glucose (Data)"
     )
 
-    colors: Optional[Tuple[str]] = (
+    colors: tuple[
+        Literal['#ec5ef9'], Literal['#bd4bc7'], Literal['#8b3793'], Literal['purple'], Literal['cyan'], Literal['darkgrey'], Literal['m'], Literal['tab:orange'], Literal['tab:red'], Literal['red'], Literal['k'], Literal['darkgrey']
+    ] = (
         "#ec5ef9",
         "#bd4bc7",
         "#8b3793",
@@ -44,27 +53,28 @@ class CMAPlotConfig:
     )
 
     @classmethod
-    def get_label(cls, col: Container | AnyStr):
+    def get_label(cls, col: Iterable[str] | str):
         if not isinstance(col, str):
             return [cls.get_label(c) for c in col]
         index = cls.plot_cols.index(col)
         return cls.labels[index]
 
     @classmethod
-    def get_color(cls, col: Container | AnyStr, rgba=False, as_hex=False, keep_alpha=False):
+    def get_color(cls, col: Iterable[str] | str, rgba=False, as_hex=False, keep_alpha=False):
         if not isinstance(col, str):
             return [cls.get_color(c, rgba=rgba) for c in col]
         try:
             index = cls.plot_cols.index(col)
             c = cls.colors[index]
+            c_rgba = colors.to_rgba(c)
+            if as_hex is True:
+                c = colors.rgb2hex(c_rgba, keep_alpha=keep_alpha)
+            elif rgba is True:
+                c = c_rgba  # type: ignore
         except (IndexError, ValueError) as excep:
             msg = f"failed to find a plot color for: {col}"
-            logging.warning(msg, exc_info=1)
+            logging.warning(msg, exc_info=True)
             raise excep.__class__(msg)
-        if rgba is True or as_hex is True:
-            c = matplotlib.colors.to_rgba(c)
-            if as_hex is True:
-                c = matplotlib.colors.rgb2hex(c, keep_alpha=keep_alpha)
         return c
 
     @classmethod
@@ -126,7 +136,7 @@ class CMAPlotConfig:
         ax.legend()
         #: plot other traces
         if separate2subplots is False:
-            df.plot.area(y=plot_cols, color=cls.get_color(plot_cols), ax=axs[1],
+            df.plot.area(y=plot_cols, color=cls.get_color(plot_cols), ax=axs[1],  # type: ignore
                          alpha=0.2, label=cls.get_label(plot_cols), stacked=True)
         elif separate2subplots is True:
             for pcol, axi in zip(plot_cols, axs[1:]):

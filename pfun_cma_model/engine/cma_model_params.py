@@ -1,10 +1,10 @@
 from pfun_cma_model.misc.types import NumpyArray
-import sys
+from argparse import Namespace
 from pathlib import Path
 from typing import Optional, Sequence, Dict, Tuple, ClassVar
-from pydantic import BaseModel, field_serializer, ConfigDict
+from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
 from numpy import ndarray
-from tabulate import tabulate
+from tabulate import tabulate  # type: ignore
 import importlib
 from pfun_path_helper import append_path  # type: ignore
 from typing import Annotated, Iterable, Any
@@ -14,6 +14,7 @@ append_path(Path(__file__).parent.parent.parent)
 
 __all__ = [
     'CMAModelParams',
+    'CMABoundedParams',
     'QualsMap'
 ]
 
@@ -79,6 +80,23 @@ _DEFAULT_BOUNDS = Bounds(
     ub=_UB_DEFAULTS,
     keep_feasible=Bounds.True_
 )
+
+class CMABoundedParams(Namespace):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # set default values for bounded parameters
+        for key, default_value in zip(self.bounded_param_keys, _MID_DEFAULTS):
+            setattr(self, key, default_value)
+        # set to any explicitly passed values
+        for key in self.bounded_param_keys:
+            setattr(self, key, kwargs.get(key, getattr(self, key, None)))
+            
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+    @property
+    def bounded_param_keys(self):
+        return _BOUNDED_PARAM_KEYS_DEFAULTS
 
 
 class CMAModelParams(BaseModel):
@@ -170,6 +188,9 @@ class CMAModelParams(BaseModel):
     """
     Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
     """
+    
+    def __getitem__(self, key):
+        return getattr(self, key)
 
     @field_serializer('taug', check_fields=False)
     def serialize_ndarrays(self, value, *args):
@@ -182,9 +203,9 @@ class CMAModelParams(BaseModel):
         return {key: getattr(self, key) for key in self.bounded_param_keys}
     
     @property
-    def bounded(self) -> Dict[str, float]:
+    def bounded(self) -> CMABoundedParams:
         """Alias for bounded_params_dict."""
-        return self.bounded_params_dict
+        return CMABoundedParams(**self.bounded_params_dict)
 
     def get_bounded_param(self, key: str) -> dict[str, Any]:
         """
