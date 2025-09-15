@@ -3,6 +3,7 @@ from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler
 import numpy as np
 from pfun_cma_model.misc.errors import BoundsTypeError
+from pfun_cma_model.engine.cma_model_params import CMABoundedParams
 
 __all__ = [
     'Bounds'
@@ -188,7 +189,7 @@ class Bounds:
         Update the values of the input array so that they stay within the specified limits.
         Delegates bounds logic to BoundedCMAModelParams for consistency and maintainability.
         """
-        from pfun_cma_model.engine.cma_model_params import BoundedCMAModelParams
+        
         # If arr is a dict, use keys for mapping
         keys = None
         if isinstance(arr, dict):
@@ -198,7 +199,7 @@ class Bounds:
             arr_values = arr
         # Use BoundedCMAModelParams to trim values to bounds
         # Only bounded param keys are considered
-        bounded_keys = getattr(BoundedCMAModelParams,
+        bounded_keys = getattr(CMABoundedParams(),
                                'bounded_param_keys', None)
         if bounded_keys is None:
             # fallback: use all indices

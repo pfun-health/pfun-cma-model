@@ -3,7 +3,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Optional, Sequence, Dict, Tuple, ClassVar
 from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
-from numpy import ndarray
+from numpy import ndarray, array
 from tabulate import tabulate  # type: ignore
 import importlib
 from pfun_path_helper import append_path  # type: ignore
@@ -150,7 +150,7 @@ class CMAModelParams(BaseModel):
     """
     Solar noon offset (latitude). Defaults to 0.0.
     """
-    tM: Sequence[float] | float = (7.0, 11.0, 17.5)
+    tM: Any | Annotated[ndarray, NumpyArray] | float = array([7.0, 11.0, 17.5])
     """
     Meal times (hours). Defaults to (7.0, 11.0, 17.5).
     """

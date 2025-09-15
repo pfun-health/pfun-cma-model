@@ -297,7 +297,8 @@ class CMASleepWakeModel:
         bounded_params.update(params.get('bounded', {}))  # type: ignore
         # ! ensure the bounded parameters are within bounds
         new_params = self.bounds.update_values({
-            k: float(v.get('value')) for k, v in bounded_params.items()})
+            k: float(v) for k, v in bounded_params.items()
+        })
         self.params.bounded.update(**new_params)
         return self.params
 
@@ -348,8 +349,8 @@ class CMASleepWakeModel:
                 case False:  # ! else, taug is a scale: <old_taug> *= new_taug
                     self.params['taug'] = array(  # type: ignore
                         self.params['taug'], dtype=float) * float(taug_new)
-        #: update all given params
-        self.params = self.params.update(**kwds)  # type: ignore
+        #: update all given params by updating the private dict directly
+        self._params.update(**kwds)
         #: Important next line:
         #: ! Keeps params within specified bounds (keep_feasible is handled by Bounds)
         #: ! Ensures that only bounded params are updated
