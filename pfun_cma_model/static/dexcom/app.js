@@ -25,6 +25,9 @@ const DEXCOM_CONFIG = {
     calibrations: "/v3/users/self/calibrations",
     alerts: "/v3/users/self/alerts"
   },
+  /*
+    @TODO: MOVE ALL THIS TO THE BACKEND TO ENSURE CLIENT SECURITY
+  */
   clientId: "demo-client-id", // Would be real client ID in production
   redirectUri: window.location.origin + "/auth/callback",
   scope: "offline_access" // currently the only acceptable 'scope'
