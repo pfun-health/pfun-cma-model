@@ -1,6 +1,18 @@
 # CHANGELOG.md
-*2025-09-15*
+
+## 2025-09-15
+
 ------------
+
+### chore: reorganize assets and documentation; add CHANGELOG.md
+
+**Add new asset files for Dexcom dashboard, including HTML, CSS, JS, and documentation templates.** Reorganize static files by moving run-at-time CSS/JS to
+appropriate directory and removing obsolete run-at-time demo template. Introduce CHANGELOG.md to improve project transparency. Removed `pfun_cma_model/templates/run-at-time-demo.html` as it is no longer needed.
+
+------------
+
+### chore: implement theme toggler
+
 **(Gemini)**
 I've implemented the theme toggler for you. Here's a summary of the changes:
 - `pfun_cma_model/static/style.css`: I've merged the dark and light theme styles from `pfun_cma_model/static/dexcom/style.css' into this file. This makes the theme variables available globally.
