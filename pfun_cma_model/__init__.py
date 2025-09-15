@@ -3,13 +3,17 @@ from .misc.pathdefs import *
 from .engine.cma_model_params import *
 from .engine.cma import *
 from .engine.fit import *
+from .engine.cma_plot import *
+from .data import *
 
 __all__ = [
     "PFunDataPaths",
     "CMAModelParams",
     "CMASleepWakeModel",
-    "run_at_time_func",
-    "cma_fit_model",
+    "CMAPlotConfig",
+    "fit_model",
+    "read_sample_data",
+    "format_data"
 ]
 
 # top-level convenience imports

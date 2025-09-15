@@ -327,13 +327,13 @@ def tabulate_params(
 @dataclass
 class PFunDatasetResponse:
     data: DataFrame | None = None
-    nrows: int = 23
-    nrows_given: InitVar[bool | None] = None
+    nrows: InitVar[int] = 23
+    nrows_given: bool | None = None
 
-    def __post_init__(self):
+    def __post_init__(self, nrows: int):
         """Post-initialization to parse nrows and data."""
-        self.nrows, self.nrows_given = self._parse_nrows(self.nrows)
-        self.data = self._parse_data(self.data, self.nrows, self.nrows_given)
+        _, self.nrows_given = self._parse_nrows(nrows)
+        self.data = self._parse_data(self.data, nrows, self.nrows_given)
 
     @property
     def streaming_response(self) -> StreamingResponse:
@@ -373,7 +373,7 @@ class PFunDatasetResponse:
             yield json.dumps(row.to_dict()) + '\n'
 
     @classmethod
-    def _parse_nrows(cls, nrows: int):
+    def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
         """Parse and validate the nrows parameter for dataset retrieval.
         Args:
             nrows (int): The number of rows to return. If -1, return the full dataset.
@@ -513,9 +513,11 @@ async def run_at_time_route(t0: float | int,
     """
     try:
         if config is None:
-            config = CMAModelParams()  # type: ignore
-        config: Mapping = config.model_dump()  # type: ignore
-        output = await run_at_time_func(t0, t1, n, **config)  # type: ignore
+            config_obj = CMAModelParams()  # type: ignore
+        else:
+            config_obj = config
+        config_dict: Mapping = config_obj.model_dump()  # type: ignore
+        output = await run_at_time_func(t0, t1, n, **config_dict)  # type: ignore
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)

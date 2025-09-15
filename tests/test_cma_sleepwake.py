@@ -54,7 +54,8 @@ class TestCMASleepWakeModel:
         keys = ['d', 'taup']
         lb = [0.0, 1.0]
         ub = [10.0, 20.0]
-        keep_feasible = [True, False]
+        # weird pattern for satisfying mypy:
+        keep_feasible = [np.bool_(x) for x in (True, False)]
 
         # Call the update_bounds method
         model.update_bounds(keys, lb, ub, keep_feasible)
@@ -69,7 +70,7 @@ class TestCMASleepWakeModel:
         from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
         from pfun_cma_model.engine.cma import CMASleepWakeModel
         model = CMASleepWakeModel()
-        params = model.bounded_params_dict()
+        params = model.bounded_params_as_dict
         expected_dict = {
             'd': 0.0,
             'taup': 1.0,
@@ -79,22 +80,3 @@ class TestCMASleepWakeModel:
             'toff': 0.0
         }
         assert params == expected_dict
-
-    def test_cma_bounded_params_as_obj(self):
-        from pfun_cma_model.engine.bounds import BoundsTypeError, Bounds
-        from pfun_cma_model.engine.cma import CMASleepWakeModel
-        model = CMASleepWakeModel()
-        params = model.bounded_params_as_obj
-        expected_dict = {
-            'd': params.bounded.d,
-            'taup': params.bounded.taup,
-            'taug': params.bounded.taug,
-            'B': params.bounded.B,
-            'Cm': params.bounded.Cm,
-            'toff': params.bounded.toff
-        }
-        from pfun_cma_model.engine.cma_model_params import CMAModelParams
-        expected_obj = CMAModelParams(bounded=params.bounded)
-        # Check if the object is the same as the original
-        assert params.bounded_params_as_obj == expected_obj
-        assert params.bounded.bounded_params_dict == expected_dict

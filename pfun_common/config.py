@@ -1,8 +1,8 @@
 import logging
-from pfun_path_helper import get_lib_path
+from pfun_path_helper import get_lib_path  # type: ignore[import]
 import os
 from dataclasses import dataclass
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore[import]
 
 load_dotenv()
 
@@ -29,8 +29,8 @@ class Settings:
     """
 
     _env_file = os.path.abspath(os.path.join(root_path, "..", ".env"))
-    DEXCOM_CREDS_PATH: str = os.getenv(
-        "DEXCOM_CREDS_PATH", "~/.dexcom_creds.json")
+    DEXCOM_CREDS_PATH: str = os.path.normpath(os.getenv(
+        "DEXCOM_CREDS_PATH", "~/.credentials/dexcom_pfun-app_glucose.json"))
 
     @classmethod
     def load(cls):
