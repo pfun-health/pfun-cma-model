@@ -22,6 +22,37 @@ steps:
     id: Push
     args: ["push", "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"]
 
+  # 2.5. Deploy to staging environment
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: Deploy to Staging
+    entrypoint: gcloud
+    env:
+      - "DEBUG=1" # Enable debug mode for staging
+      - "WS_HOST=pfun-cma-model-staging-446025415469.us-central1.run.app" # Host for WebSocket connections
+      - "WS_PORT=443" # Port for WebSocket connections
+    args:
+      - "run"
+      - "deploy"
+      - "pfun-cma-model-staging" # Cloud Run service name for staging
+      - "--image"
+      - "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"
+      - "--region"
+      - "${_REGION}"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated" # Allows public access to the service
+      - "--port"
+      - "8001" # The port your container listens on
+      - "--command"
+      - "uv"
+      - "--args"
+      - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1"
+
+  # 2.75. Healthcheck on staging environment
+  - name: "gcr.io/cloud-builders/curl"
+    id: Healthcheck Staging
+    args: ["-f", "https://pfun-cma-model-staging-446025415469.us-central1.run.app/health"]
+
   # 3. Deploy the container image to Google Cloud Run.
   # This step mirrors the service definition in docker-compose.yaml.
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"

@@ -3,7 +3,6 @@ from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler
 import numpy as np
 from pfun_cma_model.misc.errors import BoundsTypeError
-from pfun_cma_model.engine.cma_model_params import CMABoundedParams
 
 __all__ = [
     'Bounds'
@@ -187,9 +186,9 @@ class Bounds:
     def update_values(self, arr: np.ndarray | Dict) -> np.ndarray | Dict[str, float | int]:
         """
         Update the values of the input array so that they stay within the specified limits.
-        Delegates bounds logic to BoundedCMAModelParams for consistency and maintainability.
+        Delegates bounds logic to CMABoundedParams for consistency and maintainability.
         """
-        
+        from pfun_cma_model.engine.cma_model_params import CMABoundedParams
         # If arr is a dict, use keys for mapping
         keys = None
         if isinstance(arr, dict):
@@ -197,16 +196,16 @@ class Bounds:
             arr_values = [arr[k] for k in keys]
         else:
             arr_values = arr
-        # Use BoundedCMAModelParams to trim values to bounds
+        # Use CMABoundedParams to trim values to bounds
         # Only bounded param keys are considered
         bounded_keys = getattr(CMABoundedParams(),
                                'bounded_param_keys', None)
         if bounded_keys is None:
             # fallback: use all indices
             bounded_keys = range(len(arr_values))
-        # Build a params dict for BoundedCMAModelParams
+        # Build a params dict for CMABoundedParams
         params_dict = {k: v for k, v in zip(bounded_keys, arr_values)}
-        # bounded_obj = BoundedCMAModelParams(**params_dict)
+        # bounded_obj = CMABoundedParams(**params_dict)
         # trimmed = bounded_obj.bounded_params_dict
         # Return in same format as input
         if keys is not None:

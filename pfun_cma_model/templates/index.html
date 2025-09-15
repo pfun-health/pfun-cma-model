@@ -17,12 +17,19 @@
         <h1>PFun Glucose Web API &mdash; Demo</h1>
 
         <p><em>Please note that the API is currently under active development</em></p>
-        <h2>Endpoints:</h2>
+        <h2>Visual Dashboard(s)</h2>
         <ul>
-            <li>View the interactive glucose modeling demo at <a href="/demo/run-at-time">/demo/run-at-time</a>.</li>
+            <li>
+                <a href="{{ url_for('static', path='dexcom/index.html') }}" target="_blank">Dexcom CGM Dashboard</a>
+            </li>
+        </ul>
+        <hr />
+        <h2>API Endpoints</h2>
+        <ul>
             <li>View the model parameters schema using the <a href="/params/schema">/params/schema</a> endpoint.</li>
             <li>Get the default model parameters using the <a href="/params/default">/params/default</a> endpoint.</li>
         </ul>
+        <hr />
         <h2>Documentation:</h2>
         <p>For more information on how to use the API, please refer to the documentation available at:</p>
         <ul>

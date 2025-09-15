@@ -7,6 +7,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} ~ PFun Digital Health</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <style>
+
+    </style>
+    <script>
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-color-scheme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(savedTheme || preferredTheme);
+        });
+    </script>
     {% endblock %}
 </head>
 
@@ -14,14 +36,12 @@
     <header>
         {% block navheader %}
         <nav class="navbar">
-            <ul class="nav-list">
-                <li><a href="/">Home</a></li>
-                <li><a href="/demo/run-at-time">run-at-time Demo</a></li>
-                <li>&nbsp;&nbsp;</li>
-                <li><a href="/docs">Documentation (SwaggerUI)</a></li>
-                <li><a href="/redoc">Documentation (ReDoc)</a></li>
-                <li><a href="/openapi.json">OpenAPI Schema</a></li>
-            </ul>
+            <a href="/">Home</a>
+            <a href="{{ url_for('static', path='dexcom/index.html') }}">Dexcom CGM Dashboard</a>
+            <a href="/docs">Documentation (SwaggerUI)</a>
+            <a href="/redoc">Documentation (ReDoc)</a>
+            <a href="/openapi.json">OpenAPI Schema</a>
+            <button class="theme-toggler" onclick="toggleTheme()">Toggle Theme</button>
         </nav>
         {% endblock %}
     </header>

@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
@@ -156,65 +157,6 @@ app.add_middleware(
     max_age=300,
 )
 
-# --- add CSP middleware ---
-
-# Content security policy mapping
-CSP_MAP = {"js": "script-src", "css": "style-src", }
-# Defines the expected hashes for external CDN resources
-ContentDeliveryDefs = {
-    "chartjs": {
-        "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js",
-        "integrity": "sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
-    },
-    "socketio": {
-        "url": "https://cdn.socket.io/4.8.1/socket.io.min.js",
-        "integrity": "sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
-    },
-}
-
-
-def hashit256(data: str) -> str:
-    """Hash a string using SHA-256."""
-    return 'sha256-' + hashlib.sha256(data.encode('utf8')).hexdigest()
-
-
-@app.middleware("http")
-async def set_content_security_policy(request: Request, call_next: Callable[[Request], Awaitable[Response]]
-                                      ) -> Response:
-    cs_policies = [
-        "default-src 'self'",
-    ]
-    logging.debug("Setting Content-Security-Policy header...")
-    # ensure CSP headers map is defined as app.state.csp_headers (for external static dependencies)
-    setup_csp_hashes()
-    for subpath in STATIC_DIR.iterdir():
-        if subpath.is_file():
-            logging.debug("Adding CSP for file: %s", subpath)
-            cs_key = CSP_MAP.get(subpath.suffix[1:], None)
-            if cs_key is None:  # ! skip because it isn't an expected filetype
-                continue
-            # compute the sha256 hash digest for security
-            h256 = hashit256(subpath.read_text())
-            # store for client-side validation
-            fullurl = request.base_url.scheme + "://" + urlparse.urljoin(
-                base_url, subpath.name)  # type: ignore
-            nonce = secrets.token_urlsafe(random.randint(32, 64))
-            # store the nonce and hash in the app.state.csp_hashes dictionary
-            app.state.csp_hashes[subpath.name] = {
-                "url": fullurl,
-                "integrity": h256,
-                "nonce": nonce
-            }
-            # ...also append to the CS policy header value
-            # cs_policies.append(cs_key + f" 'nonce-{nonce}'")
-            # cs_policies.append(cs_key + f" {fullurl}")
-            # cs_policies.append(cs_key + f" 'sha256-{h256}'")
-    response = await call_next(request)
-    response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
-    logging.debug("Content-Security-Policy header set: '' %s ''",
-                  response.headers['Content-Security-Policy'])
-    return response
-
 
 @app.get("/health")
 def health_check():
@@ -235,6 +177,30 @@ def root(request: Request):
         "message": f"Accessed at: {ts_msg}",
         "csp_hashes": getattr(app.state, 'csp_hashes', {})
     })
+
+
+@app.get("/demo/dexcom")
+def demo_dexcom(request: Request):
+    html_content = STATIC_DIR.joinpath('dexcom', 'index.html').read_text()
+    return HTMLResponse(content=html_content, status_code=200)
+
+
+@app.get("/dexcom/auth/callback")
+def auth_callback(request: Request):
+    """Authentication callback endpoint."""
+    logger.info("Authentication callback endpoint accessed.")
+    # extract the authorization_code attribute (will be exchanged for access_token, refresh_token)
+    authorization_code = request.query_params.get("code")
+    logger.debug("(/auth/callback) Authorization code: %s", authorization_code)
+    # redirect to dexcom demo page
+    return RedirectResponse(url=app.url_path_for("demo_dexcom"))
+
+
+@app.get("/auth/logout")
+def auth_logout(request: Request):
+    """Logout endpoint."""
+    logger.info("Logout endpoint accessed.")
+    return {"status": "ok", "message": "Logout successful."}
 
 
 # -- Model Parameters Endpoints --
@@ -363,7 +329,7 @@ class PFunDatasetResponse:
         dataset = DataFrame(data)
         logging.debug("Sample dataset loaded with %d rows.", len(dataset))
         if nrows_given:
-            return dataset.iloc[:nrows, :]
+            return dataset.iloc[:nrows, :]  # type: ignore
         return dataset
 
     @property
@@ -517,7 +483,8 @@ async def run_at_time_route(t0: float | int,
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        output = await run_at_time_func(t0, t1, n, **config_dict)  # type: ignore
+        # type: ignore
+        output = await run_at_time_func(t0, t1, n, **config_dict)
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -550,15 +517,6 @@ async def health_check_run_at_time():
 
 # -- Demo routes --
 
-def setup_csp_hashes() -> None:
-    """Setup the Content Security Policy hashes in app.state.csp_hashes."""
-    # ensure the csp_hashes dictionary exists in app.state before use
-    if not hasattr(app.state, "csp_hashes"):
-        app.state.csp_hashes = {}
-    #  include the ContentSecurityProtocol hash maps
-    app.state.csp_hashes.update(ContentDeliveryDefs)
-
-
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
@@ -582,9 +540,6 @@ async def demo_run_at_time(request: Request):
                 "default": _MID_DEFAULTS[ix]
             }
 
-    # ensure the csp_hashes dictionary exists in app.state before use
-    setup_csp_hashes()
-
     # determine the websocket port (environment variable or default to 443)
     ws_port = os.getenv("WS_PORT", 443)
 
@@ -595,7 +550,6 @@ async def demo_run_at_time(request: Request):
         "ws_prefix": 'wss' if ws_port == 443 else 'ws',
         "host": os.getenv("WS_HOST", request.base_url.hostname),
         "port": ws_port,
-        "csp_hashes": app.state.csp_hashes
     }
 
     # debug output, then return

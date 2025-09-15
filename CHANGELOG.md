@@ -1,0 +1,7 @@
+# CHANGELOG.md
+*2025-09-15*
+------------
+**(Gemini)**
+I've implemented the theme toggler for you. Here's a summary of the changes:
+- `pfun_cma_model/static/style.css`: I've merged the dark and light theme styles from `pfun_cma_model/static/dexcom/style.css' into this file. This makes the theme variables available globally.
+- `pfun_cma_model/templates/base.html`: I've added a "Toggle Theme" button to the navigation bar. I've included a script that manages theme switching. It automatically detects the user's preferred color scheme and allows them to toggle between dark and light modes. The chosen theme is saved in the browser's local storage, so it will be remembered on their next visit.
