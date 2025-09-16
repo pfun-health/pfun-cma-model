@@ -22,9 +22,11 @@ from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from pfun_cma_model.routes import dexcom as dexcom_routes
 from datetime import datetime
 import json
 import logging
@@ -127,6 +129,9 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 # -- Setup middleware
 
+# Add Session middleware
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY"))
+
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],
@@ -156,6 +161,9 @@ app.add_middleware(
     allow_credentials=True,
     max_age=300,
 )
+
+# Include the Dexcom router
+app.include_router(dexcom_routes.router)
 
 
 @app.get("/health")

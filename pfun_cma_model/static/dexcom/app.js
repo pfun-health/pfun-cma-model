@@ -4,34 +4,7 @@
 const { useState, useEffect, useCallback, useMemo } = React;
 
 // Constants and Configuration
-const DEXCOM_CONFIG = {
-  endpoints: {
-    production: {
-      us: "https://api.dexcom.com",
-      eu: "https://api.dexcom.eu", 
-      jp: "https://api.dexcom.jp"
-    },
-    sandbox: "https://sandbox-api.dexcom.com"
-  },
-  oauth: {
-    authorization: "/v2/oauth2/login",
-    token: "/v2/oauth2/token"
-  },
-  api: {
-    egvs: "/v3/users/self/egvs",
-    events: "/v3/users/self/events",
-    devices: "/v3/users/self/devices", 
-    dataRange: "/v3/users/self/dataRange",
-    calibrations: "/v3/users/self/calibrations",
-    alerts: "/v3/users/self/alerts"
-  },
-  /*
-    @TODO: MOVE ALL THIS TO THE BACKEND TO ENSURE CLIENT SECURITY
-  */
-  clientId: "demo-client-id", // Would be real client ID in production
-  redirectUri: window.location.origin + "/auth/callback",
-  scope: "offline_access" // currently the only acceptable 'scope'
-};
+const API_BASE_URL = ""; // Assuming the frontend is served from the same origin as the backend
 
 const GLUCOSE_RANGES = {
   veryLow: 54,
@@ -129,132 +102,39 @@ const calculateTimeInRange = (egvData) => {
 // Authentication Service
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(null);
-  const [environment, setEnvironment] = useState('sandbox');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getBaseUrl = useCallback(() => {
-    return environment === 'sandbox' 
-      ? DEXCOM_CONFIG.endpoints.sandbox 
-      : DEXCOM_CONFIG.endpoints.production.us;
-  }, [environment]);
-
-  const startAuthFlow = useCallback(async (env = 'sandbox') => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      setEnvironment(env);
-      
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      
-      // Store PKCE values (in production, use chrome.storage)
-      sessionStorage.setItem('dexcom_code_verifier', codeVerifier);
-      sessionStorage.setItem('dexcom_environment', env);
-      
-      const baseUrl = env === 'sandbox' 
-        ? DEXCOM_CONFIG.endpoints.sandbox 
-        : DEXCOM_CONFIG.endpoints.production.us;
-      
-      const authUrl = new URL(baseUrl + DEXCOM_CONFIG.oauth.authorization);
-      authUrl.searchParams.set('client_id', DEXCOM_CONFIG.clientId);
-      authUrl.searchParams.set('redirect_uri', DEXCOM_CONFIG.redirectUri);
-      authUrl.searchParams.set('response_type', 'code');
-      authUrl.searchParams.set('scope', DEXCOM_CONFIG.scope);
-      authUrl.searchParams.set('code_challenge', codeChallenge);
-      authUrl.searchParams.set('code_challenge_method', 'S256');
-      authUrl.searchParams.set('state', Math.random().toString(36).substring(7));
-      
-      // In production Chrome extension, use chrome.identity.launchWebAuthFlow
-      window.location.href = authUrl.toString();
-      
-    } catch (err) {
-      setError('Failed to start authentication: ' + err.message);
-      setIsLoading(false);
-    }
-  }, []);
-
-  const exchangeCodeForToken = useCallback(async (code) => {
-    try {
-      setIsLoading(true);
-      const codeVerifier = sessionStorage.getItem('dexcom_code_verifier');
-      const env = sessionStorage.getItem('dexcom_environment') || 'sandbox';
-      
-      if (!codeVerifier) {
-        throw new Error('Missing code verifier');
-      }
-      
-      const baseUrl = env === 'sandbox' 
-        ? DEXCOM_CONFIG.endpoints.sandbox 
-        : DEXCOM_CONFIG.endpoints.production.us;
-      
-      const response = await fetch(baseUrl + DEXCOM_CONFIG.oauth.token, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          client_id: DEXCOM_CONFIG.clientId,
-          code: code,
-          grant_type: 'authorization_code',
-          redirect_uri: DEXCOM_CONFIG.redirectUri,
-          code_verifier: codeVerifier
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Token exchange failed');
-      }
-      
-      const tokens = await response.json();
-      
-      setAccessToken(tokens.access_token);
-      setRefreshToken(tokens.refresh_token);
-      setIsAuthenticated(true);
-      setEnvironment(env);
-      
-      // Clean up
-      sessionStorage.removeItem('dexcom_code_verifier');
-      sessionStorage.removeItem('dexcom_environment');
-      
-    } catch (err) {
-      setError('Token exchange failed: ' + err.message);
-    } finally {
-      setIsLoading(false);
-    }
+  const startAuthFlow = useCallback(() => {
+    window.location.href = `${API_BASE_URL}/dexcom/auth`;
   }, []);
 
   const logout = useCallback(() => {
-    setAccessToken(null);
-    setRefreshToken(null);
+    // Implement logout logic if needed, e.g., by calling a backend logout endpoint
     setIsAuthenticated(false);
-    setError(null);
-    sessionStorage.clear();
   }, []);
 
-  // Demo authentication for sandbox mode
-  const authenticateDemo = useCallback(() => {
-    setAccessToken('demo-token');
-    setRefreshToken('demo-refresh-token');
-    setIsAuthenticated(true);
-    setEnvironment('sandbox');
-    setError(null);
+  // Check if the user is authenticated on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/dexcom/api/users/self/egvs`);
+        if (response.ok) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        // Not authenticated
+      }
+    };
+    checkAuth();
   }, []);
 
   return {
     isAuthenticated,
-    accessToken,
-    refreshToken,
-    environment,
     isLoading,
     error,
     startAuthFlow,
-    exchangeCodeForToken,
     logout,
-    authenticateDemo,
-    getBaseUrl
   };
 };
 
@@ -267,31 +147,17 @@ const useDexcomData = (auth) => {
   const [error, setError] = useState(null);
 
   const fetchEGVs = useCallback(async (startDate, endDate) => {
-    if (!auth.isAuthenticated || !auth.accessToken) return;
+    if (!auth.isAuthenticated) return;
     
     try {
       setIsLoading(true);
       setError(null);
       
-      // For demo mode, use sample data
-      if (auth.environment === 'sandbox' && auth.accessToken === 'demo-token') {
-        setTimeout(() => {
-          setEgvData(SAMPLE_EGV_DATA);
-          setIsLoading(false);
-        }, 1000);
-        return;
-      }
-      
-      const url = new URL(auth.getBaseUrl() + DEXCOM_CONFIG.api.egvs);
+      const url = new URL(`${API_BASE_URL}/dexcom/api/v3/users/self/egvs`);
       if (startDate) url.searchParams.set('startDate', startDate);
       if (endDate) url.searchParams.set('endDate', endDate);
       
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${auth.accessToken}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status}`);
@@ -305,30 +171,13 @@ const useDexcomData = (auth) => {
     } finally {
       setIsLoading(false);
     }
-  }, [auth]);
+  }, [auth.isAuthenticated]);
 
   const fetchDeviceInfo = useCallback(async () => {
-    if (!auth.isAuthenticated || !auth.accessToken) return;
+    if (!auth.isAuthenticated) return;
     
     try {
-      // For demo mode, use sample data
-      if (auth.environment === 'sandbox' && auth.accessToken === 'demo-token') {
-        setDeviceData({
-          displayDevice: {
-            transmitterGeneration: "g7",
-            displayApp: "iOS", 
-            softwareNumber: "1.10.0"
-          }
-        });
-        return;
-      }
-      
-      const response = await fetch(auth.getBaseUrl() + DEXCOM_CONFIG.api.devices, {
-        headers: {
-          'Authorization': `Bearer ${auth.accessToken}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      const response = await fetch(`${API_BASE_URL}/dexcom/api/v3/users/self/devices`);
       
       if (!response.ok) {
         throw new Error(`Device API request failed: ${response.status}`);
@@ -340,7 +189,7 @@ const useDexcomData = (auth) => {
     } catch (err) {
       console.error('Failed to fetch device info:', err);
     }
-  }, [auth]);
+  }, [auth.isAuthenticated]);
 
   // Auto-fetch data when authenticated
   useEffect(() => {
@@ -675,22 +524,10 @@ const AuthModal = ({ isOpen, onClose, onAuthenticate }) => {
           <div className="auth-options">
             <button 
               className="btn btn--primary"
-              onClick={() => onAuthenticate('sandbox')}
+              onClick={onAuthenticate}
             >
-              Connect to Dexcom Sandbox
+              Connect to Dexcom
             </button>
-            <button 
-              className="btn btn--secondary"
-              onClick={() => onAuthenticate('production')}
-            >
-              Connect to Dexcom Production
-            </button>
-          </div>
-          <div className="auth-info">
-            <small>
-              Sandbox mode uses test data for demonstration. Production mode requires a real Dexcom account.
-              For this demo, sandbox mode will simulate the authentication flow.
-            </small>
           </div>
         </div>
       </div>
@@ -705,21 +542,6 @@ const DexcomDashboard = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
 
-  // Handle OAuth callback
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const error = urlParams.get('error');
-
-    if (code) {
-      auth.exchangeCodeForToken(code);
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (error) {
-      console.error('OAuth error:', error);
-    }
-  }, []);
-
   // Hide loading screen after initial load
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -733,15 +555,9 @@ const DexcomDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleAuthenticate = (environment) => {
+  const handleAuthenticate = () => {
     setShowAuthModal(false);
-    
-    // For demo purposes, simulate authentication
-    if (environment === 'sandbox') {
-      auth.authenticateDemo();
-    } else {
-      auth.startAuthFlow(environment);
-    }
+    auth.startAuthFlow();
   };
 
   const handleLogout = () => {
@@ -797,12 +613,12 @@ const DexcomDashboard = () => {
           <div className="dashboard-title">
             <h1>Dexcom Health Dashboard</h1>
             <span className="status status--success">
-              {auth.environment === 'sandbox' ? 'Sandbox Mode' : 'Connected'}
+              Connected
             </span>
           </div>
           <div className="connection-status">
             <div className="status-indicator"></div>
-            <span>Connected to {auth.environment}</span>
+            <span>Connected</span>
             <button className="btn btn--outline btn--sm" onClick={handleLogout}>
               Disconnect
             </button>
