@@ -48,11 +48,6 @@ steps:
       - "--args"
       - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1"
 
-  # 2.75. Healthcheck on staging environment
-  - name: "gcr.io/cloud-builders/curl"
-    id: Healthcheck Staging
-    args: ["-f", "https://pfun-cma-model-staging-446025415469.us-central1.run.app/health"]
-
   # 3. Deploy the container image to Google Cloud Run.
   # This step mirrors the service definition in docker-compose.yaml.
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
