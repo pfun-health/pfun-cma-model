@@ -1,4 +1,4 @@
-/generated_clients/*/*
+/generated_clients/
 
 # Specifies intentionally untracked files to ignore when using Git
 # http://git-scm.com/docs/gitignore

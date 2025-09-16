@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Run-at-Time WebSocket Example{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- MathJax (render latex) -->
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js">
+</script>
+{% endblock %}
+
+<body>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+        {% block content %}
+        <h2>Run-at-Time WebSocket Demo</h2>
+        <h3>Chart</h3>
+        <div id="scatterPlotContainer">
+            <canvas id="scatterPlot"></canvas>
+        </div>
+        <form id="runForm">
+
+            <div class="container-fluid">
+
+                <!-- Simulation Parameters: -->
+
+                <div class="vstack gap-2 mx-auto">
+
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Simulation start time (decimal hours).">
+                        <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
+                        <input class="form-control model-params" type="range" step="0.5" id="t0" name="t0" max="24.0"
+                            min="0" value="4" required>
+                    </div>
+
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
+                        end time (decimal hours). Note: t1 must be greater than t0.">
+                        <label class="form-label" for="t1">t1 (0, 24.0):
+                        </label>
+                        <input class="form-control model-params" type="range" step="0.5" id="t1" name="t1" max="24.0"
+                            min="0" value="20" required>
+                    </div>
+
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Number of points to simulate.<br>Note: N must be a positive integer.">
+                        <label class="form-label" for="N" class="tooltip">N (1, 10000):
+                        </label>
+                        <input class="form-control model-params" type="range" step="1" id="N" name="N" min="1"
+                            max="10000" value="100" required>
+                    </div>
+
+                </div>
+
+                <!-- Model Parameters: -->
+                <div class="vstack gap-2 mx-auto">
+                    {% for key, param in params.items() %}
+                    <div class="param-item" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="{{ param.description }}">
+                        <label class="form-label" for="{{ key }}">{{ key }}:</label>
+                        <input class="form-control model-params" type="range" step="0.05" id="{{ key }}"
+                            name="{{ key }}" value="{{ param.value }}" min="{{ param.min }}" max="{{ param.max }}"
+                            required>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button clss="btn" type="submit">Send</button>
+
+            </div>
+        </form>
+
+        <div id="message-list">
+            <div id="messages"></div>
+        </div>
+
+        <!-- Chart.js CDN -->
+        <script src="{{ cdn['chartjs']['url'] }}" crossorigin="anonymous"></script>
+        <!-- Socket.IO CDN -->
+        <!-- Note: Ensure you have the correct version matching your server -->
+        <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
+        <!-- run-at-time demo app script -->
+        <script src="{{ url_for('static', path='run-at-time/run-at-time.js') }}" crossorigin="anonymous"></script>
+
+        {% endblock %}
+    </div>
+</body>
+
+</html>
