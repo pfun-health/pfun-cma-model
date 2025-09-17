@@ -9,8 +9,9 @@ class RunAtTimeDemo {
         this.chart = null;
         this.dom = {
             // DOM elements
-            ranges: document.getElementsByTagName('input[type="range"]'),
+            ranges: document.querySelectorAll('input[type=range]'),
             runForm: document.getElementById('runForm'),
+            submitButtons: document.querySelectorAll("input[type=submit]"),
             messagesDiv: document.getElementById('messages'),
             canvas: document.getElementById('scatterPlot'),
         };
@@ -116,6 +117,17 @@ class RunAtTimeDemo {
             e.preventDefault();
             this.runSimulation();
         });
+        this.dom.submitButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                this.runSimulation();
+            });
+        });
+        let self = this;
+        this.dom.ranges.forEach(range => {
+            range.addEventListener('input', () => {
+                self.onUpdateRange(range);
+            });
+        });
     }
 
     runSimulation() {
@@ -160,22 +172,20 @@ class RunAtTimeDemo {
         this.dom.messagesDiv.appendChild(el);
         this.dom.messagesDiv.scrollTop = this.dom.messagesDiv.scrollHeight;
     }
-}
 
-function onUpdateRange(range) {
-    const outputElement = document.getElementById('rangeValue-' + range.id);
-    if (range) {
-        outputElement.textContent = range.value;
+    onUpdateRange(range) {
+        const outputElement = document.getElementById(`rangeValue-${range.id}`);
+        if (range) {
+            if (outputElement) {
+                outputElement.textContent = range.value;
+            } else {
+                console.warn(`Element with id 'rangeValue-${range.id}' not found.`);
+            }
+        }
     }
 }
 
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new RunAtTimeDemo();
-    const ranges = document.querySelectorAll('input[type="range"]');
-    ranges.forEach(range => {
-        range.addEventListener('input', () => {
-            onUpdateRange(this);
-        });
-    });
 });

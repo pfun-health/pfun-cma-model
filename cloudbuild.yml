@@ -46,7 +46,7 @@ steps:
       - "--command"
       - "uv"
       - "--args"
-      - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1"
+      - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1,--proxy-headers,--forwarded-allow-ips,10.0.0.1"
 
   # 3. Deploy the container image to Google Cloud Run.
   # This step mirrors the service definition in docker-compose.yaml.

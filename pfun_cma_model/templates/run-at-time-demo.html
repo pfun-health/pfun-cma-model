@@ -81,18 +81,21 @@
                             <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
                             <input class="form-control" type="range" step="0.5" id="t0" name="t0" max="24.0" min="0"
                                 value="4" required>
+                            <output for="t0" id="rangeValue-t0" aria-hidden="false"></output>
                         </div>
                         <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
                             end time (decimal hours). Note: t1 must be greater than t0.">
                             <label class="form-label" for="t1">t1 (0, 24.0):</label>
                             <input class="form-control" type="range" step="0.5" id="t1" name="t1" max="24.0" min="0"
                                 value="20" required>
+                            <output for="t1" id="rangeValue-t1" aria-hidden="false"></output>
                         </div>
                         <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
                             data-bs-title="Number of points to simulate.<br>Note: N must be a positive integer.">
                             <label class="form-label" for="N">N (1, 10000):</label>
                             <input class="form-control" type="range" step="1" id="N" name="N" min="1" max="150"
                                 value="24" required>
+                            <output for="N" id="rangeValue-N" aria-hidden="false"></output>
                         </div>
                     </fieldset>
 
@@ -120,7 +123,9 @@
                 <div id="message-list">
                     <div id="messages"></div>
                 </div>
-
+                <div id="submit-btn-container">
+                    <input class="btn btn-primary" type="submit">Run Simulation</button>
+                </div>
             </div>
         </div>
 

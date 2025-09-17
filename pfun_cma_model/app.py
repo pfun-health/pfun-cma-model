@@ -17,6 +17,7 @@ from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -151,6 +152,13 @@ app.add_middleware(
     allow_credentials=True,
     max_age=300,
 )
+
+# In production only!
+if not debug_mode:
+    # Add HTTPS middleware to enforce https
+    app.add_middleware(
+        HTTPSRedirectMiddleware
+    )
 
 
 @app.get("/health")
