@@ -8,6 +8,8 @@ class RunAtTimeDemo {
         this.socket = null;
         this.chart = null;
         this.dom = {
+            // DOM elements
+            ranges: document.getElementsByTagName('input[type="range"]'),
             runForm: document.getElementById('runForm'),
             messagesDiv: document.getElementById('messages'),
             canvas: document.getElementById('scatterPlot'),
@@ -160,7 +162,20 @@ class RunAtTimeDemo {
     }
 }
 
+function onUpdateRange(range) {
+    const outputElement = document.getElementById('rangeValue-' + range.id);
+    if (range) {
+        outputElement.textContent = range.value;
+    }
+}
+
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new RunAtTimeDemo();
+    const ranges = document.querySelectorAll('input[type="range"]');
+    ranges.forEach(range => {
+        range.addEventListener('input', () => {
+            onUpdateRange(this);
+        });
+    });
 });

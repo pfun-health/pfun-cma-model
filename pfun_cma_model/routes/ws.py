@@ -12,6 +12,39 @@ async def get_logger():
     return logging.getLogger("pfun_cma_model")
 
 
+class AsyncLoggerWrapper:
+    """Wrapper for an async logger that can be awaited."""
+
+    def __init__(self, logger_coroutine):
+        self._logger_coroutine = logger_coroutine
+        self._logger = None
+
+    async def __call__(self):
+        if self._logger is None:
+            self._logger = await self._logger_coroutine
+        return self._logger
+
+    async def debug(self, msg, *args, **kwargs):
+        logger_instance = await self()
+        logger_instance.debug(msg, *args, **kwargs)
+
+    async def info(self, msg, *args, **kwargs):
+        logger_instance = await self()
+        logger_instance.info(msg, *args, **kwargs)
+
+    async def warning(self, msg, *args, **kwargs):
+        logger_instance = await self()
+        logger_instance.warning(msg, *args, **kwargs)
+
+    async def error(self, msg, *args, **kwargs):
+        logger_instance = await self()
+        logger_instance.error(msg, *args, **kwargs)
+
+    async def critical(self, msg, *args, **kwargs):
+        logger_instance = await self()
+        logger_instance.critical(msg, *args, **kwargs)
+
+
 class NoPrefixNamespace(socketio.AsyncNamespace):
     """Custom Socket.IO namespace without a prefix.
     This allows handling messages without a prefix.
@@ -29,10 +62,10 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
         self.app = app
 
     @property
-    async def logger(self):
+    def logger(self):
         """Asynchronously get the logger instance."""
         if self._logger is None:
-            self._logger = await get_logger()
+            self._logger = AsyncLoggerWrapper(get_logger())
         return self._logger
 
     @property
@@ -41,14 +74,14 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
         return self.server
 
     def on_connect(self, sid, environ):
-        logging.info("connect ", sid)
+        self.logger.debug("connect ", sid)
 
     async def on_message(self, sid, data):
-        logging.info("message ", data)
+        self.logger.debug("message ", data)
         await self.server.emit("response", "hi " + data)
 
     def on_disconnect(self, sid):
-        logging.info("disconnect ", sid)
+        self.logger.info("disconnect ", sid)
 
 
 class PFunWebsocketNamespace(NoPrefixNamespace):
@@ -58,17 +91,17 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
     This namespace is specifically designed to handle 'run-at-time' events and communicate with the Socket.IO server.
     """
 
-    def on_connect(self, sid: str, environ: Mapping[str, str]):
-        self.logger.debug(f"SocketIO client connected: {sid}")
+    async def on_connect(self, sid: str, environ: Mapping[str, str]):
+        await self.logger.debug(f"SocketIO client connected: {sid}")
         super().on_connect(sid, environ)
 
     async def on_message(self, sid, data):
-        self.logger.debug(f"Received message from {sid}: {data}")
+        await self.logger.debug(f"Received message from {sid}: {data}")
         await super().on_message(sid, data)
 
-    def on_disconnect(self, sid):
-        self.logger.debug(f"SocketIO client disconnected: {sid}")
-        super().on_disconnect(sid)
+    async def on_disconnect(self, sid):
+        await self.logger.debug(f"SocketIO client disconnected: {sid}")
+        await super().on_disconnect(sid)
 
     async def on_run(self, sid, data):
         """Handle 'run' event from client, run model, and stream results as 'message' events."""
@@ -79,15 +112,15 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
             t1 = run_args.get("t1", 100)
             n = run_args.get("n", 100)
             config = run_args.get("config", {})
-            self.logger.debug(
+            await self.logger.debug(
                 f"Received run event for streaming: t0={t0}, t1={t1}, n={n}, config={config}")
 
             # Use an async for loop to iterate over the async generator
             async for point in stream_run_at_time_func(t0, t1, n, **config):
                 await self.sio.emit("message", point, to=sid)
 
-            self.logger.debug(f"Finished streaming output to {sid}")
+            await self.logger.debug(f"Finished streaming output to {sid}")
 
         except Exception as e:
-            self.logger.error(f"Error in handle_run: {e}", exc_info=True)
+            await self.logger.error(f"Error in handle_run: {e}", exc_info=True)
             await self.sio.emit("message", json.dumps({"error": str(e)}), to=sid)

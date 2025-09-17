@@ -92,6 +92,17 @@ class CMABoundedParams(Namespace):
 
     def __getitem__(self, key):
         return getattr(self, key)
+    
+    def __getattr__(self, name):
+        if name in self.__dict__:
+            return self.__dict__[name]
+        elif hasattr(self.__dict__, name):
+            return getattr(self.__dict__, name)
+        # If the attribute is not found in __dict__, try to get it from the current instance
+        if hasattr(self, name):
+            return getattr(self, name)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
 
     @property
     def bounded_param_keys(self):
@@ -190,6 +201,11 @@ class CMAModelParams(BaseModel):
 
     def __getitem__(self, key):
         return getattr(self, key)
+    
+    def update(self, **kwargs):
+        """Update the model parameters."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     @field_serializer('taug', 'tM', check_fields=False)
     def serialize_ndarrays(self, value, *args):

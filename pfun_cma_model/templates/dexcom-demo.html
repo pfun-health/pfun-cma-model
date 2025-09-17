@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dexcom Health Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    
+    <link rel="stylesheet" href="{{ url_for('static', path='dexcom/style.css') }}">
+
     <!-- React and Babel for JSX transpilation -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
-    
+
     <!-- Crypto library for PKCE -->
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
 </head>
+
 <body>
     <div id="root"></div>
-    
+
     <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-spinner">
@@ -28,7 +30,7 @@
             <p>Loading Dexcom Dashboard...</p>
         </div>
     </div>
-    
+
     <!-- Auth Modal -->
     <div id="auth-modal" class="modal hidden">
         <div class="modal-overlay" onclick="closeAuthModal()"></div>
@@ -48,12 +50,13 @@
                     </button>
                 </div>
                 <p class="auth-info">
-                    <small>Sandbox mode uses test data for demonstration. Production mode requires a real Dexcom account.</small>
+                    <small>Sandbox mode uses test data for demonstration. Production mode requires a real Dexcom
+                        account.</small>
                 </p>
             </div>
         </div>
     </div>
-    
+
     <!-- Error Modal -->
     <div id="error-modal" class="modal hidden">
         <div class="modal-overlay" onclick="closeErrorModal()"></div>
@@ -69,6 +72,7 @@
         </div>
     </div>
 
-    <script type="text/babel" src="app.js"></script>
+    <script type="text/babel" src="{{ url_for('static', path='dexcom/app.js') }}"></script>
 </body>
+
 </html>

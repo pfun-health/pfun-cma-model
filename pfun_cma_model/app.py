@@ -1,7 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
@@ -169,15 +169,16 @@ def root(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "year": datetime.now().year,
-        "message": f"Accessed at: {ts_msg}",
-        "csp_hashes": getattr(app.state, 'csp_hashes', {})
+        "message": f"Accessed at: {ts_msg}"
     })
 
 
 @app.get("/demo/dexcom")
 def demo_dexcom(request: Request):
-    html_content = STATIC_DIR.joinpath('dexcom', 'index.html').read_text()
-    return HTMLResponse(content=html_content, status_code=200)
+    return templates.TemplateResponse("dexcom-demo.html", {
+        "request": request,
+        "year": datetime.now().year
+    })
 
 
 @app.get("/dexcom/auth/callback")
