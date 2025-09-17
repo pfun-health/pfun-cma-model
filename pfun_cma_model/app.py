@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from jinja2 import pass_context
 from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
@@ -121,16 +122,44 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
+@pass_context
+def https_url_for(context: dict, name: str, **path_params: Any) -> str:
+    """Convert http to https.
+
+    ref: https://waylonwalker.com/thoughts-223
+    """
+    request = context["request"]
+    http_url = request.url_for(name, **path_params)
+    return str(http_url).replace("http", "https", 1)
+
+
+def get_templates() -> Jinja2Templates:
+    """Get the Jinja2 templates object, include https_url_for filter.
+
+    Returns:
+        Jinja2Templates: The Jinja2 templates object.
+    """
+    templates = Jinja2Templates(directory="templates")
+    templates.env.globals["https_url_for"] = https_url_for
+    # only use the default url_for for local development, for dev, qa, and prod use https
+    if not debug_mode:
+        templates.env.globals["url_for"] = https_url_for
+        logger.debug("Using HTTPS")
+    else:
+        logger.debug("Using HTTP")
+    return templates
+
 # -- Setup middleware
+
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
-    True: ["*", "localhost", "127.0.0.1", "::1"],
+    True: ["*", "localhost", "127.0.0.1", "::1"],  # for debug mode, allow all
     False: set([
         "localhost",
         "127.0.0.1",
         "*.robcapps.com",
-        "pfun-cma-model-446025415469.*.run.app",
+        "*.run.app",
         "pfun-cma-model.local.pfun.run",
         "*.pfun.run",
         "*.pfun.one",
@@ -152,13 +181,6 @@ app.add_middleware(
     allow_credentials=True,
     max_age=300,
 )
-
-# In production only!
-if not debug_mode:
-    # Add HTTPS middleware to enforce https
-    app.add_middleware(
-        HTTPSRedirectMiddleware
-    )
 
 
 @app.get("/health")
