@@ -2,7 +2,9 @@ import os
 from typing import Optional
 from pathlib import Path
 from dataclasses import dataclass
-import pfun_path_helper as pph
+import pfun_path_helper as pph  # type: ignore
+pph.get_lib_path('pfun_cma_model')
+
 
 __all__ = [
     'PFunDataPaths',
@@ -14,8 +16,10 @@ __all__ = [
 class PFunDataPaths:
     """Paths for data files used in the pfun_cma_model package."""
 
-    _pfun_data_dirpath: os.PathLike = Path(os.path.abspath(pph.get_lib_path("pfun_data")))
-    _sample_data_fpath: os.PathLike = Path(os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
+    _pfun_data_dirpath: os.PathLike = Path(
+        os.path.abspath(pph.get_lib_path("pfun_data")))
+    _sample_data_fpath: os.PathLike = Path(
+        os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
 
     @property
     def sample_data_fpath(self) -> Path:
@@ -44,18 +48,13 @@ class PFunAPIRoutes:
 
     PUBLIC_ROUTES = (
         '/',
-        '/run',
-        '/fit',
-        '/run-at-time',
-        '/routes',
-        '/sdk',
+        '/model/run',
+        '/model/fit',
+        '/model/run-at-time',
         '/params/schema',
         '/params/default',
     )
 
     PRIVATE_ROUTES = (
-        '/run',
-        '/fit',
-        '/run-at-time',
-        '/sdk'
+        ...
     )

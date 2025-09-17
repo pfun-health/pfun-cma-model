@@ -1,14 +1,12 @@
 from pfun_cma_model.misc.types import NumpyArray
 from argparse import Namespace
-from pathlib import Path
 from typing import Optional, Sequence, Dict, Tuple, ClassVar
 from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
 from numpy import ndarray, array
 from tabulate import tabulate  # type: ignore
-import importlib
-from pfun_path_helper import append_path  # type: ignore
+import pfun_path_helper  # type: ignore
 from typing import Annotated, Iterable, Any
-append_path(Path(__file__).parent.parent.parent)
+import pfun_cma_model.engine.bounds as bounds
 
 # import custom ndarray schema
 
@@ -19,7 +17,7 @@ __all__ = [
 ]
 
 # import custom bounds types
-bounds = importlib.import_module('.engine.bounds', package='pfun_cma_model')
+
 Bounds = bounds.Bounds  # necessary for typing (linter)
 # BoundsType = type[bounds.BoundsType]  # Removed because bounds.BoundsType is not defined
 
@@ -81,6 +79,7 @@ _DEFAULT_BOUNDS = Bounds(
     keep_feasible=Bounds.True_
 )
 
+
 class CMABoundedParams(Namespace):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -90,7 +89,7 @@ class CMABoundedParams(Namespace):
         # set to any explicitly passed values
         for key in self.bounded_param_keys:
             setattr(self, key, kwargs.get(key, getattr(self, key, None)))
-            
+
     def __getitem__(self, key):
         return getattr(self, key)
 
@@ -188,11 +187,11 @@ class CMAModelParams(BaseModel):
     """
     Bounds object for parameter constraints. Defaults to _DEFAULT_BOUNDS.
     """
-    
+
     def __getitem__(self, key):
         return getattr(self, key)
 
-    @field_serializer('taug', check_fields=False)
+    @field_serializer('taug', 'tM', check_fields=False)
     def serialize_ndarrays(self, value, *args):
         if isinstance(value, ndarray):
             return value.tolist()
@@ -201,7 +200,7 @@ class CMAModelParams(BaseModel):
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
         return {key: getattr(self, key) for key in self.bounded_param_keys}
-    
+
     @property
     def bounded(self) -> CMABoundedParams:
         """Alias for bounded_params_dict."""

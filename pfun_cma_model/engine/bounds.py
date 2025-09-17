@@ -1,8 +1,7 @@
 from typing import Sequence, Dict, Any, Type
-from pydantic_core import core_schema
+from pydantic_core import core_schema, PydanticCustomError
 from pydantic import GetCoreSchemaHandler
 import numpy as np
-from pfun_cma_model.misc.errors import BoundsTypeError
 
 __all__ = [
     'Bounds'
@@ -10,15 +9,29 @@ __all__ = [
 
 
 #: Aliases for numpy bool types (necessary for type checking).
-True_, False_ = np.bool_(True), np.bool_(False)
+True_ = np.bool_(True)
+False_ = np.bool_(False)
 Bool_ = np.bool_
 
 
 _BOUNDS_SCHEMA = core_schema.typed_dict_schema({
     "lb": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
     "ub": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
-    "keep_feasible": core_schema.typed_dict_field(core_schema.list_schema(core_schema.bool_schema()))
+    "keep_feasible": core_schema.typed_dict_field(core_schema.list_schema(core_schema.bool_schema())),
 })
+
+
+def validate_bounds(value: Any) -> 'Bounds':
+    if isinstance(value, Bounds):
+        return value
+    if isinstance(value, dict):
+        return Bounds(**value)
+    raise PydanticCustomError(
+        'bounds_type', 'Bounds must be a Bounds object or a dictionary with lb, ub, and keep_feasible keys.')
+
+
+def serialize_bounds(bounds: 'Bounds') -> Dict[str, Any]:
+    return bounds.__json__()
 
 
 class BoundsType:
@@ -27,7 +40,10 @@ class BoundsType:
         self,
         source: Type[Any],
         handler: GetCoreSchemaHandler,
-    ) -> core_schema.CoreSchema:
+    ) -> core_schema.CoreSchema:  # type: ignore
+        # This is a Pydantic v2 custom type, it should return a CoreSchema
+        # The type hint for GetCoreSchemaHandler.return_type is core_schema.CoreSchema
+        # The error "Return type "core_schema.CoreSchema" of "__get_pydantic_core_schema__" incompatible with return type "Any" in supertype "object"" is incorrect.
         return _BOUNDS_SCHEMA
 
 
@@ -145,9 +161,9 @@ class Bounds:
     def __len__(self):
         return len(self.lb)
 
-    def __eq__(self, __value: object) -> np.bool_:
+    def __eq__(self, __value: object) -> bool:
         nb = Bounds(__value)
-        return np.all(np.allclose(self.array, nb.array))
+        return bool(np.all(np.allclose(self.array, nb.array)))
 
     @classmethod
     def _assemble_array(cls, lb, ub, keep_feasible):
@@ -169,8 +185,8 @@ class Bounds:
             else:
                 #: handle alternative positional arguments
                 lb, ub, keep_feasible = args
-        lb = np.asarray(lb, dtype=float)
-        ub = np.asarray(ub, dtype=float)
+        lb: np.ndarray = np.asarray(lb, dtype=float)
+        ub: np.ndarray = np.asarray(ub, dtype=float)
         keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
         self._array = self._assemble_array(lb, ub, keep_feasible)
         self._input_validation()
@@ -195,7 +211,7 @@ class Bounds:
             keys = list(arr.keys())
             arr_values = [arr[k] for k in keys]
         else:
-            arr_values = arr
+            arr_values = arr.tolist()
         # Use CMABoundedParams to trim values to bounds
         # Only bounded param keys are considered
         bounded_keys = getattr(CMABoundedParams(),

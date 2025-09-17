@@ -7,41 +7,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} ~ PFun Digital Health</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
-    <style>
-
-    </style>
-    <script>
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-color-scheme', theme);
-            localStorage.setItem('theme', theme);
-        }
-
-        function toggleTheme() {
-            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            setTheme(newTheme);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme');
-            const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            setTheme(savedTheme || preferredTheme);
-        });
-    </script>
+    <!-- bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     {% endblock %}
 </head>
 
 <body>
     <header>
         {% block navheader %}
-        <nav class="navbar">
-            <a href="/">Home</a>
-            <a href="{{ url_for('static', path='dexcom/index.html') }}">Dexcom CGM Dashboard</a>
-            <a href="/docs">Documentation (SwaggerUI)</a>
-            <a href="/redoc">Documentation (ReDoc)</a>
-            <a href="/openapi.json">OpenAPI Schema</a>
-            <button class="theme-toggler" onclick="toggleTheme()">Toggle Theme</button>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarBase">
+                    <a class="navbar-brand" href="#">PFun Digital Health</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        </li>
+                        <!-- Demos Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Demos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ url_for('static', path='dexcom/index.html') }}">Dexcom CGM
+                                        Dashboard</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/demo/run-at-time">Run-at-Time Demo</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- API Documentation Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                API Docs
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/docs">Documentation (SwaggerUI)</a></li>
+                                <li><a class="dropdown-item" href="/redoc">Documentation (ReDoc)</a></li>
+                                <li><a class="dropdown-item" href="/openapi.json">OpenAPI Schema</a></li>
+                            </ul>
+                        </li>
+                        <li><button class="theme-toggler" onclick="toggleTheme()">Toggle Theme</button></li>
+                    </ul>
+                </div>
+            </div>
         </nav>
         {% endblock %}
     </header>
@@ -51,6 +71,15 @@
         PFun Digital Health ~ {{ year }}. All rights reserved.
         {% endblock %}
     </footer>
+    <!-- bootstrap js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script>
+        // Initialize all tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
 </body>
 
 </html>

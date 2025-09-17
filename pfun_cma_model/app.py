@@ -7,12 +7,7 @@ from redis.asyncio import Redis
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, InitVar
 from dataclasses import dataclass
-import random
-import secrets
-from collections.abc import Awaitable
-import urllib.parse as urlparse
-from typing import Callable, Optional
-import hashlib
+from typing import Optional
 from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
@@ -204,7 +199,7 @@ def auth_callback(request: Request):
     return RedirectResponse(url=app.url_path_for("demo_dexcom"))
 
 
-@app.get("/auth/logout")
+@app.get("/dexcom/auth/logout")
 def auth_logout(request: Request):
     """Logout endpoint."""
     logger.info("Logout endpoint accessed.")
@@ -291,11 +286,12 @@ def tabulate_params(
         result = params.generate_markdown_table()
     except Exception as e:
         result = json.dumps({"error": str(e)})  # type: ignore
-    return Response(
-        content=result,
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
+    finally:
+        return Response(
+            content=result,
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
 
 
 @dataclass
@@ -343,8 +339,8 @@ class PFunDatasetResponse:
     @property
     def _stream(self) -> Any:
         """Yield the dataset as streamable chunks."""
-        for _, row in self.data.iterrows():  # type: ignore
-            yield json.dumps(row.to_dict()) + '\n'
+        for record in self.data.to_dict(orient='records'):  # type: ignore
+            yield json.dumps(record) + '\n'
 
     @classmethod
     def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
@@ -430,7 +426,7 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
     )
 
 
-@app.post("/run")
+@app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     """Runs the CMA model."""
     model = await initialize_model()
@@ -470,7 +466,7 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
-@app.post("/run-at-time")
+@app.post("/model/run-at-time")
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
                             n: int,
@@ -491,7 +487,6 @@ async def run_at_time_route(t0: float | int,
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        # type: ignore
         output = await run_at_time_func(t0, t1, n, **config_dict)
         return output
     except Exception as err:
@@ -525,6 +520,23 @@ async def health_check_run_at_time():
 
 # -- Demo routes --
 
+@app.get("/ws/config")
+async def get_websocket_config(request: Request):
+    # determine the websocket port (environment variable or default to 443)
+    ws_port = os.getenv("WS_PORT", 443)
+    # aggregate websocket url details...
+    ws_config = {
+        "scheme": 'wss' if ws_port == 443 else 'ws',
+        "host": os.getenv("WS_HOST", request.base_url.hostname),
+        "port": ws_port
+    }
+    return Response(
+        content=json.dumps(ws_config),
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
@@ -547,33 +559,29 @@ async def demo_run_at_time(request: Request):
                 "max": _UB_DEFAULTS[ix],
                 "default": _MID_DEFAULTS[ix]
             }
-
-    # determine the websocket port (environment variable or default to 443)
-    ws_port = os.getenv("WS_PORT", 443)
-
     # formulate the render context
+    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
         "request": request,
         "params": params,
-        "ws_prefix": 'wss' if ws_port == 443 else 'ws',
-        "host": os.getenv("WS_HOST", request.base_url.hostname),
-        "port": ws_port,
+        "cdn": {
+            "chartjs": {
+                "url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"
+            },
+            "socketio": {
+                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
+            }
+        }
     }
-
-    # debug output, then return
     logger.debug("Demo context: %s", context_dict)
     return templates.TemplateResponse(
-        "run-at-time-demo.html",
-        context=context_dict,
-        headers={
-            "Content-Type": "text/html"
-        }
-    )
+        "run-at-time-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
 
 
 # -- Model Fitting Endpoints --
 
-@app.post("/fit")
+
+@app.post("/model/fit")
 async def fit_model_to_data(
     data: dict | str,
     config: Optional[CMAModelParams | str] = None  # type: ignore

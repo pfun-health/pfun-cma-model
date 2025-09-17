@@ -16,13 +16,13 @@ def numpy_array_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
             core_schema.is_instance_schema(np.ndarray),
             core_schema.list_schema(),
         ]),
-        serialization=core_schema.plain_serializer_function_schema(
+        serialization=core_schema.plain_serializer_function_ser_schema(
             lambda x: x.tolist() if isinstance(x, np.ndarray) else x
         ),
     )
 
 
-NumpyArray = Annotated[Any, numpy_array_schema]
+NumpyArray = Annotated[np.ndarray, numpy_array_schema]
 
 
 def bounded_cma_model_param_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
@@ -32,7 +32,7 @@ def bounded_cma_model_param_schema(handler: GetCoreSchemaHandler) -> CoreSchema:
             core_schema.is_instance_schema(np.ndarray),
             core_schema.float_schema(),
         ]),
-        serialization=core_schema.plain_serializer_function_schema(
+        serialization=core_schema.plain_serializer_function_ser_schema(
             lambda x: x.__json__()
         ),
     )
