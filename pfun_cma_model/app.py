@@ -196,7 +196,7 @@ def root(request: Request):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse("index.html", {
+    return get_templates().TemplateResponse("index.html", {
         "request": request,
         "year": datetime.now().year,
         "message": f"Accessed at: {ts_msg}"
@@ -205,7 +205,7 @@ def root(request: Request):
 
 @app.get("/demo/dexcom")
 def demo_dexcom(request: Request):
-    return templates.TemplateResponse("dexcom-demo.html", {
+    return get_templates().TemplateResponse("dexcom-demo.html", {
         "request": request,
         "year": datetime.now().year
     })
@@ -599,7 +599,7 @@ async def demo_run_at_time(request: Request):
         }
     }
     logger.debug("Demo context: %s", context_dict)
-    return templates.TemplateResponse(
+    return get_templates().TemplateResponse(
         "run-at-time-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
 
 
