@@ -1,264 +1,166 @@
 /*
     run-at-time.js
+    Class-based refactor for the run-at-time demo.
 */
 
+class RunAtTimeDemo {
+    constructor() {
+        this.socket = null;
+        this.chart = null;
+        this.dom = {
+            runForm: document.getElementById('runForm'),
+            messagesDiv: document.getElementById('messages'),
+            canvas: document.getElementById('scatterPlot'),
+        };
+        this.config = {
+            // wsUrl is now a global variable defined in the HTML template
+            wsUrl: typeof wsUrl !== 'undefined' ? wsUrl : 'ws://localhost:8000',
+        };
 
-const messagesDiv = document.getElementById('messages');
-let socket;
-// Parse params from template variable
-const params = new URLSearchParams(window.location.href);
+        this.initialize();
+    }
 
-// Chart.js scatter plot setup
-const canvas = document.getElementById('scatterPlot');
-// Set explicit pixel size to avoid Chart.js infinite resize bug
-canvas.width = window.visualViewport.width * window.devicePixelRatio;
-canvas.height = window.visualViewport.height * window.devicePixelRatio;
-const ctx = canvas.getContext('2d');
-const scatterData = {
-    datasets: [{
-        label: 'Glucose Response Curve',
-        data: [],
-        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-        pointRadius: 2,
-    }]
-};
-// Custom plugin for onioning/fade effect
-const onionFadePlugin = {
-    id: 'onionFade',
-    beforeDatasetsDraw(chart, args, options) {
-        const ctx = chart.ctx;
-        chart.data.datasets.forEach((dataset, i) => {
-            dataset.data.forEach((pt, idx) => {
-                if (pt._fade) {
-                    const meta = chart.getDatasetMeta(i);
-                    const point = meta.data[idx];
-                    if (point) {
-                        ctx.save();
-                        ctx.globalAlpha = 0.5;
-                        point.draw(ctx);
-                        ctx.restore();
+    initialize() {
+        this.setupChart();
+        this.connectSocketIO();
+        this.setupEventListeners();
+        this.appendMessage('Demo initialized. Ready to run simulation.');
+    }
+
+    setupChart() {
+        if (this.chart) {
+            this.chart.destroy();
+        }
+        const ctx = this.dom.canvas.getContext('2d');
+        const chartData = {
+            datasets: [{
+                label: 'Glucose Response Curve',
+                data: [],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderWidth: 2,
+                pointRadius: 1,
+                fill: false,
+                tension: 0.1, // Makes the line slightly curved
+            }]
+        };
+
+        this.chart = new Chart(ctx, {
+            type: 'line', // Changed from scatter to line
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Time (hours)' },
+                        beginAtZero: true,
+                    },
+                    y: {
+                        title: { display: true, text: 'Glucose Response Curve' },
+                        beginAtZero: true
                     }
-                }
-            });
+                },
+                animation: false, // We handle updates manually for a progressive effect
+            }
         });
     }
-};
 
-const fadeDuration = 250; // ms
-const scatterChart = new Chart(ctx, {
-    type: 'scatter',
-    data: scatterData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: window.visualViewport.width / window.visualViewport.height,
-        plugins: {
-            onionFade: {
-                fadeDuration: fadeDuration // Duration for fade effect in ms
-            },
-        },
-        scales: {
-            x: {
-                type: 'linear',
-                title: { display: true, text: 'Time (hours)' },
-                beginAtZero: true,
-            },
-            y: {
-                title: { display: true, text: 'Glucose Response Curve (normalised [0.0, 2.0])' },
-                beginAtZero: true
-            }
+    connectSocketIO() {
+        if (this.socket && this.socket.connected) {
+            this.socket.disconnect();
         }
-    },
-    plugins: [onionFadePlugin]
-});
 
-function appendMessage(msg) {
-    const el = document.createElement('div');
-    el.textContent = msg;
-    messagesDiv.appendChild(el);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+        this.socket = io(this.config.wsUrl, { transports: ['websocket'] });
 
-async function addScatterPoints(points) {
-    // Smoothly transition to new points using onioning effect
-    // Keep previous points and fade them out, fade in new points
-    const prevData = scatterData.datasets[0].data.slice();
-    let newData;
-    if (Array.isArray(points)) {
-        newData = points;
-    } else if (typeof points === 'object' && points !== null && 'x' in points && 'y' in points) {
-        newData = [points];
-    } else {
-        console.error('Invalid points format:', points);
-        return;
+        this.socket.on('connect', () => {
+            this.appendMessage('Connected to Socket.IO server.');
+        });
+
+        this.socket.on('disconnect', () => {
+            this.appendMessage('Socket.IO connection closed.');
+        });
+
+        this.socket.on('connect_error', (err) => {
+            this.appendMessage('Socket.IO connection error: ' + err.message);
+        });
+
+        this.socket.on('message', (data) => {
+            this.handleSocketMessage(data);
+        });
     }
 
-    // Onioning: overlay previous points with alpha, fade in new points
-    scatterData.datasets[0].data = prevData.map(pt => ({ ...pt, _fade: false }));
-    scatterChart.update('active');
-    await (async () => {
-        await new Promise(resolve => setTimeout(() => {
-            scatterData.datasets[0].data = newData.map(pt => ({ ...pt, _fade: true }));
-            scatterChart.update('active');
-        }, fadeDuration) // Wait for fade effect
-        );
-    })();
-}
-
-function createScatterOnePoint(xdatum, ydatum) {
-    /* Create a single scatter plot point datum. */
-    return { x: xdatum, y: ydatum };
-}
-
-function createScatterPointArrayFromDataObject(dataObject) {
-    /*
-    Create an array of scatter plot points from a data object formatted as {key: value, ...}.
-    The keys will be used as the x-coordinates and the values as the y-coordinates.
-    ({key: value}) -> {x: key, y: value}
-    */
-    if (typeof (dataObject) === 'object' && dataObject !== null) {
-        return Object.entries(dataObject).map(([key, item]) => createScatterOnePoint(key, item));
-    } else if (Array.isArray(dataObject)) {
-        return dataObject.map((item, index) => createScatterOnePoint(index, item));
-    }
-}
-
-
-// WebSocket connection setup
-
-let wsUrl; // Declare wsUrl as a mutable variable
-
-async function initializeWebSocket() {
-    const response = await fetch('/ws/config');
-    const wsConfig = await response.json();
-    const wsProtocol = wsConfig.scheme;
-    const wsHost = wsConfig.host;
-    const wsPort = wsConfig.port;
-    // Construct the WebSocket URL
-    wsUrl = `${wsProtocol}://${wsHost}:${wsPort}`;
-    connectSocketIO(); // Now call connectSocketIO without passing wsUrl, as it's global
-}
-
-function connectSocketIO() { // No longer takes wsUrl as an argument
-    if (socket && socket.connected) {
-        socket.disconnect();
-    }
-    // Socket.IO expects the base URL, not the full ws path
-    // We'll use the namespace/endpoint as the path
-
-    socket = io(wsUrl, { transports: ['websocket'] });
-
-    socket.on('connect', () => {
-        appendMessage('Connected to Socket.IO server.');
-    });
-
-    socket.on('disconnect', () => {
-        appendMessage('Socket.IO connection closed.');
-    });
-
-    socket.on('connect_error', (err) => {
-        appendMessage('Socket.IO connection error: ' + err.message);
-    });
-
-    // Listen for messages from server (event name may need to match backend)
-    socket.on('message', (data) => {
-        appendMessage('Received: ' + JSON.stringify(data));
+    handleSocketMessage(data) {
         try {
-            // If data is a string, try to parse as JSON
-            let parsed = data;
-            if (typeof data === 'string') {
-                parsed = JSON.parse(data);
+            const point = JSON.parse(data);
+            if (point.error) {
+                this.appendMessage(`Server Error: ${point.error}`);
+                return;
             }
-            for (const key in parsed) {
-                if (parsed.hasOwnProperty(key)) {
-                    let scatterPoints = createScatterPointArrayFromDataObject(parsed[key]);
-                    addScatterPoints(scatterPoints);
-                }
+            if (typeof point.x !== 'undefined' && typeof point.y !== 'undefined') {
+                this.chart.data.datasets[0].data.push(point);
+                this.chart.update(); // Update the chart to draw the new point
             }
         } catch (e) {
-            console.warn('Socket.IO message not valid JSON or not a point:', e);
+            // This might just be a connection message, not an error.
+            console.warn('Received non-JSON message:', data);
+            this.appendMessage(`Received: ${data}`);
         }
-    });
-}
+    }
 
-// Helper: trigger chart transition and websocket reconnect
-async function triggerChartUpdateAndReconnect() {
-    // Onion fade out current points
-    // Mark current points for fading
-    scatterData.datasets[0].data = scatterData.datasets[0].data.map(pt => ({ ...pt, _fade: true }));
-    scatterChart.update('active'); // Update to show faded points
+    setupEventListeners() {
+        this.dom.runForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.runSimulation();
+        });
+    }
 
-    // Wait for a short duration to allow the fade effect to be visible
-    await new Promise(resolve => setTimeout(resolve, fadeDuration * 0.5));
-
-    // Clear the data after the fade out
-    scatterData.datasets[0].data = [];
-    scatterChart.update('active'); // Update to clear the chart
-
-    // No explicit "reconnect" logic here, as the `initializeWebSocket`
-    // and `connectSocketIO` functions handle the connection state.
-    // The `chart_update_hook` will eventually send new data,
-    // which will then be added to the chart.
-}
-
-// Initial connection
-initializeWebSocket(); // Call the new initialization function
-
-// Event-driven: update on parameter change
-document.querySelectorAll('#runForm input .model-params').forEach(input => {
-    input.addEventListener('change', () => {
-        triggerChartUpdateAndReconnect();
-    });
-});
-
-// activated when the relevant parameters change (or when the user clicks 'submit')
-function chart_update_hook(e) {
-    e.preventDefault();
-    triggerChartUpdateAndReconnect();
-    setTimeout(() => {
-        if (!socket || !socket.connected) {
-            appendMessage('Socket.IO not connected. Cannot send.');
+    runSimulation() {
+        if (!this.socket || !this.socket.connected) {
+            this.appendMessage('Socket.IO not connected. Cannot send.');
             return;
         }
-        const t0 = parseFloat(document.getElementById('t0').value);
-        const t1 = parseFloat(document.getElementById('t1').value);
-        const N = parseInt(document.getElementById('N').value);
+
+        // Clear previous results
+        this.chart.data.datasets[0].data = [];
+        this.chart.update();
+        this.dom.messagesDiv.innerHTML = ''; // Clear messages
+        this.appendMessage('Starting new simulation...');
+
+        // Collect form data
+        const formData = new FormData(this.dom.runForm);
+        const t0 = parseFloat(formData.get('t0'));
+        const t1 = parseFloat(formData.get('t1'));
+        const n = parseInt(formData.get('N'));
+
+        const modelParams = {};
+        for (let [key, value] of formData.entries()) {
+            if (key !== 't0' && key !== 't1' && key !== 'N') {
+                modelParams[key] = parseFloat(value);
+            }
+        }
 
         // Basic validation
-        if (isNaN(t0) || t0 < 0 || t0 > 24) {
-            appendMessage('Invalid t0');
-            return;
-        }
-        if (isNaN(t1) || t1 < 0 || t1 > 24) {
-            appendMessage('Invalid t1');
-            return;
-        }
-        if (isNaN(N) || N < 1 || N > 10000) {
-            appendMessage('Invalid N');
+        if (isNaN(t0) || isNaN(t1) || isNaN(n) || t1 <= t0 || n <= 0) {
+            this.appendMessage('Invalid simulation parameters. Please check t0, t1, and N.');
             return;
         }
 
-        const config = {};
-        params.forEach((_, key) => {
-            const input = document.getElementById(key);
-            if (input) {
-                let value = input.value;
-                if (!isNaN(value) && value.trim() !== '') {
-                    value = parseFloat(value);
-                }
-                config[key] = value;
-            }
-        });
+        const payload = { t0, t1, n, config: modelParams };
+        this.socket.emit('run', payload);
+        this.appendMessage('Sent run request: ' + JSON.stringify(payload));
+    }
 
-        const payload = { t0, t1, n: N, config };
-        // Use a custom event name, e.g. 'run', or 'run-at-time', as expected by backend
-        socket.emit('run', payload);
-        appendMessage('Sent: ' + JSON.stringify(payload));
-    }, fadeDuration); // Wait for fade out and reconnect
+    appendMessage(msg) {
+        const el = document.createElement('div');
+        el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        this.dom.messagesDiv.appendChild(el);
+        this.dom.messagesDiv.scrollTop = this.dom.messagesDiv.scrollHeight;
+    }
 }
 
-// setup chart_update_hook, triggered on 'submit' or 'input change'
-document.getElementById('runForm').onsubmit = chart_update_hook;
-document.querySelectorAll('#runForm input .model-params').forEach(input => {
-    input.addEventListener('change', chart_update_hook);
+// Initialize the application once the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new RunAtTimeDemo();
 });

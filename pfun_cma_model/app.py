@@ -25,7 +25,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Literal, Optional, Annotated, Mapping
+from typing import Dict, Literal, Optional, Annotated, Mapping, AsyncGenerator
 from pfun_common.utils import load_environment_variables, setup_logging
 
 # Initially, Get the logger (globally accessible)
@@ -458,6 +458,25 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
+async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> AsyncGenerator[str, None]:
+    """calculate the glucose signal for the given timeframe and stream the results."""
+    model = await initialize_model()
+    logger.debug(
+        "(stream_run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
+    bounded_params = {k: v for k,
+                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+    model.update(bounded_params)
+    logger.debug(
+        "(stream_run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(
+        f"(stream_run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
+    t = model.new_tvector(t0, t1, n)
+    df: DataFrame = model.calc_Gt(t=t)
+    for index, row in df.iterrows():
+        point = {'x': index, 'y': row.iloc[0]}
+        yield json.dumps(point)
+
+
 @app.post("/model/run-at-time")
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
@@ -511,23 +530,6 @@ async def health_check_run_at_time():
 
 
 # -- Demo routes --
-
-@app.get("/ws/config")
-async def get_websocket_config(request: Request):
-    # determine the websocket port (environment variable or default to 443)
-    ws_port = os.getenv("WS_PORT", 443)
-    # aggregate websocket url details...
-    ws_config = {
-        "scheme": 'wss' if ws_port == 443 else 'ws',
-        "host": os.getenv("WS_HOST", request.base_url.hostname),
-        "port": ws_port
-    }
-    return Response(
-        content=json.dumps(ws_config),
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
-
 
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):

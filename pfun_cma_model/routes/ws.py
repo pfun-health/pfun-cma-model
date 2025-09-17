@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from typing import Optional
 from fastapi import FastAPI
 import socketio
-from pfun_cma_model.app import run_at_time_func
+from pfun_cma_model.app import stream_run_at_time_func
 
 
 async def get_logger():
@@ -71,7 +71,7 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
         super().on_disconnect(sid)
 
     async def on_run(self, sid, data):
-        """Handle 'run' event from client, run model, and emit result as 'message'."""
+        """Handle 'run' event from client, run model, and stream results as 'message' events."""
         try:
             # Accept both dict and JSON string
             run_args = data if isinstance(data, dict) else json.loads(data)
@@ -80,11 +80,14 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
             n = run_args.get("n", 100)
             config = run_args.get("config", {})
             self.logger.debug(
-                f"Received run event: t0={t0}, t1={t1}, n={n}, config={config}")
-            output = await run_at_time_func(t0, t1, n, **config)
-            # Always emit as JSON string
-            await self.sio.emit("message", output, to=sid)
-            self.logger.debug(f"Sent output to {sid}")
+                f"Received run event for streaming: t0={t0}, t1={t1}, n={n}, config={config}")
+
+            # Use an async for loop to iterate over the async generator
+            async for point in stream_run_at_time_func(t0, t1, n, **config):
+                await self.sio.emit("message", point, to=sid)
+
+            self.logger.debug(f"Finished streaming output to {sid}")
+
         except Exception as e:
             self.logger.error(f"Error in handle_run: {e}", exc_info=True)
             await self.sio.emit("message", json.dumps({"error": str(e)}), to=sid)
