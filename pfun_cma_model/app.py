@@ -331,8 +331,8 @@ class PFunDatasetResponse:
     @property
     def _stream(self) -> Any:
         """Yield the dataset as streamable chunks."""
-        for _, row in self.data.iterrows():  # type: ignore
-            yield json.dumps(row.to_dict()) + '\n'
+        for record in self.data.to_dict(orient='records'):  # type: ignore
+            yield json.dumps(record) + '\n'
 
     @classmethod
     def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
