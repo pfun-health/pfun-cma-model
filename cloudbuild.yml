@@ -56,12 +56,12 @@ steps:
       - "-c"
       - |
         SERVICE_URL=$(gcloud run services describe pfun-cma-model-staging --platform managed --region ${_REGION} --format 'value(status.url)')
-        echo "Staging service URL: $SERVICE_URL"
+        echo "Staging service URL: $$SERVICE_URL"
         
         FAIL_COUNT=0
         for i in $(seq 1 5); do
           echo "Attempt $i: Checking health endpoint..."
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $SERVICE_URL/health)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $$SERVICE_URL/health)
           if [ "$HTTP_STATUS" -eq 200 ]; then
             echo "Health check passed (HTTP $HTTP_STATUS)."
           else
@@ -69,14 +69,14 @@ steps:
             FAIL_COUNT=$((FAIL_COUNT + 1))
           fi
           
-          if [ "$FAIL_COUNT" -gt 2 ]; then
+          if [ "$$FAIL_COUNT" -gt 2 ]; then
             echo "More than 2 health checks failed. Aborting build."
             exit 1
           fi
           sleep 1
         done
         
-        if [ "$FAIL_COUNT" -gt 0 ]; then
+        if [ "$$FAIL_COUNT" -gt 0 ]; then
           echo "Some health checks failed, but within tolerance. Proceeding."
         else
           echo "All health checks passed."
