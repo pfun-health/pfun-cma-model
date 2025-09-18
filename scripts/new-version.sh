@@ -11,4 +11,8 @@ uv version --bump patch && \
     uv build
 
 # build and start the services in the background
-nohup docker compose up -d --build & > ./logs/docker-compose.log 2>&1 &
+docker compose up -d --build
+
+# create a new commit
+git add -A && \
+    git commit -m "($(uv version)) bump to new version."

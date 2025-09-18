@@ -26,6 +26,8 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 
+# Logs:
+nohup.out
 *.log
 log.txt
 npm-debug.log*

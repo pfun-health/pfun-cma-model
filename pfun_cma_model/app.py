@@ -139,7 +139,7 @@ def get_templates() -> Jinja2Templates:
     Returns:
         Jinja2Templates: The Jinja2 templates object.
     """
-    templates = Jinja2Templates(directory="templates")
+    global templates
     templates.env.globals["https_url_for"] = https_url_for
     # only use the default url_for for local development, for dev, qa, and prod use https
     if not debug_mode:
