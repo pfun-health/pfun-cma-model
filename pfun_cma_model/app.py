@@ -1,17 +1,14 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from jinja2 import pass_context
+from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, InitVar
 from dataclasses import dataclass
-import random
-import secrets
-from collections.abc import Awaitable
-import urllib.parse as urlparse
-from typing import Callable, Optional
-import hashlib
+from typing import Optional
 from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 from typing import Dict, Any
 import pfun_cma_model
@@ -21,6 +18,7 @@ from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -29,7 +27,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Literal, Optional, Annotated, Mapping
+from typing import Dict, Literal, Optional, Annotated, Mapping, AsyncGenerator
 from pfun_common.utils import load_environment_variables, setup_logging
 
 # Initially, Get the logger (globally accessible)
@@ -124,16 +122,44 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
+@pass_context
+def https_url_for(context: dict, name: str, **path_params: Any) -> str:
+    """Convert http to https.
+
+    ref: https://waylonwalker.com/thoughts-223
+    """
+    request = context["request"]
+    http_url = request.url_for(name, **path_params)
+    return str(http_url).replace("http", "https", 1)
+
+
+def get_templates() -> Jinja2Templates:
+    """Get the Jinja2 templates object, include https_url_for filter.
+
+    Returns:
+        Jinja2Templates: The Jinja2 templates object.
+    """
+    global templates
+    templates.env.globals["https_url_for"] = https_url_for
+    # only use the default url_for for local development, for dev, qa, and prod use https
+    if not debug_mode:
+        templates.env.globals["url_for"] = https_url_for
+        logger.debug("Using HTTPS")
+    else:
+        logger.debug("Using HTTP")
+    return templates
+
 # -- Setup middleware
+
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
-    True: ["*", "localhost", "127.0.0.1", "::1"],
+    True: ["*", "localhost", "127.0.0.1", "::1"],  # for debug mode, allow all
     False: set([
         "localhost",
         "127.0.0.1",
         "*.robcapps.com",
-        "pfun-cma-model-446025415469.*.run.app",
+        "*.run.app",
         "pfun-cma-model.local.pfun.run",
         "*.pfun.run",
         "*.pfun.one",
@@ -156,65 +182,6 @@ app.add_middleware(
     max_age=300,
 )
 
-# --- add CSP middleware ---
-
-# Content security policy mapping
-CSP_MAP = {"js": "script-src", "css": "style-src", }
-# Defines the expected hashes for external CDN resources
-ContentDeliveryDefs = {
-    "chartjs": {
-        "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.js",
-        "integrity": "sha512-D4pL3vNgjkHR/qq+nZywuS6Hg1gwR+UzrdBW6Yg8l26revKyQHMgPq9CLJ2+HHalepS+NuGw1ayCCsGXu9JCXA=="
-    },
-    "socketio": {
-        "url": "https://cdn.socket.io/4.8.1/socket.io.min.js",
-        "integrity": "sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
-    },
-}
-
-
-def hashit256(data: str) -> str:
-    """Hash a string using SHA-256."""
-    return 'sha256-' + hashlib.sha256(data.encode('utf8')).hexdigest()
-
-
-@app.middleware("http")
-async def set_content_security_policy(request: Request, call_next: Callable[[Request], Awaitable[Response]]
-                                      ) -> Response:
-    cs_policies = [
-        "default-src 'self'",
-    ]
-    logging.debug("Setting Content-Security-Policy header...")
-    # ensure CSP headers map is defined as app.state.csp_headers (for external static dependencies)
-    setup_csp_hashes()
-    for subpath in STATIC_DIR.iterdir():
-        if subpath.is_file():
-            logging.debug("Adding CSP for file: %s", subpath)
-            cs_key = CSP_MAP.get(subpath.suffix[1:], None)
-            if cs_key is None:  # ! skip because it isn't an expected filetype
-                continue
-            # compute the sha256 hash digest for security
-            h256 = hashit256(subpath.read_text())
-            # store for client-side validation
-            fullurl = request.base_url.scheme + "://" + urlparse.urljoin(
-                base_url, subpath.name)  # type: ignore
-            nonce = secrets.token_urlsafe(random.randint(32, 64))
-            # store the nonce and hash in the app.state.csp_hashes dictionary
-            app.state.csp_hashes[subpath.name] = {
-                "url": fullurl,
-                "integrity": h256,
-                "nonce": nonce
-            }
-            # ...also append to the CS policy header value
-            # cs_policies.append(cs_key + f" 'nonce-{nonce}'")
-            # cs_policies.append(cs_key + f" {fullurl}")
-            # cs_policies.append(cs_key + f" 'sha256-{h256}'")
-    response = await call_next(request)
-    response.headers['Content-Security-Policy'] = ';'.join(cs_policies)
-    logging.debug("Content-Security-Policy header set: '' %s ''",
-                  response.headers['Content-Security-Policy'])
-    return response
-
 
 @app.get("/health")
 def health_check():
@@ -229,12 +196,37 @@ def root(request: Request):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse("index.html", {
+    return get_templates().TemplateResponse("index.html", {
         "request": request,
         "year": datetime.now().year,
-        "message": f"Accessed at: {ts_msg}",
-        "csp_hashes": getattr(app.state, 'csp_hashes', {})
+        "message": f"Accessed at: {ts_msg}"
     })
+
+
+@app.get("/demo/dexcom")
+def demo_dexcom(request: Request):
+    return get_templates().TemplateResponse("dexcom-demo.html", {
+        "request": request,
+        "year": datetime.now().year
+    })
+
+
+@app.get("/dexcom/auth/callback")
+def auth_callback(request: Request):
+    """Authentication callback endpoint."""
+    logger.info("Authentication callback endpoint accessed.")
+    # extract the authorization_code attribute (will be exchanged for access_token, refresh_token)
+    authorization_code = request.query_params.get("code")
+    logger.debug("(/auth/callback) Authorization code: %s", authorization_code)
+    # redirect to dexcom demo page
+    return RedirectResponse(url=app.url_path_for("demo_dexcom"))
+
+
+@app.get("/dexcom/auth/logout")
+def auth_logout(request: Request):
+    """Logout endpoint."""
+    logger.info("Logout endpoint accessed.")
+    return {"status": "ok", "message": "Logout successful."}
 
 
 # -- Model Parameters Endpoints --
@@ -317,11 +309,12 @@ def tabulate_params(
         result = params.generate_markdown_table()
     except Exception as e:
         result = json.dumps({"error": str(e)})  # type: ignore
-    return Response(
-        content=result,
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
+    finally:
+        return Response(
+            content=result,
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
 
 
 @dataclass
@@ -363,14 +356,14 @@ class PFunDatasetResponse:
         dataset = DataFrame(data)
         logging.debug("Sample dataset loaded with %d rows.", len(dataset))
         if nrows_given:
-            return dataset.iloc[:nrows, :]
+            return dataset.iloc[:nrows, :]  # type: ignore
         return dataset
 
     @property
     def _stream(self) -> Any:
         """Yield the dataset as streamable chunks."""
-        for _, row in self.data.iterrows():  # type: ignore
-            yield json.dumps(row.to_dict()) + '\n'
+        for record in self.data.to_dict(orient='records'):  # type: ignore
+            yield json.dumps(record) + '\n'
 
     @classmethod
     def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
@@ -456,7 +449,7 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
     )
 
 
-@app.post("/run")
+@app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     """Runs the CMA model."""
     model = await initialize_model()
@@ -496,7 +489,26 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
-@app.post("/run-at-time")
+async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> AsyncGenerator[str, None]:
+    """calculate the glucose signal for the given timeframe and stream the results."""
+    model = await initialize_model()
+    logger.debug(
+        "(stream_run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
+    bounded_params = {k: v for k,
+                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+    model.update(bounded_params)
+    logger.debug(
+        "(stream_run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(
+        f"(stream_run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
+    t = model.new_tvector(t0, t1, n)
+    df: DataFrame = model.calc_Gt(t=t)
+    for index, row in df.iterrows():
+        point = {'x': index, 'y': row.iloc[0]}
+        yield json.dumps(point)
+
+
+@app.post("/model/run-at-time")
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
                             n: int,
@@ -517,7 +529,7 @@ async def run_at_time_route(t0: float | int,
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        output = await run_at_time_func(t0, t1, n, **config_dict)  # type: ignore
+        output = await run_at_time_func(t0, t1, n, **config_dict)
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -550,15 +562,6 @@ async def health_check_run_at_time():
 
 # -- Demo routes --
 
-def setup_csp_hashes() -> None:
-    """Setup the Content Security Policy hashes in app.state.csp_hashes."""
-    # ensure the csp_hashes dictionary exists in app.state before use
-    if not hasattr(app.state, "csp_hashes"):
-        app.state.csp_hashes = {}
-    #  include the ContentSecurityProtocol hash maps
-    app.state.csp_hashes.update(ContentDeliveryDefs)
-
-
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
@@ -581,37 +584,29 @@ async def demo_run_at_time(request: Request):
                 "max": _UB_DEFAULTS[ix],
                 "default": _MID_DEFAULTS[ix]
             }
-
-    # ensure the csp_hashes dictionary exists in app.state before use
-    setup_csp_hashes()
-
-    # determine the websocket port (environment variable or default to 443)
-    ws_port = os.getenv("WS_PORT", 443)
-
     # formulate the render context
+    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
         "request": request,
         "params": params,
-        "ws_prefix": 'wss' if ws_port == 443 else 'ws',
-        "host": os.getenv("WS_HOST", request.base_url.hostname),
-        "port": ws_port,
-        "csp_hashes": app.state.csp_hashes
-    }
-
-    # debug output, then return
-    logger.debug("Demo context: %s", context_dict)
-    return templates.TemplateResponse(
-        "run-at-time-demo.html",
-        context=context_dict,
-        headers={
-            "Content-Type": "text/html"
+        "cdn": {
+            "chartjs": {
+                "url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"
+            },
+            "socketio": {
+                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
+            }
         }
-    )
+    }
+    logger.debug("Demo context: %s", context_dict)
+    return get_templates().TemplateResponse(
+        "run-at-time-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
 
 
 # -- Model Fitting Endpoints --
 
-@app.post("/fit")
+
+@app.post("/model/fit")
 async def fit_model_to_data(
     data: dict | str,
     config: Optional[CMAModelParams | str] = None  # type: ignore

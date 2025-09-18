@@ -1,5 +1,12 @@
 FROM ghcr.io/astral-sh/uv:debian as base
 
+# install system dependencies (as root)
+
+RUN apt-get update && \
+    apt install -yyq --no-install-recommends \
+        build-essential \
+        portaudio19-dev
+
 # create a non-root user
 # and set the app root directory
 RUN mkdir -p /app && \

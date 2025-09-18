@@ -22,6 +22,67 @@ steps:
     id: Push
     args: ["push", "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"]
 
+  # 2.5. Deploy to staging environment
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: Deploy to Staging
+    entrypoint: gcloud
+    env:
+      - "DEBUG=1" # Enable debug mode for staging
+      - "WS_HOST=pfun-cma-model-staging-446025415469.us-central1.run.app" # Host for WebSocket connections
+      - "WS_PORT=443" # Port for WebSocket connections
+    args:
+      - "run"
+      - "deploy"
+      - "pfun-cma-model-staging" # Cloud Run service name for staging
+      - "--image"
+      - "gcr.io/$PROJECT_ID/pfun-cma-model:$COMMIT_SHA"
+      - "--region"
+      - "${_REGION}"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated" # Allows public access to the service
+      - "--port"
+      - "8001" # The port your container listens on
+      - "--command"
+      - "uv"
+      - "--args"
+      - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1,--proxy-headers,--forwarded-allow-ips,10.0.0.1"
+
+  # 2.75. Health Check for Staging Environment
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: Health Check Staging
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        SERVICE_URL=$(gcloud run services describe pfun-cma-model-staging --platform managed --region ${_REGION} --format 'value(status.url)')
+        echo "Staging service URL: $$SERVICE_URL"
+        
+        FAIL_COUNT=0
+        for i in $(seq 1 5); do
+          echo "Attempt $i: Checking health endpoint..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $$SERVICE_URL/health)
+          if [ "$$HTTP_STATUS" -eq 200 ]; then
+            echo "Health check passed (HTTP $$HTTP_STATUS)."
+          else
+            echo "Health check failed (HTTP $$HTTP_STATUS)."
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+          fi
+          
+          if [ "$$FAIL_COUNT" -gt 2 ]; then
+            echo "More than 2 health checks failed. Aborting build."
+            exit 1
+          fi
+          sleep 1
+        done
+        
+        if [ "$$FAIL_COUNT" -gt 0 ]; then
+          echo "Some health checks failed, but within tolerance. Proceeding."
+        else
+          echo "All health checks passed."
+        fi
+
+
   # 3. Deploy the container image to Google Cloud Run.
   # This step mirrors the service definition in docker-compose.yaml.
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"

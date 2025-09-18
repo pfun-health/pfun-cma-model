@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dexcom Health Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='dexcom/style.css') }}">
+
+    <!-- React and Babel for JSX transpilation -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+
+    <!-- Crypto library for PKCE -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading Dexcom Dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAuthModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Connect to Dexcom</h3>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Connect your Dexcom account to view your continuous glucose monitoring data.</p>
+                <div class="auth-options">
+                    <button class="btn btn--primary" onclick="startDexcomAuth('sandbox')">
+                        Connect to Dexcom Sandbox
+                    </button>
+                    <button class="btn btn--secondary" onclick="startDexcomAuth('production')">
+                        Connect to Dexcom Production
+                    </button>
+                </div>
+                <p class="auth-info">
+                    <small>Sandbox mode uses test data for demonstration. Production mode requires a real Dexcom
+                        account.</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeErrorModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Error</h3>
+                <button class="modal-close" onclick="closeErrorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="error-content"></div>
+                <button class="btn btn--primary" onclick="closeErrorModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/babel" src="{{ url_for('static', path='dexcom/app.js') }}"></script>
+</body>
+
+</html>
