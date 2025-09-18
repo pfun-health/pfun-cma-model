@@ -17,13 +17,16 @@ create_new_tag() {
     # create tags for the latest version.
     # tags: VERSION, prod-VERSION
     local VERSION=$(uv version | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
-    echo "$VERSION" | xargs -I {} git tag {} && \
-        echo "$VERSION" | xargs -I {} git tag prod-{}
+    echo "$VERSION" | xargs -I {} git tag {}
+    echo "$VERSION" | xargs -I {} git tag "prod-{}"
 }
 
 # create a new commit
 git add -A && \
-    git commit -m "($(uv version)) bump to new version." && \
+    git commit -m "($(uv version)) bump to new version."
+
+# create new tags
+create_new_tag && \
     git push && \
     git push github && \
     git push --tags && \
