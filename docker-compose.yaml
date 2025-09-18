@@ -17,9 +17,14 @@ services:
       dockerfile: Dockerfile
     user: "nonroot:nonroot"
     env_file: .env
+    secrets:
+      - dexcom_api_client_id
+      - dexcom_api_secret
     environment:
       - USER=nonroot
       - GROUP=nonroot
+      - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
+      - DEXCOM_API_SECRET=/run/secrets/dexcom_api_secret
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
@@ -52,8 +57,8 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      POSTGRES_DB: pfun_cma_model_db
-      POSTGRES_USER: user
+      POSTGRES_DB: pfun
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: /run/secrets/postgres_password
     secrets:
       - postgres_password
@@ -66,6 +71,11 @@ volumes:
   pfun_cma_model_data:
 
 secrets:
+  dexcom_api_client_id:
+    environment: DEXCOM_API_CLIENT_ID
+    file: .env
+  dexcom_api_secret:
+    environment: DEXCOM_API_SECRET
   postgres_password:
     environment: POSTGRES_PASSWORD
     file: .env
