@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 2025-09-17
+
+### chore: bugfixes, small updates for frontend.
+
+...
+
 ## 2025-09-15
 
 ------------

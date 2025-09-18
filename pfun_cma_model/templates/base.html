@@ -57,7 +57,6 @@
                                 <li><a class="dropdown-item" href="/openapi.json">OpenAPI Schema</a></li>
                             </ul>
                         </li>
-                        <li><button class="theme-toggler" onclick="toggleTheme()">Toggle Theme</button></li>
                     </ul>
                 </div>
             </div>
@@ -67,7 +66,10 @@
     <div id="content">{% block content %}{% endblock %}</div>
     <footer>
         {% block footer %}
-        PFun Digital Health ~ {{ year }}. All rights reserved.
+        <hr />
+        <div class="container-fluid text-center mb-0">
+            PFun Digital Health ~ {{ year }}. All rights reserved.
+        </div>
         {% endblock %}
     </footer>
     <!-- bootstrap js -->
