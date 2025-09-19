@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}WebGL Realtime Demo{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+    }
+    canvas {
+        display: block;
+    }
+    #info {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+        z-index: 100;
+        display:block;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+<body>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+        {% block content %}
+        <div id="info">WebGL Realtime Demo</div>
+        <div id="webgl-container"></div>
+
+        <!-- WebSocket Configuration -->
+        <script>
+            const wsConfig = {
+                scheme: window.location.protocol === 'https:' ? 'wss' : 'ws',
+                host: window.location.hostname,
+                port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80)
+            };
+            const wsUrl = `${wsConfig.scheme}://${wsConfig.host}:${wsConfig.port}`;
+        </script>
+
+        <!-- three.js local -->
+        <script src="{{ url_for('static', path='webgl/three.min.js') }}"></script>
+        <!-- Socket.IO CDN -->
+        <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
+        <!-- WebGL demo app script -->
+        <script src="{{ url_for('static', path='webgl/webgl-demo.js') }}" crossorigin="anonymous"></script>
+        {% endblock %}
+    </div>
+</body>
+</html>

@@ -555,6 +555,22 @@ async def health_check_run_at_time():
 
 # -- Demo routes --
 
+@app.get("/webgl")
+async def demo_webgl(request: Request):
+    """Demo UI endpoint for the WebGL visualization."""
+    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
+    context_dict = {
+        "request": request,
+        "cdn": {
+            "socketio": {
+                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
+            }
+        }
+    }
+    return get_templates().TemplateResponse(
+        "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
+
+
 @app.get("/demo/run-at-time")
 async def demo_run_at_time(request: Request):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
