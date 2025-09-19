@@ -20,11 +20,13 @@ services:
     secrets:
       - dexcom_api_client_id
       - dexcom_api_secret
+      - secret_key
     environment:
       - USER=nonroot
       - GROUP=nonroot
       - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
       - DEXCOM_API_SECRET=/run/secrets/dexcom_api_secret
+      - SECRET_KEY=/run/secrets/secret_key
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
@@ -73,9 +75,9 @@ volumes:
 secrets:
   dexcom_api_client_id:
     environment: DEXCOM_API_CLIENT_ID
-    file: .env
   dexcom_api_secret:
     environment: DEXCOM_API_SECRET
+  secret_key:
+    environment: SECRET_KEY
   postgres_password:
     environment: POSTGRES_PASSWORD
-    file: .env
