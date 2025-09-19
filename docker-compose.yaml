@@ -1,5 +1,4 @@
 services:
-
   pfun-cma-model:
     restart: unless-stopped
     # Comment the develop/watch section out for compatibility with **podman-compose**:
@@ -17,9 +16,15 @@ services:
       context: .
       dockerfile: Dockerfile
     user: "nonroot:nonroot"
+    env_file: .env
+    secrets:
+      - dexcom_api_client_id
+      - dexcom_api_secret
     environment:
       - USER=nonroot
       - GROUP=nonroot
+      - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
+      - DEXCOM_API_SECRET=/run/secrets/dexcom_api_secret
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
@@ -32,6 +37,7 @@ services:
     ]
     depends_on:
       - redis
+      - postgres
 
   redis:
     image: "redis:7.0-alpine"
@@ -44,3 +50,32 @@ services:
       "--appendonly", "no",
       "--loglevel", "warning"
       ]
+  
+  postgres:
+    image: "postgres:16-alpine"
+    container_name: postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: pfun
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pfun_cma_model_data:/var/lib/postgresql/data
+
+volumes:
+  pfun_cma_model_data:
+
+secrets:
+  dexcom_api_client_id:
+    environment: DEXCOM_API_CLIENT_ID
+    file: .env
+  dexcom_api_secret:
+    environment: DEXCOM_API_SECRET
+  postgres_password:
+    environment: POSTGRES_PASSWORD
+    file: .env
