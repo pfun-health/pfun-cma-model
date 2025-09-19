@@ -8,28 +8,22 @@ const DEXCOM_CONFIG = {
   endpoints: {
     production: {
       us: "https://api.dexcom.com",
-      eu: "https://api.dexcom.eu", 
+      eu: "https://api.dexcom.eu",
       jp: "https://api.dexcom.jp"
     },
     sandbox: "https://sandbox-api.dexcom.com"
   },
   oauth: {
     authorization: "/v2/oauth2/login",
-    token: "/v2/oauth2/token"
   },
   api: {
-    egvs: "/v3/users/self/egvs",
-    events: "/v3/users/self/events",
-    devices: "/v3/users/self/devices", 
-    dataRange: "/v3/users/self/dataRange",
-    calibrations: "/v3/users/self/calibrations",
-    alerts: "/v3/users/self/alerts"
+    egvs: "/users/self/egvs",
+    events: "/users/self/events",
+    devices: "/users/self/devices",
+    dataRange: "/users/self/dataRange",
+    calibrations: "/users/self/calibrations",
+    alerts: "/users/self/alerts"
   },
-  /*
-    @TODO: MOVE ALL THIS TO THE BACKEND TO ENSURE CLIENT SECURITY
-  */
-  clientId: "demo-client-id", // Would be real client ID in production
-  redirectUri: window.location.origin + "/auth/callback",
   scope: "offline_access" // currently the only acceptable 'scope'
 };
 
@@ -49,20 +43,6 @@ const CHART_COLORS = {
   high: "#FFD43B",
   veryHigh: "#FF6B6B"
 };
-
-// Sample data for demonstration
-const SAMPLE_EGV_DATA = [
-  { systemTime: "2024-01-15T10:00:00.000Z", displayTime: "2024-01-15T05:00:00.000", realtimeValue: 120, smoothedValue: 118, status: "ok", trend: "flat", trendRate: 0.2 },
-  { systemTime: "2024-01-15T10:05:00.000Z", displayTime: "2024-01-15T05:05:00.000", realtimeValue: 125, smoothedValue: 123, status: "ok", trend: "fortyFiveUp", trendRate: 1.0 },
-  { systemTime: "2024-01-15T10:10:00.000Z", displayTime: "2024-01-15T05:10:00.000", realtimeValue: 142, smoothedValue: 140, status: "ok", trend: "singleUp", trendRate: 3.4 },
-  { systemTime: "2024-01-15T10:15:00.000Z", displayTime: "2024-01-15T05:15:00.000", realtimeValue: 155, smoothedValue: 152, status: "ok", trend: "doubleUp", trendRate: 4.2 },
-  { systemTime: "2024-01-15T10:20:00.000Z", displayTime: "2024-01-15T05:20:00.000", realtimeValue: 168, smoothedValue: 165, status: "ok", trend: "singleUp", trendRate: 2.8 },
-  { systemTime: "2024-01-15T10:25:00.000Z", displayTime: "2024-01-15T05:25:00.000", realtimeValue: 172, smoothedValue: 170, status: "ok", trend: "flat", trendRate: 0.8 },
-  { systemTime: "2024-01-15T10:30:00.000Z", displayTime: "2024-01-15T05:30:00.000", realtimeValue: 165, smoothedValue: 167, status: "ok", trend: "fortyFiveDown", trendRate: -1.4 },
-  { systemTime: "2024-01-15T10:35:00.000Z", displayTime: "2024-01-15T05:35:00.000", realtimeValue: 158, smoothedValue: 160, status: "ok", trend: "singleDown", trendRate: -2.0 },
-  { systemTime: "2024-01-15T10:40:00.000Z", displayTime: "2024-01-15T05:40:00.000", realtimeValue: 145, smoothedValue: 148, status: "ok", trend: "singleDown", trendRate: -2.6 },
-  { systemTime: "2024-01-15T10:45:00.000Z", displayTime: "2024-01-15T05:45:00.000", realtimeValue: 138, smoothedValue: 140, status: "ok", trend: "flat", trendRate: -1.0 }
-];
 
 // Utility Functions
 const generateCodeVerifier = () => {
@@ -147,27 +127,17 @@ const useAuth = () => {
       setError(null);
       setEnvironment(env);
       
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      
-      // Store PKCE values (in production, use chrome.storage)
-      sessionStorage.setItem('dexcom_code_verifier', codeVerifier);
-      sessionStorage.setItem('dexcom_environment', env);
-      
       const baseUrl = env === 'sandbox' 
         ? DEXCOM_CONFIG.endpoints.sandbox 
         : DEXCOM_CONFIG.endpoints.production.us;
       
       const authUrl = new URL(baseUrl + DEXCOM_CONFIG.oauth.authorization);
-      authUrl.searchParams.set('client_id', DEXCOM_CONFIG.clientId);
-      authUrl.searchParams.set('redirect_uri', DEXCOM_CONFIG.redirectUri);
-      authUrl.searchParams.set('response_type', 'code');
+      // The client_id will be added by the backend
+      authUrl.searchParams.set('redirect_uri', window.location.origin + "/dexcom/auth/callback");
+      authUrl.search_params.set('response_type', 'code');
       authUrl.searchParams.set('scope', DEXCOM_CONFIG.scope);
-      authUrl.searchParams.set('code_challenge', codeChallenge);
-      authUrl.searchParams.set('code_challenge_method', 'S256');
       authUrl.searchParams.set('state', Math.random().toString(36).substring(7));
       
-      // In production Chrome extension, use chrome.identity.launchWebAuthFlow
       window.location.href = authUrl.toString();
       
     } catch (err) {
@@ -179,28 +149,15 @@ const useAuth = () => {
   const exchangeCodeForToken = useCallback(async (code) => {
     try {
       setIsLoading(true);
-      const codeVerifier = sessionStorage.getItem('dexcom_code_verifier');
-      const env = sessionStorage.getItem('dexcom_environment') || 'sandbox';
       
-      if (!codeVerifier) {
-        throw new Error('Missing code verifier');
-      }
-      
-      const baseUrl = env === 'sandbox' 
-        ? DEXCOM_CONFIG.endpoints.sandbox 
-        : DEXCOM_CONFIG.endpoints.production.us;
-      
-      const response = await fetch(baseUrl + DEXCOM_CONFIG.oauth.token, {
+      const response = await fetch("/dexcom/token", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         },
-        body: new URLSearchParams({
-          client_id: DEXCOM_CONFIG.clientId,
+        body: JSON.stringify({
           code: code,
-          grant_type: 'authorization_code',
-          redirect_uri: DEXCOM_CONFIG.redirectUri,
-          code_verifier: codeVerifier
+          redirect_uri: window.location.origin + "/dexcom/auth/callback"
         })
       });
       
@@ -208,16 +165,12 @@ const useAuth = () => {
         throw new Error('Token exchange failed');
       }
       
-      const tokens = await response.json();
+      const data = await response.json();
       
-      setAccessToken(tokens.access_token);
-      setRefreshToken(tokens.refresh_token);
+      // At this point, the backend has the tokens and they are in the session.
+      // We just need to set the frontend state to authenticated.
       setIsAuthenticated(true);
-      setEnvironment(env);
-      
-      // Clean up
-      sessionStorage.removeItem('dexcom_code_verifier');
-      sessionStorage.removeItem('dexcom_environment');
+      setEnvironment(sessionStorage.getItem('dexcom_environment') || 'sandbox');
       
     } catch (err) {
       setError('Token exchange failed: ' + err.message);
@@ -234,15 +187,6 @@ const useAuth = () => {
     sessionStorage.clear();
   }, []);
 
-  // Demo authentication for sandbox mode
-  const authenticateDemo = useCallback(() => {
-    setAccessToken('demo-token');
-    setRefreshToken('demo-refresh-token');
-    setIsAuthenticated(true);
-    setEnvironment('sandbox');
-    setError(null);
-  }, []);
-
   return {
     isAuthenticated,
     accessToken,
@@ -253,7 +197,6 @@ const useAuth = () => {
     startAuthFlow,
     exchangeCodeForToken,
     logout,
-    authenticateDemo,
     getBaseUrl
   };
 };
@@ -267,31 +210,17 @@ const useDexcomData = (auth) => {
   const [error, setError] = useState(null);
 
   const fetchEGVs = useCallback(async (startDate, endDate) => {
-    if (!auth.isAuthenticated || !auth.accessToken) return;
+    if (!auth.isAuthenticated) return;
     
     try {
       setIsLoading(true);
       setError(null);
       
-      // For demo mode, use sample data
-      if (auth.environment === 'sandbox' && auth.accessToken === 'demo-token') {
-        setTimeout(() => {
-          setEgvData(SAMPLE_EGV_DATA);
-          setIsLoading(false);
-        }, 1000);
-        return;
-      }
-      
-      const url = new URL(auth.getBaseUrl() + DEXCOM_CONFIG.api.egvs);
+      const url = new URL(window.location.origin + '/dexcom' + DEXCOM_CONFIG.api.egvs);
       if (startDate) url.searchParams.set('startDate', startDate);
       if (endDate) url.searchParams.set('endDate', endDate);
       
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${auth.accessToken}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status}`);
@@ -308,27 +237,10 @@ const useDexcomData = (auth) => {
   }, [auth]);
 
   const fetchDeviceInfo = useCallback(async () => {
-    if (!auth.isAuthenticated || !auth.accessToken) return;
+    if (!auth.isAuthenticated) return;
     
     try {
-      // For demo mode, use sample data
-      if (auth.environment === 'sandbox' && auth.accessToken === 'demo-token') {
-        setDeviceData({
-          displayDevice: {
-            transmitterGeneration: "g7",
-            displayApp: "iOS", 
-            softwareNumber: "1.10.0"
-          }
-        });
-        return;
-      }
-      
-      const response = await fetch(auth.getBaseUrl() + DEXCOM_CONFIG.api.devices, {
-        headers: {
-          'Authorization': `Bearer ${auth.accessToken}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      const response = await fetch(window.location.origin + '/dexcom' + DEXCOM_CONFIG.api.devices);
       
       if (!response.ok) {
         throw new Error(`Device API request failed: ${response.status}`);
@@ -735,13 +647,7 @@ const DexcomDashboard = () => {
 
   const handleAuthenticate = (environment) => {
     setShowAuthModal(false);
-    
-    // For demo purposes, simulate authentication
-    if (environment === 'sandbox') {
-      auth.authenticateDemo();
-    } else {
-      auth.startAuthFlow(environment);
-    }
+    auth.startAuthFlow(environment);
   };
 
   const handleLogout = () => {

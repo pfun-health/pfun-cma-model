@@ -19,6 +19,7 @@ from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI, HTTPException, Request, Response, status, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +30,7 @@ import os
 from pathlib import Path
 from typing import Dict, Literal, Optional, Annotated, Mapping, AsyncGenerator
 from pfun_common.utils import load_environment_variables, setup_logging
+from pfun_cma_model.routes import dexcom as dexcom_routes
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -151,6 +153,11 @@ def get_templates() -> Jinja2Templates:
 
 # -- Setup middleware
 
+# Add Session middleware
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development")
+)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -183,6 +190,8 @@ app.add_middleware(
 )
 
 
+app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
+
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
@@ -211,22 +220,6 @@ def demo_dexcom(request: Request):
     })
 
 
-@app.get("/dexcom/auth/callback")
-def auth_callback(request: Request):
-    """Authentication callback endpoint."""
-    logger.info("Authentication callback endpoint accessed.")
-    # extract the authorization_code attribute (will be exchanged for access_token, refresh_token)
-    authorization_code = request.query_params.get("code")
-    logger.debug("(/auth/callback) Authorization code: %s", authorization_code)
-    # redirect to dexcom demo page
-    return RedirectResponse(url=app.url_path_for("demo_dexcom"))
-
-
-@app.get("/dexcom/auth/logout")
-def auth_logout(request: Request):
-    """Logout endpoint."""
-    logger.info("Logout endpoint accessed.")
-    return {"status": "ok", "message": "Logout successful."}
 
 
 # -- Model Parameters Endpoints --
