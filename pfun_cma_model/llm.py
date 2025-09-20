@@ -1,5 +1,5 @@
 import os
-import google.generativeai as genai
+import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 import json
 
@@ -18,7 +18,7 @@ def translate_query_to_params(query: str) -> dict:
     except KeyError:
         raise Exception("GEMINI_API_KEY environment variable not set.")
 
-    genai.configure(api_key=gemini_api_key)
+    client = genai.Client(api_key=gemini_api_key)
 
     model = genai.GenerativeModel('gemini-pro')
 

@@ -311,7 +311,7 @@ def tabulate_params(
         result = json.dumps({"error": str(e)})  # type: ignore
     finally:
         return Response(
-            content=result,
+            content=json.dumps({"table": str(result)}),
             status_code=200,
             headers={"Content-Type": "application/json"},
         )
