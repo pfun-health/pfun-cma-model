@@ -219,6 +219,13 @@ def demo_dexcom(request: Request):
         "year": datetime.now().year
     })
 
+@app.get("/demo/gemini")
+def demo_gemini(request: Request):
+    return get_templates().TemplateResponse("gemini-demo.html", {
+        "request": request,
+        "year": datetime.now().year
+    })
+
 
 
 
@@ -441,6 +448,23 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
         content=translation_dict[from_lang][to_lang](results), status_code=200
     )
 
+
+from pfun_cma_model.llm import translate_query_to_params
+from pydantic import BaseModel
+
+class TranslateQueryRequest(BaseModel):
+    query: str
+
+@app.post("/llm/translate-query")
+async def translate_query(request: TranslateQueryRequest):
+    """
+    Translates a plain English query into PFun CMA model parameters.
+    """
+    try:
+        params = translate_query_to_params(request.query)
+        return params
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
