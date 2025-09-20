@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Demo</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Gemini Demo</h1>
+    <p>Enter a plain English query to translate it into PFun CMA model parameters.</p>
+    <form id="query-form">
+        <textarea id="query-input" rows="4" cols="50" placeholder="e.g., a patient with chronic stress that exacerbates the risk of glucose lows in the evening"></textarea>
+        <br>
+        <button type="submit">Translate</button>
+    </form>
+    <h2>Parameters:</h2>
+    <pre id="response-output"></pre>
+
+    <script>
+        document.getElementById('query-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const query = document.getElementById('query-input').value;
+            const responseOutput = document.getElementById('response-output');
+            responseOutput.textContent = 'Loading...';
+
+            try {
+                const response = await fetch('/llm/translate-query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+
+                const data = await response.json();
+                responseOutput.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseOutput.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
