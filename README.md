@@ -4,7 +4,7 @@ _PFun CMA model repo._
 
 ## Development notes
 
-- **[TODO]** Look at websockets
+- Look at websockets
 - Using `uv` for super fast dependency management, usage, and publishing.
 
 ### Create a dedicated virtual environment
