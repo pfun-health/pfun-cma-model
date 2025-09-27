@@ -449,7 +449,7 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
     )
 
 
-from pfun_cma_model.llm import translate_query_to_params
+from pfun_cma_model.llm import translate_query_to_params, generate_scenario, generate_causal_explanation
 from pydantic import BaseModel
 
 class TranslateQueryRequest(BaseModel):
@@ -465,6 +465,54 @@ async def translate_query(request: TranslateQueryRequest):
         return params
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class GenerateScenarioRequest(BaseModel):
+    query: Optional[str] = None
+
+@app.post("/generate/scenario")
+async def generate_scenario_endpoint(request: GenerateScenarioRequest):
+    """
+    Generates a realistic "pfun-scene" JSON object including a set of parameters,
+    qualitative description, sample solutions, and causal explanation.
+    """
+    try:
+        # 1. Generate scenario from LLM
+        scenario = generate_scenario(request.query)
+        qualitative_description = scenario.get("qualitative_description")
+        parameters = scenario.get("parameters")
+
+        if not qualitative_description or not parameters:
+            raise HTTPException(status_code=500, detail="Failed to generate a valid scenario from the LLM.")
+
+        # 2. Run CMA model to get sample solutions
+        model = await initialize_model()
+        model.update(parameters)
+        df = model.run()
+        sample_solutions = json.loads(df.to_json(orient="records"))
+
+        # 3. Generate causal explanation from LLM
+        explanation = generate_causal_explanation(
+            description=qualitative_description,
+            trace=df.to_json(orient="records")
+        )
+        causal_explanation = explanation.get("causal_explanation")
+
+        if not causal_explanation:
+            raise HTTPException(status_code=500, detail="Failed to generate a valid causal explanation from the LLM.")
+
+        # 4. Combine and return the full pfun-scene
+        result = {
+            "qualitative_description": qualitative_description,
+            "parameters": parameters,
+            "sample_solutions": sample_solutions,
+            "causal_explanation": causal_explanation,
+        }
+        return result
+
+    except Exception as e:
+        logger.error(f"Error generating scenario: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
 @app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
