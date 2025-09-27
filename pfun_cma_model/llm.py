@@ -3,6 +3,37 @@ import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 import json
 
+
+class GenerativeModel:
+    def __init__(self, model='gemini-2.5-pro'):
+        self._model = model
+        self._client = self.setup_genai_client()
+
+    def __call__(self, model = None, contents = None):
+        if model is None:
+            model = self._model
+        if contents is None:
+            contents = []
+        if not isinstance(contents, list):
+            contents = [contents, ]
+        return self._client.models.generate_content(
+            model = model,
+            contents = contents
+        )
+
+    def generate_content(self, prompt: str):
+        return self.__call__(model = self._model, contents = [prompt, ])
+
+    @classmethod
+    def setup_genai_client(cls):
+        try:
+            gemini_api_key = os.environ["GEMINI_API_KEY"]
+        except KeyError:
+            raise Exception("GEMINI_API_KEY environment variable not set.")
+        client = genai.Client(api_key=gemini_api_key)
+        return client
+
+
 def translate_query_to_params(query: str) -> dict:
     """
     Translates a plain English query into PFun CMA model parameters using the Gemini API.
@@ -13,14 +44,7 @@ def translate_query_to_params(query: str) -> dict:
     Returns:
         A dictionary containing the PFun CMA model parameters.
     """
-    try:
-        gemini_api_key = os.environ["GEMINI_API_KEY"]
-    except KeyError:
-        raise Exception("GEMINI_API_KEY environment variable not set.")
-
-    client = genai.Client(api_key=gemini_api_key)
-
-    model = genai.GenerativeModel('gemini-pro')
+    model = GenerativeModel()
 
     # Construct the prompt
     params = CMAModelParams()
@@ -77,8 +101,7 @@ def generate_causal_explanation(description: str, trace: str) -> dict:
     except KeyError:
         raise Exception("GEMINI_API_KEY environment variable not set.")
 
-    client = genai.Client(api_key=gemini_api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    model = GenerativeModel()
 
     prompt = f"""\
 You are a helpful assistant that analyzes glucose data for a person with diabetes and provides a causal explanation for the observed patterns.
@@ -134,7 +157,7 @@ def generate_scenario(query: str = None) -> dict:
 
     client = genai.Client(api_key=gemini_api_key)
 
-    model = genai.GenerativeModel('gemini-pro')
+    model = GenerativeModel()
 
     # Construct the prompt
     params = CMAModelParams()
