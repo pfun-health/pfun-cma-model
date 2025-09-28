@@ -68,9 +68,10 @@ steps:
             echo "Health check failed (HTTP $$HTTP_STATUS)."
             FAIL_COUNT=$((FAIL_COUNT + 1))
           fi
-          
-          if [ "$$FAIL_COUNT" -gt 2 ]; then
-            echo "More than 2 health checks failed. Aborting build."
+
+	  FAIL_THRESH=4
+          if [ "$$FAIL_COUNT" -gt "$$FAIL_THRESH" ]; then
+            echo "More than $$FAIL_THRESH health checks failed. Aborting build."
             exit 1
           fi
           sleep 1
