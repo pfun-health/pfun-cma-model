@@ -1,6 +1,8 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from pydantic import BaseModel
+from pfun_cma_model.llm import translate_query_to_params, generate_scenario, generate_causal_explanation
 from jinja2 import pass_context
 from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
@@ -155,6 +157,7 @@ def get_templates() -> Jinja2Templates:
 
 # -- Setup middleware
 
+
 # Add Session middleware
 app.add_middleware(
     SessionMiddleware,
@@ -194,6 +197,7 @@ app.add_middleware(
 
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
+
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
@@ -221,14 +225,13 @@ def demo_dexcom(request: Request):
         "year": datetime.now().year
     })
 
+
 @app.get("/demo/gemini")
 def demo_gemini(request: Request):
     return get_templates().TemplateResponse("gemini-demo.html", {
         "request": request,
         "year": datetime.now().year
     })
-
-
 
 
 # -- Model Parameters Endpoints --
@@ -451,11 +454,9 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
     )
 
 
-from pfun_cma_model.llm import translate_query_to_params, generate_scenario, generate_causal_explanation
-from pydantic import BaseModel
-
 class TranslateQueryRequest(BaseModel):
     query: str
+
 
 @app.post("/llm/translate-query")
 async def translate_query(request: TranslateQueryRequest):
@@ -470,9 +471,10 @@ async def translate_query(request: TranslateQueryRequest):
 
 
 class GenerateScenarioRequest(BaseModel):
-    query: Optional[str] = None
+    query: str = 'A healthy patient.'
 
-@app.post("/generate/scenario")
+
+@app.post("/llm/generate/scenario")
 async def generate_scenario_endpoint(request: GenerateScenarioRequest):
     """
     Generates a realistic "pfun-scene" JSON object including a set of parameters,
@@ -485,7 +487,8 @@ async def generate_scenario_endpoint(request: GenerateScenarioRequest):
         parameters = scenario.get("parameters")
 
         if not qualitative_description or not parameters:
-            raise HTTPException(status_code=500, detail="Failed to generate a valid scenario from the LLM.")
+            raise HTTPException(
+                status_code=500, detail="Failed to generate a valid scenario from the LLM.")
 
         # 2. Run CMA model to get sample solutions
         model = await initialize_model()
@@ -501,7 +504,8 @@ async def generate_scenario_endpoint(request: GenerateScenarioRequest):
         causal_explanation = explanation.get("causal_explanation")
 
         if not causal_explanation:
-            raise HTTPException(status_code=500, detail="Failed to generate a valid causal explanation from the LLM.")
+            raise HTTPException(
+                status_code=500, detail="Failed to generate a valid causal explanation from the LLM.")
 
         # 4. Combine and return the full pfun-scene
         result = {
@@ -514,7 +518,9 @@ async def generate_scenario_endpoint(request: GenerateScenarioRequest):
 
     except Exception as e:
         logger.error(f"Error generating scenario: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {e}")
+
 
 @app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
