@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}WebGL Plot Demo{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- MathJax (render latex) -->
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+<style>
+    .demo-container {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .controls-container {
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .chart-container {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #webgl-plot-container {
+        width: 100%;
+        height: 475px;
+        /* Increased height */
+        border: #333 solid 1px;
+    }
+
+    #webgl-plot {
+        width: 100%;
+        height: 100%;
+    }
+
+    #messages {
+        border: 1px solid #aaa;
+        padding: 1em;
+        height: 150px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+    }
+
+    fieldset {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    legend {
+        width: auto;
+        padding: 0 10px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+<body>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+        {% block content %}
+        <h2>WebGL Real-Time Plot Demo</h2>
+
+        <div class="demo-container">
+
+            <div class="controls-container">
+                <form id="runForm">
+                    <fieldset>
+                        <legend>Simulation Parameters</legend>
+                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                            data-bs-title="Simulation start time (decimal hours).">
+                            <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
+                            <input class="form-control" type="range" step="0.5" id="t0" name="t0" max="24.0" min="0"
+                                value="4" required>
+                            <output for="t0" id="rangeValue-t0" aria-hidden="false"></output>
+                        </div>
+                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
+                            end time (decimal hours). Note: t1 must be greater than t0.">
+                            <label class="form-label" for="t1">t1 (0, 24.0):</label>
+                            <input class="form-control" type="range" step="0.5" id="t1" name="t1" max="24.0" min="0"
+                                value="20" required>
+                            <output for="t1" id="rangeValue-t1" aria-hidden="false"></output>
+                        </div>
+                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                            data-bs-title="Number of points to simulate.<br>Note: N must be a positive integer.">
+                            <label class="form-label" for="N">N (1, 10000):</label>
+                            <input class="form-control" type="range" step="1" id="N" name="N" min="1" max="150"
+                                value="24" required>
+                            <output for="N" id="rangeValue-N" aria-hidden="false"></output>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Model Parameters</legend>
+                        {% for key, param in params.items() %}
+                        <div class="param-item" data-bs-toggle="tooltip" data-bs-placement="top"
+                            data-bs-title="{{ param.description }}">
+                            <label class="form-label" for="{{ key }}">{{ key }}:</label>
+                            <input class="form-control" type="range" step="0.05" id="{{ key }}" name="{{ key }}"
+                                value="{{ param.value }}" min="{{ param.min }}" max="{{ param.max }}" required>
+                            <output for="{{ key }}" id="rangeValue-{{ key }}" aria-hidden="true"></output>
+                        </div>
+                        {% endfor %}
+                    </fieldset>
+
+                    <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation">
+                </form>
+            </div>
+
+            <div class="chart-container">
+                <div id="webgl-plot-container">
+                    <canvas id="webgl-plot"></canvas>
+                </div>
+                <div id="message-list">
+                    <div id="messages"></div>
+                </div>
+                <div id="submit-btn-container">
+                    <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation">
+                </div>
+            </div>
+        </div>
+
+        <!-- WebSocket Configuration -->
+        <script>
+            const wsConfig = {
+                scheme: window.location.protocol === 'https:' ? 'wss' : 'ws',
+                host: window.location.hostname,
+                port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80)
+            };
+            const wsUrl = `${wsConfig.scheme}://${wsConfig.host}:${wsConfig.port}`;
+        </script>
+
+        <!-- Socket.IO CDN -->
+        <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
+        <!-- WebGL Plot CDN -->
+        <script type="module" src="{{ cdn['webglplot']['url'] }}" crossorigin="anonymous"></script>
+        <!-- webgl-demo app script -->
+        <script type="module" src="{{ url_for('static', path='webgl-demo/webgl-demo.js') }}" crossorigin="anonymous"></script>
+
+        {% endblock %}
+    </div>
+</body>
+
+</html>

@@ -4,8 +4,14 @@ from pydantic import GetCoreSchemaHandler
 import numpy as np
 
 __all__ = [
-    'Bounds'
+    'Bounds',
+    'BoundsTypeError'
 ]
+
+
+class BoundsTypeError(TypeError):
+    """Custom exception for bounds type errors."""
+    pass
 
 
 #: Aliases for numpy bool types (necessary for type checking).
