@@ -15,6 +15,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      secrets:
+        - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
     user: "nonroot:nonroot"
     env_file: .env
     secrets:
