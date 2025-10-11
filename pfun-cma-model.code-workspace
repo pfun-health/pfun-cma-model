@@ -12,7 +12,7 @@
 		"terminal.integrated.suggest.cdPath": "relative",
 		"python.analysis.extraPaths": [
 			".",
-			"./.venv/liv/python3.12/site-packages"
+			"./.venv/lib/python3.12/site-packages"
 		],
 		"github.copilot.chat.byok.ollamaEndpoint": "https://ollama.local.pfun.run",
 		"github.copilot.chat.agent.thinkingTool": true,

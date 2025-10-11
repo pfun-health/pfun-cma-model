@@ -2,12 +2,58 @@
 
 _PFun CMA model repo._
 
+## Overview
+
+[Perplexity.ai Generated Summary](./SUMMARY.md)
+
 ## Development notes
 
 - Look at websockets
 - Using `uv` for super fast dependency management, usage, and publishing.
 
-### Create a dedicated virtual environment
+### Quick start
+
+#### (dashlane) Inject secrets to create `.env`
+
+```bash
+
+# NOTE: only works if you have dcli (the dashlane CLI) installed locally
+$ ./scripts/inject-secrets-env.sh
+
+```
+
+### (containerized) `docker-compose` environment
+
+#### Complete rebuild & launch
+
+```bash
+
+docker compose up -d \
+    --build \
+    --renew-anon-volumes \
+    --remove-orphans
+
+```
+
+...or with the convenience script:
+
+```bash
+
+./scripts/full-rebuild.sh
+
+```
+
+#### (Cloud Run) Create a new Version & Publish to Google Cloud Platform
+
+```bash
+
+./scripts/new-version.sh
+
+```
+
+### (local) `uv` Python Dev environment
+
+#### Create a dedicated virtual environment
 
 ```bash
 
@@ -15,7 +61,7 @@ uv venv
 
 ```
 
-### Install fastapi with the correct version
+#### Install fastapi with the correct version
 
 ```bash
 
@@ -28,7 +74,7 @@ uv run fastapi dev
 
 ```
 
-### Run tests locally
+#### Run tests locally
 
 ```bash
 
@@ -36,7 +82,7 @@ uvx tox
 
 ```
 
-### To add a development dependency
+#### To add a development dependency
 
 ```bash
 
@@ -45,7 +91,7 @@ $ uv add --dev ...
 
 ```
 
-### Updating the environment
+#### Updating the environment
 
 ```bash
 
@@ -53,7 +99,7 @@ uv sync
 
 ```
 
-### Debugging the app locally (run as a local FastAPI server)
+#### Debugging the app locally (run as a local FastAPI server)
 
 ```bash
 
@@ -78,7 +124,7 @@ $ uv run pfun-cma-model run-fit-model --plot
 
 ## CMA Model Description
 
-### Model Parameters
+#### Model Parameters
 
 | Parameter | Type                       | Default           | Lower Bound | Upper Bound | Description                               |
 | --------- | -------------------------- | ----------------- | ----------- | ----------- | ----------------------------------------- |
@@ -94,7 +140,7 @@ $ uv run pfun-cma-model run-fit-model --plot
 | seed      | Optional[int]              | None              | N/A         | N/A         | Random seed                               |
 | eps       | float                      | 1e-18             | N/A         | N/A         | Random noise scale ("epsilon")            |
 
-### Example Fitted Parameters
+#### Example Fitted Parameters
 
 | Parameter | Value         | Example Description (Human provided)                                           |
 | --------- | ------------- | ------------------------------------------------------------------------------ |
@@ -105,7 +151,7 @@ $ uv run pfun-cma-model run-fit-model --plot
 | Cm        | 0.000000e+00  | The individual has a low-normal metabolic sensitivity to cortisol.             |
 | toff      | 0.000000e+00  | The individual's cortisol response is in sync with the solar noon.             |
 
-### Example ChatGPT Output
+#### Example ChatGPT Output
 
 ```markdown
 Based on the given model parameters and their example fitted values, we can make several clinically and physiologically relevant observations about the individual:
@@ -129,7 +175,7 @@ Based on the given model parameters and their example fitted values, we can make
 Overall, the individual appears to have some circadian misalignment and potential metabolic issues, particularly related to glucose regulation and stress response. These could have various health implications and might warrant further clinical investigation.
 ```
 
-### Example ChatGPT Diagram
+#### Example ChatGPT Diagram
 
 ```mermaid
 graph TB
@@ -160,7 +206,7 @@ B2 -->|Model Parameters| E4["B: 0.129"]
 B3 -->|Model Parameters| E5["Cm: -1.567e+06"]
 ```
 
-### Example Non-PFun ChatGPT Response
+#### Example Non-PFun ChatGPT Response
 
 ```markdown
 Based on the analysis of your CGM data, here's a personalized report on your metabolic health:
@@ -176,7 +222,7 @@ Based on the analysis of your CGM data, here's a personalized report on your met
 This report suggests overall decent glucose management, but the high glucose episodes and maximum glucose level indicate potential areas for improvement. Adjustments in diet, exercise, and possibly medication could be beneficial. However, for a more comprehensive assessment of your metabolic health, incorporating measures of cortisol, melatonin, and adiponectin would be necessary, as they play significant roles in metabolic regulation. Always consult with your healthcare provider for personalized medical advice.
 ```
 
-### Example ChatGPT Response with PFun Parameters
+#### Example ChatGPT Response with PFun Parameters
 
 ```markdown
 The additional details you provided, including model parameters and example fitted values, offer valuable insights into your metabolic health, particularly concerning your circadian rhythm and glucose metabolism.
