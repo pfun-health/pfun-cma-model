@@ -45,6 +45,32 @@ def launch(ctx, host, port, reload, args):
     run_app(host, port, reload=reload, debug=True, extra_args=list(args))
 
 
+@cli.command(context_settings=dict(ignore_unknown_options=True))
+@click.option(
+    "--query",
+    default="A healthy individual.",
+    help="Specify a query describing the desired llm-generated scenario.",
+    required=False
+)
+@click.pass_context
+def generate_scenario(ctx, query):
+    import requests
+    headers = {
+        'accept': 'application/json',
+        'content-type': 'application/json'
+    }
+    data = json.dumps({
+        "query": f"{str(query)}"
+    })
+    response = requests.post(
+        "http://localhost:8001/llm/generate/scenario",
+        data=data,
+        headers=headers
+    )
+    scene_dict = response.json()
+    click.secho(json.dumps(scene_dict, indent=3))
+
+
 def process_kwds(ctx, param, value):
     if param.name != "opts":
         return value
