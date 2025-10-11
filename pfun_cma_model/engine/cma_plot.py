@@ -99,6 +99,29 @@ class CMAPlotConfig:
         """alias for set_global_axis_properties..."""
         return cls.set_global_axis_properties(axs)
 
+    @staticmethod
+    def setup_input_data(df):
+        """setup the input dataframe for plotting"""
+        df = df.copy()
+        df = df.set_index("t")
+        return df
+
+    @staticmethod
+    def setup_solution(soln):
+        """setup the solution dataframe for plotting"""
+        df = soln.copy()
+        df = df.set_index("t")
+        # ensure the expected column names are present for soln
+        df.rename(columns={"G": "G_soln"}, inplace=True)
+        return df
+
+    @staticmethod
+    def combine_dataframes(df, soln):
+        """combine the input dataframe and solution dataframe for plotting"""
+        df = pd.merge_ordered(df.copy(), soln, suffixes=("", "_soln"), on="t")
+        df = df.set_index("t")
+        return df
+
     @classmethod
     def plot(
             cls, df=None, soln=None,
@@ -171,6 +194,25 @@ class CMAPlotConfig:
         #: return the figure and axes (unless this is to be a blob for the web)
         if as_blob is False:
             return fig, axs
+        else:
+            return cls.save_figure_as_blob(fig)
+
+    @classmethod
+    def plot_separate_subplots(cls, df, plot_cols, axs):
+        """plot the given data in separate subplots."""
+        for pcol, axi in zip(plot_cols, axs[1:]):
+            axi.fill_between(
+                x=df.index, y1=df[pcol].min(), y2=df[pcol],
+                color=cls.get_color(pcol),
+                alpha=0.2,
+                label=cls.get_label(pcol)
+            )
+            axi.legend()
+        return axs
+
+    @classmethod
+    def save_figure_as_blob(cls, fig):
+        """save the figure as a blob for the web."""
         bio = BytesIO()
         fig.savefig(bio, format='png')
         bio.seek(0)
@@ -179,3 +221,17 @@ class CMAPlotConfig:
         img_src = img_src + b64encode(bytes_value).decode('utf-8')
         plt.close()
         return img_src
+
+
+class CMAPlotDataConfig(CMAPlotConfig):
+    """configuration for plotting the input data"""
+
+    def plot(self, df, plot_cols=None, **subplot_kwds):
+        pass
+
+
+class CMAPlotSolnConfig(CMAPlotConfig):
+    """configuration for plotting the model solution"""
+
+    def plot(self, df, plot_cols=None, **subplot_kwds):
+        pass
