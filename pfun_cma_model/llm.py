@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 from pfun_common.utils import load_environment_variables
@@ -27,12 +28,19 @@ class GenerativeModel:
 
     @classmethod
     def setup_genai_client(cls):
-        load_environment_variables()
-        
+        """Setup the Gemini API client.
+
+        Returns:
+            genai.Client: The Gemini API client.
+        """
+        if "GEMINI_API_KEY" not in os.environ:
+            load_environment_variables()
         try:
             gemini_api_key = os.environ["GEMINI_API_KEY"]
         except KeyError:
             raise Exception("GEMINI_API_KEY environment variable not set.")
+        # (only for DEBUG, print the api key)
+        logging.debug("Gemini API key: %s", gemini_api_key)
         client = genai.Client(api_key=gemini_api_key)
         return client
 
@@ -99,10 +107,6 @@ def generate_causal_explanation(description: str, trace: str) -> dict:
     Returns:
         A dictionary containing the causal explanation.
     """
-    try:
-        gemini_api_key = os.environ["GEMINI_API_KEY"]
-    except KeyError:
-        raise Exception("GEMINI_API_KEY environment variable not set.")
 
     model = GenerativeModel()
 
@@ -153,12 +157,6 @@ def generate_scenario(query: str = None) -> dict:
     Returns:
         A dictionary containing the generated scenario.
     """
-    try:
-        gemini_api_key = os.environ["GEMINI_API_KEY"]
-    except KeyError:
-        raise Exception("GEMINI_API_KEY environment variable not set.")
-
-    client = genai.Client(api_key=gemini_api_key)
 
     model = GenerativeModel()
 

@@ -21,12 +21,14 @@ services:
       - dexcom_api_client_id
       - dexcom_api_secret
       - secret_key
+      - gemini_api_key
     environment:
       - USER=nonroot
       - GROUP=nonroot
       - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
       - DEXCOM_API_SECRET=/run/secrets/dexcom_api_secret
       - SECRET_KEY=/run/secrets/secret_key
+      - GEMINI_API_KEY=/run/secrets/gemini_api_key
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
@@ -73,6 +75,8 @@ volumes:
   pfun_cma_model_data:
 
 secrets:
+  gemini_api_key:
+    environment: GEMINI_API_KEY
   dexcom_api_client_id:
     environment: DEXCOM_API_CLIENT_ID
   dexcom_api_secret:
