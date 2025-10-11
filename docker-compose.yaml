@@ -16,14 +16,12 @@ services:
       context: .
       dockerfile: Dockerfile
       secrets:
-        - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
+        - dexcom_api_client_id
+        - dexcom_api_secret
+        - secret_key
+        - gemini_api_key
     user: "nonroot:nonroot"
     env_file: .env
-    secrets:
-      - dexcom_api_client_id
-      - dexcom_api_secret
-      - secret_key
-      - gemini_api_key
     environment:
       - USER=nonroot
       - GROUP=nonroot
@@ -34,13 +32,19 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    command: [
-      "uv", "run","uvicorn",
-      "pfun_cma_model.app:app",
-      "--host", "0.0.0.0",
-      "--port", "8001",
-      "--workers", "1"
-    ]
+    command:
+      [
+        "uv",
+        "run",
+        "uvicorn",
+        "pfun_cma_model.app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8001",
+        "--workers",
+        "1",
+      ]
     depends_on:
       - redis
       - postgres
@@ -50,13 +54,18 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    command: [
-      "redis-server", 
-      "--save", "60", "1", 
-      "--appendonly", "no",
-      "--loglevel", "warning"
+    command:
+      [
+        "redis-server",
+        "--save",
+        "60",
+        "1",
+        "--appendonly",
+        "no",
+        "--loglevel",
+        "warning",
       ]
-  
+
   postgres:
     image: "postgres:16-alpine"
     container_name: postgres
