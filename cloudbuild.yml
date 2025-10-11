@@ -69,7 +69,7 @@ steps:
             FAIL_COUNT=$((FAIL_COUNT + 1))
           fi
 
-   FAIL_THRESH=4
+          FAIL_THRESH=4
           if [ "$$FAIL_COUNT" -gt "$$FAIL_THRESH" ]; then
             echo "More than $$FAIL_THRESH health checks failed. Aborting build."
             exit 1
