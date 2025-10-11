@@ -505,7 +505,9 @@ async def generate_scenario_endpoint(request: GenerateScenarioRequest):
 
         if not causal_explanation:
             raise HTTPException(
-                status_code=500, detail="Failed to generate a valid causal explanation from the LLM.")
+                status_code=500,
+                detail="Failed to generate a valid causal explanation from the LLM."
+            )
 
         # 4. Combine and return the full pfun-scene
         result = {
