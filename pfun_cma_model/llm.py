@@ -1,7 +1,8 @@
 import os
+import json
+from pfun_common.utils import load_environment_variables
 import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
-import json
 
 
 class GenerativeModel:
@@ -9,7 +10,7 @@ class GenerativeModel:
         self._model = model
         self._client = self.setup_genai_client()
 
-    def __call__(self, model = None, contents = None):
+    def __call__(self, model=None, contents=None):
         if model is None:
             model = self._model
         if contents is None:
@@ -17,15 +18,17 @@ class GenerativeModel:
         if not isinstance(contents, list):
             contents = [contents, ]
         return self._client.models.generate_content(
-            model = model,
-            contents = contents
+            model=model,
+            contents=contents
         )
 
     def generate_content(self, prompt: str):
-        return self.__call__(model = self._model, contents = [prompt, ])
+        return self.__call__(model=self._model, contents=[prompt, ])
 
     @classmethod
     def setup_genai_client(cls):
+        load_environment_variables()
+        
         try:
             gemini_api_key = os.environ["GEMINI_API_KEY"]
         except KeyError:

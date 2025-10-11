@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-fastapi dev pfun_cma_model/app.py --port 8001
+# scripts/serve_dev.sh : serve the current version of pfun-cma-model locally with hot-reload
+
+pfun-cma-model launch --reload

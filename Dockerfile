@@ -1,11 +1,11 @@
-FROM ghcr.io/astral-sh/uv:debian as base
+FROM ghcr.io/astral-sh/uv:debian AS base
 
 # install system dependencies (as root)
 
 RUN apt-get update && \
     apt install -yyq --no-install-recommends \
-        build-essential \
-        portaudio19-dev
+    build-essential \
+    portaudio19-dev
 
 # create a non-root user
 # and set the app root directory
@@ -19,7 +19,7 @@ COPY --chown=nonroot:nonroot . .
 # ensure permissions for nonroot
 RUN chown nonroot:nonroot .
 
-FROM base as deps
+FROM base AS deps
 
 # install python + dependencies
 USER nonroot
@@ -35,7 +35,8 @@ RUN \
     uv build
 
 
-FROM deps as dist
+FROM deps AS dist
+
 USER nonroot
 WORKDIR /app
 # overridden in compose

@@ -9,7 +9,9 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, InitVar
 from dataclasses import dataclass
 from typing import Optional
-from pfun_cma_model.engine.cma_model_params import _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
+from pfun_cma_model.engine.cma_model_params import (
+    _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
+)
 from typing import Dict, Any
 import pfun_cma_model
 from pfun_cma_model.data import read_sample_data
@@ -58,7 +60,7 @@ async def lifespan(app: FastAPI):
     global redis_client
     # --- Startup task: connect to Redis ---
     redis_client = Redis(
-        host=os.getenv("REDIS_HOST", "localhost"),
+        host=os.getenv("REDIS_HOST", "0.0.0.0"),
         port=int(os.getenv("REDIS_PORT", "6379")),
         db=int(os.getenv("REDIS_DB", "0")),
         password=os.getenv("REDIS_PASSWORD", None),
