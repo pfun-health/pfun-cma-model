@@ -1,12 +1,12 @@
-from typing import Annotated, Iterable, Literal, Optional, Tuple, Container, AnyStr, Set
-from dataclasses import dataclass, field
 import logging
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import pandas as pd
-from io import BytesIO
 from base64 import b64encode
+from dataclasses import dataclass, field
+from io import BytesIO
+from typing import (Annotated, Iterable, Literal, Tuple)
+
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
+import pandas as pd
 
 __all__ = [
     'CMAPlotConfig'
@@ -18,14 +18,16 @@ class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
     plot_cols: Tuple[
-        Literal['g_0'], Literal['g_1'], Literal['g_2'], Literal['G'], Literal['c'], Literal['m'], Literal['a'], Literal['L'], Literal['I_S'], Literal['I_E'], Literal['is_meal'], Literal['value']
+        Literal['g_0'], Literal['g_1'], Literal['g_2'], Literal['G'], Literal['c'], Literal['m'], Literal[
+            'a'], Literal['L'], Literal['I_S'], Literal['I_E'], Literal['is_meal'], Literal['value']
     ] = field(default_factory=lambda: (
         "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"
     ))
     labels: Annotated[
         tuple[str],
         tuple[
-            Literal['Breakfast'], Literal['Lunch'], Literal['Dinner'], Literal['Glucose'], Literal['Cortisol'], Literal['Melatonin'], Literal['Adiponectin'], Literal['Photoperiod (irradiance)'], Literal['Insulin (secreted)'], Literal['Insulin (effective)'], Literal['Meals'], Literal['Glucose (Data)']
+            Literal['Breakfast'], Literal['Lunch'], Literal['Dinner'], Literal['Glucose'], Literal['Cortisol'], Literal['Melatonin'], Literal['Adiponectin'], Literal[
+                'Photoperiod (irradiance)'], Literal['Insulin (secreted)'], Literal['Insulin (effective)'], Literal['Meals'], Literal['Glucose (Data)']
         ]] = (
         "Breakfast", "Lunch", "Dinner",
         "Glucose", "Cortisol", "Melatonin",
@@ -36,7 +38,8 @@ class CMAPlotConfig:
     )
 
     colors: tuple[
-        Literal['#ec5ef9'], Literal['#bd4bc7'], Literal['#8b3793'], Literal['purple'], Literal['cyan'], Literal['darkgrey'], Literal['m'], Literal['tab:orange'], Literal['tab:red'], Literal['red'], Literal['k'], Literal['darkgrey']
+        Literal['#ec5ef9'], Literal['#bd4bc7'], Literal['#8b3793'], Literal['purple'], Literal['cyan'], Literal[
+            'darkgrey'], Literal['m'], Literal['tab:orange'], Literal['tab:red'], Literal['red'], Literal['k'], Literal['darkgrey']
     ] = (
         "#ec5ef9",
         "#bd4bc7",
@@ -56,15 +59,16 @@ class CMAPlotConfig:
     def get_label(cls, col: Iterable[str] | str):
         if not isinstance(col, str):
             return [cls.get_label(c) for c in col]
-        index = cls.plot_cols.index(col)
+        index = cls().plot_cols.index(col)
         return cls.labels[index]
 
     @classmethod
-    def get_color(cls, col: Iterable[str] | str, rgba=False, as_hex=False, keep_alpha=False):
+    def get_color(cls, col: Iterable[str] | str, rgba=False, as_hex=False,
+                  keep_alpha=False):
         if not isinstance(col, str):
             return [cls.get_color(c, rgba=rgba) for c in col]
         try:
-            index = cls.plot_cols.index(col)
+            index = cls().plot_cols.index(col)
             c = cls.colors[index]
             c_rgba = colors.to_rgba(c)
             if as_hex is True:
@@ -84,35 +88,47 @@ class CMAPlotConfig:
             ax.tick_params(axis='both', which='major', labelsize=14)
             ax.tick_params(axis='both', which='minor', labelsize=12)
             ax.grid(True)
-            ax.set_xticks([0, 6, 12, 18, 23], ['Midnight', '6AM', 'Noon', '6PM', '11PM'])
+            ax.set_xticks([0, 6, 12, 18, 23], [
+                          'Midnight', '6AM', 'Noon', '6PM', '11PM'])
             ax.set_xlim([0.01, 23.99])
             ax.set_xlabel("Time (24-hours)")
         return axs
-    
+
     @classmethod
     def set_global_axis_attributes(cls, axs):
         """alias for set_global_axis_properties..."""
         return cls.set_global_axis_properties(axs)
 
     @classmethod
-    def plot_model_results(cls, df=None, soln=None, plot_cols=None, separate2subplots=False, as_blob=True, **subplot_kwds):
-        """plot the results of the model"""
-        if df is None:
-            raise ValueError("df is None")
-        if soln is None:
-            raise ValueError("soln is None")
+    def plot(
+            cls, df=None, soln=None,
+            plot_cols=None, separate2subplots=False,
+            as_blob=True, **subplot_kwds):
+        """plot the input dataset."""
         if plot_cols is None:
-            plot_cols = cls.plot_cols
+            plot_cols = cls().plot_cols
         #: drop is_meal from plot cols... (it's bool afterall)
         plot_cols = list(plot_cols)
         if "is_meal" in plot_cols:
             ismeal_ix = plot_cols.index("is_meal")
             plot_cols.pop(ismeal_ix)
-        #: combine the data into a single dataframe
-        df = df.set_index("t")
-        soln = soln.set_index("t")
-        df = pd.merge_ordered(df.copy(), soln, suffixes=("", "_soln"), on="t")
-        df = df.set_index("t")
+        # handle the time index
+        if df is not None:
+            df = df.copy()
+            df = df.set_index("t")
+        # combine if both exist
+        if df is not None and soln is not None:
+            df = pd.merge_ordered(
+                df.copy(), soln, suffixes=("", "_soln"), on="t")
+            df = df.set_index("t")
+        elif soln is not None and df is None:
+            # otherwise, the solution is the entire dataframe
+            df = soln.copy()
+            df = df.set_index("t")
+            # ensure the expected column names are present for soln
+            df.rename(columns={"G": "G_soln"}, inplace=True)
+        # prune plot_cols to available columns
+        plot_cols = [c for c in plot_cols if c in df.columns]
         # prepare subplots configuration
         subplot_kwds_defaults = {
             "nrows": 2 if separate2subplots is False else len(plot_cols) + 1,
@@ -121,15 +137,18 @@ class CMAPlotConfig:
         # ! override provided value for nrows
         if 'nrows' in subplot_kwds:
             subplot_kwds['nrows'] = subplot_kwds_defaults['nrows']
-            logging.warning("Provided value for nrows was overwritten. See options for 'separate2subplots'.")
+            logging.warning(
+                "Provided value for nrows was overwritten. "
+                "See options for 'separate2subplots'.")
         # include other defaults if not provided:
-        for k in subplot_kwds_defaults:
+        for k in subplot_kwds_defaults:  # type: ignore
             if k not in subplot_kwds:
                 subplot_kwds[k] = subplot_kwds_defaults[k]
         fig, axs = plt.subplots(**subplot_kwds)
         #: plot meal times, meal sizes
         ax = axs[0]
-        ax = df.plot.area(y="G_soln", color='k', ax=ax, label="Estimated Meal Size")
+        ax = df.plot.area(y="G_soln", color='k', ax=ax,
+                          label="Estimated Meal Size")
         ax.vlines(x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
                   ymin=ax.get_ylim()[0], ymax=df.G_soln.max(),
                   color='r', lw=3, linestyle='--', label='estimated mealtimes')
