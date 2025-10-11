@@ -2,15 +2,13 @@ import logging
 from base64 import b64encode
 from dataclasses import dataclass, field
 from io import BytesIO
-from typing import (Annotated, Iterable, Literal, Tuple)
+from typing import Annotated, Iterable, Literal, Tuple
 
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import pandas as pd
 
-__all__ = [
-    'CMAPlotConfig'
-]
+__all__ = ["CMAPlotConfig"]
 
 
 @dataclass
@@ -18,28 +16,78 @@ class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
 
     plot_cols: Tuple[
-        Literal['g_0'], Literal['g_1'], Literal['g_2'], Literal['G'], Literal['c'], Literal['m'], Literal[
-            'a'], Literal['L'], Literal['I_S'], Literal['I_E'], Literal['is_meal'], Literal['value']
-    ] = field(default_factory=lambda: (
-        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"
-    ))
+        Literal["g_0"],
+        Literal["g_1"],
+        Literal["g_2"],
+        Literal["G"],
+        Literal["c"],
+        Literal["m"],
+        Literal["a"],
+        Literal["L"],
+        Literal["I_S"],
+        Literal["I_E"],
+        Literal["is_meal"],
+        Literal["value"],
+    ] = field(
+        default_factory=lambda: (
+            "g_0",
+            "g_1",
+            "g_2",
+            "G",
+            "c",
+            "m",
+            "a",
+            "L",
+            "I_S",
+            "I_E",
+            "is_meal",
+            "value",
+        )
+    )
     labels: Annotated[
         tuple[str],
         tuple[
-            Literal['Breakfast'], Literal['Lunch'], Literal['Dinner'], Literal['Glucose'], Literal['Cortisol'], Literal['Melatonin'], Literal['Adiponectin'], Literal[
-                'Photoperiod (irradiance)'], Literal['Insulin (secreted)'], Literal['Insulin (effective)'], Literal['Meals'], Literal['Glucose (Data)']
-        ]] = (
-        "Breakfast", "Lunch", "Dinner",
-        "Glucose", "Cortisol", "Melatonin",
-        "Adiponectin", "Photoperiod (irradiance)",
-        "Insulin (secreted)", "Insulin (effective)",
+            Literal["Breakfast"],
+            Literal["Lunch"],
+            Literal["Dinner"],
+            Literal["Glucose"],
+            Literal["Cortisol"],
+            Literal["Melatonin"],
+            Literal["Adiponectin"],
+            Literal["Photoperiod (irradiance)"],
+            Literal["Insulin (secreted)"],
+            Literal["Insulin (effective)"],
+            Literal["Meals"],
+            Literal["Glucose (Data)"],
+        ],
+    ] = (
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Glucose",
+        "Cortisol",
+        "Melatonin",
+        "Adiponectin",
+        "Photoperiod (irradiance)",
+        "Insulin (secreted)",
+        "Insulin (effective)",
         "Meals",
-        "Glucose (Data)"
+        "Glucose (Data)",
     )
 
     colors: tuple[
-        Literal['#ec5ef9'], Literal['#bd4bc7'], Literal['#8b3793'], Literal['purple'], Literal['cyan'], Literal[
-            'darkgrey'], Literal['m'], Literal['tab:orange'], Literal['tab:red'], Literal['red'], Literal['k'], Literal['darkgrey']
+        Literal["#ec5ef9"],
+        Literal["#bd4bc7"],
+        Literal["#8b3793"],
+        Literal["purple"],
+        Literal["cyan"],
+        Literal["darkgrey"],
+        Literal["m"],
+        Literal["tab:orange"],
+        Literal["tab:red"],
+        Literal["red"],
+        Literal["k"],
+        Literal["darkgrey"],
     ] = (
         "#ec5ef9",
         "#bd4bc7",
@@ -48,12 +96,29 @@ class CMAPlotConfig:
         "cyan",
         "darkgrey",
         "m",
-        'tab:orange',
-        'tab:red',
-        'red',
-        'k',
-        'darkgrey'
+        "tab:orange",
+        "tab:red",
+        "red",
+        "k",
+        "darkgrey",
     )
+
+    subplot_kwds: dict = field(
+        default_factory=lambda: {
+            "nrows": 2,
+            "figsize": (14, 10),
+        }
+    )
+
+    def __post_init__(self, **subplot_kwds):
+        self.fig, self.axes = self.setup_figure_axes(
+            plot_cols=self.plot_cols, **subplot_kwds
+        )
+
+    @property
+    def axs(self):
+        """alias for axes"""
+        return self.axes
 
     @classmethod
     def get_label(cls, col: Iterable[str] | str):
@@ -63,8 +128,10 @@ class CMAPlotConfig:
         return cls.labels[index]
 
     @classmethod
-    def get_color(cls, col: Iterable[str] | str, rgba=False, as_hex=False,
-                  keep_alpha=False):
+    def get_color(
+        cls, col: Iterable[str] | str, rgba=False, as_hex=False,
+        keep_alpha=False
+    ):
         if not isinstance(col, str):
             return [cls.get_color(c, rgba=rgba) for c in col]
         try:
@@ -85,11 +152,12 @@ class CMAPlotConfig:
     def set_global_axis_properties(cls, axs):
         """set universal axis properties (like time of day labels for x-axis)"""
         for ax in axs:
-            ax.tick_params(axis='both', which='major', labelsize=14)
-            ax.tick_params(axis='both', which='minor', labelsize=12)
+            ax.tick_params(axis="both", which="major", labelsize=14)
+            ax.tick_params(axis="both", which="minor", labelsize=12)
             ax.grid(True)
-            ax.set_xticks([0, 6, 12, 18, 23], [
-                          'Midnight', '6AM', 'Noon', '6PM', '11PM'])
+            ax.set_xticks(
+                [0, 6, 12, 18, 23], ["Midnight", "6AM", "Noon", "6PM", "11PM"]
+            )
             ax.set_xlim([0.01, 23.99])
             ax.set_xlabel("Time (24-hours)")
         return axs
@@ -122,12 +190,14 @@ class CMAPlotConfig:
         df = df.set_index("t")
         return df
 
+    @staticmethod
+    def prune_plot_cols(df, plot_cols):
+        # prune plot_cols to available columns
+        plot_cols = [c for c in plot_cols if c in df.columns]
+        return plot_cols
+
     @classmethod
-    def plot(
-            cls, df=None, soln=None,
-            plot_cols=None, separate2subplots=False,
-            as_blob=True, **subplot_kwds):
-        """plot the input dataset."""
+    def setup_figure_axes(cls, plot_cols=None, **subplot_kwds):
         if plot_cols is None:
             plot_cols = cls().plot_cols
         #: drop is_meal from plot cols... (it's bool afterall)
@@ -135,77 +205,93 @@ class CMAPlotConfig:
         if "is_meal" in plot_cols:
             ismeal_ix = plot_cols.index("is_meal")
             plot_cols.pop(ismeal_ix)
-        # handle the time index
-        if df is not None:
-            df = df.copy()
-            df = df.set_index("t")
-        # combine if both exist
-        if df is not None and soln is not None:
-            df = pd.merge_ordered(
-                df.copy(), soln, suffixes=("", "_soln"), on="t")
-            df = df.set_index("t")
-        elif soln is not None and df is None:
-            # otherwise, the solution is the entire dataframe
-            df = soln.copy()
-            df = df.set_index("t")
-            # ensure the expected column names are present for soln
-            df.rename(columns={"G": "G_soln"}, inplace=True)
-        # prune plot_cols to available columns
-        plot_cols = [c for c in plot_cols if c in df.columns]
         # prepare subplots configuration
         subplot_kwds_defaults = {
-            "nrows": 2 if separate2subplots is False else len(plot_cols) + 1,
+            "nrows": 2,
             "figsize": (14, 10),
         }
         # ! override provided value for nrows
-        if 'nrows' in subplot_kwds:
-            subplot_kwds['nrows'] = subplot_kwds_defaults['nrows']
-            logging.warning(
+        if "nrows" in subplot_kwds:
+            subplot_kwds["nrows"] = subplot_kwds_defaults["nrows"]
+            logging.debug(
                 "Provided value for nrows was overwritten. "
-                "See options for 'separate2subplots'.")
+                "See options for 'separate2subplots'."
+            )
         # include other defaults if not provided:
         for k in subplot_kwds_defaults:  # type: ignore
             if k not in subplot_kwds:
                 subplot_kwds[k] = subplot_kwds_defaults[k]
+        #: Instantiate the figure and subplots (axes)
         fig, axs = plt.subplots(**subplot_kwds)
+        return fig, axs
+
+    def plot(self, df, plot_cols=None, separate2subplots=False):
+        """plot the given data"""
         #: plot meal times, meal sizes
-        ax = axs[0]
-        ax = df.plot.area(y="G_soln", color='k', ax=ax,
-                          label="Estimated Meal Size")
-        ax.vlines(x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
-                  ymin=ax.get_ylim()[0], ymax=df.G_soln.max(),
-                  color='r', lw=3, linestyle='--', label='estimated mealtimes')
-        ax.legend()
-        #: plot other traces
-        if separate2subplots is False:
-            df.plot.area(y=plot_cols, color=cls.get_color(plot_cols), ax=axs[1],  # type: ignore
-                         alpha=0.2, label=cls.get_label(plot_cols), stacked=True)
-        elif separate2subplots is True:
-            for pcol, axi in zip(plot_cols, axs[1:]):
-                axi.fill_between(
-                    x=df.index, y1=df[pcol].min(), y2=df[pcol],
-                    color=cls.get_color(pcol),
-                    alpha=0.2,
-                    label=cls.get_label(pcol)
-                )
-                axi.legend()
+        self.axs = self.plot_meals(df, self.axs)
+        #: determine the secondary plot type
+        secondary_plot_funcs = {
+            True: self.plot_separate_subplots,
+            False: self.plot_unified,
+        }
+        secondary_plot_func = secondary_plot_funcs[separate2subplots]
+        #: plot the other traces
+        self.axs = secondary_plot_func(df, plot_cols, self.axs)
+        return self.fig, self.axs
+
+    @classmethod
+    def format_save_figure(cls, fig, axs, as_blob=False):
+        """format, then save the figure (as a blob for the web, or as a file)"""
         #: set global properties for all axes...
         axs = cls.set_global_axis_properties(axs)
-        #: return the figure and axes (unless this is to be a blob for the web)
+        #: return the figure and axes (not to be a blob)
         if as_blob is False:
             return fig, axs
-        else:
-            return cls.save_figure_as_blob(fig)
+        #: otherwise, save it as a blob for the web
+        return cls.save_figure_as_blob(fig)
+
+    @classmethod
+    def plot_meals(cls, df, axs):
+        """plot meal times, meal sizes."""
+        ax = axs[0]
+        ax = df.plot.area(y="G_soln", color="k", ax=ax,
+                          label="Estimated Meal Size")
+        ax.vlines(
+            x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
+            ymin=ax.get_ylim()[0],
+            ymax=df.G_soln.max(),
+            color="r",
+            lw=3,
+            linestyle="--",
+            label="estimated mealtimes",
+        )
+        ax.legend()
+        return axs
+
+    @classmethod
+    def plot_unified(cls, df, plot_cols, axs):
+        """plot the other traces as a single area chart."""
+        df.plot.area(
+            y=plot_cols,
+            color=cls.get_color(plot_cols),
+            ax=axs[1],
+            alpha=0.2,
+            label=cls.get_label(plot_cols),
+            stacked=True,
+        )
+        return axs
 
     @classmethod
     def plot_separate_subplots(cls, df, plot_cols, axs):
-        """plot the given data in separate subplots."""
+        """plot the other traces in separate subplots."""
         for pcol, axi in zip(plot_cols, axs[1:]):
             axi.fill_between(
-                x=df.index, y1=df[pcol].min(), y2=df[pcol],
+                x=df.index,
+                y1=df[pcol].min(),
+                y2=df[pcol],
                 color=cls.get_color(pcol),
                 alpha=0.2,
-                label=cls.get_label(pcol)
+                label=cls.get_label(pcol),
             )
             axi.legend()
         return axs
@@ -214,24 +300,50 @@ class CMAPlotConfig:
     def save_figure_as_blob(cls, fig):
         """save the figure as a blob for the web."""
         bio = BytesIO()
-        fig.savefig(bio, format='png')
+        fig.savefig(bio, format="png")
         bio.seek(0)
         bytes_value = bio.getvalue()
-        img_src = 'data:image/png;base64,'
-        img_src = img_src + b64encode(bytes_value).decode('utf-8')
+        img_src = "data:image/png;base64,"
+        img_src = img_src + b64encode(bytes_value).decode("utf-8")
         plt.close()
         return img_src
+
+    @property
+    def blob(self):
+        """return the figure as a blob for the web."""
+        return self.save_figure_as_blob(self.fig)
 
 
 class CMAPlotDataConfig(CMAPlotConfig):
     """configuration for plotting the input data"""
 
-    def plot(self, df, plot_cols=None, **subplot_kwds):
-        pass
+    def plot(self, df, plot_cols=None, separate2subplots=False):
+        """plot the given data"""
+        df = self.setup_input_data(df)
+        plot_cols = self.prune_plot_cols(df, plot_cols)
+        self.fig, self.axes = super().plot(df, plot_cols, separate2subplots)
+        return self.fig, self.axs
 
 
 class CMAPlotSolnConfig(CMAPlotConfig):
     """configuration for plotting the model solution"""
 
-    def plot(self, df, plot_cols=None, **subplot_kwds):
-        pass
+    def plot(self, soln, plot_cols=None, separate2subplots=False):
+        """plot the model solution."""
+        soln = self.setup_solution(soln)
+        plot_cols = self.prune_plot_cols(soln, plot_cols)
+        self.fig, self.axes = super().plot(soln, plot_cols, separate2subplots)
+        return self.fig, self.axes
+
+
+class CMAPlotCombinedConfig(CMAPlotConfig):
+    """configuration for plotting the combined data"""
+
+    def plot(self, df, soln, plot_cols=None, separate2subplots=False):
+        """plot the combined data+solution."""
+        df = self.setup_input_data(df)
+        soln = self.setup_solution(soln)
+        df_combined = self.combine_dataframes(df, soln)
+        plot_cols = self.prune_plot_cols(df, plot_cols)
+        self.fig, self.axes = super().plot(
+            df_combined, plot_cols, separate2subplots)
