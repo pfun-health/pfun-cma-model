@@ -44,6 +44,7 @@ dependencies = [
     "flask-oauthlib>=0.9.6",
     "dotenv>=0.9.9",
     "seaborn>=0.13.2",
+    "pfun-data",
 ]
 optional-dependencies = {ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
@@ -104,3 +105,6 @@ commands = [
 requires = ["tox>=4.19", "tox-poetry-installer>=0.10.3"]
 env_list = ["3.12", "type"]
 isolated_build = true
+
+[tool.uv.sources]
+pfun-data = { git = "https://github.com/pfun-health/Data.git" }
