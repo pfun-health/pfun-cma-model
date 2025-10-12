@@ -1,7 +1,8 @@
 
-from test_base import *
-import numpy as np
 import pandas as pd
+import numpy as np
+import test_base
+test_base.setup_test_environment()
 
 
 class TestCMASleepWakeModel:

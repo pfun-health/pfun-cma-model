@@ -1,4 +1,5 @@
-from test_base import *
+from . import test_base
+test_base.setup_test_environment()
 import pytest
 from fastapi import status, Request
 from fastapi.responses import Response

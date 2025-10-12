@@ -1,7 +1,8 @@
-from pfun_cma_model.engine.data_utils import format_data
-from test_base import *
-import pandas as pd
 import pfun_path_helper as pph
+import pandas as pd
+from pfun_cma_model.engine.data_utils import format_data
+import test_base
+test_base.setup_test_environment()
 pph.append_path(path=pph.get_lib_path('pfun_cma_model'))
 
 

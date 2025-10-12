@@ -1,5 +1,6 @@
 
-from test_base import *
+import test_base
+test_base.setup_test_environment()
 
 
 class TestCMAModelParams:

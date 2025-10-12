@@ -30,7 +30,6 @@ steps:
       - "DEBUG=1" # Enable debug mode for staging
       - "WS_HOST=pfun-cma-model-staging-446025415469.us-central1.run.app" # Host for WebSocket connections
       - "WS_PORT=443" # Port for WebSocket connections
-    secretEnv: ['GEMINI_API_KEY']  # secrets
     args:
       - "run"
       - "deploy"
@@ -94,7 +93,6 @@ steps:
       - "DEBUG=0"  # Disable debug mode for production
       - "WS_HOST=pfun-cma-model-446025415469.us-central1.run.app" # Host for WebSocket connections
       - "WS_PORT=443"  # Port for WebSocket connections
-    secretEnv: ['GEMINI_API_KEY']  # secrets
     args:
       - "run"
       - "deploy"
@@ -114,11 +112,6 @@ steps:
       - "uv"
       - "--args"
       - "run,uvicorn,pfun_cma_model.app:app,--host,0.0.0.0,--port,8001,--workers,1"
-
-availableSecrets:
-    secretManager:
-    - versionName: projects/$PROJECT_ID/secrets/GEMINI_API_KEY/versions/1
-      env: "GEMINI_API_KEY"
 
 # Add the built image to the list of images created by this build.
 images:
