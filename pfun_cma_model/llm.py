@@ -33,9 +33,16 @@ class GenerativeModel:
             genai.Client: The Gemini API client.
         """
         try:
-            gemini_api_key = os.environ["GEMINI_API_KEY"]
+            gemini_api_key_or_path = os.environ["GEMINI_API_KEY"]
         except KeyError:
             raise Exception("GEMINI_API_KEY environment variable not set.")
+
+        if os.path.isfile(gemini_api_key_or_path):
+            with open(gemini_api_key_or_path, "r") as f:
+                gemini_api_key = f.read().strip()
+        else:
+            gemini_api_key = gemini_api_key_or_path
+
         # (only for DEBUG, print the api key)
         logging.debug("Gemini API key: %s", gemini_api_key)
         client = genai.Client(api_key=gemini_api_key)
