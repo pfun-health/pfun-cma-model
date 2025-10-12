@@ -37,10 +37,10 @@ class GenerativeModel:
         except KeyError:
             raise Exception("GEMINI_API_KEY environment variable not set.")
 
-        if os.path.isfile(gemini_api_key_or_path):
+        try:
             with open(gemini_api_key_or_path, "r") as f:
                 gemini_api_key = f.read().strip()
-        else:
+        except (IOError, TypeError):
             gemini_api_key = gemini_api_key_or_path
 
         # (only for DEBUG, print the api key)
