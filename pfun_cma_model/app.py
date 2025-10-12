@@ -366,7 +366,8 @@ class PFunDatasetResponse:
     @property
     def _stream(self) -> Any:
         """Yield the dataset as streamable chunks."""
-        for record in self.data.to_dict(orient='records'):  # type: ignore
+        rec_array = self.data.to_dict(orient='records')
+        for record in rec_array:  # type: ignore
             yield json.dumps(record) + '\n'
 
     @classmethod
@@ -530,6 +531,7 @@ async def run_at_time_route(t0: float | int,
 
 from io import StringIO
 
+
 async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:
     # Read lines in the fake_file asynchronously
     while True:
@@ -555,12 +557,18 @@ async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **co
     df: DataFrame = model.calc_Gt(t=t)
     # get a string buffer to stream a file-like object directly (faster than dataframe)
     txt_buffer = StringIO()
-    df.to_string(txt_buffer, index=True, columns=["Gt"])
+    # handle the index, send to string buffer
+    df.reset_index(inplace=True)
+    df.rename(columns={"index": "t", }, inplace=True)
+    # logging.debug("(Streaming dataframe) Columns: '%s'", df.columns)
+    # logging.debug("(streaming dataframe) head:\n%s", str(df.head()))
+    df.to_csv(txt_buffer, header=False, index=False, columns=["t", "Gt"])
     txt_buffer.seek(0)  # reset the index
     # produce asyncgenerator (yield string buffer by row)
     # TODO: optimize to chunksize
     async for t_Gt_pair in read_create_async_generator(txt_buffer):
-        yield t_Gt_pair
+        tx, Gty = t_Gt_pair.split(",")
+        yield json.dumps({"x": tx, "y": Gty})
 
 
 @app.post("/model/run-at-time/stream")
@@ -576,21 +584,19 @@ async def run_at_time_stream_route(t0: float | int,
         if config_obj is None:
             config_obj = CMAModelParams()  # type: ignore
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        output = await stream_run_at_time_func(t0, t1, n, **config_dict)
-        return output
+        async for row in stream_run_at_time_func(t0, t1, n, **config_dict):
+            yield row
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
-        error_response = Response(
-            content=json.dumps({
-                "error": "failed to run at time. See error message on server log.",
-                "exception": str(err),
-            }),
-            status_code=500,
-        )
-        return error_response
+        error_content = json.dumps({
+            "error": "failed to run at time. See error message on server log.",
+            "exception": str(err),
+            "status_code": 500,
+        })
+        for err_row in [error_content, ]:
+            yield err_row
 
-    
-    
+
 # -- WebSocket Routes --
 
 # Import websockets module to register events
@@ -605,7 +611,7 @@ pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
 async def health_check_run_at_time():
     """Health check endpoint for the 'run-at-time' WebSocket functionality."""
     logger.info("Health check for 'run-at-time' WebSocket endpoint accessed.")
-    # @todo: implement actual health check logic if needed
+    # @todo: implement further health check logic as needed
     return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
 
 
