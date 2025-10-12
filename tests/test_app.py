@@ -37,7 +37,7 @@ def test_get_sample_dataset_invalid_nrows(fake_request):
 @patch("pfun_cma_model.app.read_sample_data")
 def test_get_sample_dataset_full_dataset(mock_read_sample_data, fake_request, sample_df):
     # nrows = -1 should return the full dataset as JSON
-    mock_read_sample_data.return_value = sample_df.to_json(orient='records')
+    mock_read_sample_data.return_value = sample_df
     resp = get_sample_dataset(fake_request, nrows=-1)
     assert isinstance(resp, Response)
     assert resp.status_code == 200
@@ -61,9 +61,11 @@ def test_get_sample_dataset_nrows_given(mock_read_sample_data, fake_request, sam
     assert data[1]["a"] == 3
 
 
-def test_get_sample_dataset_route_integration():
+@patch("pfun_cma_model.app.read_sample_data")
+def test_get_sample_dataset_route_integration(mock_read_sample_data, sample_df):
     # Integration test using TestClient
-    response = client.get("/data/sample?nrows=2")
+    mock_read_sample_data.return_value = sample_df
+    response = client.get("/data/sample/download?nrows=2")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -71,6 +73,6 @@ def test_get_sample_dataset_route_integration():
 
 
 def test_get_sample_dataset_route_invalid_nrows():
-    response = client.get("/data/sample?nrows=-5")
+    response = client.get("/data/sample/download?nrows=-5")
     assert response.status_code == 400
     assert "nrows" in response.text
