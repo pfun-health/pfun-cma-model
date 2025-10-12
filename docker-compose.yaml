@@ -21,6 +21,8 @@ services:
         - secret_key
         - gemini_api_key
     user: "nonroot:nonroot"
+    dns:
+      - 8.8.8.8
     env_file: .env
     environment:
       - USER=nonroot
