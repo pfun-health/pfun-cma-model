@@ -2,7 +2,6 @@
 PFun CMA Model API Backend Routes.
 """
 from pydantic import BaseModel
-from pfun_cma_model.llm import translate_query_to_params, generate_scenario, generate_causal_explanation
 from jinja2 import pass_context
 from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
@@ -454,76 +453,6 @@ async def translate_model_results_by_language(results: Dict, from_lang: Literal[
     )
 
 
-class TranslateQueryRequest(BaseModel):
-    query: str
-
-
-@app.post("/llm/translate-query")
-async def translate_query(request: TranslateQueryRequest):
-    """
-    Translates a plain English query into PFun CMA model parameters.
-    """
-    try:
-        params = translate_query_to_params(request.query)
-        return params
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-class GenerateScenarioRequest(BaseModel):
-    query: str = 'A healthy patient.'
-
-
-@app.post("/llm/generate/scenario")
-async def generate_scenario_endpoint(request: GenerateScenarioRequest):
-    """
-    Generates a realistic "pfun-scene" JSON object including a set of parameters,
-    qualitative description, sample solutions, and causal explanation.
-    """
-    try:
-        # 1. Generate scenario from LLM
-        scenario = generate_scenario(request.query)
-        qualitative_description = scenario.get("qualitative_description")
-        parameters = scenario.get("parameters")
-
-        if not qualitative_description or not parameters:
-            raise HTTPException(
-                status_code=500, detail="Failed to generate a valid scenario from the LLM.")
-
-        # 2. Run CMA model to get sample solutions
-        model = await initialize_model()
-        model.update(parameters)
-        df = model.run()
-        sample_solutions = json.loads(df.to_json(orient="records"))
-
-        # 3. Generate causal explanation from LLM
-        explanation = generate_causal_explanation(
-            description=qualitative_description,
-            trace=df.to_json(orient="records")
-        )
-        causal_explanation = explanation.get("causal_explanation")
-
-        if not causal_explanation:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to generate a valid causal explanation from the LLM."
-            )
-
-        # 4. Combine and return the full pfun-scene
-        result = {
-            "qualitative_description": qualitative_description,
-            "parameters": parameters,
-            "sample_solutions": sample_solutions,
-            "causal_explanation": causal_explanation,
-        }
-        return result
-
-    except Exception as e:
-        logger.error(f"Error generating scenario: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {e}")
-
-
 @app.post("/model/run")
 async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     """Runs the CMA model."""
@@ -564,25 +493,6 @@ async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -
     return output
 
 
-async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> AsyncGenerator[str, None]:
-    """calculate the glucose signal for the given timeframe and stream the results."""
-    model = await initialize_model()
-    logger.debug(
-        "(stream_run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    bounded_params = {k: v for k,
-                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
-    model.update(bounded_params)
-    logger.debug(
-        "(stream_run_at_time_func) Model parameters updated: %s", model.params)
-    logger.debug(
-        f"(stream_run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
-    t = model.new_tvector(t0, t1, n)
-    df: DataFrame = model.calc_Gt(t=t)
-    for index, row in df.iterrows():
-        point = {'x': index, 'y': row.iloc[0]}
-        yield json.dumps(point)
-
-
 @app.post("/model/run-at-time")
 async def run_at_time_route(t0: float | int,
                             t1: float | int,
@@ -617,6 +527,70 @@ async def run_at_time_route(t0: float | int,
         )
         return error_response
 
+
+from io import StringIO
+
+async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:
+    # Read lines in the fake_file asynchronously
+    while True:
+        line = fake_file.readline()
+        if not line:
+            break  # Exit when no more lines are available
+        yield line.strip()  # Yield the line, removing any extra whitespace
+
+
+async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> AsyncGenerator[str, None]:
+    """calculate the glucose signal for the given timeframe and stream the results."""
+    model = await initialize_model()
+    logger.debug(
+        "(stream_run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
+    bounded_params = {k: v for k,
+                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+    model.update(bounded_params)
+    logger.debug(
+        "(stream_run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(
+        f"(stream_run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
+    t = model.new_tvector(t0, t1, n)
+    df: DataFrame = model.calc_Gt(t=t)
+    # get a string buffer to stream a file-like object directly (faster than dataframe)
+    txt_buffer = StringIO()
+    df.to_string(txt_buffer, index=True, columns=["Gt"])
+    txt_buffer.seek(0)  # reset the index
+    # produce asyncgenerator (yield string buffer by row)
+    # TODO: optimize to chunksize
+    async for t_Gt_pair in read_create_async_generator(txt_buffer):
+        yield t_Gt_pair
+
+
+@app.post("/model/run-at-time/stream")
+async def run_at_time_stream_route(t0: float | int,
+                                   t1: float | int,
+                                   n: int,
+                                   # type: ignore
+                                   config: Optional[CMAModelParams] = None
+                                   ):
+    """Streaming version of the run-at-time route."""
+    try:
+        config_obj = config
+        if config_obj is None:
+            config_obj = CMAModelParams()  # type: ignore
+        config_dict: Mapping = config_obj.model_dump()  # type: ignore
+        output = await stream_run_at_time_func(t0, t1, n, **config_dict)
+        return output
+    except Exception as err:
+        logger.error("failed to run at time.", exc_info=True)
+        error_response = Response(
+            content=json.dumps({
+                "error": "failed to run at time. See error message on server log.",
+                "exception": str(err),
+            }),
+            status_code=500,
+        )
+        return error_response
+
+    
+    
 # -- WebSocket Routes --
 
 # Import websockets module to register events

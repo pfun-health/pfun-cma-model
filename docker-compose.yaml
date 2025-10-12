@@ -15,11 +15,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      secrets:
-        - dexcom_api_client_id
-        - dexcom_api_secret
-        - secret_key
-        - gemini_api_key
     user: "nonroot:nonroot"
     dns:
       - 8.8.8.8
@@ -72,8 +67,6 @@ services:
     environment:
       POSTGRES_DB: pfun
       POSTGRES_USER: postgres
-    secrets:
-      - postgres_password
     ports:
       - "5432:5432"
     volumes:
@@ -81,15 +74,3 @@ services:
 
 volumes:
   pfun_cma_model_data:
-
-secrets:
-  gemini_api_key:
-    environment: GEMINI_API_KEY
-  dexcom_api_client_id:
-    environment: DEXCOM_API_CLIENT_ID
-  dexcom_api_secret:
-    environment: DEXCOM_API_SECRET
-  secret_key:
-    environment: SECRET_KEY
-  postgres_password:
-    environment: POSTGRES_PASSWORD

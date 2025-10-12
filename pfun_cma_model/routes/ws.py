@@ -26,23 +26,23 @@ class AsyncLoggerWrapper:
 
     async def debug(self, msg, *args, **kwargs):
         logger_instance = await self()
-        logger_instance.debug(msg, *args, **kwargs)
+        await logger_instance.debug(msg, *args, **kwargs)
 
     async def info(self, msg, *args, **kwargs):
         logger_instance = await self()
-        logger_instance.info(msg, *args, **kwargs)
+        await logger_instance.info(msg, *args, **kwargs)
 
     async def warning(self, msg, *args, **kwargs):
         logger_instance = await self()
-        logger_instance.warning(msg, *args, **kwargs)
+        await logger_instance.warning(msg, *args, **kwargs)
 
     async def error(self, msg, *args, **kwargs):
         logger_instance = await self()
-        logger_instance.error(msg, *args, **kwargs)
+        await logger_instance.error(msg, *args, **kwargs)
 
     async def critical(self, msg, *args, **kwargs):
         logger_instance = await self()
-        logger_instance.critical(msg, *args, **kwargs)
+        await logger_instance.critical(msg, *args, **kwargs)
 
 
 class NoPrefixNamespace(socketio.AsyncNamespace):
@@ -101,7 +101,7 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
 
     async def on_disconnect(self, sid):
         await self.logger.debug(f"SocketIO client disconnected: {sid}")
-        await super().on_disconnect(sid)
+        await super().on_disconnect(self, sid)
 
     async def on_run(self, sid, data):
         """Handle 'run' event from client, run model, and stream results as 'message' events."""
@@ -114,7 +114,6 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
             config = run_args.get("config", {})
             await self.logger.debug(
                 f"Received run event for streaming: t0={t0}, t1={t1}, n={n}, config={config}")
-
             # Use an async for loop to iterate over the async generator
             async for point in stream_run_at_time_func(t0, t1, n, **config):
                 await self.sio.emit("message", point, to=sid)
