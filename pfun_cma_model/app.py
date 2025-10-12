@@ -707,7 +707,7 @@ async def demo_webgl(request: Request):
         "params": params,
         "cdn": {
             "webglplot": {
-                "url": f"https://cdn.jsdelivr.net/npm/webgl-plot@0.7.2/dist/webgl-plot.esm.js?dummy={rand0}"
+                "url": f"https://cdn.jsdelivr.net/gh/danchitnis/webgl-plot@master/dist/webglplot.umd.min.js?dummy={rand0}"
             },
             "socketio": {
                 "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"

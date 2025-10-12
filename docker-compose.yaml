@@ -27,10 +27,6 @@ services:
     environment:
       - USER=nonroot
       - GROUP=nonroot
-      - DEXCOM_API_CLIENT_ID=/run/secrets/dexcom_api_client_id
-      - DEXCOM_API_SECRET=/run/secrets/dexcom_api_secret
-      - SECRET_KEY=/run/secrets/secret_key
-      - GEMINI_API_KEY=/run/secrets/gemini_api_key
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
@@ -76,7 +72,6 @@ services:
     environment:
       POSTGRES_DB: pfun
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
     secrets:
       - postgres_password
     ports:

@@ -2,7 +2,13 @@
     webgl-demo.js
     Adapted from run-at-time.js for the WebGL plot demo.
 */
-import { WebglPlot, WebglLine, ColorRGBA } from 'https://cdn.jsdelivr.net/npm/webgl-plot@0.7.2/dist/webgl-plot.esm.js';
+
+/*
+  From WebglPlotBundle:
+  - WebglPlot
+  - WebglLine
+  - ColorRGBA
+*/
 
 class WebGLDemo {
     constructor() {
@@ -42,12 +48,12 @@ class WebGLDemo {
         this.dom.canvas.width = this.dom.canvas.clientWidth * devicePixelRatio;
         this.dom.canvas.height = this.dom.canvas.clientHeight * devicePixelRatio;
 
-        const color = new ColorRGBA(0.21, 0.64, 0.88, 1);
-        this.line = new WebglLine(color, numPoints);
+        const color = new WebglPlotBundle.ColorRGBA(0.21, 0.64, 0.88, 1);
+        this.line = new WebglPlotBundle.WebglLine(color, numPoints);
         this.line.arrangeX();
 
         if (!this.wglp) {
-            this.wglp = new WebglPlot(this.dom.canvas);
+            this.wglp = new WebglPlotBundle.WebglPlot(this.dom.canvas);
         }
 
         this.wglp.addLine(this.line);
@@ -83,8 +89,7 @@ class WebGLDemo {
                 return;
             }
             if (typeof point.y !== 'undefined' && this.line && this.pointIndex < this.line.numPoints) {
-                // Assuming glucose range is roughly 0-250 for scaling to [-1, 1]
-                const scaledY = (point.y / 250) * 2 - 1;
+                const scaledY = (point.y - 0.5); // scale glucose value as needed
                 this.line.setY(this.pointIndex, scaledY);
                 this.pointIndex++;
             }

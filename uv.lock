@@ -1805,7 +1805,7 @@ dev = [
 [[package]]
 name = "pfun-data"
 version = "0.1.1"
-source = { git = "https://github.com/pfun-health/Data.git#70c6bccb11450d3409bc14890cdfc8d017689fbb" }
+source = { git = "https://github.com/pfun-health/Data.git#4bb6581dbf974d99a3450b13aa0929329c8da092" }
 dependencies = [
     { name = "duckdb" },
     { name = "fastapi" },
