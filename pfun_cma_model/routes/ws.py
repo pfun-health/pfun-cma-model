@@ -26,7 +26,11 @@ class AsyncLoggerWrapper:
 
     async def debug(self, msg, *args, **kwargs):
         logger_instance = await self()
-        await logger_instance.debug(msg, *args, **kwargs)
+        try:
+            await logger_instance.debug(msg, *args, **kwargs)
+        except TypeError:
+            # ignore 'NoneType' in async expression error
+            pass
 
     async def info(self, msg, *args, **kwargs):
         logger_instance = await self()
@@ -81,7 +85,7 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
         await self.server.emit("response", "hi " + data)
 
     def on_disconnect(self, sid):
-        self.logger.info("disconnect ", sid)
+        self.logger.info("disconnect %s", sid)
 
 
 class PFunWebsocketNamespace(NoPrefixNamespace):
@@ -101,7 +105,7 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
 
     async def on_disconnect(self, sid):
         await self.logger.debug(f"SocketIO client disconnected: {sid}")
-        await super().on_disconnect(self, sid)
+        await super().on_disconnect(sid)
 
     async def on_run(self, sid, data):
         """Handle 'run' event from client, run model, and stream results as 'message' events."""
