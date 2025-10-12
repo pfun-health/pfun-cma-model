@@ -4,7 +4,7 @@
 
 set -e
 
-DCLI='/home/robbiec/standalone-apps/dcli-linux-x64'
+DCLI="$(which dcli)"
 
 TEMPLATE_FN='./.env.template'
 OUTPUT_FN='./.env'
