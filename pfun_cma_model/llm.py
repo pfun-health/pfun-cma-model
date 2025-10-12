@@ -1,7 +1,6 @@
 import logging
 import os
 import json
-from pfun_common.utils import load_environment_variables
 import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
@@ -33,8 +32,6 @@ class GenerativeModel:
         Returns:
             genai.Client: The Gemini API client.
         """
-        if "GEMINI_API_KEY" not in os.environ:
-            load_environment_variables()
         try:
             gemini_api_key = os.environ["GEMINI_API_KEY"]
         except KeyError:
