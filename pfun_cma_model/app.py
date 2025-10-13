@@ -699,6 +699,17 @@ async def demo_webgl(request: Request):
         "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
 
 
+@app.get("/demo/fluid-demo")
+async def demo_fluid(request: Request):
+    """Demo UI endpoint for the WebGL-based fluid simulation."""
+    context_dict = {
+        "request": request,
+    }
+    logger.debug("Fluid Demo context: %s", context_dict)
+    return get_templates().TemplateResponse(
+        "fluid-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
+
+
 # -- Model Fitting Endpoints --
 
 

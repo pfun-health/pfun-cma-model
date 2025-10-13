@@ -1,5 +1,5 @@
 
-import test_base
+from . import test_base
 test_base.setup_test_environment()
 
 

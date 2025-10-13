@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}WebGL Fluid Demo{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    #fluid-canvas {
+        width: 100%;
+        height: 80vh;
+        border: #333 solid 1px;
+    }
+</style>
+{% endblock %}
+
+<body>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+        {% block content %}
+        <h2>WebGL Fluid Simulation Demo</h2>
+        <canvas id="fluid-canvas"></canvas>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twgl.js/4.19.5/twgl.min.js" crossorigin="anonymous"></script>
+        <script type="module" src="{{ url_for('static', path='fluid-demo/fluid-demo.js') }}" crossorigin="anonymous"></script>
+        {% endblock %}
+    </div>
+</body>
+
+</html>
