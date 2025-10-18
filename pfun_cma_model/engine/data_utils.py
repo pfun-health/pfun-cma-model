@@ -221,6 +221,8 @@ def format_data(
             "No raw time column ('ts_utc', 'ts_local') was present in the provided dataframe...\n"
             "Perhaps this data has already been formatted?"
         )
+    if 'ts_utc' not in df.columns:
+        df['ts_utc'] = df['ts_local'].dt.tz_convert('UTC')
     if "systemTime" not in df.columns:
         df["systemTime"] = df["ts_utc"]
     if "displayTime" not in df.columns:
