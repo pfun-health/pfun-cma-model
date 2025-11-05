@@ -2,6 +2,8 @@
 
 _PFun CMA model repo._
 
+[Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
+
 ## Overview
 
 [Perplexity.ai Generated Summary](./SUMMARY.md)
