@@ -1,5 +1,11 @@
 # pfun-cma-model
 
+## What does it do???????
+
+"It makes it easy to understand how glucose works... in clear english, and in medical-ese."
+
+"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."
+
 _PFun CMA model repo._
 
 [Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
