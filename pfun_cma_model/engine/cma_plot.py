@@ -120,6 +120,10 @@ class CMAPlotConfig:
         """alias for axes"""
         return self.axes
 
+    @axs.setter
+    def axs(self, value):
+        self.axes = value
+
     @classmethod
     def get_label(cls, col: Iterable[str] | str):
         if not isinstance(col, str):
@@ -277,7 +281,7 @@ class CMAPlotConfig:
             ax=axs[1],
             alpha=0.2,
             label=cls.get_label(plot_cols),
-            stacked=True,
+            stacked=False,
         )
         return axs
 
@@ -292,6 +296,7 @@ class CMAPlotConfig:
                 color=cls.get_color(pcol),
                 alpha=0.2,
                 label=cls.get_label(pcol),
+                title=cls.get_label(pcol),
             )
             axi.legend()
         return axs

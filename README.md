@@ -6,13 +6,18 @@
 
 "It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."
 
-_PFun CMA model repo._
+## Links (Demos, Homepage)
 
-[Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
+- [Live Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
+- [PFun Homepage](https://pfun.one/)
 
 ## Overview
 
+![Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series).](./results/generated.png)
+
 [Perplexity.ai Generated Summary](./SUMMARY.md)
+
+    This repository contains the implementation of a Circadian Metabolic Algorithm (CMA) model designed to analyze and interpret continuous glucose monitoring (CGM) data. The CMA model leverages physiological principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin.
 
 ## Development notes
 
@@ -111,7 +116,7 @@ uv sync
 
 ```bash
 
-$ uv run fastapi dev pfun_cma_model/app.py --port 8001
+uv run fastapi dev pfun_cma_model/app.py --port 8001
 
 ```
 
