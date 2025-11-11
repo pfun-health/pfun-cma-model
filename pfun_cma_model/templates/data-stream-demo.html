@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Data Stream Demo{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', path='data-stream-demo/data-stream-demo.css') }}">
+{% endblock %}
+
+<body>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+        {% block content %}
+        <h2>Data Stream Demo</h2>
+        <p>This demo showcases data streaming from a FastAPI backend. The data is fetched from the <code>/data/sample/stream</code> endpoint and displayed in real-time as it arrives.</p>
+        
+        <div class="demo-container">
+            <div class="stream-controls">
+                <form id="stream-params-form">
+                    <div class="form-row">
+                        <label for="pct0">Start Percentage (pct0):</label>
+                        <input type="number" id="pct0" name="pct0" value="0.0" step="0.01" min="0" max="1" class="form-control"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Relative start location in the dataset (0.0 to 1.0).">
+                    </div>
+                    <div class="form-row">
+                        <label for="nrows">Number of Rows (nrows):</label>
+                        <input type="number" id="nrows" name="nrows" value="-1" class="form-control"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Number of rows to stream. -1 for all rows. Wraps around if larger than dataset.">
+                    </div>
+                </form>
+                <button id="startStream" class="btn btn-primary">Start Stream</button>
+                <button id="stopStream" class="btn btn-danger" disabled>Stop Stream</button>
+            </div>
+            <div id="stream-output">
+                <h3>Live Data Stream</h3>
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>time</th>
+                            <th>glucose</th>
+                            <th>meal_tag</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', path='data-stream-demo/data-stream-demo.js') }}"></script>
+        {% endblock %}
+    </div>
+</body>
+
+</html>

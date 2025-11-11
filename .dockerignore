@@ -1,6 +1,5 @@
 # pfun-cma-model.dockerignore
 .venv/
-minpack/
 dist/
 _build/
 .trunk/

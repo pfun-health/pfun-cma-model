@@ -1,6 +1,7 @@
 """
 PFun CMA Model API Backend Routes.
 """
+from io import StringIO
 from pydantic import BaseModel
 from jinja2 import pass_context
 from fastapi.responses import RedirectResponse
@@ -233,6 +234,14 @@ def demo_gemini(request: Request):
     })
 
 
+@app.get("/demo/data-stream")
+def demo_data_stream(request: Request):
+    return get_templates().TemplateResponse("data-stream-demo.html", {
+        "request": request,
+        "year": datetime.now().year
+    })
+
+
 # -- Model Parameters Endpoints --
 
 
@@ -324,13 +333,15 @@ def tabulate_params(
 @dataclass
 class PFunDatasetResponse:
     data: DataFrame | None = None
+    pct0: float = 0.0
     nrows: InitVar[int] = 23
     nrows_given: bool | None = None
 
     def __post_init__(self, nrows: int):
         """Post-initialization to parse nrows and data."""
         _, self.nrows_given = self._parse_nrows(nrows)
-        self.data = self._parse_data(self.data, nrows, self.nrows_given)
+        self.data = self._parse_data(
+            self.data, self.pct0, nrows, self.nrows_given)
 
     @property
     def streaming_response(self) -> StreamingResponse:
@@ -351,17 +362,32 @@ class PFunDatasetResponse:
         )
 
     @classmethod
-    def _parse_data(cls, data: DataFrame | None, nrows: int, nrows_given: bool):
-        """Parse and limit the dataset based on nrows and nrows_given."""
+    def _parse_data(cls, data: DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
+        """Parse and limit the dataset based on pct0, nrows and nrows_given."""
         # If no data provided, read the default sample dataset
         if data is None:
             data = read_sample_data(convert2json=False)  # type: ignore
         # ensure DataFrame
         dataset = DataFrame(data)
         logging.debug("Sample dataset loaded with %d rows.", len(dataset))
+
+        # Calculate row0 from pct0
+        if not (0.0 <= pct0 <= 1.0):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="pct0 must be between 0.0 and 1.0.",
+            )
+
+        num_rows_total = len(dataset)
+        row0 = int(pct0 * num_rows_total)
+
         if nrows_given:
-            return dataset.iloc[:nrows, :]  # type: ignore
-        return dataset
+            # limit the dataset to the specified number of rows, with wrapping
+            indices = [(row0 + i) % num_rows_total for i in range(nrows)]
+            return dataset.iloc[indices]  # type: ignore
+        else:
+            # no nrows limit, return from row0 to end
+            return dataset.iloc[row0:, :]  # type: ignore
 
     @property
     def _stream(self) -> Any:
@@ -411,13 +437,15 @@ def get_sample_dataset(request: Request, nrows: int = 23):
 
 
 @app.get("/data/sample/stream")
-async def stream_sample_dataset(request: Request, nrows: int = -1):
+async def stream_sample_dataset(request: Request, pct0: float = 0.0, nrows: int = -1) -> StreamingResponse:
     """(fast) Stream the sample dataset with optional row limit.
     Args:
         request (Request): The FastAPI request object.
+        pct0 (float): The relative location to start in the dataset [0.0, 1.0].
         nrows (int): The number of rows to include in the stream. If -1, stream the full dataset.
     """
-    dataset_response = PFunDatasetResponse(data=None, nrows=nrows)
+    dataset_response = PFunDatasetResponse(
+        data=None, pct0=pct0, nrows=nrows)
     # return the iterable (generating) streaming response
     return dataset_response.streaming_response
 
@@ -527,9 +555,6 @@ async def run_at_time_route(t0: float | int,
             status_code=500,
         )
         return error_response
-
-
-from io import StringIO
 
 
 async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:

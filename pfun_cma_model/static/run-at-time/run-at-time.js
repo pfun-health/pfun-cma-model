@@ -3,6 +3,47 @@
     Class-based refactor for the run-at-time demo.
 */
 
+
+
+function onRangeChange(r, f) {
+    /* Source - https://stackoverflow.com/a/37623959
+     * Posted by Andrew Willems, modified by community. See post 'Timeline' for change history
+     * Retrieved 2025-11-11, License - CC BY-SA 4.0
+    */
+    var n, c, m;
+    r.addEventListener("input", function (e) { n = 1; c = e.target.value; if (c != m) f(e); m = c; });
+    r.addEventListener("change", function (e) { if (!n) f(e); });
+}
+
+
+class SimulationParams {
+    constructor(formData) {
+        this.t0 = parseFloat(formData.get('t0'));
+        this.t1 = parseFloat(formData.get('t1'));
+        this.n = parseInt(formData.get('N'));
+        this.modelParams = {};
+
+        for (let [key, value] of formData.entries()) {
+            if (key !== 't0' && key !== 't1' && key !== 'N') {
+                this.modelParams[key] = parseFloat(value);
+            }
+        }
+    }
+
+    isValid() {
+        return !isNaN(this.t0) && !isNaN(this.t1) && !isNaN(this.n) && this.t1 > this.t0 && this.n > 0;
+    }
+
+    toPayload() {
+        return {
+            t0: this.t0,
+            t1: this.t1,
+            n: this.n,
+            config: this.modelParams
+        };
+    }
+}
+
 class RunAtTimeDemo {
     constructor() {
         this.socket = null;
@@ -52,6 +93,12 @@ class RunAtTimeDemo {
             type: 'line', // Changed from scatter to line
             data: chartData,
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Glucose Response Curve'
+                    }
+                },
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
@@ -123,14 +170,34 @@ class RunAtTimeDemo {
             });
         });
         let self = this;
+        // Range input listeners
+        let rangeListener;
         this.dom.ranges.forEach(range => {
-            range.addEventListener('input', () => {
-                self.onUpdateRange(range);
+            ['input', 'change'].forEach(evt => {
+                range.addEventListener(evt, () => {
+                    console.log(`Range ${range.id} updated to ${range.value}`);
+                    self.onUpdateRange(range);
+                });
             });
+            range.oninput = self.onUpdateRange.bind(self, range);
+        });
+        rangeListener = (evt) => {
+            self.onUpdateRange(evt.target);
+        };
+        this.dom.ranges.forEach(range => {
+            onRangeChange(range, rangeListener);
         });
     }
 
-    runSimulation() {
+    get formData() {
+        return new FormData(this.dom.runForm);
+    }
+
+    get simParams() {
+        return new SimulationParams(this.formData);
+    }
+
+    async runSimulation() {
         if (!this.socket || !this.socket.connected) {
             this.appendMessage('Socket.IO not connected. Cannot send.');
             return;
@@ -142,26 +209,17 @@ class RunAtTimeDemo {
         this.dom.messagesDiv.innerHTML = ''; // Clear messages
         this.appendMessage('Starting new simulation...');
 
-        // Collect form data
-        const formData = new FormData(this.dom.runForm);
-        const t0 = parseFloat(formData.get('t0'));
-        const t1 = parseFloat(formData.get('t1'));
-        const n = parseInt(formData.get('N'));
-
-        const modelParams = {};
-        for (let [key, value] of formData.entries()) {
-            if (key !== 't0' && key !== 't1' && key !== 'N') {
-                modelParams[key] = parseFloat(value);
-            }
-        }
+        // Collect form data-derived simulation parameters
+        const simParams = this.simParams;
 
         // Basic validation
-        if (isNaN(t0) || isNaN(t1) || isNaN(n) || t1 <= t0 || n <= 0) {
+        if (!simParams.isValid()) {
             this.appendMessage('Invalid simulation parameters. Please check t0, t1, and N.');
             return;
         }
 
-        const payload = { t0, t1, n, config: modelParams };
+        // Send run request
+        const payload = simParams.toPayload();
         this.socket.emit('run', payload);
         this.appendMessage('Sent run request: ' + JSON.stringify(payload));
     }
@@ -176,16 +234,33 @@ class RunAtTimeDemo {
     onUpdateRange(range) {
         const outputElement = document.getElementById(`rangeValue-${range.id}`);
         if (range) {
+            console.log(`Range ${range.id} updated to ${range.value}`);
             if (outputElement) {
+                // Update the corresponding output element
                 outputElement.textContent = range.value;
             } else {
                 console.warn(`Element with id 'rangeValue-${range.id}' not found.`);
+            }
+            // Update the chart in real-time using the new range value
+            const paramName = range.id;
+            const paramValue = parseFloat(range.value);
+            console.log(`Updating chart with ${paramName}: ${paramValue}`);
+            if (this.chart) {
+                // For demonstration, let's say changing a range updates the chart title
+                console.log(`Updating chart title with ${paramName}: ${paramValue}`);
+                this.chart.options.plugins.title = {
+                    display: true,
+                    text: `Glucose Response Curve - ${paramName}: ${paramValue}`
+                };
+                this.chart.update();
             }
         }
     }
 }
 
 // Initialize the application once the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new RunAtTimeDemo();
+var demoApp;
+document.addEventListener('DOMContentLoaded', async () => {
+    demoApp = new RunAtTimeDemo();
 });
+export default demoApp;
