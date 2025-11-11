@@ -18,17 +18,29 @@
 
         <p><em>Please note that the API is currently under active development</em></p>
         <h2>Demos</h2>
-	<h4>Visualizations, interactive dashboards, etc.</h4>
+        <h4>Visualizations, interactive dashboards, etc.</h4>
         <ul>
-          <li>
-            <a href="/demo/run-at-time" target="_blank">(WebSockets) Run-at-time Demo</a>
-          </li>
-	  <li>
-            <a href="/demo/webgl-demo" target="_blank">(WebGL) Real-time Streaming Demo</a>
-          </li>
-	  <li>
-            <a href="/demo/rolling-window-demo" target="_blank">(WebGL) Rolling Window Demo</a>
-          </li>
+            <li>
+                <a href="/demo/run-at-time" target="_blank">(WebSockets) Run-at-time Demo</a>
+            </li>
+            <li>
+                <a href="/demo/webgl-demo" target="_blank">(WebGL) Real-time Streaming Demo</a>
+            </li>
+            <!-- <li>
+                <a href="/demo/rolling-window-demo" target="_blank">(WebGL) Rolling Window Demo</a>
+            </li> -->
+        </ul>
+        <hr />
+        <h5>Notebooks</h5>
+        <ul>
+            <li>
+                <a href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html') }}" target="_blank">Modular
+                    CMA Model Demo</a>
+            </li>
+            <li>
+                <a href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html') }}"
+                    target="_blank">Visualize Generated Scenarios</a>
+            </li>
         </ul>
         <hr />
         <h2>API Endpoints</h2>
@@ -51,8 +63,7 @@
         {% block footer %}
         <hr />
         <div>
-            <p><small>{{ message }}</small></p>
-            <p>&copy; {{ year }} PFun Digital Health. All rights reserved.</p>
+            {{ super() }}
         </div>
         {% endblock %}
     </footer>

@@ -194,7 +194,11 @@ class CMASleepWakeModel:
     # class-level private storage of parameters
     _params: Dict = CMAModelParams().model_dump()
 
+    def new_tvector(self, t0: int | float, t1: int | float, n: int) -> ndarray:
+        return self.params.new_tvector(t0, t1, n)
+
     def __getitem__(self, key):
+        """Get parameter value by key."""
         return getattr(self.params, key)
 
     @params.setter  # type: ignore
