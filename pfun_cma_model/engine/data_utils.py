@@ -1,3 +1,4 @@
+from pfun_cma_model.engine.calc import normalize_glucose
 from pandas import (
     DataFrame,
     Series,
@@ -21,10 +22,10 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
-from pfun_cma_model.engine.calc import normalize_glucose
 
 use_fastmath_global = False
-njit_parallel = njit(cache=True, nogil=True, fastmath=use_fastmath_global, parallel=True)
+njit_parallel = njit(cache=True, nogil=True,
+                     fastmath=use_fastmath_global, parallel=True)
 njit_serial = njit(cache=True, nogil=True, fastmath=use_fastmath_global)
 
 
@@ -151,7 +152,8 @@ def interp_missing_data(
         )
     elif isinstance(df.index, TimedeltaIndex):
         df.set_index(
-            Series([float(dt_to_decimal_secs(ix)) for ix in df.index], dtype=float),
+            Series([float(dt_to_decimal_secs(ix))
+                   for ix in df.index], dtype=float),
             inplace=True,
         )
     if not isinstance(df.index[0], float):
@@ -166,7 +168,8 @@ def interp_missing_data(
         if len(xvals) == 0:
             continue
         other_ixs = [ix for ix in df.index if ix not in xvals]
-        df.loc[xvals, col] = interp(xvals, other_ixs, df.loc[other_ixs, col])  # type: ignore
+        df.loc[xvals, col] = interp(
+            xvals, other_ixs, df.loc[other_ixs, col])  # type: ignore
     df.set_index(ix_original, inplace=True)
     return df
 
@@ -186,7 +189,8 @@ def downsample_data(
     - df (DataFrame): The downsampled DataFrame with 'N' timesteps.
     """
     #: end up with N samples
-    freq = Timedelta(hours=(df.index.max() - df.index.min()).total_seconds() / 3600) / (N - 1)
+    freq = Timedelta(hours=(df.index.max() - df.index.min()
+                            ).total_seconds() / 3600) / (N - 1)
     df = df.resample(freq).mean()
     return df
 
@@ -216,11 +220,13 @@ def format_data(
         df = DataFrame.from_records(records)
     else:
         df = records.copy()
-    if not any([col in df.columns for col in ["ts_utc", "ts_local"]]):
+    if not any([col in df.columns for col in ["ts_utc", "ts_local", "time"]]):
         raise RuntimeError(
-            "No raw time column ('ts_utc', 'ts_local') was present in the provided dataframe...\n"
+            "No raw time column ('ts_utc', 'ts_local', 'time') was present in the provided dataframe...\n"
             "Perhaps this data has already been formatted?"
         )
+    if not any(['ts_utc' in df.columns, 'ts_local' in df.columns]):
+        df['ts_local'] = to_datetime(df['time'], utc=False, format="ISO8601")
     if 'ts_utc' not in df.columns:
         df['ts_utc'] = df['ts_local'].dt.tz_convert('UTC')
     if "systemTime" not in df.columns:

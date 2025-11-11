@@ -1,3 +1,8 @@
+from pfun_cma_model.engine.data_utils import (
+    dt_to_decimal_hours, format_data, downsample_data
+)
+from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.misc.types import NumpyArray
 import pandas as pd
 from typing import Annotated, Any, Dict, Iterable, Container, Generator
 import numpy as np
@@ -26,15 +31,11 @@ __all__ = [
 ]
 
 # import custom ndarray schema
-from pfun_cma_model.misc.types import NumpyArray
 
 # import custom cma model
-from pfun_cma_model.engine.cma import CMASleepWakeModel
 
 # import custom data utils
-from pfun_cma_model.engine.data_utils import (
-    dt_to_decimal_hours, format_data, downsample_data
-)
+
 
 class CMAFitResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -52,7 +53,8 @@ class CMAFitResult(BaseModel):
         *,
         indent=None,
         include=None,
-        exclude=['infodict'],  # exclude infodict (@ v0.3.2a1 fails to serialize on nested numpy arrays)
+        # exclude infodict (@ v0.3.2a1 fails to serialize on nested numpy arrays)
+        exclude=['infodict'],
         by_alias=False,
         exclude_unset=False,
         exclude_defaults=False,
@@ -144,7 +146,7 @@ class CMAFitResult(BaseModel):
         if hasattr(cma, "to_dict"):
             return cma.to_dict()
         return cma
-    
+
     @field_serializer("infodict")
     def serialize_infodict(self, infodict: Dict, _info):
         if isinstance(infodict, OptimizeResult):
@@ -164,7 +166,8 @@ def estimate_mealtimes(data,
     n_meals = int(n_meals)
     df = data[["t", ycol]]
     if not isinstance(df.index, pd.TimedeltaIndex):
-        df = df.assign(dt=pd.to_timedelta(df["t"], "h"))  # ! 'h' to indicate hours ('H' is deprecated)
+        # ! 'h' to indicate hours ('H' is deprecated)
+        df = df.assign(dt=pd.to_timedelta(df["t"], "h"))
         df.set_index("dt", inplace=True)
     dfres = df.resample(tm_freq).mean()
     tM = (dfres[ycol].diff().dropna().groupby(
@@ -249,7 +252,8 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
         "disp": kwds.get("verbose", 0) > 0,
     }
     # handle method-specific options (bounded/unbounded)
-    bounded_methods = [mm.lower() for mm in ["L-BFGS-B", "Nelder-Mead", "Powell", "TNC", "trust-constr"]]
+    bounded_methods = [mm.lower() for mm in ["L-BFGS-B",
+                                             "Nelder-Mead", "Powell", "TNC", "trust-constr"]]
     if method.lower() not in bounded_methods:
         options.pop("maxfun", None)
     # Convert bounds to scipy format if needed
@@ -282,7 +286,8 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
     errmsg, err = cns.errors.get(ier, ["Unknown error", None])
     infodict = {"message": errmsg, "error": err, "ier": ier, "result": result}
     if not result.success:
-        raise RuntimeError(f"Optimal parameters not found: {errmsg}\n{result.message}")
+        raise RuntimeError(
+            f"Optimal parameters not found: {errmsg}\n{result.message}")
     return popt, pcov, infodict, errmsg, ier
 
 
@@ -309,21 +314,23 @@ def fit_model(
     """
     if curve_fit_kwds is None:
         curve_fit_kwds = {}
-    
+
     # N takes precedence if passed explicitly in kwds
     if 'N' in kwds and 'n' in kwds:
         raise ValueError("Cannot specify both 'N' and 'n' in kwargs.")
-    N = kwds.pop("N", kwds.pop('n', 1024))  # N timestamps for final result (data is downsampled internally)
+    # N timestamps for final result (data is downsampled internally)
+    N = kwds.pop("N", kwds.pop('n', 1024))
 
     # pre-process data to ensure it is in the correct format
     data = format_data(data, N=N)  # reformat columns, downsample as needed
 
     # configure curve_fit kwargs
-    max_nfev = data[ycol].size * 500  # set maximum number of function evaluations
+    # set maximum number of function evaluations
+    max_nfev = data[ycol].size * 1000
     default_cf_kwds = {
         "verbose": 0,
-        "ftol": 1e-6,
-        "xtol": 1e-6,
+        "ftol": 1e-18,
+        "xtol": 1e-18,
         "max_nfev": max_nfev,
         "method": "L-BFGS-B",
     }
@@ -331,7 +338,7 @@ def fit_model(
     curve_fit_kwds = dict(default_cf_kwds)
 
     # ! Important to set xdata after 'format_data' has already been called
-    # ! ...to ensure the index is of the correct size  
+    # ! ...to ensure the index is of the correct size
     xdata = data[tcol].to_numpy(dtype=float)
     ydata = data[ycol].to_numpy(dtype=float, na_value=np.nan)
 
@@ -340,13 +347,14 @@ def fit_model(
 
     # ensure there is only one value for t (should not be in kwds)
     t_kwds = kwds.pop("t", 0)
-    if t_kwds == 0: t_kwds = xdata  # use xdata if no other value for t is given
+    if t_kwds == 0:
+        t_kwds = xdata  # use xdata if no other value for t is given
     t = t_kwds
     if t_kwds is not xdata:
         logger.warning(
             "Two values were provided for 't' parameter... Using: '%s'",
             str(t))
-    cma = CMASleepWakeModel(t=t, N=None, tM=tM, **kwds)
+    cma = CMASleepWakeModel(t=t, N=t.size, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         logging.debug("taup0=%f", cma.taup)
 

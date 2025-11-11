@@ -2,7 +2,8 @@ from pfun_cma_model.misc.types import NumpyArray
 from argparse import Namespace
 from typing import Optional, Sequence, Dict, Tuple, ClassVar
 from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
-from numpy import ndarray, array
+from numpy import ndarray, array, linspace, asarray
+import copy
 from tabulate import tabulate  # type: ignore
 import pfun_path_helper  # type: ignore
 from typing import Annotated, Iterable, Any
@@ -92,17 +93,17 @@ class CMABoundedParams(Namespace):
 
     def __getitem__(self, key):
         return getattr(self, key)
-    
+
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
         elif hasattr(self.__dict__, name):
             return getattr(self.__dict__, name)
         # If the attribute is not found in __dict__, try to get it from the current instance
-        if hasattr(self, name):
-            return getattr(self, name)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-
+        if name in dir(self):
+            return self.__dict__[name]
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'")
 
     @property
     def bounded_param_keys(self):
@@ -128,11 +129,10 @@ class CMAModelParams(BaseModel):
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    t: Optional[float | NumpyArray] = None
     """
     Time vector (decimal hours). Optional.
     """
-    N: int | None = 24
+    N: int = 1024
     """
     Number of time points. Defaults to 24.
     """
@@ -201,7 +201,7 @@ class CMAModelParams(BaseModel):
 
     def __getitem__(self, key):
         return getattr(self, key)
-    
+
     def update(self, **kwargs):
         """Update the model parameters."""
         for key, value in kwargs.items():
@@ -209,6 +209,24 @@ class CMAModelParams(BaseModel):
 
     @field_serializer('taug', 'tM', check_fields=False)
     def serialize_ndarrays(self, value, *args):
+        if isinstance(value, ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def t(self):
+        """t : ndarray
+        Time vector (decimal hours). Generated using new_tvector, using N.
+        """
+        return self.new_tvector(0, 24, self.N)
+
+    def new_tvector(self, t0: int | float, t1: int | float, n: int) -> ndarray:
+        """Create a new linear time vector, given initial (t0), final (t1), and number of timepoints (n)"""
+        return linspace(t0, t1, num=int(n))
+
+    @field_serializer('t', check_fields=False, when_used='json')
+    def serialize_t(self, value, *args):
+        """Serialize t as list for JSON output."""
         if isinstance(value, ndarray):
             return value.tolist()
         return value
