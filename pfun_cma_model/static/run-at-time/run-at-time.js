@@ -171,21 +171,12 @@ class RunAtTimeDemo {
         });
         let self = this;
         // Range input listeners
-        let rangeListener;
         this.dom.ranges.forEach(range => {
-            ['input', 'change'].forEach(evt => {
-                range.addEventListener(evt, () => {
-                    console.log(`Range ${range.id} updated to ${range.value}`);
-                    self.onUpdateRange(range);
-                });
+            $(range).on("input change", function (e) {
+                console.log(`Range ${range.id} updated to ${range.value}`);
+                self.onUpdateRange(this);
             });
-            range.oninput = self.onUpdateRange.bind(self, range);
-        });
-        rangeListener = (evt) => {
-            self.onUpdateRange(evt.target);
-        };
-        this.dom.ranges.forEach(range => {
-            onRangeChange(range, rangeListener);
+            $(range).on("click", function (e) { self.onUpdateRange(this); });
         });
     }
 
@@ -232,9 +223,9 @@ class RunAtTimeDemo {
     }
 
     onUpdateRange(range) {
+        console.log(`Range ${range.id} updated to ${range.value}`);
         const outputElement = document.getElementById(`rangeValue-${range.id}`);
         if (range) {
-            console.log(`Range ${range.id} updated to ${range.value}`);
             if (outputElement) {
                 // Update the corresponding output element
                 outputElement.textContent = range.value;
@@ -244,7 +235,6 @@ class RunAtTimeDemo {
             // Update the chart in real-time using the new range value
             const paramName = range.id;
             const paramValue = parseFloat(range.value);
-            console.log(`Updating chart with ${paramName}: ${paramValue}`);
             if (this.chart) {
                 // For demonstration, let's say changing a range updates the chart title
                 console.log(`Updating chart title with ${paramName}: ${paramValue}`);
