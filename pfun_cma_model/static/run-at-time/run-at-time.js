@@ -253,4 +253,3 @@ var demoApp;
 document.addEventListener('DOMContentLoaded', async () => {
     demoApp = new RunAtTimeDemo();
 });
-export default demoApp;
