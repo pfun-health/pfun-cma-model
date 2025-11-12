@@ -23,6 +23,9 @@ create_new_tag() {
     echo "$VERSION" | xargs -I {} git tag "prod-{}"
 }
 
+# regenerate the openapi.json and updated client
+./scripts/openapi-generate-pfun.sh
+
 # create a new commit
 git add -A && \
     git commit -m "($(uv version)) bump to new version."
