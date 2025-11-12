@@ -36,3 +36,8 @@ create_new_tag && \
     git push github && \
     git push --tags && \
     git push --tags github
+
+
+# watch the cloud build (update every n=5 seconds)
+sleep 1s;
+bash -c 'scripts/monitor-cloud-build.sh'
