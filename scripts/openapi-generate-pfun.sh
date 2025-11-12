@@ -32,7 +32,7 @@ replace_server_host() {
 }
 
 copy_to_beetus() {
-    BEETUS_CLIENT_DIR="$(realpath ../beetus/beetus/pfun_cma_model_client)"
+    BEETUS_CLIENT_DIR="$(realpath ../beetus/pfun_cma_model_client)"
     echo -e "\nCopying to beetus (${BEETUS_CLIENT_DIR})..."
     rm -rf "${BEETUS_CLIENT_DIR}"
     cp -r --interactive "${OUTPUT_DIR}" "${BEETUS_CLIENT_DIR}"
