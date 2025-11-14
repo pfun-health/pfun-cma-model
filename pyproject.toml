@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.28"
+version = "0.4.32"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -47,7 +47,7 @@ dependencies = [
     "pfun-data",
     "tox>=3.28.0",
 ]
-optional-dependencies = {ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
+optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
         "pytest>=6.0",
         "ipykernel>=6.25.2",
@@ -59,7 +59,8 @@ optional-dependencies = {ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "pandas-stubs>=2.2.3.250527",
         "types-requests>=2.32.4.20250611",
         "types-tabulate>=0.9.0.20241207",
-    ]}
+        "dash>=3.0.4",
+] }
 
 [project.scripts]
 pfun-cma-model = "pfun_cma_model.cli:cli"
@@ -70,12 +71,15 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "dash>=3.0.4",
+    "dash-html-components>=2.0.0",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.115.12",
     "ipykernel>=6.29.5",
     "ipython>=8.37.0",
     "mypy>=1.18.1",
     "nbconvert>=7.16.6",
+    "openapi-generator-cli[jdk4py]>=7.17.0",
     "pandas-stubs>=2.2.3.250527",
     "types-requests>=2.32.4.20250611",
     "types-tabulate>=0.9.0.20241207",

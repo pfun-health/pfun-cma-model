@@ -23,6 +23,9 @@ create_new_tag() {
     echo "$VERSION" | xargs -I {} git tag "prod-{}"
 }
 
+# regenerate the openapi.json and updated client
+./scripts/openapi-generate-pfun.sh
+
 # create a new commit
 git add -A && \
     git commit -m "($(uv version)) bump to new version."
@@ -33,3 +36,8 @@ create_new_tag && \
     git push github && \
     git push --tags && \
     git push --tags github
+
+
+# watch the cloud build (update every n=5 seconds)
+sleep 1s;
+bash -c 'scripts/monitor-cloud-build.sh'
