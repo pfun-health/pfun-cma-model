@@ -17,123 +17,7 @@
 
 [Perplexity.ai Generated Summary](./SUMMARY.md)
 
-    This repository contains the implementation of a Circadian Metabolic Algorithm (CMA) model designed to analyze and interpret continuous glucose monitoring (CGM) data. The CMA model leverages physiological principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin.
-
-## Development notes
-
-- Look at websockets
-- Using `uv` for super fast dependency management, usage, and publishing.
-
-### Quick start
-
-#### (dashlane) Inject secrets to create `.env`
-
-```bash
-
-# NOTE: only works if you have dcli (the dashlane CLI) installed locally
-$ ./scripts/inject-secrets-env.sh
-
-```
-
-### (containerized) `docker-compose` environment
-
-#### Complete rebuild & launch
-
-```bash
-
-docker compose up -d \
-    --build \
-    --renew-anon-volumes \
-    --remove-orphans
-
-```
-
-...or with the convenience script:
-
-```bash
-
-./scripts/full-rebuild.sh
-
-```
-
-#### (Cloud Run) Create a new Version & Publish to Google Cloud Platform
-
-```bash
-
-./scripts/new-version.sh
-
-```
-
-### (local) `uv` Python Dev environment
-
-#### Create a dedicated virtual environment
-
-```bash
-
-uv venv
-
-```
-
-#### Install fastapi with the correct version
-
-```bash
-
-# install fastapi cli for 'uvx'
-uv add fastapi --extra standard
-
-# run the dev server with:
-uv run fastapi dev
-...
-
-```
-
-#### Run tests locally
-
-```bash
-
-uvx tox
-
-```
-
-#### To add a development dependency
-
-```bash
-
-# e.g., 'uv add --dev types-requests'
-$ uv add --dev ...
-
-```
-
-#### Updating the environment
-
-```bash
-
-uv sync
-
-```
-
-#### Debugging the app locally (run as a local FastAPI server)
-
-```bash
-
-uv run fastapi dev pfun_cma_model/app.py --port 8001
-
-```
-
-## Run CLI examples
-
-```bash
-
-# show usage statement for pfun-cma-model CLI
-$ uv run pfun-cma-model
-...
-
-
-# fit the model, output results
-$ uv run pfun-cma-model run-fit-model --plot
-...
-
-```
+<small>This repository contains the implementation of a Circadian Metabolic Algorithm (CMA) model designed to analyze and interpret continuous glucose monitoring (CGM) data. The CMA model leverages physiological principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin.</small>
 
 ## CMA Model Description
 
@@ -255,4 +139,119 @@ The additional details you provided, including model parameters and example fitt
 7. **Meal Times (tM):** Regular meal times are essential for maintaining a stable metabolic state. Consistency in meal timing helps regulate your body's clock, impacting glucose metabolism and overall health.
 
 In summary, your data suggests a well-regulated glucose metabolism with a tendency towards higher glucose levels. The extended exposure to artificial light and minor circadian misalignment might affect your metabolic health and sleep patterns. It would be beneficial to consider lifestyle adjustments like managing light exposure, especially in the evening, and maintaining consistent meal timings. Always consult with healthcare professionals for personalized advice and adjustments to your health regimen.
+```
+
+## Development notes
+
+- Look at websockets
+- Using `uv` for super fast dependency management, usage, and publishing.
+
+### Quick start
+
+#### (dashlane) Inject secrets to create `.env`
+
+```bash
+
+# NOTE: only works if you have dcli (the dashlane CLI) installed locally
+$ ./scripts/inject-secrets-env.sh
+
+```
+
+### (containerized) `docker-compose` environment
+
+#### Complete rebuild & launch
+
+```bash
+
+docker compose up -d \
+    --build \
+    --renew-anon-volumes \
+    --remove-orphans
+
+```
+
+...or with the convenience script:
+
+```bash
+
+./scripts/full-rebuild.sh
+
+```
+
+#### (Cloud Run) Create a new Version & Publish to Google Cloud Platform
+
+```bash
+
+./scripts/new-version.sh
+
+```
+
+### (local) `uv` Python Dev environment
+
+#### Create a dedicated virtual environment
+
+```bash
+
+uv venv
+
+```
+
+#### Install fastapi with the correct version
+
+```bash
+
+# install fastapi cli for 'uvx'
+uv add fastapi --extra standard
+
+# run the dev server with:
+uv run fastapi dev
+...
+
+```
+
+#### Run tests locally
+
+```bash
+
+uvx tox
+
+```
+
+#### To add a development dependency
+
+```bash
+
+# e.g., 'uv add --dev types-requests'
+$ uv add --dev ...
+
+```
+
+#### Updating the environment
+
+```bash
+
+uv sync
+
+```
+
+#### Debugging the app locally (run as a local FastAPI server)
+
+```bash
+
+uv run fastapi dev pfun_cma_model/app.py --port 8001
+
+```
+
+## Run CLI examples
+
+```bash
+
+# show usage statement for pfun-cma-model CLI
+$ uv run pfun-cma-model
+...
+
+
+# fit the model, output results
+$ uv run pfun-cma-model run-fit-model --plot
+...
 ```
