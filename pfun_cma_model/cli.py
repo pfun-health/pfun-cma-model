@@ -54,21 +54,8 @@ def launch(ctx, host, port, reload, args):
 )
 @click.pass_context
 def generate_scenario(ctx, query):
-    import requests
-    headers = {
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
-    data = json.dumps({
-        "query": f"{str(query)}"
-    })
-    response = requests.post(
-        "http://localhost:8001/llm/generate/scenario",
-        data=data,
-        headers=headers
-    )
-    scene_dict = response.json()
-    click.secho(json.dumps(scene_dict, indent=3))
+    # @todo: implement this as a multi-stage reasoning process via VertexAI LLM endpoints
+    pass
 
 
 def process_kwds(ctx, param, value):
