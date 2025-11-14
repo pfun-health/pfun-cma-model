@@ -1,18 +1,17 @@
+import json
 import os
 import logging
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 import numpy as np
 import pandas as pd
-from multiprocessing import Pool, Queue
+import concurrent.futures
 from sklearn.model_selection import ParameterGrid
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass
 class PFunCMAParamsGridResult:
     """result object for grid search"""
-    #: integer index (within the original grid)
-    i: int
     #: json-string-ified params
     params: str
     #: json-string-ified result
@@ -52,8 +51,8 @@ class PFunCMAParamsGrid:
             })
         self.pgrid = ParameterGrid(pdict)
         self.df = None
-        # setup solutions queue (multiproc friendly)
-        self.solns = Queue(maxsize=len(self.pgrid))
+        # solutions vector
+        self.solns = []
 
     @property
     def Njobs(self):
@@ -82,39 +81,43 @@ class PFunCMAParamsGrid:
             tM = [batch_params.pop(tmk) for tmk in self.tmK]
             batch_params["tM"] = tM
 
-        def compute_psample(params, output_queue=self.solns):
+        def compute_psample(params):
             """compute from a single sample of parameters from the grid."""
             cma = CMASleepWakeModel(config=params, N=self.N)
             out = cma.run()
-            output_queue.put(out)
+            return out
 
         return compute_psample, (batch_params,)
 
     @staticmethod
     def _batch_worker(compute_psample, sample_args):
-        compute_psample(*sample_args)  # solution stored in output queue
+        return compute_psample(*sample_args)
 
     def run(self):
         """Run the parameter grid to produce a dataframe of results.
         """
         logging.info("Running parameter grid of size: %02d...",
                      len(self.pgrid))
-        # distribute tasks across the pool
-        current_batch = Queue(maxsize=self.Njobs)
-        pending_results = Queue(maxsize=len(self.pgrid))
-        with Pool(processes=self.Njobs) as pool:
-            for i, params in enumerate(self.pgrid):
-                # continually batch parameters (waiting only on queue max_size)
-                batched_psamples = self.batch_pickleable_psamplers(params)
-                current_batch.put(batched_psamples)
-                # compute the batch, include in async results
-                for pres in pool.map_async(PFunCMAParamsGrid._batch_worker, current_batch):
-                    pending_results.put(pres)
-            while True:
-                pending_results.
-                if i % self.Njobs == 0:
-                    logging.debug(f"Iteration ({i:03d}/{len(self.pgrid)}) ...")
+        # distribute tasks in parallel
+        with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:
+            future_to_params = {
+                pool.submit(self.batch_pickleable_psamplers, params): params
+                for params in self.pgrid
+            }
+            for future in concurrent.futures.as_completed(future_to_params):
+                params = future_to_params[future]
+                try:
+                    self.solns.append(
+                        asdict(
+                            PFunCMAParamsGridResult(
+                                json.dumps(params),
+                                future.result().to_json()
+                            )
+                        )
+                    )
+                except Exception as exc:
+                    logging.error("failed to compute", exc_info=exc)
 
         # format results
-        self.df = pd.DataFrame(, columns=["params", "result"], index="i")
+        self.df = pd.DataFrame(self.solns, columns=["params", "result"])
         return self.df
