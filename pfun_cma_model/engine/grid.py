@@ -18,6 +18,13 @@ class PFunCMAParamsGridResult:
     result: str
 
 
+def compute_psample(params, N):
+    """compute from a single sample of parameters from the grid."""
+    cma = CMASleepWakeModel(config=params, N=N)
+    out = cma.run()
+    return out
+
+
 class PFunCMAParamsGrid:
     """Parameter grid class for analyzing the parameter space of the CMA model."""
 
@@ -73,35 +80,16 @@ class PFunCMAParamsGrid:
         else:
             self._Njobs = val
 
-    def batch_pickleable_psamplers(self, batch_params) -> tuple:
-        """create a single computable unit of parameter samplers."""
-
-        # ensure mealtimes are/are not present
-        if self.include_mealtimes is True:
-            tM = [batch_params.pop(tmk) for tmk in self.tmK]
-            batch_params["tM"] = tM
-
-        def compute_psample(params):
-            """compute from a single sample of parameters from the grid."""
-            cma = CMASleepWakeModel(config=params, N=self.N)
-            out = cma.run()
-            return out
-
-        return compute_psample, (batch_params,)
-
-    @staticmethod
-    def _batch_worker(compute_psample, sample_args):
-        return compute_psample(*sample_args)
-
     def run(self):
         """Run the parameter grid to produce a dataframe of results.
         """
         logging.info("Running parameter grid of size: %02d...",
                      len(self.pgrid))
+
         # distribute tasks in parallel
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:
             future_to_params = {
-                pool.submit(self.batch_pickleable_psamplers, params): params
+                pool.submit(compute_psample, params, N=self.N): params
                 for params in self.pgrid
             }
             for future in concurrent.futures.as_completed(future_to_params):
