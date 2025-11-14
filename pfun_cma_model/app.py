@@ -330,6 +330,8 @@ def tabulate_params(
         )
 
 
+# -- Dataset endpoints --
+
 @dataclass
 class PFunDatasetResponse:
     data: DataFrame | None = None
@@ -448,6 +450,23 @@ async def stream_sample_dataset(request: Request, pct0: float = 0.0, nrows: int 
         data=None, pct0=pct0, nrows=nrows)
     # return the iterable (generating) streaming response
     return dataset_response.streaming_response
+
+
+# -- LLM generate scenario endpoints
+
+@app.post("/llm/generate-scenario")
+def generate_scenario(prompt: str):
+    """Use VertexAI LLM endpoint to generate a realistic scenario (with hypothetical parameters)."""
+    from pfun_cma_model.llm import generate_scenario as gen_scene
+    response = gen_scene(query=prompt)
+    return Response(
+        content=response,
+        status_code=200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
+# -- CMA Model endpoints --
 
 
 CMA_MODEL_INSTANCE = None

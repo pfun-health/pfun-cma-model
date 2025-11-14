@@ -1,10 +1,7 @@
 from pfun_cma_model.main import run_app
 from pfun_cma_model.engine.fit import fit_model as call_fit_model
-from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.engine.cma_plot import CMAPlotConfig
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 import os
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import json
@@ -54,8 +51,10 @@ def launch(ctx, host, port, reload, args):
 )
 @click.pass_context
 def generate_scenario(ctx, query):
-    # @todo: implement this as a multi-stage reasoning process via VertexAI LLM endpoints
-    pass
+    """Generate a realistic pfun scenario (using Google AI Studio)."""
+    from pfun_cma_model.llm import generate_scenario as gen_scene
+    response = gen_scene(query=query)
+    click.secho(json.dumps(response, indent=4))
 
 
 def process_kwds(ctx, param, value):
