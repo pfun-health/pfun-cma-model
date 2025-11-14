@@ -126,7 +126,8 @@ class CMASleepWakeModel:
             ] * len(keys)
         for k in keys:
             ix = self.bounded_param_keys.index(k)
-            self.bounds[ix] = (lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
+            self.bounds[ix] = (
+                lb[ix], ub[ix], keep_feasible[ix])  # type: ignore
         if return_bounds:
             return self.bounds
 
@@ -139,7 +140,8 @@ class CMASleepWakeModel:
             if isinstance(value, ndarray):
                 out[key] = value.tolist()
             elif isinstance(value, DataFrame):
-                out[key] = json_normalize(value.to_dict()).to_dict()  # type: ignore
+                out[key] = json_normalize(
+                    value.to_dict()).to_dict()  # type: ignore
             elif isinstance(value, Series):
                 out[key] = value.tolist()
             elif isinstance(value, Bounds):
@@ -150,7 +152,8 @@ class CMASleepWakeModel:
                 out[key] = value.model_dump()
             elif isinstance(value, (Generator)):
                 logging.warning(
-                    "Could not convert %s (type=%s) to JSON.", str(value), type(value)
+                    "Could not convert %s (type=%s) to JSON.", str(
+                        value), type(value)
                 )
                 out.pop(key)
             elif isinstance(value, (dict)):
@@ -161,7 +164,8 @@ class CMASleepWakeModel:
                         value[k] = v.tolist()
             try:
                 logging.info(
-                    "attempting to serialize: %s (value='%s')", key, str(out.get(key))
+                    "attempting to serialize: %s (value='%s')", key, str(
+                        out.get(key))
                 )
                 json.dumps(out[key])
             except (json.JSONDecodeError, TypeError) as exc:
@@ -188,9 +192,10 @@ class CMASleepWakeModel:
     @property
     def params(self) -> CMAModelParams:
         """Return the current parameters as a CMAModelParams object."""
-        params_dict = {k: self._params[k] for k in self.param_keys}  # preserve order
+        params_dict = {k: self._params[k]
+                       for k in self.param_keys}  # preserve order
         return CMAModelParams(**params_dict)
-    
+
     # class-level private storage of parameters
     _params: Dict = CMAModelParams().model_dump()
 
@@ -257,21 +262,21 @@ class CMASleepWakeModel:
         self.rng = None
         if self.seed is not None:
             self.rng = default_rng(seed=self.seed)
-    
+
     @property
     def eps(self) -> float:
         """eps : float
         Random noise scale ("epsilon").
         """
         return self.params.eps
-            
+
     @property
     def seed(self) -> Optional[int | float]:
         """seed : Optional[int | float]
         Random seed. Set to an integer to enable random noise via parameter 'eps'. Optional.
         """
         return self.params.seed
-    
+
     @property
     def tM(self) -> ndarray:
         """tM : ndarray
@@ -279,21 +284,33 @@ class CMASleepWakeModel:
         """
         return array(self.params.tM)  # type: ignore
 
+    @tM.setter  # type: ignore
+    def tM(self, value):
+        self.params.tM = array(value)  # type: ignore
+
     @property
     def t(self) -> ndarray:
         """t : ndarray
         Time vector (decimal hours).
         """
         return array(self.params.t)
-    
+
+    @t.setter  # type: ignore
+    def t(self, value):
+        self.params.t = array(value)  # type: ignore
+
     @property
     def N(self) -> int:
         """N : int
         Number of time points.
-        
+
         Default to self.t.size.
         """
         return int(self.params.N)
+
+    @N.setter  # type: ignore
+    def N(self, value):
+        self.params.N = int(value)
 
     @property
     def bounded_params_as_dict(self) -> Dict:
@@ -498,7 +515,8 @@ class CMASleepWakeModel:
         if self.rng is not None:
             # ! tiny amount of random noise
             # type: ignore
-            m_out = m_out + self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
+            m_out = m_out + \
+                self.rng.uniform(low=-self.eps, high=self.eps, size=self.N)
         return m_out
 
     @property
@@ -659,7 +677,8 @@ class CMASleepWakeModel:
             signal = signal.T  # type: ignore
         period = logical_and((tvec >= t0), (tvec <= t1))  # type: ignore
         if t_extra is not None:
-            period = logical_or(period, (tvec >= t_extra[0]) & (tvec <= t_extra[1]))
+            period = logical_or(
+                period, (tvec >= t_extra[0]) & (tvec <= t_extra[1]))
         total = nansum(signal[period]) / (M * (t1 - t0))  # type: ignore
         return total
 
