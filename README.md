@@ -217,9 +217,14 @@ uv run fastapi dev pfun_cma_model/app.py --port 8001
 
 $ pfun-cma-model generate-scenario --query 'a healthy individual with a tendency to sleep in.'
 {
-    "qualitative_description": "This individual is a young adult who is otherwise healthy and active. They are a natural 'night owl,' preferring to stay up late and consequently sleeping in until mid-morning, especially on weekends. Their meal schedule is shifted accordingly, with 'breakfast' often eaten closer to 11 AM. This consistent delay in their sleep-wake cycle has shifted their natural circadian rhythms, including their morning cortisol peak, which now occurs later in the day. Their glucose levels are generally well-managed, but the pattern reflects their late-shifted daily routine.",
+    "qualitative_description": "This individual is a healthy young adult who is a natural 'night owl'. They have a delayed sleep phase, meaning they tend to go to bed late, around 2:00 AM, and wake up late in the morning, typically after 10:00 AM. Their meal schedule is shifted accordingly, with 'breakfast' often being eaten closer to noon. They are otherwise healthy, with a stable diet and regular activity levels, but their entire daily rhythm, including their natural cortisol cycle, is pushed back by several hours compared to someone with a more conventional sleep schedule.",
     "parameters": {
-        "toff": 2.5
+        "toff": 2.5,
+        "d": 0,
+        "taup": 1,
+        "taug": 1,
+        "B": 0.05,
+        "Cm": 0
     }
 }
 
