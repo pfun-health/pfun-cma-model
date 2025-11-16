@@ -11,7 +11,7 @@ uv version --bump patch && \
     uv build
 
 # build and start the services in the background
-docker compose up -d --build || echo -e "Skipping docker rebuild..."
+docker compose up -d --build --quiet || echo -e "Skipping docker rebuild..."
 sleep 1s
 
 

@@ -39,16 +39,16 @@ copy_to_beetus() {
     sleep 1s;
 }
 
-# use docker if available
-if [ $(which docker) ]; then
-    echo -e "using docker..."
-    docker run --rm -v "${PWD}:${PWD}" \
-        openapitools/${OPENAPI_GENERATE_CMD}
-    sleep 1s;
-    # posthoc actions
-    replace_server_host && copy_to_beetus
-    exit 0
-fi
+# # use docker if available
+# if [ $(which docker) ]; then
+#     echo -e "using docker..."
+#     docker run --rm -v "${PWD}:${PWD}" \
+#         openapitools/${OPENAPI_GENERATE_CMD}
+#     sleep 1s;
+#     # posthoc actions
+#     replace_server_host && copy_to_beetus
+#     exit 0
+# fi
 
 if [ $(which uv) ]; then
     echo -e "using uv..."
