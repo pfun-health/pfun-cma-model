@@ -72,37 +72,6 @@ Based on the given model parameters and their example fitted values, we can make
 Overall, the individual appears to have some circadian misalignment and potential metabolic issues, particularly related to glucose regulation and stress response. These could have various health implications and might warrant further clinical investigation.
 ```
 
-#### Example ChatGPT Diagram
-
-```mermaid
-graph TB
-Healthy["Healthy Individual"]
-Unhealthy["Sample Individual"]
-style Healthy fill:#99cc99
-style Unhealthy fill:#ff6666
-Healthy --> A1["Normal Circadian Rhythm"]
-Healthy --> A2["Optimal Glucose Regulation"]
-Healthy --> A3["Balanced Cortisol Levels"]
-Healthy --> A4["Healthy Stress Response"]
-Unhealthy --> B1["Disrupted Circadian Rhythm"]
-Unhealthy --> B2["Poor Glucose Regulation"]
-Unhealthy --> B3["Elevated Cortisol Levels"]
-Unhealthy --> B4["Poor Stress Response"]
-A1 -->|Clinical Implication| C1["Reduced Risk of Metabolic Disorders"]
-A2 -->|Clinical Implication| C2["Reduced Risk of Diabetes"]
-A3 -->|Clinical Implication| C3["Reduced Risk of Stress-related Disorders"]
-A4 -->|Clinical Implication| C4["Reduced Risk of Mental Health Issues"]
-B1 -->|Clinical Implication| D1["Increased Risk of Metabolic Disorders"]
-B2 -->|Clinical Implication| D2["Increased Risk of Diabetes"]
-B3 -->|Clinical Implication| D3["Increased Risk of Stress-related Disorders"]
-B4 -->|Clinical Implication| D4["Increased Risk of Mental Health Issues"]
-B1 -->|Model Parameters| E1["d: -0.214"]
-B1 -->|Model Parameters| E2["taup: 4.67"]
-B2 -->|Model Parameters| E3["taug: 1.097"]
-B2 -->|Model Parameters| E4["B: 0.129"]
-B3 -->|Model Parameters| E5["Cm: -1.567e+06"]
-```
-
 #### Example Non-PFun ChatGPT Response
 
 ```markdown
@@ -242,9 +211,17 @@ uv run fastapi dev pfun_cma_model/app.py --port 8001
 
 ```
 
-## Run CLI examples
+## Interact with the app via CLI
 
 ```bash
+
+$ pfun-cma-model generate-scenario --query 'a healthy individual with a tendency to sleep in.'
+{
+    "qualitative_description": "This individual is a young adult who is otherwise healthy and active. They are a natural 'night owl,' preferring to stay up late and consequently sleeping in until mid-morning, especially on weekends. Their meal schedule is shifted accordingly, with 'breakfast' often eaten closer to 11 AM. This consistent delay in their sleep-wake cycle has shifted their natural circadian rhythms, including their morning cortisol peak, which now occurs later in the day. Their glucose levels are generally well-managed, but the pattern reflects their late-shifted daily routine.",
+    "parameters": {
+        "toff": 2.5
+    }
+}
 
 # show usage statement for pfun-cma-model CLI
 $ uv run pfun-cma-model

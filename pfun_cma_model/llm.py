@@ -32,6 +32,15 @@ class GenerativeModel:
         Returns:
             genai.Client: The Gemini API client.
         """
+        # For prod, use VertexAI with auth ADC
+        if not os.environ.get("DEBUG"):
+            client = genai.Client(
+                vertexai=True,
+                project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID"),
+                location=os.environ.get("GOOGLE_CLOUD_LOCATION")
+            )
+            return client
+        # For debug, use the API key
         try:
             gemini_api_key_or_path = os.environ.get("GEMINI_API_KEY", None)
             if os.path.isfile(gemini_api_key_or_path):
@@ -41,9 +50,7 @@ class GenerativeModel:
                 gemini_api_key = gemini_api_key_or_path
         except KeyError:
             # ! ONLY USE API KEY FOR DEV (ADC FOR PROD)
-            if os.getenv("DEBUG"):
-                raise Exception("GEMINI_API_KEY environment variable not set.")
-        # (only for DEBUG, print the api key)
+            raise Exception("GEMINI_API_KEY environment variable not set.")
         logging.debug("Gemini API key: %s", gemini_api_key)
         client = genai.Client(api_key=gemini_api_key)
         return client
