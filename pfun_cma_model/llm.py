@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+from typing import Optional
 import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
@@ -32,27 +33,14 @@ class GenerativeModel:
         Returns:
             genai.Client: The Gemini API client.
         """
-        # For prod, use VertexAI with auth ADC
-        if not os.environ.get("DEBUG"):
-            client = genai.Client(
-                vertexai=True,
-                project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID"),
-                location=os.environ.get("GOOGLE_CLOUD_LOCATION")
-            )
-            return client
-        # For debug, use the API key
-        try:
-            gemini_api_key_or_path = os.environ.get("GEMINI_API_KEY", None)
-            if os.path.isfile(gemini_api_key_or_path):
-                with open(gemini_api_key_or_path, "r") as f:
-                    gemini_api_key = f.read().strip()
-            else:
-                gemini_api_key = gemini_api_key_or_path
-        except KeyError:
-            # ! ONLY USE API KEY FOR DEV (ADC FOR PROD)
-            raise Exception("GEMINI_API_KEY environment variable not set.")
-        logging.debug("Gemini API key: %s", gemini_api_key)
-        client = genai.Client(api_key=gemini_api_key)
+        # use VertexAI with auth ADC
+        client = genai.Client(
+            vertexai=True,
+            project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID"),
+            location=os.environ.get("GOOGLE_CLOUD_LOCATION")
+        )
+        logging.debug("Gemini API client setup successfully.")
+        logging.debug("Gemini API client: %s", repr(client))
         return client
 
 
@@ -100,10 +88,10 @@ Assistant:
     # Extract the JSON from the response
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_str = response.text.strip().replace("`", "").replace("json", "")
+        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
         params = json.loads(json_str)
         return params
-    except (json.JSONDecodeError, KeyError) as e:
+    except (json.JSONDecodeError, KeyError, AttributeError) as e:
         raise Exception(f"Failed to parse Gemini API response: {e}") from e
 
 
@@ -151,14 +139,14 @@ Assistant:
     response = model.generate_content(prompt)
 
     try:
-        json_str = response.text.strip().replace("`", "").replace("json", "")
+        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
         explanation = json.loads(json_str)
         return explanation
-    except (json.JSONDecodeError, KeyError) as e:
+    except (json.JSONDecodeError, KeyError, AttributeError) as e:
         raise Exception(f"Failed to parse Gemini API response: {e}") from e
 
 
-def generate_scenario(query: str = None) -> dict:
+def generate_scenario(query: Optional[str] = None) -> dict:
     """
     Generates a realistic "pfun-scene" JSON object using the Gemini API.
 
@@ -216,8 +204,8 @@ Assistant:
     # Extract the JSON from the response
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_str = response.text.strip().replace("`", "").replace("json", "")
+        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
         scenario = json.loads(json_str)
         return scenario
-    except (json.JSONDecodeError, KeyError) as e:
+    except (json.JSONDecodeError, KeyError, AttributeError) as e:
         raise Exception(f"Failed to parse Gemini API response: {e}") from e

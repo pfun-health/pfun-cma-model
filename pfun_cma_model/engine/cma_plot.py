@@ -1,6 +1,7 @@
 import logging
 from base64 import b64encode
 from dataclasses import dataclass, field
+
 from io import BytesIO
 from typing import Annotated, Iterable, Literal, Tuple
 
@@ -14,51 +15,13 @@ __all__ = ["CMAPlotConfig"]
 @dataclass
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
-
-    plot_cols: Tuple[
-        Literal["g_0"],
-        Literal["g_1"],
-        Literal["g_2"],
-        Literal["G"],
-        Literal["c"],
-        Literal["m"],
-        Literal["a"],
-        Literal["L"],
-        Literal["I_S"],
-        Literal["I_E"],
-        Literal["is_meal"],
-        Literal["value"],
-    ] = field(
-        default_factory=lambda: (
-            "g_0",
-            "g_1",
-            "g_2",
-            "G",
-            "c",
-            "m",
-            "a",
-            "L",
-            "I_S",
-            "I_E",
-            "is_meal",
-            "value",
-        )
-    )
-    labels: Annotated[
+    plot_cols: Tuple[str, ...] = field(default_factory=lambda: ("g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"))
+    labels: Annotated[ # type: ignore
         tuple[str],
         tuple[
-            Literal["Breakfast"],
-            Literal["Lunch"],
-            Literal["Dinner"],
-            Literal["Glucose"],
-            Literal["Cortisol"],
-            Literal["Melatonin"],
-            Literal["Adiponectin"],
-            Literal["Photoperiod (irradiance)"],
-            Literal["Insulin (secreted)"],
-            Literal["Insulin (effective)"],
-            Literal["Meals"],
-            Literal["Glucose (Data)"],
+            Literal["Breakfast"], Literal["Lunch"], Literal["Dinner"], Literal["Glucose"], Literal["Cortisol"],
+            Literal["Melatonin"], Literal["Adiponectin"], Literal["Photoperiod (irradiance)"],
+            Literal["Insulin (secreted)"], Literal["Insulin (effective)"], Literal["Meals"], Literal["Glucose (Data)"],
         ],
     ] = (
         "Breakfast",
@@ -71,9 +34,9 @@ class CMAPlotConfig:
         "Photoperiod (irradiance)",
         "Insulin (secreted)",
         "Insulin (effective)",
-        "Meals",
+        "Meals", # This is likely a placeholder for meal events, not a column name
         "Glucose (Data)",
-    )
+    )  # type: ignore
 
     colors: tuple[
         Literal["#ec5ef9"],
@@ -333,18 +296,18 @@ class CMAPlotDataConfig(CMAPlotConfig):
 class CMAPlotSolnConfig(CMAPlotConfig):
     """configuration for plotting the model solution"""
 
-    def plot(self, soln, plot_cols=None, separate2subplots=False):
+    def plot(self, df, plot_cols=None, separate2subplots=False):
         """plot the model solution."""
-        soln = self.setup_solution(soln)
-        plot_cols = self.prune_plot_cols(soln, plot_cols)
-        self.fig, self.axes = super().plot(soln, plot_cols, separate2subplots)
+        soln = self.setup_solution(df)
+        plot_cols = self.prune_plot_cols(df, plot_cols)
+        self.fig, self.axes = super().plot(df, plot_cols, separate2subplots)
         return self.fig, self.axes
 
 
 class CMAPlotCombinedConfig(CMAPlotConfig):
     """configuration for plotting the combined data"""
 
-    def plot(self, df, soln, plot_cols=None, separate2subplots=False):
+    def plot_combined(self, df, soln, plot_cols=None, separate2subplots=False):
         """plot the combined data+solution."""
         df = self.setup_input_data(df)
         soln = self.setup_solution(soln)
