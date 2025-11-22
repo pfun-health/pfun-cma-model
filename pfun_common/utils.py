@@ -30,22 +30,25 @@ def setup_logging(logger: logging.Logger, debug_mode: bool = False):
 
 
 def load_environment_variables(
-        logger: logging.Logger = logging.getLogger(__name__)):
+        logger: logging.Logger = logging.getLogger(__name__)
+    ) -> tuple[bool, Path]:
     """Load environment variables from .env file."""
     logger.info("Attempting to load environment variables from .env file...")
     env_file = Path(__file__).parent.parent / ".env"
     logger.debug("Checking for .env file at: %s", str(env_file))
-    if env_file.exists():
-        logger.debug("...env file exists.")
-        loaded = load_dotenv(dotenv_path=env_file)
-        if not loaded:
-            logger.warning(
-                f"Failed to load environment variables from {env_file}.")
-        logger.info(f"Loaded environment variables from {env_file}")
-    else:
+    if not env_file.exists():
         logger.warning(
             "No .env file found at '%s'. Using system environment variables.",
             str(env_file))
+        return False, env_file
+    logger.debug("...env file exists.")
+    loaded = load_dotenv(dotenv_path=env_file)
+    if not loaded:
+        logger.warning(
+            f"Failed to load environment variables from {env_file}.")
+    logger.info(f"Loaded environment variables from {env_file}")
+    return loaded, env_file
+        
 
 
 def add_url_params(url, params):

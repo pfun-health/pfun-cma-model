@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from typing import Optional
 from fastapi import FastAPI
 import socketio
-from pfun_cma_model.app import stream_run_at_time_func
+from pfun_cma_model.stream import stream_run_at_time_func
 
 
 async def get_logger():
@@ -70,7 +70,7 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
         self.app = app
 
     @property
-    def logger(self):
+    async def logger(self):
         """Asynchronously get the logger instance."""
         if self._logger is None:
             self._logger = AsyncLoggerWrapper(get_logger())
@@ -81,15 +81,15 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
         """Return the Socket.IO server instance."""
         return self.server
 
-    def on_connect(self, sid, environ):
-        logging.debug("connect %s", sid)
+    async def on_connect(self, sid, environ):
+        await (await self.logger).debug("connect %s", sid)
 
     async def on_message(self, sid, data):
-        self.logger.debug("message %s", data)
+        await (await self.logger).debug("message %s", data)
         await self.server.emit("response", "hi " + data)
 
     async def on_disconnect(self, sid):
-        await self.logger.info("disconnect %s", sid)
+        await (await self.logger).info("disconnect %s", sid)
 
 
 class PFunWebsocketNamespace(NoPrefixNamespace):
@@ -100,15 +100,15 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
     """
 
     async def on_connect(self, sid: str, environ: Mapping[str, str]):
-        await self.logger.debug(f"SocketIO client connected: {sid}")
-        super().on_connect(sid, environ)
+        await (await self.logger).debug(f"SocketIO client connected: {sid}")
+        await super().on_connect(sid, environ)
 
     async def on_message(self, sid, data):
-        await self.logger.debug(f"Received message from {sid}: {data}")
+        await (await self.logger).debug(f"Received message from {sid}: {data}")
         await super().on_message(sid, data)
 
     async def on_disconnect(self, sid):
-        await self.logger.debug(f"SocketIO client disconnected: {sid}")
+        await (await self.logger).debug(f"SocketIO client disconnected: {sid}")
         await super().on_disconnect(sid)
 
     async def on_run(self, sid, data):

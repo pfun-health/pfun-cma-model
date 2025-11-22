@@ -46,6 +46,9 @@ dependencies = [
     "seaborn>=0.13.2",
     "pfun-data",
     "tox>=3.28.0",
+    "gradio>=5.50.0",
+    "gradio-client>=1.14.0",
+    "pydantic-settings>=2.2.1",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",

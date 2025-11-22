@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import re
 from typing import Optional
 import google.genai as genai
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -36,12 +37,37 @@ class GenerativeModel:
         # use VertexAI with auth ADC
         client = genai.Client(
             vertexai=True,
-            project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID"),
-            location=os.environ.get("GOOGLE_CLOUD_LOCATION")
+            project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID", "pfun-cma-model"),
+            location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
         )
         logging.debug("Gemini API client setup successfully.")
         logging.debug("Gemini API client: %s", repr(client))
         return client
+
+
+def _call_llm_for_json(prompt: str) -> dict:
+    """
+    Calls the generative model with a prompt and parses the JSON response.
+
+    Args:
+        prompt: The prompt to send to the model.
+
+    Returns:
+        A dictionary parsed from the model's JSON response.
+
+    Raises:
+        Exception: If the API response cannot be parsed as JSON.
+    """
+    model = GenerativeModel()
+    response = model.generate_content(prompt)
+    resp_text: str = response.text or ''
+    try:
+        # The response might contain markdown, so we need to extract the JSON from it
+        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
+        return json.loads(json_str)
+    except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
+        raise Exception(f"Failed to parse Gemini API response: {e}") from e
 
 
 def translate_query_to_params(query: str) -> dict:
@@ -54,8 +80,6 @@ def translate_query_to_params(query: str) -> dict:
     Returns:
         A dictionary containing the PFun CMA model parameters.
     """
-    model = GenerativeModel()
-
     # Construct the prompt
     params = CMAModelParams()
     param_descriptions = params.generate_markdown_table()
@@ -82,17 +106,7 @@ Now, please translate the following user query into PFun CMA model parameters.
 User: "{query}"
 Assistant:
 """
-
-    response = model.generate_content(prompt)
-
-    # Extract the JSON from the response
-    try:
-        # The response might contain markdown, so we need to extract the JSON from it
-        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
-        params = json.loads(json_str)
-        return params
-    except (json.JSONDecodeError, KeyError, AttributeError) as e:
-        raise Exception(f"Failed to parse Gemini API response: {e}") from e
+    return _call_llm_for_json(prompt)
 
 
 def generate_causal_explanation(description: str, trace: str) -> dict:
@@ -106,8 +120,6 @@ def generate_causal_explanation(description: str, trace: str) -> dict:
     Returns:
         A dictionary containing the causal explanation.
     """
-
-    model = GenerativeModel()
 
     prompt = f"""\
 You are a helpful assistant that analyzes glucose data for a person with diabetes and provides a causal explanation for the observed patterns.
@@ -136,7 +148,7 @@ Trace: {trace}
 Assistant:
 """
 
-    response = model.generate_content(prompt)
+    response = GenerativeModel().generate_content(prompt)
 
     try:
         json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
@@ -156,8 +168,6 @@ def generate_scenario(query: Optional[str] = None) -> dict:
     Returns:
         A dictionary containing the generated scenario.
     """
-
-    model = GenerativeModel()
 
     # Construct the prompt
     params = CMAModelParams()
@@ -198,14 +208,4 @@ Now, please generate a scenario based on the following user query. If the query 
 User: "{query if query else 'No query provided.'}"
 Assistant:
 """
-
-    response = model.generate_content(prompt)
-
-    # Extract the JSON from the response
-    try:
-        # The response might contain markdown, so we need to extract the JSON from it
-        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
-        scenario = json.loads(json_str)
-        return scenario
-    except (json.JSONDecodeError, KeyError, AttributeError) as e:
-        raise Exception(f"Failed to parse Gemini API response: {e}") from e
+    return _call_llm_for_json(prompt)

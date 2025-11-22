@@ -27,6 +27,8 @@ steps:
     id: Deploy to Staging
     entrypoint: gcloud
     env:
+      - "GOOGLE_CLOUD_LOCATION=us-central1" # GCP Location for Vertex AI API client connection.
+      - "GOOGLE_CLOUD_PROJECT_ID=pfun-cma-model" # GCP Project ID for Vertex AI API client connection.
       - "DEBUG=1" # Enable debug mode for staging
       - "WS_HOST=pfun-cma-model-staging-446025415469.us-central1.run.app" # Host for WebSocket connections
       - "WS_PORT=443" # Port for WebSocket connections
@@ -90,6 +92,8 @@ steps:
     id: Deploy
     entrypoint: gcloud
     env:
+      - "GOOGLE_CLOUD_LOCATION=us-central1" # GCP Location for Vertex AI API client connection.
+      - "GOOGLE_CLOUD_PROJECT_ID=pfun-cma-model" # GCP Project ID for Vertex AI API client connection.
       - "DEBUG=0"  # Disable debug mode for production
       - "WS_HOST=pfun-cma-model-446025415469.us-central1.run.app" # Host for WebSocket connections
       - "WS_PORT=443"  # Port for WebSocket connections

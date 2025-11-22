@@ -2,13 +2,8 @@
 PFun CMA Model API Backend Routes.
 """
 from io import StringIO
-from pydantic import BaseModel
-from jinja2 import pass_context
-from fastapi.responses import RedirectResponse
 from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
-from contextlib import asynccontextmanager
-from dataclasses import dataclass, InitVar
 from dataclasses import dataclass
 from typing import Optional
 from pfun_cma_model.engine.cma_model_params import (
@@ -16,7 +11,6 @@ from pfun_cma_model.engine.cma_model_params import (
 )
 from typing import Dict, Any
 import pfun_cma_model
-from pfun_cma_model.data import read_sample_data
 import importlib
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
@@ -24,17 +18,18 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi import FastAPI, HTTPException, Request, Response, status, Body
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Request, Response, Body, Depends
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import json
 import logging
 import os
 from pathlib import Path
+from contextlib import asynccontextmanager
 from typing import Dict, Literal, Optional, Annotated, Mapping, AsyncGenerator
 from pfun_common.utils import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
+from pfun_cma_model.misc.templating import templates
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -61,18 +56,17 @@ async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     global redis_client
     # --- Startup task: connect to Redis ---
-    redis_client = Redis(
-        host=os.getenv("REDIS_HOST", "0.0.0.0"),
-        port=int(os.getenv("REDIS_PORT", "6379")),
-        db=int(os.getenv("REDIS_DB", "0")),
-        password=os.getenv("REDIS_PASSWORD", None),
-        decode_responses=True,
-    )
     try:
+        redis_client = Redis(
+            host=os.getenv("REDIS_HOST", "0.0.0.0"),
+            port=int(os.getenv("REDIS_PORT", "6379")),
+            db=int(os.getenv("REDIS_DB", "0")),
+            password=os.getenv("REDIS_PASSWORD", None),
+            decode_responses=True,
+        )
         await redis_client.ping()
-        logging.info("Connected to Redis server successfully.")
-    except Exception as e:
-        logging.error("Failed to connect to Redis server: %s", str(e))
+    except Exception as exc:
+        logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
     yield
     # --- Shutdown task: disconnect from Redis ---
@@ -124,37 +118,6 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Setup Jinja2 templates
-templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
-
-
-@pass_context
-def https_url_for(context: dict, name: str, **path_params: Any) -> str:
-    """Convert http to https.
-
-    ref: https://waylonwalker.com/thoughts-223
-    """
-    request = context["request"]
-    http_url = request.url_for(name, **path_params)
-    return str(http_url).replace("http", "https", 1)
-
-
-def get_templates() -> Jinja2Templates:
-    """Get the Jinja2 templates object, include https_url_for filter.
-
-    Returns:
-        Jinja2Templates: The Jinja2 templates object.
-    """
-    global templates
-    templates.env.globals["https_url_for"] = https_url_for
-    # only use the default url_for for local development, for dev, qa, and prod use https
-    if not debug_mode:
-        templates.env.globals["url_for"] = https_url_for
-        logger.debug("Using HTTPS")
-    else:
-        logger.debug("Using HTTP")
-    return templates
-
 # -- Setup middleware
 
 
@@ -197,6 +160,18 @@ app.add_middleware(
 
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
+from pfun_cma_model.routes import data as data_routes
+app.include_router(data_routes.router, prefix="/data", tags=["data"])
+
+from pfun_cma_model.routes import params as params_routes
+app.include_router(params_routes.router, prefix="/params", tags=["params"])
+
+from pfun_cma_model.routes import demo as demo_routes
+app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
+
+from pfun_cma_model.routes import llm as llm_routes
+app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
+
 
 @app.get("/health")
 def health_check():
@@ -211,300 +186,25 @@ def root(request: Request):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return get_templates().TemplateResponse("index.html", {
+    return templates.TemplateResponse("index.html", {
         "request": request,
         "year": datetime.now().year,
         "message": f"Accessed at: {ts_msg}"
     })
 
 
-@app.get("/demo/dexcom")
-def demo_dexcom(request: Request):
-    return get_templates().TemplateResponse("dexcom-demo.html", {
-        "request": request,
-        "year": datetime.now().year
-    })
-
-
-@app.get("/demo/gemini")
-def demo_gemini(request: Request):
-    return get_templates().TemplateResponse("gemini-demo.html", {
-        "request": request,
-        "year": datetime.now().year
-    })
-
-
-@app.get("/demo/data-stream")
-def demo_data_stream(request: Request):
-    return get_templates().TemplateResponse("data-stream-demo.html", {
-        "request": request,
-        "year": datetime.now().year
-    })
-
-
-# -- Model Parameters Endpoints --
-
-
-@app.get("/params/schema")
-def params_schema():
-    from pfun_cma_model.engine.cma_model_params import CMAModelParams
-    params = CMAModelParams()
-    return Response(
-        content=json.dumps(params.model_json_schema()),
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
-
-
-@app.get("/params/default")
-def default_params():
-    from pfun_cma_model.engine.cma_model_params import CMAModelParams
-    params = CMAModelParams()
-    return Response(
-        content=params.model_dump_json(),
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
-
-
-@app.post("/params/describe")
-def describe_params(
-    params: CMAModelParams | Mapping[str, Any]
-):
-    """
-    Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
-    Args:
-        config (Optional[BoundedCMAModelParams | Mapping]): The configuration parameters to describe.
-    Returns:
-        dict: Dictionary of parameter descriptions and qualitative descriptors.
-    """
-    if params is not None:
-        params = CMAModelParams(**params)  # type: ignore
-    else:
-        params = CMAModelParams()
-    bounded_keys = list(params.bounded_param_keys)
-    result = {}
-    for key in bounded_keys:
-        try:
-            desc = params.describe(key)
-            qual = params.generate_qualitative_descriptor(key)
-            result[key] = {
-                "description": desc,
-                "qualitative": qual,
-                "value": getattr(params, key, None)
-            }
-        except Exception as e:
-            result[key] = {"error": str(e)}
-    return Response(
-        content=json.dumps(result),
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
-
-
-@app.post("/params/tabulate")
-def tabulate_params(
-    params: CMAModelParams | Mapping[str, Any]
-):
-    """
-    Generate a markdown table of a given (single) or set of parameters using CMAModelParams.generate_markdown_table.
-    Args:
-        config (Optional[BoundedCMAModelParams | Mapping]): The configuration parameters to describe.
-    Returns:
-        dict: Dictionary of parameter descriptions and qualitative descriptors.
-    """
-    if params is not None:
-        params = CMAModelParams(**params)  # type: ignore
-    else:
-        params = CMAModelParams()
-    result = {}
-    try:
-        result = params.generate_markdown_table()
-    except Exception as e:
-        result = json.dumps({"error": str(e)})  # type: ignore
-    finally:
-        return Response(
-            content=json.dumps({"table": str(result)}),
-            status_code=200,
-            headers={"Content-Type": "application/json"},
-        )
-
-
-# -- Dataset endpoints --
-
-@dataclass
-class PFunDatasetResponse:
-    data: DataFrame | None = None
-    pct0: float = 0.0
-    nrows: InitVar[int] = 23
-    nrows_given: bool | None = None
-
-    def __post_init__(self, nrows: int):
-        """Post-initialization to parse nrows and data."""
-        _, self.nrows_given = self._parse_nrows(nrows)
-        self.data = self._parse_data(
-            self.data, self.pct0, nrows, self.nrows_given)
-
-    @property
-    def streaming_response(self) -> StreamingResponse:
-        """Generate a streaming Response object with the dataset as JSON."""
-        return StreamingResponse(
-            content=self._stream,
-            media_type="application/json"
-        )
-
-    @property
-    def response(self) -> Response:
-        """Generate a Response object with the dataset as JSON."""
-        output = self.data.to_json(orient='records')  # type: ignore
-        return Response(
-            content=output,
-            status_code=200,
-            headers={"Content-Type": "application/json"}
-        )
-
-    @classmethod
-    def _parse_data(cls, data: DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
-        """Parse and limit the dataset based on pct0, nrows and nrows_given."""
-        # If no data provided, read the default sample dataset
-        if data is None:
-            data = read_sample_data(convert2json=False)  # type: ignore
-        # ensure DataFrame
-        dataset = DataFrame(data)
-        logging.debug("Sample dataset loaded with %d rows.", len(dataset))
-
-        # Calculate row0 from pct0
-        if not (0.0 <= pct0 <= 1.0):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="pct0 must be between 0.0 and 1.0.",
-            )
-
-        num_rows_total = len(dataset)
-        row0 = int(pct0 * num_rows_total)
-
-        if nrows_given:
-            # limit the dataset to the specified number of rows, with wrapping
-            indices = [(row0 + i) % num_rows_total for i in range(nrows)]
-            return dataset.iloc[indices]  # type: ignore
-        else:
-            # no nrows limit, return from row0 to end
-            return dataset.iloc[row0:, :]  # type: ignore
-
-    @property
-    def _stream(self) -> Any:
-        """Yield the dataset as streamable chunks."""
-        rec_array = self.data.to_dict(orient='records')
-        for record in rec_array:  # type: ignore
-            yield json.dumps(record) + '\n'
-
-    @classmethod
-    def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
-        """Parse and validate the nrows parameter for dataset retrieval.
-        Args:
-            nrows (int): The number of rows to return. If -1, return the full dataset.
-        Returns:
-            tuple: A tuple containing the validated nrows and a boolean indicating if nrows was given.
-        """
-        # Check if nrows is valid
-        if nrows < -1:
-            logging.error(
-                "Invalid nrows value: %s. Must be -1 or greater.", nrows)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="nrows must be -1 (for full dataset) or a non-negative integer.",
-            )
-        if nrows == -1:
-            nrows_given = False  # -1 means no limit, return full dataset
-        else:
-            nrows_given = True  # nrows is given, return only the first nrows
-        logging.debug(
-            "Received request for sample dataset with nrows=%s", nrows)
-        logging.debug("(nrows_given) Was nrows_given? %s",
-                      "'Yes.'" if nrows_given else "'No.'")
-        return nrows, nrows_given
-
-
-@app.get("/data/sample/download")
-def get_sample_dataset(request: Request, nrows: int = 23):
-    """(slow) Download the sample dataset with optional row limit.
-
-    Args:
-        request (Request): The FastAPI request object.
-        nrows (int): The number of rows to return. If -1, return the full dataset.
-    """
-    # Read the sample dataset (data=None means use default sample data)
-    dataset_response = PFunDatasetResponse(data=None, nrows=nrows)
-    return dataset_response.response
-
-
-@app.get("/data/sample/stream")
-async def stream_sample_dataset(request: Request, pct0: float = 0.0, nrows: int = -1) -> StreamingResponse:
-    """(fast) Stream the sample dataset with optional row limit.
-    Args:
-        request (Request): The FastAPI request object.
-        pct0 (float): The relative location to start in the dataset [0.0, 1.0].
-        nrows (int): The number of rows to include in the stream. If -1, stream the full dataset.
-    """
-    dataset_response = PFunDatasetResponse(
-        data=None, pct0=pct0, nrows=nrows)
-    # return the iterable (generating) streaming response
-    return dataset_response.streaming_response
-
-
-# -- LLM generate scenario endpoints
-
-@app.post("/llm/generate-scenario")
-def generate_scenario(prompt: str):
-    """Use VertexAI LLM endpoint to generate a realistic scenario (with hypothetical parameters)."""
-    from pfun_cma_model.llm import generate_scenario as gen_scene
-    response = gen_scene(query=prompt)
-    return Response(
-        content=response,
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
-
-
 # -- CMA Model endpoints --
 
 
-CMA_MODEL_INSTANCE = None
-
-
-async def initialize_model():
-    """Initialize the CMA model instance if not already done."""
-    global CMA_MODEL_INSTANCE
-    if CMA_MODEL_INSTANCE is not None:
-        return CMA_MODEL_INSTANCE
-    model = CMASleepWakeModel()
-    CMA_MODEL_INSTANCE = model
-    return CMA_MODEL_INSTANCE
-
-
-@app.post("/translate-results")
-async def translate_model_results_by_language(results: Dict, from_lang: Literal["python", "javascript"]):
-    """Translate model results between Python and JavaScript formats."""
-    to_lang = "python" if from_lang == "javascript" else "javascript"
-    from pandas import DataFrame
-
-    translation_dict = {
-        "python": {
-            "javascript": lambda x: DataFrame(x).to_json(orient="records"),
-        },
-        "javascript": {
-            "python": lambda x: DataFrame.from_records(x).to_json(orient="columns"),
-        },
-    }
-    return Response(
-        content=translation_dict[from_lang][to_lang](results), status_code=200
-    )
+def get_model_instance():
+    """FastAPI dependency to get a singleton CMA model instance."""
+    # This function body runs only once, and the result is cached for subsequent calls.
+    return CMASleepWakeModel()
 
 
 @app.post("/model/run")
-async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
+async def run_model(config: Annotated[CMAModelParams, Body()] | None = None, model: CMASleepWakeModel = Depends(get_model_instance)):
     """Runs the CMA model."""
-    model = await initialize_model()
     if config is not None:
         model.update(config)
     df = model.run()
@@ -523,9 +223,8 @@ async def run_model(config: Annotated[CMAModelParams, Body()] | None = None):
     return response
 
 
-async def run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> str:
+async def run_at_time_func(model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config) -> str:
     """calculate the glucose signal for the given timeframe"""
-    model = await initialize_model()
     logger.debug(
         "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
     bounded_params = {k: v for k,
@@ -546,7 +245,8 @@ async def run_at_time_route(t0: float | int,
                             t1: float | int,
                             n: int,
                             # type: ignore
-                            config: Optional[CMAModelParams] = None
+                            config: Optional[CMAModelParams] = None,
+                            model: CMASleepWakeModel = Depends(get_model_instance)
                             ):
     """Run the CMA model at a specific time.
 
@@ -562,7 +262,7 @@ async def run_at_time_route(t0: float | int,
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        output = await run_at_time_func(t0, t1, n, **config_dict)
+        output = await run_at_time_func(model, t0, t1, n, **config_dict)
         return output
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -576,59 +276,22 @@ async def run_at_time_route(t0: float | int,
         return error_response
 
 
-async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:
-    # Read lines in the fake_file asynchronously
-    while True:
-        line = fake_file.readline()
-        if not line:
-            break  # Exit when no more lines are available
-        yield line.strip()  # Yield the line, removing any extra whitespace
-
-
-async def stream_run_at_time_func(t0: float | int, t1: float | int, n: int, **config) -> AsyncGenerator[str, None]:
-    """calculate the glucose signal for the given timeframe and stream the results."""
-    model = await initialize_model()
-    logger.debug(
-        "(stream_run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    bounded_params = {k: v for k,
-                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
-    model.update(bounded_params)
-    logger.debug(
-        "(stream_run_at_time_func) Model parameters updated: %s", model.params)
-    logger.debug(
-        f"(stream_run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
-    t = model.new_tvector(t0, t1, n)
-    df: DataFrame = model.calc_Gt(t=t)
-    # get a string buffer to stream a file-like object directly (faster than dataframe)
-    txt_buffer = StringIO()
-    # handle the index, send to string buffer
-    df.reset_index(inplace=True)
-    df.rename(columns={"index": "t", }, inplace=True)
-    # logging.debug("(Streaming dataframe) Columns: '%s'", df.columns)
-    # logging.debug("(streaming dataframe) head:\n%s", str(df.head()))
-    df.to_csv(txt_buffer, header=False, index=False, columns=["t", "Gt"])
-    txt_buffer.seek(0)  # reset the index
-    # produce asyncgenerator (yield string buffer by row)
-    # TODO: optimize to chunksize
-    async for t_Gt_pair in read_create_async_generator(txt_buffer):
-        tx, Gty = t_Gt_pair.split(",")
-        yield json.dumps({"x": tx, "y": Gty})
-
-
 @app.post("/model/run-at-time/stream")
 async def run_at_time_stream_route(t0: float | int,
                                    t1: float | int,
                                    n: int,
                                    # type: ignore
-                                   config: Optional[CMAModelParams] = None
+                                   config: Optional[CMAModelParams] = None,
+                                   model: CMASleepWakeModel = Depends(get_model_instance)
                                    ):
     """Streaming version of the run-at-time route."""
+    from pfun_cma_model.stream import stream_run_at_time_func
     try:
         config_obj = config
         if config_obj is None:
             config_obj = CMAModelParams()  # type: ignore
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        async for row in stream_run_at_time_func(t0, t1, n, **config_dict):
+        async for row in stream_run_at_time_func(model, t0, t1, n, **config_dict):
             yield row
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
@@ -659,131 +322,6 @@ async def health_check_run_at_time():
     return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
 
 
-# -- Demo routes --
-
-@app.get("/demo/run-at-time")
-async def demo_run_at_time(request: Request):
-    """Demo UI endpoint to run the model at a specific time (using websockets)."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
-    )
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix]
-            }
-    # formulate the render context
-    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
-    context_dict = {
-        "request": request,
-        "params": params,
-        "cdn": {
-            "chartjs": {
-                "url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"
-            },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            }
-        }
-    }
-    logger.debug("Demo context: %s", context_dict)
-    return get_templates().TemplateResponse(
-        "run-at-time-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
-
-
-@app.get("/demo/webgl-demo")
-async def demo_webgl(request: Request):
-    """Demo UI endpoint for the WebGL-based real-time plot."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
-    )
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix]
-            }
-    # formulate the render context
-    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
-    context_dict = {
-        "request": request,
-        "params": params,
-        "cdn": {
-            "webglplot": {
-                "url": f"https://cdn.jsdelivr.net/gh/danchitnis/webgl-plot@master/dist/webglplot.umd.min.js?dummy={rand0}"
-            },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            }
-        }
-    }
-    logger.debug("WebGL Demo context: %s", context_dict)
-    return get_templates().TemplateResponse(
-        "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
-
-
-@app.get("/demo/rolling-window-demo")
-async def demo_rolling_window(request: Request):
-    """Demo UI endpoint for the Rolling Window real-time plot."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
-    )
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix]
-            }
-    # formulate the render context
-    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
-    context_dict = {
-        "request": request,
-        "params": params,
-        "cdn": {
-            "webglplot": {
-                "url": f"https://cdn.jsdelivr.net/gh/danchitnis/webgl-plot@master/dist/webglplot.umd.min.js?dummy={rand0}"
-            },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            }
-        }
-    }
-    logger.debug("Rolling Window Demo context: %s", context_dict)
-    return get_templates().TemplateResponse(
-        "rolling-window-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
-
-
 # -- Model Fitting Endpoints --
 
 
@@ -794,6 +332,7 @@ async def fit_model_to_data(
 
 ):
     from pandas import DataFrame
+    from pfun_cma_model.data import read_sample_data
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
     if len(data) == 0:
         data = read_sample_data(convert2json=False)  # type: ignore

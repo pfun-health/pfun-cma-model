@@ -1,5 +1,7 @@
 <!-- base.html -->
 
+<!-- Scripts macros -->
+
 {% macro google_oauth_script() %}
 <script src="https://www.gstatic.com/firebasejs/8.0/firebase.js"></script>
 <script>
@@ -16,7 +18,7 @@
   <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
 {% endmacro %}
 
-{% macro boostrap_script() %}
+{% macro bootstrap_script() %}
   <!-- bootstrap js -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
@@ -27,6 +29,8 @@
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   </script>
 {% endmacro %}
+
+<!-- Demos macros -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -87,10 +91,6 @@
                 <li>
                   <a class="dropdown-item" href="/demo/webgl-demo" target="_blank">(WebGL) Real-time Streaming Demo</a>
                 </li>
-                <!-- <li>
-                  <a class="dropdown-item" href="/demo/rolling-window-demo" target="_blank">(WebGL) Rolling Window
-                    Demo</a>
-                </li> -->
                 <li>
                   <a class="dropdown-item" href="/demo/run-at-time" target="_blank">Run-at-Time Demo</a>
                 </li>
