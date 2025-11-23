@@ -10,6 +10,8 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
     valid_kwargs: Mapping[str, Any] = getattr(
         uvicorn.run, "__kwdefaults__", {})  # ensure a mapping
     for key in list(kwargs.keys()):
+        if key in ["extra_args"]:  # handle extra arguments
+            logger.info("(passed to extra_args), %s", str(kwargs.get(key)))
         if key not in valid_kwargs:
             logger.warning(
                 f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it.")

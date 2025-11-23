@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import Optional
 from fastapi import FastAPI
 import socketio
+from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.stream import stream_run_at_time_func
 
 
@@ -121,8 +122,9 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
             n = run_args.get("n", 100)
             config = run_args.get("config", {})
 
+            model = CMASleepWakeModel()
             # Use an async for loop to iterate over the async generator
-            async for point in stream_run_at_time_func(t0, t1, n, **config):
+            async for point in stream_run_at_time_func(model, t0, t1, n, **config):
                 await self.sio.emit("message", point, to=sid)
 
         except Exception as e:

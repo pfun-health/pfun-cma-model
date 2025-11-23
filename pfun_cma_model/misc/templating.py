@@ -7,8 +7,18 @@ from pathlib import Path
 from typing import Any
 from jinja2 import pass_context
 from fastapi.templating import Jinja2Templates
+from pfun_common.utils import load_environment_variables, setup_logging
 
-logger = logging.getLogger(__name__)
+
+# Initially, Get the logger (globally accessible)
+# Will be overridden by setup_logging()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+logger.info(
+    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+
+# Ensure the .env file is loaded
+load_environment_variables(logger=logger)
 
 
 @pass_context
@@ -32,12 +42,13 @@ def get_templates() -> Jinja2Templates:
     templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
 
     templates.env.globals["https_url_for"] = https_url_for
-    # only use the default url_for for local development, for dev, qa, and prod use https
+    # For DEV, use the default url_for, unless explicitly specified
+    # For PROD, use https
     if not debug_mode:
         templates.env.globals["url_for"] = https_url_for
-        logger.debug("Using HTTPS for url_for in templates.")
+        logging.debug("(not debug mode) Using HTTPS for url_for in templates.")
     else:
-        logger.debug("Using HTTP for url_for in templates.")
+        logging.debug("(debug mode) Using HTTP for url_for in templates.")
     return templates
 
 

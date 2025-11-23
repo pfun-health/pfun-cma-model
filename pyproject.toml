@@ -46,7 +46,6 @@ dependencies = [
     "seaborn>=0.13.2",
     "pfun-data",
     "tox>=3.28.0",
-    "gradio>=5.50.0",
     "gradio-client>=1.14.0",
     "pydantic-settings>=2.2.1",
 ]
