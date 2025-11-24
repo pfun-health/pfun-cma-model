@@ -6,6 +6,13 @@
 
 "It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."
 
+### Next steps
+
++ compare LLMs via actor-critic framework.
++ measure relative perplexity, NLP performance metrics.
+  + KS Test to quantify the hypothesis space;
+    + Predicted: neural dynamics of the learning layer (LLM orchestration layer) can be measured & understood as in silico "twin" populations of corticostriatal interneurons.
+
 ## Links (Demos, Homepage)
 
 - [Live Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
