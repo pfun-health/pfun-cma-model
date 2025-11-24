@@ -535,7 +535,8 @@ class CMASleepWakeModel:
 
     @property
     def a(self):
-        # type: ignore
+        """Compute Adiponectin circadian dynamics.
+        """
         return (
             E(power((-self.c * self.m), 3))
             + exp(-0.025 * power((self.t - 13 - self.d), 2))
