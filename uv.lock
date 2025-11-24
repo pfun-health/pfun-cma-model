@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.12.*"
 
 [[package]]
@@ -1782,7 +1782,6 @@ dependencies = [
     { name = "jinja2" },
     { name = "matplotlib" },
     { name = "mss" },
-    { name = "numba" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pfun-data" },
@@ -1819,6 +1818,9 @@ dev = [
     { name = "types-requests" },
     { name = "types-tabulate" },
     { name = "zappa" },
+]
+numba = [
+    { name = "numba" },
 ]
 ui = [
     { name = "dash" },
@@ -1869,7 +1871,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.8.0" },
     { name = "mss", specifier = ">=10.1.0" },
     { name = "notebook", marker = "extra == 'dev'", specifier = ">=7.4.3" },
-    { name = "numba", specifier = ">=0.58.0" },
+    { name = "numba", marker = "extra == 'numba'", specifier = ">=0.58.0" },
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
@@ -1898,7 +1900,7 @@ requires-dist = [
     { name = "websockets", specifier = ">=15.0.1" },
     { name = "zappa", marker = "extra == 'dev'", specifier = ">=0.58.0" },
 ]
-provides-extras = ["ui", "dev"]
+provides-extras = ["ui", "dev", "numba", "cext"]
 
 [package.metadata.requires-dev]
 dev = [

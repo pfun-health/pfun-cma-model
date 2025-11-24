@@ -5,11 +5,10 @@ version = "0.4.43"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
-requires-python = "==3.12.*" # Additional properties are not allowed ('package' was unexpected)
+requires-python = "==3.12.*" # Additional properties are not allowed (package' was unexpected)
 
 dependencies = [
     "setuptools>=78.1.1",
-    "numba>=0.58.0",
     "pandas>=2.1.1",
     "scipy>=1.11.3",
     "matplotlib>=3.8.0",
@@ -62,7 +61,11 @@ optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "types-requests>=2.32.4.20250611",
         "types-tabulate>=0.9.0.20241207",
         "dash>=3.0.4",
-] }
+], numba = [
+   "numba>=0.58.0",
+], cext = [
+    # c extension is compiled
+]}
 
 [project.scripts]
 pfun-cma-model = "pfun_cma_model.cli:cli"
@@ -88,9 +91,22 @@ dev = [
 ]
 
 # setuptools configurations
+[tool.setuptools]
+include-package-data = true
+packages = ["pfun_cma_model", "pfun_cma_model.engine"]
 # package_data
-[tool.setuptools.package-data]                                                
+[tool.setuptools.package-data]
 pfun_data = ["data/*.csv"]
+
+[tool.setuptools.ext_modules]
+# This defines the compiled module (pfun-cma-engine)
+[tool.setuptools.ext_modules.pfun_cma_engine]
+sources = ["pfun_cma_model/engine/pfun_cma_engine.c"]
+# Enable optimization + native CPU instructions
+extra_compile_args = ["-O3", "-march=native"]
+# Build the module inside the Python package namespace
+module_name = "pfun_cma_model.engine.pfun_cma_engine"
+# Make the C extension optional (fail gracefully if build tools aren't available.
 
 # Tox configuration (remove poetry installer, keep envs)
 [tool.tox]
