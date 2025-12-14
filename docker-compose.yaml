@@ -38,39 +38,3 @@ services:
         "--workers",
         "1",
       ]
-    depends_on:
-      - redis
-      - postgres
-
-  redis:
-    image: "redis:7.0-alpine"
-    container_name: redis
-    ports:
-      - "6379:6379"
-    command:
-      [
-        "redis-server",
-        "--save",
-        "60",
-        "1",
-        "--appendonly",
-        "no",
-        "--loglevel",
-        "warning",
-      ]
-
-  postgres:
-    image: "postgres:16-alpine"
-    container_name: postgres
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      POSTGRES_DB: pfun
-      POSTGRES_USER: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pfun_cma_model_data:/var/lib/postgresql/data
-
-volumes:
-  pfun_cma_model_data:
