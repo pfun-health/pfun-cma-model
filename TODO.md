@@ -2,10 +2,16 @@
 
 __TODO for `pfun-cma-model`__
 
+__Demos:__
+
++ Complete a simple gradio-based LLM demo.
++ Slightly cleaner demo could be implemented in dash/streamlit.
+
+__Architecture:__
+
 + Gcp Fabric (terraform)
 + Use OpenRLHF (or similar for GCP native) for LLM safeguard experiments.
 + Continue implementing gemini demo:
-    + https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python
-
+  + <https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python>
 
 <img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" />
