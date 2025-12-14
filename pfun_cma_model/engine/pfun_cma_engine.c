@@ -1,3 +1,5 @@
+/* This is sloppy AI-generated code, not yet an actual implementation.
+*/
 // pfun_cma_engine.c
 // Build as a CPython extension named "pfun_cma_engine"
 #define PY_SSIZE_T_CLEAN
