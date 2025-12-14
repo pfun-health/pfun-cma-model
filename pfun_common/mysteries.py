@@ -53,7 +53,7 @@ def get_secret_func(
             secret = (secret, get_secret_value_response["CreatedDate"])
 
         logger.info(
-            f"...retrieved secret from AWS:\n'{secret_name}':\n{secret}\n")
+            f"...retrieved secret from AWS: '{secret_name}'")
 
         return secret
 
