@@ -3,46 +3,8 @@ import os
 import json
 import re
 from typing import Optional
-import google.genai as genai
+from pfun_llm.backend.perplexity import PerplexityGenerativeModel as GenerativeModel
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
-
-
-class GenerativeModel:
-    def __init__(self, model='gemini-2.5-pro'):
-        self._model = model
-        self._client = self.setup_genai_client()
-
-    def __call__(self, model=None, contents=None):
-        if model is None:
-            model = self._model
-        if contents is None:
-            contents = []
-        if not isinstance(contents, list):
-            contents = [contents, ]
-        return self._client.models.generate_content(
-            model=model,
-            contents=contents
-        )
-
-    def generate_content(self, prompt: str):
-        return self.__call__(model=self._model, contents=[prompt, ])
-
-    @classmethod
-    def setup_genai_client(cls):
-        """Setup the Gemini API client.
-
-        Returns:
-            genai.Client: The Gemini API client.
-        """
-        # use VertexAI with auth ADC
-        client = genai.Client(
-            vertexai=True,
-            project=os.environ.get("GOOGLE_CLOUD_PROJECT_ID", "pfun-cma-model"),
-            location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-        )
-        logging.debug("Gemini API client setup successfully.")
-        logging.debug("Gemini API client: %s", repr(client))
-        return client
 
 
 def _call_llm_for_json(prompt: str) -> dict:
@@ -60,11 +22,13 @@ def _call_llm_for_json(prompt: str) -> dict:
     """
     model = GenerativeModel()
     response = model.generate_content(prompt)
-    resp_text: str = response.text or ''
+    resp_text: str = response.text if hasattr(response, 'text') else str(response)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-        json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
+        json_match = re.search(
+            r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_str = json_match.group(1) if json_match else resp_text.strip().replace(
+            "`", "").replace("json", "")
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
         raise Exception(f"Failed to parse Gemini API response: {e}") from e
@@ -151,7 +115,8 @@ Assistant:
     response = GenerativeModel().generate_content(prompt)
 
     try:
-        json_str = response.text.strip().replace("`", "").replace("json", "")  # type: ignore
+        json_str = response.text.strip().replace(
+            "`", "").replace("json", "")  # type: ignore
         explanation = json.loads(json_str)
         return explanation
     except (json.JSONDecodeError, KeyError, AttributeError) as e:
@@ -209,3 +174,18 @@ User: "{query if query else 'No query provided.'}"
 Assistant:
 """
     return _call_llm_for_json(prompt)
+
+
+if __name__ == "__main__":
+    # Example usage
+    query = "a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
+    params = translate_query_to_params(query)
+    print("Translated Parameters:", params)
+
+    description = "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
+    trace = '{"glucose_readings": [150, 140, 130, 120, 110, 100, 90, 80, 70, 60]}'
+    explanation = generate_causal_explanation(description, trace)
+    print("Causal Explanation:", explanation)
+
+    scenario = generate_scenario(query)
+    print("Generated Scenario:", scenario)

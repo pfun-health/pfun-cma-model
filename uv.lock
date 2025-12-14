@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = "==3.12.*"
 
 [[package]]
@@ -488,6 +488,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0d/dd/1bec4c5ddb504ca60fc29472f3d27e8d4da1257a854e1d96742f15c1d02d/distlib-0.3.9.tar.gz", hash = "sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403", size = 613923, upload-time = "2024-10-09T18:35:47.551Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/91/a1/cf2472db20f7ce4a6be1253a81cfdf85ad9c7885ffbed7047fb72c24cf87/distlib-0.3.9-py2.py3-none-any.whl", hash = "sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87", size = 468973, upload-time = "2024-10-09T18:35:44.272Z" },
+]
+
+[[package]]
+name = "distro"
+version = "1.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722, upload-time = "2023-12-24T09:54:32.31Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277, upload-time = "2023-12-24T09:54:30.421Z" },
 ]
 
 [[package]]
@@ -1747,6 +1756,23 @@ wheels = [
 ]
 
 [[package]]
+name = "perplexityai"
+version = "0.22.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ac/21/08822314b0da96ab8c77d321042f07b1d57a56ebf1448050647eba50336f/perplexityai-0.22.0.tar.gz", hash = "sha256:98ca91ee92411171e5a771f36c3fa82b5ee4595b777fe7f271fbe9b1d37b3055", size = 112471, upload-time = "2025-12-05T23:40:05.868Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/92/3e4a1e1e205504c429d6ac8c9494196a2f4c4d9f2a67c3ab520cdd86e8d9/perplexityai-0.22.0-py3-none-any.whl", hash = "sha256:bb4c3354d4f7f7c8381db831b1aa15c3b40a8482b5bc345378238b110f82bc76", size = 96534, upload-time = "2025-12-05T23:40:04.442Z" },
+]
+
+[[package]]
 name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1773,8 +1799,6 @@ dependencies = [
     { name = "fastapi" },
     { name = "flask" },
     { name = "flask-oauthlib" },
-    { name = "google" },
-    { name = "google-genai" },
     { name = "gradio-client" },
     { name = "graphql-core" },
     { name = "gunicorn" },
@@ -1842,6 +1866,13 @@ dev = [
     { name = "types-requests" },
     { name = "types-tabulate" },
 ]
+google = [
+    { name = "google" },
+    { name = "google-genai" },
+]
+perplexity = [
+    { name = "perplexityai" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -1859,8 +1890,6 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.115.12" },
     { name = "flask", specifier = ">=3.0.3" },
     { name = "flask-oauthlib", specifier = ">=0.9.6" },
-    { name = "google", specifier = ">=3.0.0" },
-    { name = "google-genai", specifier = ">=1.36.0" },
     { name = "gradio-client", specifier = ">=1.14.0" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
@@ -1917,6 +1946,11 @@ dev = [
     { name = "types-requests", specifier = ">=2.32.4.20250611" },
     { name = "types-tabulate", specifier = ">=0.9.0.20241207" },
 ]
+google = [
+    { name = "google", specifier = ">=3.0.0" },
+    { name = "google-genai", specifier = ">=1.36.0" },
+]
+perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-data"
