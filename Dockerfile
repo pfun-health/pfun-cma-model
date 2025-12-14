@@ -22,6 +22,7 @@ RUN chown nonroot:nonroot .
 FROM base AS deps
 
 # install python + dependencies
+# NOTE: uses the numba-based engine ('uv sync --extra numba')
 USER nonroot
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
@@ -31,7 +32,7 @@ ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
     uv venv && \
     uv add fastapi --extra standard && \
-    uv sync && \
+    uv sync --extra numba && \
     uv build
 
 
