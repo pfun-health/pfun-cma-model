@@ -1,22 +1,17 @@
 """
 PFun CMA Model API Backend Routes.
 """
-from io import StringIO
-from starlette.responses import StreamingResponse
 from redis.asyncio import Redis
-from dataclasses import dataclass
 from typing import Optional
 from pfun_cma_model.engine.cma_model_params import (
     _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
 )
-from typing import Dict, Any
 import pfun_cma_model
 import importlib
 from pandas import DataFrame
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI, Request, Response, Body, Depends
 from fastapi.staticfiles import StaticFiles
@@ -26,7 +21,7 @@ import logging
 import os
 from pathlib import Path
 from contextlib import asynccontextmanager
-from typing import Dict, Literal, Optional, Annotated, Mapping, AsyncGenerator
+from typing import Optional, Annotated, Mapping
 from pfun_common.utils import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates

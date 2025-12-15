@@ -2,16 +2,21 @@
 
 ## Overview
 
-### What does the `pfun-cma-model` API do???????
+### Description
+
+The `pfun-cma-model` API provides a comprehensive framework for analyzing and modeling the interplay between circadian rhythm, glucose metabolism, and hormonal dynamics. It enables researchers and practitioners to understand how physiological processes influence glucose levels over time.
+
+#### What does the `pfun-cma-model` API do???????
 
 _"It makes it easy to understand how glucose works... in clear english, and in medical-ese."_
 
 _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
 
-### About this repository
+#### Clinical literature search
 
-This repository contains the implementation of a Circadian Metabolic Algorithm (CMA) model, 
- which can be used to analyze & interpret continuous glucose monitoring (CGM) data;
+**<a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>**
+
+### About this repository
 
 **Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series)**
 
@@ -28,8 +33,8 @@ This repository contains the implementation of a Circadian Metabolic Algorithm (
 
 ## Links (Demos, Homepage)
 
-- [Live Web Demos](https://pfun-cma-model-446025415469.us-central1.run.app/)
-- [PFun Homepage](https://pfun.one/)
++ [Live Web Demos](https://cloud.tail38611b.ts.net/)
++ [PFun Homepage](https://pfun.one/)
 
 ## CMA Model Description
 
@@ -124,8 +129,8 @@ In summary, your data suggests a well-regulated glucose metabolism with a tenden
 
 ## Development notes
 
-- Look at websockets
-- Using `uv` for super fast dependency management, usage, and publishing.
++ Look at websockets
++ Using `uv` for super fast dependency management, usage, and publishing.
 
 ### Quick start
 
