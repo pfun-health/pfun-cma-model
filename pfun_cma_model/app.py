@@ -1,6 +1,10 @@
 """
 Pfun CMA Model API Backend Routes.
 """
+from pfun_cma_model.routes import llm as llm_routes
+from pfun_cma_model.routes import demo as demo_routes
+from pfun_cma_model.routes import params as params_routes
+from pfun_cma_model.routes import data as data_routes
 from redis.asyncio import Redis
 from typing import Optional
 from pfun_cma_model.engine.cma_model_params import (
@@ -47,10 +51,20 @@ setup_logging(logger, debug_mode=debug_mode)
 redis_client: Redis | None = None
 
 
+async def _mount_gradio_app(app: FastAPI) -> FastAPI:
+    """Mount the gradio demo instance to the FastAPI app."""
+    import gradio as gr
+    from pfun_gradio.frontend.gradio_ui import setup_gradio_ui
+    app = gr.mount_gradio_app(app, setup_gradio_ui(), path='/gradio')
+    return app
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     global redis_client
+    # --- Startup task: mount gradio app ---
+    app = await _mount_gradio_app(app)
     # --- Startup task: connect to Redis ---
     try:
         redis_client = Redis(
@@ -78,15 +92,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# mount the gradio app
-from pfun_gradio.frontend.gradio_ui import setup_gradio_ui
-app = gr.mount_gradio_app(app, setup_gradio_ui(), path='/gradio')
-
 # --- Application Configuration ---
+
 
 # Set the application title and description
 app.title = "PFun CMA Model Backend"
 app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
+
 
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
@@ -131,13 +143,13 @@ allow_all_origins = {
         "localhost",
         "127.0.0.1",
         "*.robcapps.com",
-        "*.run.app",
         "pfun-cma-model.local.pfun.run",
         "*.pfun.run",
         "*.pfun.one",
         "*.pfun.me",
         "*.pfun.app",
-        "*.robcapps.com"
+        "*.robcapps.com",
+        "*.tail38611b.ts.net",
     ])
 }
 app.add_middleware(
@@ -155,18 +167,16 @@ app.add_middleware(
 )
 
 
+# --- Include Routers ---
+
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
-from pfun_cma_model.routes import data as data_routes
 app.include_router(data_routes.router, prefix="/data", tags=["data"])
 
-from pfun_cma_model.routes import params as params_routes
 app.include_router(params_routes.router, prefix="/params", tags=["params"])
 
-from pfun_cma_model.routes import demo as demo_routes
 app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
 
-from pfun_cma_model.routes import llm as llm_routes
 app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
 
 
@@ -243,7 +253,8 @@ async def run_at_time_route(t0: float | int,
                             n: int,
                             # type: ignore
                             config: Optional[CMAModelParams] = None,
-                            model: CMASleepWakeModel = Depends(get_model_instance)
+                            model: CMASleepWakeModel = Depends(
+                                get_model_instance)
                             ):
     """Run the CMA model at a specific time.
 
@@ -279,7 +290,8 @@ async def run_at_time_stream_route(t0: float | int,
                                    n: int,
                                    # type: ignore
                                    config: Optional[CMAModelParams] = None,
-                                   model: CMASleepWakeModel = Depends(get_model_instance)
+                                   model: CMASleepWakeModel = Depends(
+                                       get_model_instance)
                                    ):
     """Streaming version of the run-at-time route."""
     from pfun_cma_model.stream import stream_run_at_time_func
