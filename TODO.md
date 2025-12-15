@@ -4,8 +4,11 @@ __TODO for `pfun-cma-model`__
 
 __Demos:__
 
-+ Complete a simple gradio-based LLM demo.
-+ Slightly cleaner demo could be implemented in dash/streamlit.
++ ~~Complete a simple gradio-based LLM demo.~~
+  + Time series plotting of /model/run results.
+  + Integrate with existing CMA demo UI.
+  + Finish setting up as a docker-compose service.
+  + Host on GCP (App Engine, utilize credits).
 
 __Architecture:__
 

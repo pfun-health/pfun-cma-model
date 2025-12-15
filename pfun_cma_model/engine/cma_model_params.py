@@ -1,9 +1,9 @@
+import json
 from pfun_cma_model.misc.types import NumpyArray
 from argparse import Namespace
-from typing import Optional, Sequence, Dict, Tuple, ClassVar
+from typing import Optional, Sequence, Dict, Tuple, ClassVar, Literal
 from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
-from numpy import ndarray, array, linspace, asarray
-import copy
+from numpy import ndarray, array, linspace
 from tabulate import tabulate  # type: ignore
 import pfun_path_helper  # type: ignore
 from typing import Annotated, Iterable, Any
@@ -233,6 +233,7 @@ class CMAModelParams(BaseModel):
 
     @property
     def bounded_params_dict(self) -> Dict[str, float]:
+        """Get a dictionary of bounded parameters."""
         return {key: getattr(self, key) for key in self.bounded_param_keys}
 
     @property
@@ -259,6 +260,7 @@ class CMAModelParams(BaseModel):
         )
 
     def calc_serr(self, param_key: str):
+        """Calculate the standardized error (serr) for a bounded parameter."""
         x = getattr(self, param_key)
         ix = list(self.bounded_param_keys).index(param_key)
         mid = self.midbound[ix]
@@ -266,14 +268,18 @@ class CMAModelParams(BaseModel):
         return serr
 
     def generate_qualitative_descriptor(self, param_key: str):
+        """Generate a qualitative descriptor for a bounded parameter."""
         return QualsMap(self.calc_serr(param_key)).qualitative_descriptor
 
     def describe(self, param_key: str):
+        """Generate a description for a bounded parameter."""
         ix = list(self.bounded_param_keys).index(param_key)
         description = self.bounded_param_descriptions[ix]
         return description + ' (' + self.generate_qualitative_descriptor(param_key) + ')'
 
-    def generate_markdown_table(self):
+    def generate_markdown_table(self, output_fmt: Literal["json", "html", "md"]) -> str:
+        """Generate a markdown table of the bounded parameters."""
+        # Generate the table content
         table = []
         for param_key in self.bounded_param_keys:
             table.append([
@@ -284,5 +290,11 @@ class CMAModelParams(BaseModel):
                 self.bounds.lb[list(self.bounded_param_keys).index(param_key)],
                 self.bounds.ub[list(self.bounded_param_keys).index(param_key)],
                 self.describe(param_key)
-            ])
-        return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'])
+            ])  # type: ignore
+        match output_fmt:
+            case "md":
+                return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'], tablefmt='github')
+            case "html":
+                return tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'], tablefmt='html')
+            case "json":
+                return json.dumps({"table": tabulate(table, headers=['Parameter', 'Type', 'Value', 'Default', 'Lower Bound', 'Upper Bound', 'Description'], tablefmt='github')})

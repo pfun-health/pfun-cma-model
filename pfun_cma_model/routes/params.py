@@ -1,7 +1,9 @@
 """
 PFun CMA Model - Parameters API Routes
 """
+from typing import Literal
 from fastapi import APIRouter, Response
+from fastapi.responses import JSONResponse, HTMLResponse
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 import json
 from typing import Mapping, Any
@@ -65,17 +67,34 @@ def describe_params(
     )
 
 
-@router.post("/tabulate")
+@router.post("/tabulate/{output_fmt}")
 def tabulate_params(
+    output_fmt: Literal["json", "html", "md"],
     params: CMAModelParams | Mapping[str, Any]
-):
+) -> JSONResponse | HTMLResponse | Response:
     """Generate a markdown table of a given (single) or set of parameters."""
+    #: enforce CMAModelParams type
     if not isinstance(params, CMAModelParams):
         params = CMAModelParams(**params)  # type: ignore
-
-    table = params.generate_markdown_table()
-    return Response(
-        content=json.dumps({"table": str(table)}),
-        status_code=200,
-        headers={"Content-Type": "application/json"},
-    )
+    #: generate table
+    table = params.generate_markdown_table(output_fmt=output_fmt)
+    #: return in requested format
+    match output_fmt:
+        case "md":
+            return Response(
+                content=table,
+                status_code=200,
+                headers={"Content-Type": "text/markdown"},
+            )
+        case "html":
+            return HTMLResponse(
+                content=table,
+                status_code=200,
+                headers={"Content-Type": "text/html"},
+            )
+        case "json":
+            return JSONResponse(
+                content=table,
+                status_code=200,
+                headers={"Content-Type": "application/json"},
+            )

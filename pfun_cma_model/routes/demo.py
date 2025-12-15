@@ -20,11 +20,6 @@ def demo_dexcom(request: Request):
     })
 
 
-@router.get("/gemini")
-def demo_gemini(request: Request):
-    pass
-
-
 @router.get("/data-stream")
 def demo_data_stream(request: Request):
     return templates.TemplateResponse("data-stream-demo.html", {

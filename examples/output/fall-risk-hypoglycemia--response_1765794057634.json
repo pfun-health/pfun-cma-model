@@ -1,0 +1,11 @@
+{
+    "qualitative_description": "This individual is an older adult with long-standing type 2 diabetes who lives alone in a small apartment and manages insulin therapy independently. They have a history of tight glucose control and sometimes delay or skip meals due to a poor appetite and occasional gastrointestinal upset, especially around lunchtime and in the late afternoon. Evening walks around the neighborhood are part of their routine, but they often do not adjust insulin doses or add extra snacks before this activity, leading to several recent episodes of shakiness, confusion, and near-falls when blood glucose drops quickly. Limited vision from mild diabetic retinopathy and some peripheral neuropathy in the feet further reduce balance and protective sensation, so even a brief hypoglycemic spell while standing or walking greatly increases the chance of a fall.",
+    "parameters": {
+        "d": 0,
+        "taup": 1,
+        "taug": 0.8,
+        "B": -0.3,
+        "Cm": 0.5,
+        "toff": 0
+    }
+}

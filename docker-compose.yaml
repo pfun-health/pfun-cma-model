@@ -38,3 +38,16 @@ services:
         "--workers",
         "1",
       ]
+
+  pfun-llm-gradio:
+    restart: unless-stopped
+    build:
+      context: ./pfun-llm/frontend
+      dockerfile: Dockerfile
+    container_name: pfun-llm-gradio
+    ports:
+      - "7860:7860"
+    user: "nonroot:nonroot"
+    dns:
+      - 8.8.8.8
+    command: ["uv", "run", "python", "gradio_ui.py"]
