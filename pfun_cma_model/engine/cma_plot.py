@@ -15,12 +15,14 @@ __all__ = ["CMAPlotConfig"]
 @dataclass
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
-    plot_cols: Tuple[str, ...] = field(default_factory=lambda: ("g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"))
-    labels: Annotated[ # type: ignore
+    plot_cols: Tuple[str, ...] = field(default_factory=lambda: (
+        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"))
+    labels: Annotated[  # type: ignore
         tuple[str],
         tuple[
             Literal["Breakfast"], Literal["Lunch"], Literal["Dinner"], Literal["Glucose"], Literal["Cortisol"],
-            Literal["Melatonin"], Literal["Adiponectin"], Literal["Photoperiod (irradiance)"],
+            Literal["Melatonin"], Literal["Adiponectin"], Literal[
+                "Photoperiod (irradiance)"],
             Literal["Insulin (secreted)"], Literal["Insulin (effective)"], Literal["Meals"], Literal["Glucose (Data)"],
         ],
     ] = (
@@ -34,7 +36,7 @@ class CMAPlotConfig:
         "Photoperiod (irradiance)",
         "Insulin (secreted)",
         "Insulin (effective)",
-        "Meals", # This is likely a placeholder for meal events, not a column name
+        "Meals",
         "Glucose (Data)",
     )  # type: ignore
 
@@ -74,9 +76,13 @@ class CMAPlotConfig:
     )
 
     def __post_init__(self, **subplot_kwds):
+        pass
+
+    def __call__(self, **subplot_kwds):
         self.fig, self.axes = self.setup_figure_axes(
-            plot_cols=self.plot_cols, **subplot_kwds
+            **subplot_kwds
         )
+        return self
 
     @property
     def axs(self):
