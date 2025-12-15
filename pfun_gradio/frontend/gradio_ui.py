@@ -6,8 +6,8 @@ to generate a scenario based on user input.
 import gradio as gr
 
 
-def setup_llm_demo(server_name: str = "0.0.0.0", server_port: int = 7860, **kwargs):
-    """Set up and launch the Gradio demo interface."""
+def setup_gradio_ui(server_name: str = "0.0.0.0", server_port: int = 7860, **kwargs):
+    """Set up the Gradio demo interface."""
 
     with gr.Blocks() as demo:
         gr.Markdown("# CMA Parameter Suggestion Demo")
@@ -48,8 +48,14 @@ def setup_llm_demo(server_name: str = "0.0.0.0", server_port: int = 7860, **kwar
             outputs=[output_box]
         )
 
-    return demo.queue().launch(server_name=server_name, server_port=server_port, **kwargs)
+    return demo
+
+
+def launch_demo(server_name: str = "0.0.0.0", server_port: int = 7860, **kwargs):
+    demo = setup_gradio_ui(server_name=server_name, server_port=server_port, **kwargs)
+    demo.queue()
+    return demo.launch(server_name=server_name, server_port=server_port, **kwargs)
 
 
 if __name__ == "__main__":
-    setup_llm_demo()
+    launch_demo()

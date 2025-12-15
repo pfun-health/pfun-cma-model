@@ -25,6 +25,7 @@ from typing import Optional, Annotated, Mapping
 from pfun_common.utils import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
+import gradio as gr
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -44,14 +45,12 @@ setup_logging(logger, debug_mode=debug_mode)
 # --- Setup app Lifespan events ---
 
 redis_client: Redis | None = None
-gradio_demo_components = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     global redis_client
-    global gradio_demo_components
     # --- Startup task: connect to Redis ---
     try:
         redis_client = Redis(
@@ -65,12 +64,6 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
-    # --- Startup task: queue the gradio demo interface for launch
-    try:
-        from pfun_gradio.frontend.gradio_ui import setup_llm_demo
-        gradio_demo_components = setup_llm_demo()
-    except Exception as exc:
-        logging.warning("Failed to setup the gradio UI: %s", str(exc), exc_info=True)
     yield
     # --- Shutdown task: disconnect from Redis ---
     if redis_client is not None:
@@ -85,14 +78,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# mount the gradio app
+from pfun_gradio.frontend.gradio_ui import setup_gradio_ui
+app = gr.mount_gradio_app(app, setup_gradio_ui(), path='/gradio')
+
 # --- Application Configuration ---
 
 # Set the application title and description
 app.title = "PFun CMA Model Backend"
 app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
-
-# Set the app version based on package version and file modification time
-
 
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
