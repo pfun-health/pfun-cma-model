@@ -32,7 +32,7 @@ ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
     uv venv && \
     uv add fastapi --extra standard && \
-    uv sync --all-extras --group perplexity && \
+    uv sync --all-extras --group perplexity --group gradio && \
     uv build
 
 

@@ -7,7 +7,10 @@ set -e
 
 # bump pfun-cma-model package version
 uv version --bump patch && \
-    uv sync && \
+    uv sync --all-extras \
+       --group perplexity \
+       --group numba \
+       --group gradio && \
     uv build
 
 # build and start the services in the background
@@ -24,7 +27,8 @@ create_new_tag() {
 }
 
 # regenerate the openapi.json and updated client
-./scripts/openapi-generate-pfun.sh
+# ! runs in the background
+nohup ./scripts/openapi-generate-pfun.sh &
 
 # create a new commit
 git add -A && \

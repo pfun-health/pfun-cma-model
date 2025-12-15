@@ -48,7 +48,7 @@ def setup_llm_demo(server_name: str = "0.0.0.0", server_port: int = 7860, **kwar
             outputs=[output_box]
         )
 
-    return demo.launch(server_name=server_name, server_port=server_port, **kwargs)
+    return demo.queue().launch(server_name=server_name, server_port=server_port, **kwargs)
 
 
 if __name__ == "__main__":

@@ -17,10 +17,18 @@ NEW_VERSION="${1:-$CURRENT_VERSION}"
 echo -e "updating to latest: '$NEW_VERSION' ..."
 sleep 1s
 
+full_uv_sync() {
+    uv sync --all-extras \
+       --group perplexity \
+       --group numba \
+       --group gradio
+}
+
 echo "..." && \
 uv version "${NEW_VERSION}" && \
     echo -e "updated version" && \
-    uv sync && uv build && \
+    full_uv_sync && \
+    uv build && \
     echo -e "...rebuilt locally."
 
 docker compose up -d \
