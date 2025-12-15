@@ -1905,8 +1905,6 @@ dependencies = [
     { name = "fastapi" },
     { name = "flask" },
     { name = "flask-oauthlib" },
-    { name = "gradio" },
-    { name = "gradio-client" },
     { name = "graphql-core" },
     { name = "gunicorn" },
     { name = "ipykernel" },
@@ -1977,6 +1975,9 @@ google = [
     { name = "google" },
     { name = "google-genai" },
 ]
+gradio = [
+    { name = "gradio" },
+]
 perplexity = [
     { name = "perplexityai" },
 ]
@@ -1997,8 +1998,6 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.115.12" },
     { name = "flask", specifier = ">=3.0.3" },
     { name = "flask-oauthlib", specifier = ">=0.9.6" },
-    { name = "gradio", specifier = ">=5.50.0" },
-    { name = "gradio-client", specifier = ">=1.14.0" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
@@ -2058,6 +2057,7 @@ google = [
     { name = "google", specifier = ">=3.0.0" },
     { name = "google-genai", specifier = ">=1.36.0" },
 ]
+gradio = [{ name = "gradio", specifier = ">=5.50.0" }]
 perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]

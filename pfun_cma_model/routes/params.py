@@ -71,7 +71,7 @@ def describe_params(
 def tabulate_params(
     output_fmt: Literal["json", "html", "md"],
     params: CMAModelParams | Mapping[str, Any]
-) -> JSONResponse | HTMLResponse | Response:
+):
     """Generate a markdown table of a given (single) or set of parameters."""
     #: enforce CMAModelParams type
     if not isinstance(params, CMAModelParams):

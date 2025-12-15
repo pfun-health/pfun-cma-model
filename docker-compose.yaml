@@ -1,17 +1,6 @@
 services:
   pfun-cma-model:
     restart: unless-stopped
-    # Comment the develop/watch section out for compatibility with **podman-compose**:
-    # develop:
-    #   watch:
-    #     - path: ./
-    #       target: /app
-    #       action: sync
-    #       ignore:
-    #         - .git/
-    #         - .trunk/
-    #         - pfun-cma-model.code-workspace
-    #         - poetry.lock
     build:
       context: .
       dockerfile: Dockerfile
@@ -42,8 +31,8 @@ services:
   pfun-llm-gradio:
     restart: unless-stopped
     build:
-      context: ./pfun-llm/frontend
-      dockerfile: Dockerfile
+      context: ./pfun_gradio
+      dockerfile: Dockerfile.frontend
     container_name: pfun-llm-gradio
     ports:
       - "7860:7860"
