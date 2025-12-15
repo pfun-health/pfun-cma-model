@@ -6,6 +6,7 @@ __Demos:__
 
 + ~~Complete a simple gradio-based LLM demo.~~
   + Time series plotting of /model/run results.
+    + Use Gradio's plotting capabilities to visualize CMA model outputs over time.
   + Integrate with existing CMA demo UI.
   + Finish setting up as a docker-compose service.
   + Host on GCP (App Engine, utilize credits).
