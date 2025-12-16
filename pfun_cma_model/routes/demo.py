@@ -19,15 +19,19 @@ def demo_gradio(request: Request):
     gradio_url = (
         os.getenv("GRADIO_SERVER_SCHEME", "http")
         + "://"
-        + os.getenv("GRADIO_SERVER_HOST", "0.0.0.0")
+        + os.getenv("GRADIO_SERVER_HOST", "127.0.0.1")
         + ":"
         + os.getenv("GRADIO_SERVER_PORT", "7860")
         + "/gradio"
     )
     return HTMLResponse(
         f"""
+        <!DOCTYPE html>
         <html>
             <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>PFun CMA Model Gradio Demo</title>
             </head>
             <body>
                 <h1>Gradio Demo</h1>

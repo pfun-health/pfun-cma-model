@@ -140,6 +140,7 @@ allow_all_origins = {
         [
             "localhost",
             "127.0.0.1",
+            "0.0.0.0",
             "*.robcapps.com",
             "pfun-cma-model.local.pfun.run",
             "*.pfun.run",
