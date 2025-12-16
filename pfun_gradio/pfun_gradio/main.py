@@ -1,17 +1,35 @@
+import logging
+from pfun_common.utils import load_environment_variables, setup_logging
 import os
+
+
+# Initially, Get the logger (globally accessible)
+# Will be overridden by setup_logging()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+
+# Ensure the .env file is loaded
+load_environment_variables(logger=logger)
+
+# Global variables and constants
+debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
+# Perform logging setup...
+setup_logging(logger, debug_mode=debug_mode)
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import gradio as gr
-from pfun_gradio.pfun_gradio.ui.gradio_ui import setup_gradio_ui
+from pfun_gradio.gradio_ui import setup_gradio_ui
 
 
-async def _mount_gradio_app(app: FastAPI) -> FastAPI:
+def _mount_gradio_app(app: FastAPI) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     # Dynamically determine the endpoint for the LLM scenario generator
     scheme = os.getenv("GRADIO_SERVER_SCHEME", "http")
-    host = os.getenv("GRADIO_SERVER_HOST", "localhost")
-    port = os.getenv("GRADIO_SERVER_PORT", "7860")
+    host = os.getenv("SERVER_HOST", "localhost")
+    port = os.getenv("SERVER_PORT", "8001")
     llm_gen_scenario_endpoint = f"{scheme}://{host}:{port}/llm/generate-scenario"
+    logging.info("llm_gen_scenario_endpoint: %s", str(llm_gen_scenario_endpoint))
     demo_blocks_iface = setup_gradio_ui(
         llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
     )
@@ -22,12 +40,15 @@ async def _mount_gradio_app(app: FastAPI) -> FastAPI:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager to set up Gradio app on startup."""
-    app = await _mount_gradio_app(app)
+    logger.debug("...mounted gradio app.")
     yield
     # Any shutdown code can go here if needed
 
 
 app = FastAPI(app_name="PFun Gradio Demo", lifespan=lifespan)
+
+# mount the Gradio demo instance to the app
+app = _mount_gradio_app(app)
 
 
 @app.get("/")

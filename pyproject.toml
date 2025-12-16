@@ -44,6 +44,7 @@ dependencies = [
     "pfun-data",
     "tox>=3.28.0",
     "pydantic-settings>=2.2.1",
+    "pfun-gradio",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
@@ -117,7 +118,7 @@ sources = ["pfun_cma_model/engine/pfun_cma_engine.c"]
 extra_compile_args = ["-O3", "-march=native"]
 # Build the module inside the Python package namespace
 module_name = "pfun_cma_model.engine.pfun_cma_engine"
-# Make the C extension optional (fail gracefully if build tools aren't available.
+# Make the C extension optional (fail gracefully if build tools aren't available.)
 
 # Tox configuration (remove poetry installer, keep envs)
 [tool.tox]
@@ -148,7 +149,7 @@ isolated_build = true
 
 [tool.uv.sources]
 pfun-data = { git = "https://github.com/pfun-health/Data.git" }
-pfun_gradio = { workspace = true }
+pfun-gradio = { workspace = true }
 
 [tool.uv.workspace]
 members = [

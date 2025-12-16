@@ -32,15 +32,34 @@ def get_default_description():
 
 
 async def async_generate_parameters(description, llm_gen_scenario_endpoint):
+    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with httpx.AsyncClient(timeout=30) as client:
         try:
             response = await client.post(
-                llm_gen_scenario_endpoint, json={"description": description}
+                llm_gen_scenario_endpoint,
+                json={"description": description},
+                timeout=27
             )
             if response.status_code == 200:
-                return response.json().get(
-                    "suggested_parameters", "No parameters returned."
+                # Successful response (JSON object)
+                response_jdict = response.json()
+                description_text = response_jdict.get("qualitative_description", "")
+                import pandas as pd
+                parameters = response_jdict.get("parameters", {})
+                if parameters:
+                    param_df = pd.DataFrame.from_dict(parameters, orient="index")
+                    param_df.index.name = "Parameter"
+                    param_df.reset_index(inplace=True)
+                    formatted_params_table = param_df.to_markdown(index=False)
+                else:
+                    formatted_params_table = "😞 No parameters generated.\n"
+                formatted_response = (
+                    "## Description:\n"
+                    f"{description_text}\n\n"
+                    "## Generated Parameters:\n"
+                    f"{formatted_params_table}\n"
                 )
+                return formatted_response
             else:
                 return f"Error: {response.status_code} - {response.text}"
         except Exception as e:
@@ -66,10 +85,10 @@ def setup_gradio_ui(
             placeholder=placeholder_text,
             lines=4,
         ),
-        outputs=gr.Textbox(
-            label="Likely CMA Parameters",
-            placeholder="CMA parameters will appear here...",
-            lines=10,
+        outputs=gr.Markdown(
+            label="Generated Scenario, Scenario-driven PFun Model Parameters",
+            elem_id="output-markdown",
+            container=True,
         ),
         title="PFun CMA Model - Generate Condition-Based Parameters",
         description=(
@@ -78,7 +97,6 @@ def setup_gradio_ui(
             "Enter a description below and click 'Submit' to see the suggestions."
         ),
         allow_flagging="never",
-        concurrency_limit=1,
         examples=[
             [
                 "The patient has type 1 diabetes and struggles with high blood sugar after meals."
@@ -87,9 +105,11 @@ def setup_gradio_ui(
                 "A 60-year-old woman with well-controlled type 2 diabetes and mild hypertension."
             ],
         ],
-        cache_examples=False,
+        cache_examples=True,
+        concurrency_limit=1,
+        time_limit=60
     )
-    return iface
+    return iface.queue()
 
 
 def launch_demo(

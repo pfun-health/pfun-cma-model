@@ -19,7 +19,8 @@ def demo_gradio(request: Request):
     gradio_url = (
         os.getenv("GRADIO_SERVER_SCHEME", "http")
         + "://"
-        + os.getenv("GRADIO_SERVER_HOST", request.base_url.netloc)
+        + os.getenv("GRADIO_SERVER_HOST", "0.0.0.0")
+        + ":"
         + os.getenv("GRADIO_SERVER_PORT", "7860")
         + "/gradio"
     )

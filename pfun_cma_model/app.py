@@ -77,7 +77,16 @@ async def lifespan(app: FastAPI):
 
 # --- Instantiate FastAPI app ---
 
-app = FastAPI(app_name="PFun CMA Model Backend", lifespan=lifespan)
+app = FastAPI(
+    app_name="PFun CMA Model Backend",
+    lifespan=lifespan,
+    servers=[
+        {
+            "url": "https://cloud.tail38611b.ts.net",
+            "description": "tailscale-funnel for pfun demos."
+        },
+    ]
+)
 
 # --- Application Configuration ---
 
@@ -114,8 +123,7 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# -- Setup middleware
-
+# --- Setup middleware ---
 
 # Add Session middleware
 app.add_middleware(
@@ -191,6 +199,10 @@ def root(request: Request):
         },
     )
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
+        return Response(content=f.read(), media_type="image/x-icon")
 
 # -- CMA Model endpoints --
 

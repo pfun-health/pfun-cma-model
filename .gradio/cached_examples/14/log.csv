@@ -1,0 +1,17 @@
+"Generated Scenario, Scenario-driven PFun Model Parameters",timestamp
+"## Description:
+This person manages type 2 diabetes effectively with medication, regular exercise, and a balanced diet, maintaining stable glucose levels most days. However, they occasionally eat a late dinner around 10 PM after working overtime or socializing, which delays their carbohydrate intake into the evening hours. This habit shifts their glucose response curve later, sometimes causing mild hyperglycemia overnight or disrupting their circadian rhythm slightly.
+
+## Generated Parameters:
+| Parameter   |   value | description                                                                         |
+|:------------|--------:|:------------------------------------------------------------------------------------|
+| toff        |     2   | Solar noon offset simulating later evening meal timing due to lifestyle habits      |
+| taug        |     1.8 | Slightly prolonged glucose response time constant from late-night carbohydrate load |",2025-12-16 00:28:37.713490
+"## Description:
+This person manages their type 2 diabetes effectively with medication, regular exercise, and a balanced diet, maintaining stable blood glucose levels most days. However, they occasionally indulge in late dinners around 10 PM, often after a long workday or social events, consisting of heavier carbohydrate-rich meals like pasta or pizza. This habit shifts their glucose response dynamics, potentially leading to elevated nighttime levels or mismatched insulin timing.
+
+## Generated Parameters:
+| Parameter   |   value | description                                                                                                |
+|:------------|--------:|:-----------------------------------------------------------------------------------------------------------|
+| toff        |     2   | Solar noon offset simulating late eating relative to circadian rhythms, disrupting normal glucose timing   |
+| taug        |     1.8 | Slightly prolonged glucose response time constant due to large late meals overwhelming absorption kinetics |",2025-12-16 00:28:42.143670

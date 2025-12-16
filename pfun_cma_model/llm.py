@@ -2,9 +2,14 @@ import logging
 import os
 import json
 import re
-from typing import Optional
+from typing import Optional, Any
 from pfun_llm.backend.perplexity import PerplexityGenerativeModel as GenerativeModel
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
+
+
+def _get_resp_text(response: Any | str) -> str:
+    """Get the response text attribute if it exists, otherwise return the string."""
+    return str(getattr(response, "text", str(response)))
 
 
 def _call_llm_for_json(prompt: str) -> dict:
@@ -22,7 +27,7 @@ def _call_llm_for_json(prompt: str) -> dict:
     """
     model = GenerativeModel()
     response = model.generate_content(prompt)
-    resp_text: str = response.text if hasattr(response, 'text') else str(response)
+    resp_text: str = _get_resp_text(response)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
         json_match = re.search(
@@ -46,7 +51,7 @@ def translate_query_to_params(query: str) -> dict:
     """
     # Construct the prompt
     params = CMAModelParams()
-    param_descriptions = params.generate_markdown_table(output_)
+    param_descriptions = params.generate_markdown_table(output_fmt="md")
 
     prompt = f"""\
 You are a helpful assistant that translates plain English descriptions of a person's health into PFun CMA model parameters.
@@ -115,7 +120,7 @@ Assistant:
     response = GenerativeModel().generate_content(prompt)
 
     try:
-        json_str = response.text.strip().replace(
+        json_str = _get_resp_text(response).strip().replace(
             "`", "").replace("json", "")  # type: ignore
         explanation = json.loads(json_str)
         return explanation
@@ -161,10 +166,10 @@ User: "a patient with chronic stress that exacerbates the risk of glucose lows i
 Assistant:
 ```json
 {{
-    "qualitative_description": "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia.",
+    "qualitative_description": "This individual is experiencing a period of high stress ($C_m >> 0.0$) due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia.",
     "parameters": {{
-        "Cm": 1.5,
-        "B": -0.2
+        "Cm": {{ "value": 1.5,  "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
+        "B": {{ "value": -0.2, "description": "Low basal glucose production due to skipped meals" }}
     }}
 }}
 ```
