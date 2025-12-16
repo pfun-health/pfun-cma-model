@@ -8,7 +8,7 @@ import os
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
+logger = logging.getLogger("pfun_cma_model")
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Global variables and constants

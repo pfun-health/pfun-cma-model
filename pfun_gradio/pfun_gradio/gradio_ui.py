@@ -78,12 +78,12 @@ def setup_gradio_ui(
         fn=interface_fn,
         inputs=gr.Textbox(
             value=default_value,
-            label="## Input Scenario Description\n\n*(use third-person)*",
+            label="Input Scenario Description ~ *(for best results, use the third-person tense)*",
             placeholder=placeholder_text,
             lines=4,
         ),
         outputs=gr.Markdown(
-            label="## Generated Scenario, Scenario-driven PFun Model Parameters",
+            label="Generated Scenario, Scenario-driven PFun Model Parameters",
             elem_id="output-markdown",
             container=True,
             show_label=True
@@ -104,10 +104,10 @@ def setup_gradio_ui(
             ],
         ],
         cache_examples=True,
-        concurrency_limit=1,
-        time_limit=60
+        concurrency_limit=10,
+        time_limit=30
     )
-    return iface.queue()
+    return iface.queue(max_size=10)
 
 
 def launch_demo(
