@@ -50,7 +50,7 @@ services:
         "uv",
         "run",
         "uvicorn",
-        "pfun_gradio.app.main:app",
+        "pfun_gradio.pfun_gradio.main:app",
         "--host",
         "0.0.0.0",
         "--port",

@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import gradio as gr
-from pfun_gradio.app.ui.gradio_ui import setup_gradio_ui
+from pfun_gradio.pfun_gradio.ui.gradio_ui import setup_gradio_ui
 
 
 async def _mount_gradio_app(app: FastAPI) -> FastAPI:

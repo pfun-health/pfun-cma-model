@@ -31,7 +31,6 @@ from typing import Optional, Annotated, Mapping
 from pfun_common.utils import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
-import gradio as gr
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()

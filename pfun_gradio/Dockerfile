@@ -37,4 +37,4 @@ USER nonroot
 WORKDIR /app
 # overridden in compose
 # Run the application.
-CMD ["/app/.venv/bin/fastapi", "run", "app/main.py", "--port", "7860", "--host", "0.0.0.0"]
+CMD ["/app/.venv/bin/fastapi", "run", "pfun_gradio/main.py", "--port", "7860", "--host", "0.0.0.0"]
