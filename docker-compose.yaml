@@ -33,8 +33,8 @@ services:
   pfun-gradio:
     restart: unless-stopped
     build:
-      context: ./pfun_gradio
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./pfun_gradio/Dockerfile
     user: "nonroot:nonroot"
     dns:
       - 8.8.8.8

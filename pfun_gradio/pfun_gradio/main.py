@@ -19,7 +19,7 @@ from fastapi import FastAPI
 import gradio as gr
 import importlib
 setup_gradio_ui = \
-    importlib.import_module("gradio_ui", package="pfun_gradio").setup_gradio_ui
+    importlib.import_module("gradio_ui", package="pfun_gradio.pfun_gradio").setup_gradio_ui
 
 
 def _mount_gradio_app(app: FastAPI) -> FastAPI:
