@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.54"
+version = "0.4.55"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -120,33 +120,6 @@ extra_compile_args = ["-O3", "-march=native"]
 module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
-# Tox configuration (remove poetry installer, keep envs)
-[tool.tox]
-requires = ["tox>=4.19"]
-env_list = ["3.12", "type"]
-isolated_build = true
-
-[tool.tox.env_run_base]
-description = "Run test under uv"
-package = "sdist"
-install_dev_deps = true
-allowlist_externals = ["pytest", "mypy"]
-commands = [ ["pytest", ], ]
-
-[tool.tox.env.type]
-description = "run type check on code base"
-deps = ["pytest", "mypy==1.11.2", "types-cachetools>=5.5.0.20240820", "types-chardet>=5.0.4.6"]
-commands = [
-    ["mypy", "--strict", "--ignore-missing-imports", "pfun_cma_model"],
-    ["pytest"]
-]
-##
-# Tox configuration:
-##
-requires = ["tox>=4.19", "tox-poetry-installer>=0.10.3"]
-env_list = ["3.12", "type"]
-isolated_build = true
-
 [tool.uv.sources]
 pfun-data = { git = "https://github.com/pfun-health/Data.git" }
 pfun-gradio = { workspace = true }
@@ -154,5 +127,6 @@ pfun-gradio = { workspace = true }
 [tool.uv.workspace]
 members = [
     "pfun_gradio",
+    "pfun_common",
 ]
 

@@ -8,7 +8,7 @@ import logging
 import gradio as gr
 import httpx
 import asyncio
-from pfun_common.utils import load_environment_variables, setup_logging
+from pfun_common import load_environment_variables, setup_logging
 import os
 
 
@@ -81,14 +81,15 @@ def setup_gradio_ui(
         fn=interface_fn,
         inputs=gr.Textbox(
             value=default_value,
-            label="Scenario Description (third-person)",
+            label="## Input Scenario Description\n\n*(use third-person)*",
             placeholder=placeholder_text,
             lines=4,
         ),
         outputs=gr.Markdown(
-            label="Generated Scenario, Scenario-driven PFun Model Parameters",
+            label="## Generated Scenario, Scenario-driven PFun Model Parameters",
             elem_id="output-markdown",
             container=True,
+            show_label=True
         ),
         title="PFun CMA Model - Generate Condition-Based Parameters",
         description=(
