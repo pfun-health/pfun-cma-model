@@ -11,3 +11,4 @@ dependencies = [
 
 [tool.uv.sources]
 pfun_path_helper = { git = "https://github.com/rocapp/pfun_path_helper.git" }
+pfun_common = { path = "../pfun_common" }

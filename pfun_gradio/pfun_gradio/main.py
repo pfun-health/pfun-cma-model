@@ -5,7 +5,6 @@ import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent.parent)
 pph.append_path(Path(__file__).parent.parent)
 logging.debug("Updated sys.path: %s", str(sys.path))
-from pfun_common import load_environment_variables, setup_logging
 import os
 
 
@@ -15,17 +14,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
-# Ensure the .env file is loaded
-load_environment_variables(logger=logger)
-
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-# Perform logging setup...
-setup_logging(logger, debug_mode=debug_mode)
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import gradio as gr
-from .gradio_ui import setup_gradio_ui
+import importlib
+setup_gradio_ui = \
+    importlib.import_module(".gradio_ui", package="pfun_gradio").setup_gradio_ui
 
 
 def _mount_gradio_app(app: FastAPI) -> FastAPI:

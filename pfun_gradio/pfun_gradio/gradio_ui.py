@@ -11,7 +11,6 @@ import asyncio
 from pathlib import Path
 import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common import load_environment_variables, setup_logging
 import os
 
 
@@ -21,13 +20,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
-# Ensure the .env file is loaded
-load_environment_variables(logger=logger)
-
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-# Perform logging setup...
-setup_logging(logger, debug_mode=debug_mode)
 
 
 def get_default_description():

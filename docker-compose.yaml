@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - pfun-gradio
     user: "nonroot:nonroot"
     dns:
       - 8.8.8.8
@@ -31,7 +33,7 @@ services:
   pfun-gradio:
     restart: unless-stopped
     build:
-      context: ./pfun-gradio
+      context: ./pfun_gradio
       dockerfile: Dockerfile
     user: "nonroot:nonroot"
     dns:
@@ -43,8 +45,6 @@ services:
     container_name: pfun-gradio
     ports:
       - "7860:7860"
-    depends_on:
-      - pfun-cma-model
     command:
       [
         "uv",
