@@ -1,5 +1,5 @@
 import logging
-from pfun_common.utils import load_environment_variables, setup_logging
+from pfun_common import load_environment_variables, setup_logging
 import os
 
 

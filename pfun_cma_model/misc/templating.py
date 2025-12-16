@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 from jinja2 import pass_context
 from fastapi.templating import Jinja2Templates
-from pfun_common.utils import load_environment_variables, setup_logging
+from pfun_common import load_environment_variables, setup_logging
 
 
 # Initially, Get the logger (globally accessible)
