@@ -1,3 +1,0 @@
-"Generated Scenario, Scenario-driven PFun Model Parameters",timestamp
-Request failed: ,2025-12-15 23:55:23.477601
-"{""qualitative_description"": ""This person manages their diabetes effectively with a balanced diet, regular exercise, and consistent medication adherence, maintaining stable glucose levels most days. However, about twice a week, they eat a late dinner around 10 PM after working overtime or attending evening social events. This occasional habit causes a delayed glucose peak into the early morning hours, sometimes leading to minor disruptions in their fasting glucose."", ""parameters"": {""toff"": 2.0, ""taug"": 1.8}}",2025-12-15 23:55:25.773296
