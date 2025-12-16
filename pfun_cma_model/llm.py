@@ -125,7 +125,7 @@ Assistant:
         explanation = json.loads(json_str)
         return explanation
     except (json.JSONDecodeError, KeyError, AttributeError) as e:
-        raise Exception(f"Failed to parse Gemini API response: {e}") from e
+        raise Exception(f"Failed to parse LLM API response: {e}") from e
 
 
 def generate_scenario(query: Optional[str] = None) -> dict:
@@ -140,8 +140,24 @@ def generate_scenario(query: Optional[str] = None) -> dict:
     """
 
     # Construct the prompt
-    params = CMAModelParams()
-    param_descriptions = params.generate_markdown_table(output_fmt="md")
+
+    # baseline cma model parameters
+    basal_params = CMAModelParams()
+    basal_param_descriptions = basal_params.generate_markdown_table(output_fmt="md")
+
+    # hypothetical scenario-conditioned parameters
+    scenario_description = (
+        "This individual is experiencing a period of high stress ($C_m >> 0.0$) due to work deadlines, "
+        "which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. "
+        "Their diet lacks high-quality proteins & fats, so their endogenous glucose production is dangerously unreliable ($B << 0.05$). "
+        "Combined with the physiological effects of stress, they have an increased risk of experiencing episodes of nocturnal "
+        "hypoglycemia, i.e. dangerously low blood glucose levels."
+    )
+    scenario_params = CMAModelParams(Cm=1.5, B=-0.2)
+    scenario_param_descriptions = scenario_params.generate_markdown_table(
+        output_fmt="md",
+        included_params=["Cm", "B"],  # Only include the parameters that are different from the baseline
+    )
 
     prompt = f"""\
 You are a helpful assistant that generates realistic scenarios for a person with diabetes.
@@ -149,27 +165,31 @@ You are a helpful assistant that generates realistic scenarios for a person with
 The user may provide a query to guide the generation, or you can create a scenario from scratch.
 
 You will return a JSON object with the following structure:
+```json
 {{
     "qualitative_description": "A narrative describing the person's health, lifestyle, and recent events.",
     "parameters": {{
-        "param1": value1,
-        "param2": value2,
+        "param1": {{ "value": value1, "description": "Description of param1" }},
+        "param2": {{ "value": value2, "description": "Description of param2" }},
         ...
     }}
 }}
+```
 
-Here are the PFun CMA model parameters and their descriptions:
-{param_descriptions}
+Here are the baseline PFun CMA model parameters, displayed as a markdown-formatted table:
+{basal_param_descriptions}
 
-Here is an example:
+Now consider a case when the user requests a non-baseline scenario-conditioned PFun CMA model parameters:
 User: "a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
+Think: "Corresponding to the scenario, here is a hypothetical scenario-conditioned PFun CMA model parameters: "
+{scenario_param_descriptions}
 Assistant:
 ```json
 {{
-    "qualitative_description": "This individual is experiencing a period of high stress ($C_m >> 0.0$) due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia.",
+    "qualitative_description": "{scenario_description}",
     "parameters": {{
-        "Cm": {{ "value": 1.5,  "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
-        "B": {{ "value": -0.2, "description": "Low basal glucose production due to skipped meals" }}
+        "Cm": {{ "value": 1.5,  "stderr": 0.5, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
+        "B": {{ "value": -0.2, "stderr": 0.25, "description": "Low baseline glucose" }}
     }}
 }}
 ```

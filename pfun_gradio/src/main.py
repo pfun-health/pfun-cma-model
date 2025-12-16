@@ -2,9 +2,6 @@ import logging
 from pathlib import Path
 import sys
 import pfun_path_helper as pph  # type: ignore
-pph.append_path(Path(__file__).parent.parent.parent)
-pph.append_path(Path(__file__).parent.parent)
-logging.debug("Updated sys.path: %s", str(sys.path))
 import os
 
 
@@ -22,7 +19,7 @@ from fastapi import FastAPI
 import gradio as gr
 import importlib
 setup_gradio_ui = \
-    importlib.import_module("gradio_ui").setup_gradio_ui
+    importlib.import_module("gradio_ui", package="pfun_gradio").setup_gradio_ui
 
 
 def _mount_gradio_app(app: FastAPI) -> FastAPI:
