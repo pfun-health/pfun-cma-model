@@ -1,6 +1,7 @@
 """
 Pfun CMA Model API Backend Routes.
 """
+
 from pfun_cma_model.routes import llm as llm_routes
 from pfun_cma_model.routes import demo as demo_routes
 from pfun_cma_model.routes import params as params_routes
@@ -8,7 +9,8 @@ from pfun_cma_model.routes import data as data_routes
 from redis.asyncio import Redis
 from typing import Optional
 from pfun_cma_model.engine.cma_model_params import (
-    _BOUNDED_PARAM_KEYS_DEFAULTS, CMAModelParams
+    _BOUNDED_PARAM_KEYS_DEFAULTS,
+    CMAModelParams,
 )
 import pfun_cma_model
 import importlib
@@ -35,8 +37,7 @@ import gradio as gr
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-logger.info(
-    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Ensure the .env file is loaded
 load_environment_variables(logger=logger)
@@ -55,7 +56,16 @@ async def _mount_gradio_app(app: FastAPI) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     import gradio as gr
     from pfun_gradio.frontend.gradio_ui import setup_gradio_ui
-    app = gr.mount_gradio_app(app, setup_gradio_ui(), path='/gradio')
+
+    # Dynamically determine the endpoint for the LLM scenario generator
+    scheme = os.getenv("SERVER_SCHEME", "http")
+    host = os.getenv("SERVER_HOST", "localhost")
+    port = os.getenv("SERVER_PORT", "8001")
+    llm_gen_scenario_endpoint = f"{scheme}://{host}:{port}/llm/generate-scenario"
+    demo_blocks_iface = setup_gradio_ui(
+        llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
+    )
+    app = gr.mount_gradio_app(app, demo_blocks_iface, path="/gradio")
     return app
 
 
@@ -87,10 +97,7 @@ async def lifespan(app: FastAPI):
 
 # --- Instantiate FastAPI app ---
 
-app = FastAPI(
-    app_name="PFun CMA Model Backend",
-    lifespan=lifespan
-)
+app = FastAPI(app_name="PFun CMA Model Backend", lifespan=lifespan)
 
 # --- Application Configuration ---
 
@@ -102,9 +109,9 @@ app.description = "Backend API for the PFun CMA Model, providing endpoints for m
 
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
-    fmod_time = datetime.fromtimestamp(
-        Path(__file__).stat().st_mtime
-    ).strftime("%Y%m%d%H%M%S")
+    fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime(
+        "%Y%m%d%H%M%S"
+    )
     app.version = str(pfun_cma_model.__version__) + f"-dev.{fmod_time}"
     logging.debug("pfun-cma-model version: %s", pfun_cma_model.__version__)
     logging.debug("FastAPI app version set to: %s", app.version)
@@ -133,24 +140,26 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # Add Session middleware
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development")
+    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development"),
 )
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],  # for debug mode, allow all
-    False: set([
-        "localhost",
-        "127.0.0.1",
-        "*.robcapps.com",
-        "pfun-cma-model.local.pfun.run",
-        "*.pfun.run",
-        "*.pfun.one",
-        "*.pfun.me",
-        "*.pfun.app",
-        "*.robcapps.com",
-        "*.tail38611b.ts.net",
-    ])
+    False: set(
+        [
+            "localhost",
+            "127.0.0.1",
+            "*.robcapps.com",
+            "pfun-cma-model.local.pfun.run",
+            "*.pfun.run",
+            "*.pfun.one",
+            "*.pfun.me",
+            "*.pfun.app",
+            "*.robcapps.com",
+            "*.tail38611b.ts.net",
+        ]
+    ),
 }
 app.add_middleware(
     CORSMiddleware,
@@ -158,8 +167,8 @@ app.add_middleware(
     allow_headers=[
         "Authorization",
         "Access-Control-Allow-Origin",
-        'Content-Security-Policy',
-        'Content-Type',
+        "Content-Security-Policy",
+        "Content-Type",
     ],
     allow_methods=["GET", "POST", "OPTIONS", "HEAD"],
     allow_credentials=True,
@@ -193,11 +202,14 @@ def root(request: Request):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "year": datetime.now().year,
-        "message": f"Accessed at: {ts_msg}"
-    })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "year": datetime.now().year,
+            "message": f"Accessed at: {ts_msg}",
+        },
+    )
 
 
 # -- CMA Model endpoints --
@@ -210,7 +222,10 @@ def get_model_instance():
 
 
 @app.post("/model/run")
-async def run_model(config: Annotated[CMAModelParams, Body()] | None = None, model: CMASleepWakeModel = Depends(get_model_instance)):
+async def run_model(
+    config: Annotated[CMAModelParams, Body()] | None = None,
+    model: CMASleepWakeModel = Depends(get_model_instance),
+):
     """Runs the CMA model."""
     if config is not None:
         model.update(config)
@@ -224,23 +239,29 @@ async def run_model(config: Annotated[CMAModelParams, Body()] | None = None, mod
             "Access-Control-Allow-Origin": "*",
         },
     )
-    if hasattr(response.body, 'decode'):
+    if hasattr(response.body, "decode"):
         # maintain backward compatibility
-        logger.debug("Response: %s", bytes(response.body).decode('utf-8'))
+        logger.debug("Response: %s", bytes(response.body).decode("utf-8"))
     return response
 
 
-async def run_at_time_func(model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config) -> str:
+async def run_at_time_func(
+    model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config
+) -> str:
     """calculate the glucose signal for the given timeframe"""
     logger.debug(
-        "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s", t0, t1, n, config)
-    bounded_params = {k: v for k,
-                      v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS}
+        "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s",
+        t0,
+        t1,
+        n,
+        config,
+    )
+    bounded_params = {
+        k: v for k, v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS
+    }
     model.update(bounded_params)
-    logger.debug(
-        "(run_at_time_func) Model parameters updated: %s", model.params)
-    logger.debug(
-        f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
+    logger.debug("(run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
     t = model.new_tvector(t0, t1, n)
     df: DataFrame = model.calc_Gt(t=t)
     output = df.to_json()
@@ -248,14 +269,14 @@ async def run_at_time_func(model: CMASleepWakeModel, t0: float | int, t1: float 
 
 
 @app.post("/model/run-at-time")
-async def run_at_time_route(t0: float | int,
-                            t1: float | int,
-                            n: int,
-                            # type: ignore
-                            config: Optional[CMAModelParams] = None,
-                            model: CMASleepWakeModel = Depends(
-                                get_model_instance)
-                            ):
+async def run_at_time_route(
+    t0: float | int,
+    t1: float | int,
+    n: int,
+    # type: ignore
+    config: Optional[CMAModelParams] = None,
+    model: CMASleepWakeModel = Depends(get_model_instance),
+):
     """Run the CMA model at a specific time.
 
     Parameters:
@@ -275,26 +296,29 @@ async def run_at_time_route(t0: float | int,
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
         error_response = Response(
-            content=json.dumps({
-                "error": "failed to run at time. See error message on server log.",
-                "exception": str(err),
-            }),
+            content=json.dumps(
+                {
+                    "error": "failed to run at time. See error message on server log.",
+                    "exception": str(err),
+                }
+            ),
             status_code=500,
         )
         return error_response
 
 
 @app.post("/model/run-at-time/stream")
-async def run_at_time_stream_route(t0: float | int,
-                                   t1: float | int,
-                                   n: int,
-                                   # type: ignore
-                                   config: Optional[CMAModelParams] = None,
-                                   model: CMASleepWakeModel = Depends(
-                                       get_model_instance)
-                                   ):
+async def run_at_time_stream_route(
+    t0: float | int,
+    t1: float | int,
+    n: int,
+    # type: ignore
+    config: Optional[CMAModelParams] = None,
+    model: CMASleepWakeModel = Depends(get_model_instance),
+):
     """Streaming version of the run-at-time route."""
     from pfun_cma_model.stream import stream_run_at_time_func
+
     try:
         config_obj = config
         if config_obj is None:
@@ -304,12 +328,16 @@ async def run_at_time_stream_route(t0: float | int,
             yield row
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
-        error_content = json.dumps({
-            "error": "failed to run at time. See error message on server log.",
-            "exception": str(err),
-            "status_code": 500,
-        })
-        for err_row in [error_content, ]:
+        error_content = json.dumps(
+            {
+                "error": "failed to run at time. See error message on server log.",
+                "exception": str(err),
+                "status_code": 500,
+            }
+        )
+        for err_row in [
+            error_content,
+        ]:
             yield err_row
 
 
@@ -317,9 +345,11 @@ async def run_at_time_stream_route(t0: float | int,
 
 # Import websockets module to register events
 PFunSocketIOSession = importlib.import_module(
-    "pfun_cma_model.misc.sessions").PFunSocketIOSession
+    "pfun_cma_model.misc.sessions"
+).PFunSocketIOSession
 PFunWebsocketNamespace = importlib.import_module(
-    "pfun_cma_model.routes.ws").PFunWebsocketNamespace
+    "pfun_cma_model.routes.ws"
+).PFunWebsocketNamespace
 pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
 
 
@@ -336,13 +366,12 @@ async def health_check_run_at_time():
 
 @app.post("/model/fit")
 async def fit_model_to_data(
-    data: dict | str,
-    config: Optional[CMAModelParams | str] = None  # type: ignore
-
+    data: dict | str, config: Optional[CMAModelParams | str] = None  # type: ignore
 ):
     from pandas import DataFrame
     from pfun_cma_model.data import read_sample_data
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
+
     if len(data) == 0:
         data = read_sample_data(convert2json=False)  # type: ignore
         logger.info("...Sample data loaded as no data provided.")
@@ -367,12 +396,12 @@ async def fit_model_to_data(
         logger.error(
             "Exception encountered. Failed to fit to data. Exception:\n%s",
             str(exc),
-            exc_info=False
+            exc_info=False,
         )
         error_response = Response(
             content={
                 "error": "failed to fit data. See error message on server log.",
-                "exception": str(exc)
+                "exception": str(exc),
             },
             status_code=500,
             headers={"Content-Type": "application/json"},

@@ -5,7 +5,7 @@ import os
 import logging
 from datetime import datetime
 from fastapi import APIRouter, Request
-from starlette.responses import RedirectResponse
+from starlette.responses import HTMLResponse
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.misc.templating import templates
 
@@ -15,8 +15,20 @@ logger = logging.getLogger(__name__)
 
 @router.get("/gradio")
 def demo_gradio(request: Request):
-    
-    return RedirectResponse(url="/gradio-demo")
+    gradio_url = request.base_url.scheme + "://" + request.base_url.netloc + "/gradio"
+    return HTMLResponse(
+        f"""
+        <html>
+            <head>
+            </head>
+            <body>
+                <h1>Gradio Demo</h1>
+                <iframe src="{gradio_url}" width="100%" height="800px" style="border:none;"></iframe>
+            </body>
+        </html>
+        """,
+        status_code=200
+    )
 
 
 @router.get("/dexcom")

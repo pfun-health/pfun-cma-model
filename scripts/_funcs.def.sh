@@ -8,6 +8,5 @@ full_uv_sync() {
 	# Perform a full uv sync including all extras and specific groups.
 	uv sync --all-extras \
 		--group perplexity \
-		--group numba \
 		--group gradio
 }
