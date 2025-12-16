@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.59"
+version = "0.4.62"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -128,12 +128,12 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-data = { git = "https://github.com/pfun-health/Data.git" }
-pfun-gradio = { workspace = true }
+pfun_gradio = { workspace = true }
 pfun-common = { path = "pfun_common" }
 
 [tool.uv.workspace]
 members = [
-    "pfun-gradio",
+    "pfun_gradio",
     "pfun-common",
 ]
 

@@ -1,8 +1,10 @@
 import logging
 from pathlib import Path
+import sys
 import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent.parent)
 pph.append_path(Path(__file__).parent.parent)
+logging.debug("Updated sys.path: %s", str(sys.path))
 from pfun_common import load_environment_variables, setup_logging
 import os
 
@@ -23,7 +25,7 @@ setup_logging(logger, debug_mode=debug_mode)
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import gradio as gr
-from pfun_gradio.gradio_ui import setup_gradio_ui
+from .gradio_ui import setup_gradio_ui
 
 
 def _mount_gradio_app(app: FastAPI) -> FastAPI:
