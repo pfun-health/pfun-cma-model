@@ -52,29 +52,10 @@ setup_logging(logger, debug_mode=debug_mode)
 redis_client: Redis | None = None
 
 
-async def _mount_gradio_app(app: FastAPI) -> FastAPI:
-    """Mount the gradio demo instance to the FastAPI app."""
-    import gradio as gr
-    from pfun_gradio.frontend.gradio_ui import setup_gradio_ui
-
-    # Dynamically determine the endpoint for the LLM scenario generator
-    scheme = os.getenv("SERVER_SCHEME", "http")
-    host = os.getenv("SERVER_HOST", "localhost")
-    port = os.getenv("SERVER_PORT", "8001")
-    llm_gen_scenario_endpoint = f"{scheme}://{host}:{port}/llm/generate-scenario"
-    demo_blocks_iface = setup_gradio_ui(
-        llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
-    )
-    app = gr.mount_gradio_app(app, demo_blocks_iface, path="/gradio")
-    return app
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
     global redis_client
-    # --- Startup task: mount gradio app ---
-    app = await _mount_gradio_app(app)
     # --- Startup task: connect to Redis ---
     try:
         redis_client = Redis(
