@@ -10,6 +10,8 @@ source "$(dirname "$0")/_funcs.def.sh"
 
 # bump pfun-cma-model package version
 uv version --bump patch &&
+uv version --bump patch --project pfun-gradio &&
+uv version --bump patch --project pfun-common &&
 	full_uv_sync &&
 	uv build
 

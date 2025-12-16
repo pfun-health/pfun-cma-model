@@ -8,6 +8,9 @@ import logging
 import gradio as gr
 import httpx
 import asyncio
+from pathlib import Path
+import pfun_path_helper as pph  # type: ignore
+pph.append_path(Path(__file__).parent.parent)
 from pfun_common import load_environment_variables, setup_logging
 import os
 

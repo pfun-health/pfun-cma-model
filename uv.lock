@@ -5,7 +5,7 @@ requires-python = "==3.12.*"
 [manifest]
 members = [
     "pfun-cma-model",
-    "pfun-common",
+    "pfun-gradio",
 ]
 
 [[package]]
@@ -1898,7 +1898,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.57"
+version = "0.4.59"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2069,23 +2069,6 @@ gradio = [{ name = "gradio", specifier = ">=5.50.0" }]
 perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
-name = "pfun-common"
-version = "0.1.1"
-source = { editable = "pfun_common" }
-dependencies = [
-    { name = "boto3" },
-    { name = "matplotlib" },
-    { name = "pandas" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "boto3", specifier = ">=1.28.57" },
-    { name = "matplotlib", specifier = ">=3.8.0" },
-    { name = "pandas", specifier = ">=2.2.0" },
-]
-
-[[package]]
 name = "pfun-data"
 version = "0.1.1"
 source = { git = "https://github.com/pfun-health/Data.git#4bb6581dbf974d99a3450b13aa0929329c8da092" }
@@ -2108,27 +2091,27 @@ dependencies = [
 
 [[package]]
 name = "pfun-gradio"
-version = "0.1.1"
+version = "0.1.4"
 source = { virtual = "pfun-gradio" }
 dependencies = [
     { name = "gradio" },
+    { name = "pfun-path-helper" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "gradio", specifier = ">=5.50.0" }]
+requires-dist = [
+    { name = "gradio", specifier = ">=5.50.0" },
+    { name = "pfun-path-helper", git = "https://github.com/rocapp/pfun_path_helper.git" },
+]
 
 [[package]]
 name = "pfun-path-helper"
 version = "0.1.4"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/rocapp/pfun_path_helper.git#081cfe0d227c17ce84e9b99247708c07e87192db" }
 dependencies = [
     { name = "build" },
     { name = "setuptools" },
     { name = "uv" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0e/06/8d84a9e44b2689db80f5446d8d018cdb9c380eba37476d51bcf58f1b5173/pfun_path_helper-0.1.4.tar.gz", hash = "sha256:ec48aa910583d251e39b967e69a03e75aa2469188abf3e4479108702a03bf14c", size = 3317, upload-time = "2025-07-25T07:37:02.857Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/c3/0569528b2602c92f225e99bed6dd7a1c6b75cfc3c550f61434d59c4948d8/pfun_path_helper-0.1.4-py3-none-any.whl", hash = "sha256:a7336e17a8969e62d9a1dec7179b85f6c760f1c6ee1b97211677e28ae76a3eb1", size = 2962, upload-time = "2025-07-25T07:37:01.891Z" },
 ]
 
 [[package]]

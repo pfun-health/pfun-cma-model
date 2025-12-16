@@ -1,4 +1,8 @@
 import logging
+from pathlib import Path
+import pfun_path_helper as pph  # type: ignore
+pph.append_path(Path(__file__).parent.parent.parent)
+pph.append_path(Path(__file__).parent.parent)
 from pfun_common import load_environment_variables, setup_logging
 import os
 
