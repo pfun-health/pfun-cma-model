@@ -46,7 +46,7 @@ def translate_query_to_params(query: str) -> dict:
     """
     # Construct the prompt
     params = CMAModelParams()
-    param_descriptions = params.generate_markdown_table()
+    param_descriptions = params.generate_markdown_table(output_)
 
     prompt = f"""\
 You are a helpful assistant that translates plain English descriptions of a person's health into PFun CMA model parameters.
@@ -136,7 +136,7 @@ def generate_scenario(query: Optional[str] = None) -> dict:
 
     # Construct the prompt
     params = CMAModelParams()
-    param_descriptions = params.generate_markdown_table()
+    param_descriptions = params.generate_markdown_table(output_fmt="md")
 
     prompt = f"""\
 You are a helpful assistant that generates realistic scenarios for a person with diabetes.
