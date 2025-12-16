@@ -31,7 +31,7 @@ services:
   pfun-gradio:
     restart: unless-stopped
     build:
-      context: ./pfun_gradio
+      context: ./pfun-gradio
       dockerfile: Dockerfile
     user: "nonroot:nonroot"
     dns:

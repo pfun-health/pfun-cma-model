@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.56"
+version = "0.4.57"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -105,7 +105,12 @@ gradio = [
 # setuptools configurations
 [tool.setuptools]
 include-package-data = true
-packages = ["pfun_cma_model", "pfun_cma_model.engine"]
+packages = [
+    "pfun_cma_model", "pfun_cma_model.engine",
+    "pfun_common", "pfun_common.utils",
+    "pfun_data",
+    "pfun_gradio"
+]
 # package_data
 [tool.setuptools.package-data]
 pfun_data = ["data/*.csv"]
@@ -122,7 +127,8 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-data = { git = "https://github.com/pfun-health/Data.git" }
-pfun-gradio = { workspace = true }
+pfun-gradio = { path = "pfun-gradio" }
+pfun-common = { path = "pfun-common" }
 
 [tool.uv.workspace]
 members = [

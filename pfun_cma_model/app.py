@@ -28,6 +28,7 @@ import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Optional, Annotated, Mapping
+
 from pfun_common import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
