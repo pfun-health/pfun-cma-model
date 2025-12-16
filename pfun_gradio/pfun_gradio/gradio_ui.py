@@ -94,7 +94,7 @@ def setup_gradio_ui(
             "based on a brief description of the user's condition. "
             "Enter a description below and click 'Submit' to see the suggestions."
         ),
-        allow_flagging="never",
+        flagging_mode="never",
         examples=[
             [
                 "The patient has type 1 diabetes and struggles with high blood sugar after meals."
