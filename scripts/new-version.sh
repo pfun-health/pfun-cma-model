@@ -13,9 +13,9 @@ uv version --bump patch &&
 	full_uv_sync &&
 	uv build
 
-# build and start the services in the background
-docker compose up -d --build --quiet || echo -e "Skipping docker rebuild..."
-sleep 1s
+# # build and start the services in the background
+# docker compose up -d --build --quiet || echo -e "Skipping docker rebuild..."
+# sleep 1s
 
 create_new_tag() {
 	# create tags for the latest version.

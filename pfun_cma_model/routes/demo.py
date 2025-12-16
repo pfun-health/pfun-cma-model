@@ -1,6 +1,7 @@
 """
 PFun CMA Model - Demo API Routes
 """
+
 import os
 import logging
 from datetime import datetime
@@ -15,7 +16,13 @@ logger = logging.getLogger(__name__)
 
 @router.get("/gradio")
 def demo_gradio(request: Request):
-    gradio_url = request.base_url.scheme + "://" + request.base_url.netloc + "/gradio"
+    gradio_url = (
+        os.getenv("GRADIO_SERVER_SCHEME", "http")
+        + "://"
+        + os.getenv("GRADIO_SERVER_HOST", request.base_url.netloc)
+        + os.getenv("GRADIO_SERVER_PORT", "7860")
+        + "/gradio"
+    )
     return HTMLResponse(
         f"""
         <html>
@@ -27,24 +34,22 @@ def demo_gradio(request: Request):
             </body>
         </html>
         """,
-        status_code=200
+        status_code=200,
     )
 
 
 @router.get("/dexcom")
 def demo_dexcom(request: Request):
-    return templates.TemplateResponse("dexcom-demo.html", {
-        "request": request,
-        "year": datetime.now().year
-    })
+    return templates.TemplateResponse(
+        "dexcom-demo.html", {"request": request, "year": datetime.now().year}
+    )
 
 
 @router.get("/data-stream")
 def demo_data_stream(request: Request):
-    return templates.TemplateResponse("data-stream-demo.html", {
-        "request": request,
-        "year": datetime.now().year
-    })
+    return templates.TemplateResponse(
+        "data-stream-demo.html", {"request": request, "year": datetime.now().year}
+    )
 
 
 @router.get("/run-at-time")
@@ -53,9 +58,13 @@ async def demo_run_at_time(request: Request):
     # load default bounded parameters
     cma_params = CMAModelParams()
     from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
+        _BOUNDED_PARAM_DESCRIPTIONS,
+        _BOUNDED_PARAM_KEYS_DEFAULTS,
+        _LB_DEFAULTS,
+        _MID_DEFAULTS,
+        _UB_DEFAULTS,
     )
+
     default_config = dict(cma_params.bounded_params_dict)
     # formatted parameters to appear in the rendered template
     params = {}
@@ -67,7 +76,7 @@ async def demo_run_at_time(request: Request):
                 "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
                 "min": _LB_DEFAULTS[ix],
                 "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix]
+                "default": _MID_DEFAULTS[ix],
             }
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
@@ -80,12 +89,15 @@ async def demo_run_at_time(request: Request):
             },
             "socketio": {
                 "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            }
-        }
+            },
+        },
     }
     logger.debug("Demo context: %s", context_dict)
     return templates.TemplateResponse(
-        "run-at-time-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
+        "run-at-time-demo.html",
+        context=context_dict,
+        headers={"Content-Type": "text/html"},
+    )
 
 
 @router.get("/webgl-demo")
@@ -94,9 +106,13 @@ async def demo_webgl(request: Request):
     # load default bounded parameters
     cma_params = CMAModelParams()
     from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS, _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS, _MID_DEFAULTS, _UB_DEFAULTS
+        _BOUNDED_PARAM_DESCRIPTIONS,
+        _BOUNDED_PARAM_KEYS_DEFAULTS,
+        _LB_DEFAULTS,
+        _MID_DEFAULTS,
+        _UB_DEFAULTS,
     )
+
     default_config = dict(cma_params.bounded_params_dict)
     # formatted parameters to appear in the rendered template
     params = {}
@@ -108,7 +124,7 @@ async def demo_webgl(request: Request):
                 "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
                 "min": _LB_DEFAULTS[ix],
                 "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix]
+                "default": _MID_DEFAULTS[ix],
             }
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
@@ -121,9 +137,10 @@ async def demo_webgl(request: Request):
             },
             "socketio": {
                 "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            }
-        }
+            },
+        },
     }
     logger.debug("WebGL Demo context: %s", context_dict)
     return templates.TemplateResponse(
-        "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"})
+        "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"}
+    )
