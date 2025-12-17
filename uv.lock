@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.12.*"
 
 [manifest]
@@ -1898,7 +1898,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.92"
+version = "0.4.95"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2019,7 +2019,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "pfun-data", git = "https://github.com/pfun-health/Data.git" },
-    { name = "pfun-gradio", virtual = "pfun_gradio" },
+    { name = "pfun-gradio", editable = "pfun_gradio" },
     { name = "pfun-path-helper", specifier = ">=0.1.4" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "plotly", marker = "extra == 'ui'", specifier = ">=5.18.0" },
@@ -2092,7 +2092,7 @@ dependencies = [
 [[package]]
 name = "pfun-gradio"
 version = "0.1.4"
-source = { virtual = "pfun_gradio" }
+source = { editable = "pfun_gradio" }
 dependencies = [
     { name = "gradio" },
     { name = "pfun-path-helper" },
