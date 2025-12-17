@@ -16,12 +16,16 @@ logger = logging.getLogger(__name__)
 
 @router.get("/gradio")
 def demo_gradio(request: Request):
+    gradio_url_scheme =  os.getenv("GRADIO_SERVER_SCHEME", "http")
+    # set debug_mode based on provided url scheme (SSL or not)
+    debug_mode: bool = False if gradio_url_scheme == 'https' else True
+    gradio_url_port = ''
+    if debug_mode is True:
+        gradio_url_port = ":" + os.getenv("GRADIO_SERVER_PORT", "7860")
     gradio_url = (
-        os.getenv("GRADIO_SERVER_SCHEME", "http")
-        + "://"
+       gradio_url_scheme + "://"
         + os.getenv("GRADIO_SERVER_HOST", "127.0.0.1")
-        + ":"
-        + os.getenv("GRADIO_SERVER_PORT", "7860")
+        + gradio_url_port
         + "/gradio"
     )
     return HTMLResponse(
