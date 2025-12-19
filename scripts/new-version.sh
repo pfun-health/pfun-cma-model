@@ -9,9 +9,9 @@ set -e
 source "$(dirname "$0")/_funcs.def.sh"
 
 # bump pfun-cma-model package version
-uv version --bump patch &&
-uv version --bump patch --project pfun-gradio &&
-uv version --bump patch --project pfun-common &&
+uv version --bump patch --project pfun-cma-model &&
+/usr/bin/env bash -c 'cd pfun_gradio && uv version --bump patch --project pfun-gradio' &&
+/usr/bin/env bash -c 'cd pfun_common && uv version --bump patch --project pfun-common' &&
 	full_uv_sync &&
 	uv build
 
