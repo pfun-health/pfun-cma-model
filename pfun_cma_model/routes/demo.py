@@ -21,7 +21,7 @@ def demo_gradio(request: Request):
         + "://"
         + os.getenv("GRADIO_SERVER_HOST", request.base_url.netloc)
         + os.getenv("GRADIO_SERVER_PORT", "7860")
-        + "/gradio"
+        + "/gradio/gradio/"
     )
     return HTMLResponse(
         f"""
