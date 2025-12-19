@@ -2,7 +2,7 @@ import json
 from pfun_cma_model.misc.types import NumpyArray
 from argparse import Namespace
 from typing import Optional, Sequence, Dict, Tuple, ClassVar, Literal
-from pydantic import BaseModel, field_serializer, ConfigDict  # type: ignore
+from pydantic import BaseModel, field_serializer, ConfigDict, Field  # type: ignore
 from numpy import ndarray, array, linspace
 from tabulate import tabulate  # type: ignore
 import pfun_path_helper  # type: ignore
@@ -172,6 +172,10 @@ class CMAModelParams(BaseModel):
     """
     Random noise scale ("epsilon"). Defaults to 1e-18.
     """
+    id_tag: Optional[str] = Field(default=None, exclude=True)
+    """
+    ID tag for the model, for book-keeping purposes. Optional.
+    """
     lb: ClassVar[float | Sequence[float]] = _LB_DEFAULTS
     """
     Lower bounds for bounded parameters. Defaults to _LB_DEFAULTS.
@@ -277,11 +281,12 @@ class CMAModelParams(BaseModel):
         description = self.bounded_param_descriptions[ix]
         return description + ' (' + self.generate_qualitative_descriptor(param_key) + ')'
 
-    def generate_markdown_table(self, output_fmt: Literal["json", "html", "md"]) -> str:
+    def generate_markdown_table(self, output_fmt: Literal["json", "html", "md"], included_params: list[str] | None = None) -> str:
         """Generate a markdown table of the bounded parameters."""
-        # Generate the table content
+        # Generate content for only the included parameters (if included_params is not None)
+        included_params: list[str] = included_params or list(self.bounded_param_keys)  # type: ignore
         table = []
-        for param_key in self.bounded_param_keys:
+        for param_key in included_params:
             table.append([
                 param_key,
                 'float',

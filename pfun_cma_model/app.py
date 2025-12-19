@@ -28,7 +28,9 @@ import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Optional, Annotated, Mapping
-from pfun_common.utils import load_environment_variables, setup_logging
+import pfun_path_helper as pph  # type: ignore
+pph.append_path(Path(__file__).parent.parent)
+from pfun_common import load_environment_variables, setup_logging
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
 
@@ -77,7 +79,16 @@ async def lifespan(app: FastAPI):
 
 # --- Instantiate FastAPI app ---
 
-app = FastAPI(app_name="PFun CMA Model Backend", lifespan=lifespan)
+app = FastAPI(
+    app_name="PFun CMA Model Backend",
+    lifespan=lifespan,
+    servers=[
+        {
+            "url": "https://cloud.tail38611b.ts.net",
+            "description": "tailscale-funnel for pfun demos."
+        },
+    ]
+)
 
 # --- Application Configuration ---
 
@@ -114,8 +125,7 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# -- Setup middleware
-
+# --- Setup middleware ---
 
 # Add Session middleware
 app.add_middleware(
@@ -130,6 +140,7 @@ allow_all_origins = {
         [
             "localhost",
             "127.0.0.1",
+            "0.0.0.0",
             "*.robcapps.com",
             "pfun-cma-model.local.pfun.run",
             "*.pfun.run",
@@ -191,6 +202,10 @@ def root(request: Request):
         },
     )
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
+        return Response(content=f.read(), media_type="image/x-icon")
 
 # -- CMA Model endpoints --
 

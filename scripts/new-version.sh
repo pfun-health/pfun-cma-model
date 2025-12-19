@@ -10,6 +10,8 @@ source "$(dirname "$0")/_funcs.def.sh"
 
 # bump pfun-cma-model package version
 uv version --bump patch &&
+uv version --bump patch --project pfun-gradio &&
+uv version --bump patch --project pfun-common &&
 	full_uv_sync &&
 	uv build
 
@@ -40,6 +42,8 @@ create_new_tag &&
 	git push --tags &&
 	git push --tags github
 
-# watch the cloud build (update every n=5 seconds)
-sleep 1s
-bash -c 'scripts/monitor-cloud-build.sh'
+# # watch the cloud build (update every n=5 seconds)
+# sleep 1s
+# bash -c 'scripts/monitor-cloud-build.sh'
+
+echo -e "\n🎉 Successfully bumped to new version: $(uv version) 🎉\n"

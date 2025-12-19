@@ -1,12 +1,13 @@
 services:
+
   pfun-cma-model:
     restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - pfun-gradio
     user: "nonroot:nonroot"
-    dns:
-      - 8.8.8.8
     env_file: .env
     environment:
       - USER=nonroot
@@ -25,17 +26,15 @@ services:
         "--port",
         "8001",
         "--workers",
-        "4",
+        "1",
       ]
 
   pfun-gradio:
     restart: unless-stopped
     build:
-      context: ./pfun_gradio
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./pfun_gradio/Dockerfile
     user: "nonroot:nonroot"
-    dns:
-      - 8.8.8.8
     env_file: .env
     environment:
       - USER=nonroot
@@ -43,8 +42,6 @@ services:
     container_name: pfun-gradio
     ports:
       - "7860:7860"
-    depends_on:
-      - pfun-cma-model
     command:
       [
         "uv",
@@ -56,5 +53,5 @@ services:
         "--port",
         "7860",
         "--workers",
-        "4",
+        "1",
       ]

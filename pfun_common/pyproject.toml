@@ -1,0 +1,18 @@
+[project]
+name = "pfun-common"
+version = "0.1.2"
+description = "Common utilities and functions for PFun projects."
+readme = "README.md"
+authors = [
+    { name = "Robbie Capps", email = "robbie@pfun.me" }
+]
+requires-python = "==3.12.*"
+dependencies = [
+    "boto3>=1.28.57",
+    "matplotlib>=3.8.0",
+    "pandas>=2.2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

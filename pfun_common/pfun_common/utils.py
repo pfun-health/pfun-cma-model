@@ -33,8 +33,8 @@ def load_environment_variables(
         logger: logging.Logger = logging.getLogger(__name__)
     ) -> tuple[bool, Path]:
     """Load environment variables from .env file."""
-    logger.info("Attempting to load environment variables from .env file...")
-    env_file = Path(__file__).parent.parent / ".env"
+    logger.debug("Attempting to load environment variables from .env file...")
+    env_file = Path(__file__).parent.parent.parent / ".env"
     logger.debug("Checking for .env file at: %s", str(env_file))
     if not env_file.exists():
         logger.warning(
@@ -46,7 +46,7 @@ def load_environment_variables(
     if not loaded:
         logger.warning(
             f"Failed to load environment variables from {env_file}.")
-    logger.info(f"Loaded environment variables from {env_file}")
+    logger.debug(f"Loaded environment variables from {env_file}")
     return loaded, env_file
         
 

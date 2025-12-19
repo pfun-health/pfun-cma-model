@@ -22,14 +22,15 @@ RUN chown nonroot:nonroot .
 FROM base AS deps
 
 # install python + dependencies
-# NOTE: specify extras, groups, e.g., '--extra standard --group perplexity'
 USER nonroot
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
-RUN uv sync --package pfun_gradio --no-cache
+# install python + dependencies
+RUN uv sync --project=pfun_gradio --no-cache && \
+    uv build --project=pfun_gradio --no-cache
 
 FROM deps AS dist
 # final stage (entrypoint)
