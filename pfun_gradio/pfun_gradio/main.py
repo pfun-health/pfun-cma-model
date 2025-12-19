@@ -70,10 +70,10 @@ def _mount_gradio_app(app: FastAPI, settings: SettingsDep) -> FastAPI:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI, settings: SettingsDep):
+async def lifespan(app: FastAPI):
     """Lifespan context manager to set up Gradio app on startup."""
     # mount the Gradio demo instance to the app
-    app = _mount_gradio_app(app, settings)
+    app = _mount_gradio_app(app, get_settings())
     logger.debug("...mounted gradio app.")
     yield
     # Any shutdown code can go here if needed
