@@ -17,7 +17,7 @@ import os
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
+logger = logging.getLogger("pfun_cma_model")
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Global variables and constants
@@ -29,7 +29,7 @@ def get_default_description():
 
 
 async def async_generate_parameters(description, llm_gen_scenario_endpoint):
-    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
+    logger.info("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with httpx.AsyncClient(timeout=30) as client:
         try:
             response = await client.post(

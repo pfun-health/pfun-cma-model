@@ -21,7 +21,8 @@ from fastapi.responses import RedirectResponse
 import gradio as gr
 import importlib
 setup_gradio_ui = \
-    importlib.import_module("gradio_ui", package="pfun_gradio.pfun_gradio").setup_gradio_ui
+    importlib.import_module(
+        "gradio_ui", package="pfun_gradio.pfun_gradio").setup_gradio_ui
 from dataclasses import dataclass
 
 
@@ -52,16 +53,10 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 def _mount_gradio_app(app: FastAPI, settings: SettingsDep) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
-    # Dynamically determine the endpoint for the LLM scenario generator
-    scheme = os.getenv("GRADIO_SERVER_SCHEME", "http")
-    host = os.getenv("SERVER_HOST", "localhost")
-    if debug_mode is True:
-        logging.debug("DEBUG MODE, so server port is being set...")
-        port = ":" + os.getenv("SERVER_PORT", "8001")
-    else:
-        port = ""  # no explicit port needed for prod
-    llm_gen_scenario_endpoint = f"{scheme}://{host}{port}/llm/generate-scenario"
-    logging.info("llm_gen_scenario_endpoint: %s", str(llm_gen_scenario_endpoint))
+    logger.info(
+        "llm_gen_scenario_endpoint: %s",
+        str(settings.llm_gen_scenario_endpoint)
+    )
     demo_blocks_iface = setup_gradio_ui(
         llm_gen_scenario_endpoint=settings.llm_gen_scenario_endpoint
     )
