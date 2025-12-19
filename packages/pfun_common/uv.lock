@@ -194,7 +194,7 @@ wheels = [
 
 [[package]]
 name = "pfun-common"
-version = "0.1.11"
+version = "0.1.12"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },

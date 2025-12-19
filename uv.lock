@@ -2,6 +2,12 @@ version = 1
 revision = 2
 requires-python = "==3.12.*"
 
+[manifest]
+members = [
+    "pfun-cma-model",
+    "pfun-gradio",
+]
+
 [[package]]
 name = "aiofiles"
 version = "24.1.0"
@@ -1888,7 +1894,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.111"
+version = "0.4.112"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2062,7 +2068,7 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.11"
+version = "0.1.12"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "boto3" },
@@ -2121,7 +2127,7 @@ requires-dist = [
 
 [[package]]
 name = "pfun-gradio"
-version = "0.1.10"
+version = "0.1.11"
 source = { virtual = "pfun_gradio" }
 dependencies = [
     { name = "gradio" },
