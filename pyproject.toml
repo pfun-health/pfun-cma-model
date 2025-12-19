@@ -131,9 +131,3 @@ pfun-data = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/
 pfun_gradio = { path = "./packages/pfun_gradio" }
 pfun-common = { path = "./packages/pfun_common" }
 
-[tool.uv.workspace]
-members = [
-    "pfun_gradio",
-    "pfun-common",
-]
-
