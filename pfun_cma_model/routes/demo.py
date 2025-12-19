@@ -19,11 +19,12 @@ logger = logging.getLogger(__name__)
 def demo_gradio(request: Request, settings: Settings = Depends(get_settings)):
     """Demo UI endpoint to embed the Gradio interface via an iframe."""
     gradio_url_path = "/gradio/gradio/" if not settings.debug else "/"
+    gradio_server_port = f":{settings.gradio_server_port}" if settings.debug else ""
     gradio_url = (
         settings.gradio_server_scheme
         + "://"
         + settings.gradio_server_host
-        + f":{settings.gradio_server_port}"
+        + gradio_server_port
         + gradio_url_path
     )
     logger.debug("Gradio URL: %s", gradio_url)
