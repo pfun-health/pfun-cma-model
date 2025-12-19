@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import sys
+from typing import Annotated
 import pfun_path_helper as pph  # type: ignore
 import os
 
@@ -15,7 +16,7 @@ logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.na
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
 import gradio as gr
 import importlib
@@ -31,12 +32,12 @@ class Settings:
     port = os.getenv("GRADIO_SERVER_PORT", "7860")
 
     @property
-    def llm_gen_scenario_endpoint() -> str:
+    def llm_gen_scenario_endpoint(self) -> str:
         """Dynamically determine the llm-generate-scenario endpoint."""
         return f"{self.scheme}://{self.host}:{self.port}/llm/generate-scenario"
 
     @property
-    def gradio_demo_endpoint() -> str:
+    def gradio_demo_endpoint(self) -> str:
         return f"{self.scheme}://{self.host}:{self.port}/gradio/gradio/"
 
 
@@ -45,11 +46,11 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# pre-init for global settings instance
-settings = None
+#: settings dependency injection type
+SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
-def _mount_gradio_app(app: FastAPI) -> FastAPI:
+def _mount_gradio_app(app: FastAPI, settings: SettingsDep) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     # Dynamically determine the endpoint for the LLM scenario generator
     scheme = os.getenv("GRADIO_SERVER_SCHEME", "http")
@@ -69,26 +70,20 @@ def _mount_gradio_app(app: FastAPI) -> FastAPI:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI, settings: SettingsDep):
     """Lifespan context manager to set up Gradio app on startup."""
-    global settings
-    # setup global settings (load environment variables)
-    settings = Settings()
-    # mount the gradio UI
+    # mount the Gradio demo instance to the app
+    app = _mount_gradio_app(app, settings)
     logger.debug("...mounted gradio app.")
     yield
     # Any shutdown code can go here if needed
-    settings = None
 
 
 app = FastAPI(app_name="PFun Gradio Demo", lifespan=lifespan)
 
-# mount the Gradio demo instance to the app
-app = _mount_gradio_app(app)
-
 
 @app.get("/")
-async def root():
+async def root(settings: SettingsDep):
     return RedirectResponse(
         settings.gradio_demo_endpoint,
         status_code=307
