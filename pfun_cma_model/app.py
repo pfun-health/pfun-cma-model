@@ -30,7 +30,10 @@ from contextlib import asynccontextmanager
 from typing import Optional, Annotated, Mapping
 import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common import load_environment_variables, setup_logging
+from pfun_common import (
+    load_environment_variables, setup_logging
+)
+from pfun_common.settings import Settings, get_settings
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
 
@@ -41,10 +44,10 @@ logger = logging.getLogger()
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Ensure the .env file is loaded
-load_environment_variables(logger=logger)
+settings = get_settings()
 
 # Global variables and constants
-debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
+debug_mode: bool = settings.debug
 # Perform logging setup...
 setup_logging(logger, debug_mode=debug_mode)
 
@@ -87,6 +90,10 @@ app = FastAPI(
             "url": "https://cloud.tail38611b.ts.net",
             "description": "tailscale-funnel for pfun demos."
         },
+        {
+            "url": "http://localhost:8001",
+            "description": "Local development server."
+        }
     ]
 )
 

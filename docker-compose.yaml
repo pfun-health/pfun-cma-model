@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: ./pfun_gradio/Dockerfile
+      dockerfile: ./packages/pfun_gradio/Dockerfile
     user: "nonroot:nonroot"
     env_file: .env
     environment:

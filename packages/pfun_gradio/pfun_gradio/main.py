@@ -10,7 +10,8 @@ import os
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pfun_cma_model")
-logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info(
+    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
@@ -20,38 +21,21 @@ from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
 import gradio as gr
 import importlib
+try:
+    from pfun_common.settings import Settings, get_settings
+except (ImportError, ModuleNotFoundError):
+    from pfun_common.pfun_common.settings import Settings, get_settings
 setup_gradio_ui = \
     importlib.import_module(
         "gradio_ui", package="pfun_gradio.pfun_gradio").setup_gradio_ui
-from dataclasses import dataclass
 
-
-@dataclass
-class Settings:
-    scheme = os.getenv("GRADIO_SERVER_SCHEME", "http")
-    host = os.getenv("GRADIO_SERVER_HOST", "localhost")
-    port = os.getenv("GRADIO_SERVER_PORT", "7860")
-
-    @property
-    def llm_gen_scenario_endpoint(self) -> str:
-        """Dynamically determine the llm-generate-scenario endpoint."""
-        return f"{self.scheme}://{self.host}:{self.port}/llm/generate-scenario"
-
-    @property
-    def gradio_demo_endpoint(self) -> str:
-        return f"{self.scheme}://{self.host}:{self.port}/gradio/gradio/"
-
-
-def get_settings() -> Settings:
-    """Initialize the settings object (dependency injection helper method)."""
-    return Settings()
 
 
 #: settings dependency injection type
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
-def _mount_gradio_app(app: FastAPI, settings: SettingsDep) -> FastAPI:
+def _mount_gradio_app(app: FastAPI, settings: Settings) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     logger.info(
         "llm_gen_scenario_endpoint: %s",

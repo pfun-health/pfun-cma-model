@@ -5,6 +5,9 @@
 # http://git-scm.com/docs/gitignore
 
 # custom
+# nohup logs
+nohup.out
+
 # Ignore the .env file
 .env
 .envrc

@@ -5,30 +5,28 @@ PFun CMA Model - Demo API Routes
 import os
 import logging
 from datetime import datetime
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from starlette.responses import HTMLResponse
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.misc.templating import templates
+from pfun_common.settings import Settings, get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
 @router.get("/gradio")
-def demo_gradio(request: Request):
-    gradio_url_scheme = os.getenv("GRADIO_SERVER_SCHEME", "http")
-    # set debug_mode based on provided url scheme (SSL or not)
-    debug_mode: bool = False if gradio_url_scheme == 'https' else True
-    gradio_url_port = ''
-    if debug_mode is True:
-        gradio_url_port = ":" + os.getenv("GRADIO_SERVER_PORT", "7860")
+def demo_gradio(request: Request, settings: Settings = Depends(get_settings)):
+    """Demo UI endpoint to embed the Gradio interface via an iframe."""
+    gradio_url_path = "/gradio/gradio/" if not settings.debug else "/"
     gradio_url = (
-        os.getenv("GRADIO_SERVER_SCHEME", "http")
+        settings.gradio_server_scheme
         + "://"
-        + os.getenv("GRADIO_SERVER_HOST", request.base_url.netloc)
-        + gradio_url_port
-        + "/gradio/gradio/"
+        + settings.gradio_server_host
+        + f":{settings.gradio_server_port}"
+        + gradio_url_path
     )
+    logger.debug("Gradio URL: %s", gradio_url)
     return HTMLResponse(
         f"""
         <!DOCTYPE html>
