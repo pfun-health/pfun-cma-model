@@ -23,19 +23,19 @@ FROM base AS deps
 
 # install python + dependencies
 USER nonroot
-WORKDIR /app
+WORKDIR /app/pfun_gradio
 ENV PYTHONUNBUFFERED=1
 ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 # install python + dependencies
 RUN \
-    uv sync --project=pfun_gradio
+    uv sync --project=pfun-gradio
 
 FROM deps AS dist
 # final stage (entrypoint)
 USER nonroot
-WORKDIR /app
+WORKDIR /app/pfun_gradio
 # overridden in compose
 # Run the application.
 CMD ["/app/.venv/bin/fastapi", "run", "pfun_gradio/main.py", "--port", "7860", "--host", "0.0.0.0"]
