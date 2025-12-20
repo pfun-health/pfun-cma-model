@@ -14,8 +14,6 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    volumes:
-      - ./:/app
     command:
       [
         "uv",

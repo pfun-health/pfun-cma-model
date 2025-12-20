@@ -1,35 +1,41 @@
-# Install uv
-FROM python:3.12-slim
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+FROM ghcr.io/astral-sh/uv:debian AS base
 
-# Create a nonroot user
-RUN useradd -m -u 1000 nonroot
+# install system dependencies (as root)
 
-# Change the working directory to the `app` directory
+RUN apt-get update && \
+    apt install -yyq --no-install-recommends \
+    build-essential \
+    portaudio19-dev
+
+# create a non-root user
+# and set the app root directory
+RUN mkdir -p /app && \
+    useradd -ms /bin/bash nonroot
+
+# set the app root directory
 WORKDIR /app
+# copy as root
+COPY --chown=nonroot:nonroot . .
+# ensure permissions for nonroot
+RUN chown nonroot:nonroot .
 
-# Install dependencies
-RUN --mount=type=cache,target=/home/nonroot/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=packages,target=packages \
-    uv sync --locked --no-install-project \
-        --all-extras \
-        --group perplexity \
-        --group gradio
+FROM base AS deps
 
-# Copy the project into the image
-COPY --chown=nonroot . /app
-
-# Change ownership of /app to nonroot user
-RUN chown -R nonroot:nonroot /app
-
-# Sync the project
-RUN --mount=type=cache,target=/home/nonroot/.cache/uv \
-    uv sync --locked \
-        --all-extras \
-        --group perplexity \
-        --group gradio
-
-# Switch to nonroot user
+# install python + dependencies
+# NOTE: specify extras, groups, e.g., '--extra standard --group perplexity'
 USER nonroot
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1
+ENV PATH=$PATH:/home/nonroot/.local/bin
+ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
+ENV LLVM_CONFIG=/usr/bin/llvm-config-14
+RUN \
+    ./scripts/uv-full-sync.sh
+
+
+FROM deps AS dist
+
+USER nonroot
+WORKDIR /app
+# overridden in compose
+CMD ["bash"]
