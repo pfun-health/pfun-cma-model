@@ -1,4 +1,7 @@
-import test_base
+import pfun_path_helper as pph
+pph.append_path(path=pph.get_lib_path('pfun_cma_model'))
+from . import test_base
+test_base.setup_test_environment()
 import pytest
 from fastapi import status, Request
 from fastapi.responses import Response
@@ -6,7 +9,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 from pfun_cma_model.app import app
 import pandas as pd
-from pfun_cma_model.app import get_sample_dataset
+from pfun_cma_model.data import read_sample_data
 import json
 
 client = TestClient(app)

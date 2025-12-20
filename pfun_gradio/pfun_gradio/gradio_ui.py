@@ -11,7 +11,6 @@ import asyncio
 from pathlib import Path
 import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent)
-import os
 
 
 # Initially, Get the logger (globally accessible)
@@ -64,9 +63,9 @@ def setup_gradio_ui(
 ):
     """Set up the Gradio demo interface using gr.Interface."""
 
-    async def interface_fn(description, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
+    def interface_fn(description, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
         try:
-            return asyncio.wait_for(async_generate_parameters(description, llm_gen_scenario_endpoint), timeout=30)
+            return asyncio.run(async_generate_parameters(description, llm_gen_scenario_endpoint))
         except asyncio.TimeoutError:
             return "Request timed out. Please try again later."
 
@@ -77,16 +76,16 @@ def setup_gradio_ui(
         fn=interface_fn,
         inputs=gr.Textbox(
             value=default_value,
-            label="Input Scenario Description ~ *(for best results, use the third-person tense)*",
+            label="Input Scenario Description <h4>(for best results, use the third-person tense)</h4>",
             placeholder=placeholder_text,
             lines=4,
         ),
         outputs=gr.Markdown(
-            label="Generated Scenario, Scenario-driven PFun Model Parameters",
+            label="<h3>Generated Scenario</h3><h4>Scenario-driven PFun Model Parameters</h4>",
             elem_id="output-markdown",
             container=True,
             show_label=True,
-            height="100%"
+            height="800px"
         ),
         title="PFun CMA Model - Generate Condition-Based Parameters",
         description=(

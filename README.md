@@ -195,14 +195,6 @@ uv run fastapi dev
 
 ```
 
-#### Run tests locally
-
-```bash
-
-uvx tox
-
-```
-
 #### To add a development dependency
 
 ```bash

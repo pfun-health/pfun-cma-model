@@ -16,14 +16,14 @@
 - **Run dev server:** `uv run fastapi dev pfun_cma_model/app.py --port 8001`
 - **Run CLI:** `uv run pfun-cma-model` (shows usage)
 - **Fit model:** `uv run pfun-cma-model run-fit-model --plot`
-- **Run tests:** `uvx tox`
+- **Run tests:** `pytest` or `uvx pytest`
 - **Add dev dependency:** `uv add --dev <package>`
 
 ## Project Conventions & Patterns
 - **Parameter schemas:** Defined in `pfun_cma_model/engine/` and described in README tables.
 - **Notebooks:** `notebooks/` and `examples/` provide usage, visualization, and parameter interpretation.
 - **Output:** Model results and plots are written to `output/` and `results/`.
-- **Testing:** All tests are in `tests/`, use `pytest` via `tox` or `uvx tox`.
+- **Testing:** All tests are in `tests/`, use `pytest` for running.
 - **CLI/Server:** Both CLI and FastAPI server entrypoints are in `pfun_cma_model/`.
 - **Data:** Example and training data in `examples/data/`.
 

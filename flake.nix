@@ -53,7 +53,6 @@
           buildInputs = with pkgs; [
             python
             uv
-            python312Packages.tox
 
             # General purpose build tools
             pkg-config
@@ -62,7 +61,7 @@
           shellHook = ''
             echo "Welcome to the pfun-cma-model dev shell!"
             echo ""
-            echo "This shell provides Python, uv, and tox."
+            echo "This shell provides Python, uv."
             echo "The project's Python dependencies are defined in pyproject.toml."
             echo ""
             echo "To get started (as per your README.md):"
@@ -70,7 +69,7 @@
             echo "2. Activate it: source .venv/bin/activate"
             echo "3. Install dependencies: uv sync"
             echo ""
-            echo "After that, you can run tests with 'uvx tox' or run the app."
+            echo "After that, you can run tests or run the app."
           '';
         };
       }
