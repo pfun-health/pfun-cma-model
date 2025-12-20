@@ -12,9 +12,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pfun_cma_model")
 logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
-# Global variables and constants
-debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
