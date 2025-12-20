@@ -29,8 +29,11 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 # install python + dependencies
-RUN uv sync --project=pfun_gradio --no-cache && \
-    uv build --project=pfun_gradio --no-cache
+RUN \
+    --mount=type=cache,target=/home/nonroot/.cache/uv \
+    --mount=type=bind,source=pfun_gradio/uv.lock,target=pfun_gradio/uv.lock \
+    --mount=type=bind,source=pfun_gradio/pyproject.toml,target=pfun_gradio/pyproject.toml \
+    uv sync --project=pfun_gradio
 
 FROM deps AS dist
 # final stage (entrypoint)

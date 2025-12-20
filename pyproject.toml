@@ -1,11 +1,11 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.113"
+version = "0.4.114"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
-requires-python = "==3.12.*" # Additional properties are not allowed (package' was unexpected)
+requires-python = "==3.12.11" # Additional properties are not allowed (package' was unexpected)
 
 dependencies = [
     "setuptools>=78.1.1",
@@ -27,7 +27,7 @@ dependencies = [
     "pyarrow>=20.0.0",
     "ipykernel>=6.29.5",
     "websockets>=15.0.1",
-    "fastapi==0.116.1",
+    "fastapi[standard]==0.116.1",
     "redis>=6.4.0",
     "python-socketio>=5.13.0",
     "boto3-stubs[essential]>=1.40.7",
@@ -46,6 +46,10 @@ dependencies = [
     "pfun-gradio",
     "pfun-data",
     "numba>=0.63.1",
+    "opentelemetry-api>=1.39.1",
+    "opentelemetry-sdk>=1.39.1",
+    "opentelemetry-distro>=0.60b1",
+    "opentelemetry-exporter-otlp>=1.39.1",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",

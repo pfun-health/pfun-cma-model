@@ -30,10 +30,10 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    uv venv && \
-    uv add fastapi --extra standard && \
-    uv sync --all-extras --group perplexity --group gradio && \
-    uv build
+    --mount=type=cache,target=/home/nonroot/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    ./scripts/uv-full-sync.sh
 
 
 FROM deps AS dist

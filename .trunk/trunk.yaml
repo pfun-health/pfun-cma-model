@@ -27,4 +27,4 @@ runtimes:
   enabled:
     - go@1.19.5
     - node@18.12.1
-    - python@3.10.8
+    - python@3.12.11

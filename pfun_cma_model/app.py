@@ -2,6 +2,11 @@
 Pfun CMA Model API Backend Routes.
 """
 
+# initialize OpenTelemetry instrumentation
+from opentelemetry.instrumentation.auto_instrumentation import initialize
+initialize()
+
+# import necessary modules and packages
 from pfun_cma_model.routes import llm as llm_routes
 from pfun_cma_model.routes import demo as demo_routes
 from pfun_cma_model.routes import params as params_routes

@@ -10,8 +10,7 @@ import os
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pfun_cma_model")
-logger.info(
-    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Global variables and constants
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
@@ -21,14 +20,14 @@ from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
 import gradio as gr
 import importlib
+
 try:
     from pfun_common.settings import Settings, get_settings
 except (ImportError, ModuleNotFoundError):
     from pfun_common.pfun_common.settings import Settings, get_settings
-setup_gradio_ui = \
-    importlib.import_module(
-        "gradio_ui", package="pfun_gradio.pfun_gradio").setup_gradio_ui
-
+setup_gradio_ui = importlib.import_module(
+    "gradio_ui", package="pfun_gradio.pfun_gradio"
+).setup_gradio_ui
 
 
 #: settings dependency injection type
@@ -38,8 +37,7 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 def _mount_gradio_app(app: FastAPI, settings: Settings) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     logger.info(
-        "llm_gen_scenario_endpoint: %s",
-        str(settings.llm_gen_scenario_endpoint)
+        "llm_gen_scenario_endpoint: %s", str(settings.llm_gen_scenario_endpoint)
     )
     demo_blocks_iface = setup_gradio_ui(
         llm_gen_scenario_endpoint=settings.llm_gen_scenario_endpoint
@@ -58,12 +56,14 @@ async def lifespan(app: FastAPI):
     # Any shutdown code can go here if needed
 
 
-app = FastAPI(app_name="PFun Gradio Demo", lifespan=lifespan)
+app = FastAPI(
+    app_name="PFun Gradio Demo App",
+    lifespan=lifespan,
+    title="PFun Gradio Demo App",
+    description="A FastAPI app that serves a Gradio UI for generating pfun scenarios."
+)
 
 
 @app.get("/")
 async def root(settings: SettingsDep):
-    return RedirectResponse(
-        settings.gradio_demo_endpoint,
-        status_code=307
-    )
+    return RedirectResponse(settings.gradio_demo_endpoint, status_code=307)

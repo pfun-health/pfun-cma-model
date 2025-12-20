@@ -5,11 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on:
-      - pfun-gradio
     user: "nonroot:nonroot"
     env_file: .env
     environment:
+      - UVICORN_RELOAD=false
       - USER=nonroot
       - GROUP=nonroot
     container_name: pfun-cma-model
@@ -28,6 +27,7 @@ services:
         "--workers",
         "1",
       ]
+    tty: true
 
   pfun-gradio:
     restart: unless-stopped
@@ -37,6 +37,7 @@ services:
     user: "nonroot:nonroot"
     env_file: .env
     environment:
+      - UVICORN_RELOAD=false
       - USER=nonroot
       - GROUP=nonroot
     container_name: pfun-gradio
@@ -55,3 +56,4 @@ services:
         "--workers",
         "1",
       ]
+    tty: true

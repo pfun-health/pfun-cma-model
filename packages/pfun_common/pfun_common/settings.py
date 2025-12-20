@@ -2,9 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Application settings
-    """
-    
+    """Application settings"""
+
     debug: bool = False
     server_scheme: str = "http"
     server_host: str = "localhost"
@@ -19,22 +18,32 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         case_sensitive=False,
-        env_file=('.env', ),
-        env_file_encoding='utf-8',
-        extra='allow'
+        env_file=(".env",),
+        env_file_encoding="utf-8",
+        extra="allow",
     )
-    
+
     @property
     def llm_gen_scenario_endpoint(self) -> str:
         """
         LLM generate-scenario endpoint URL.
-        
+
         :param self: Description
         :return: Description
         :rtype: str
         """
         return f"{self.server_scheme}://{self.server_host}:{self.server_port}/llm/generate-scenario"
 
+    @property
+    def gradio_demo_endpoint(self) -> str:
+        """
+        Gradio demo endpoint URL.
+
+        :param self: Description
+        :return: Description
+        :rtype: str
+        """
+        return f"{self.gradio_server_scheme}://{self.gradio_server_host}:{self.gradio_server_port}/gradio/"
 
 
 def get_settings() -> Settings:

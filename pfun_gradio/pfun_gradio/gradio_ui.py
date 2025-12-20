@@ -86,7 +86,8 @@ def setup_gradio_ui(
             label="Generated Scenario, Scenario-driven PFun Model Parameters",
             elem_id="output-markdown",
             container=True,
-            show_label=True
+            show_label=True,
+            height="100%"
         ),
         title="PFun CMA Model - Generate Condition-Based Parameters",
         description=(
@@ -103,11 +104,11 @@ def setup_gradio_ui(
                 "A 60-year-old woman with well-controlled type 2 diabetes and mild hypertension."
             ],
         ],
-        cache_examples=True,
-        concurrency_limit=10,
+        cache_examples=False,
+        concurrency_limit=1,
         time_limit=30
     )
-    return iface.queue(max_size=10)
+    return iface
 
 
 def launch_demo(
