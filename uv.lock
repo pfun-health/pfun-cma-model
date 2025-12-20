@@ -2069,7 +2069,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.115"
+version = "0.4.116"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2251,7 +2251,7 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.15"
+version = "0.1.16"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "boto3" },
@@ -2310,7 +2310,7 @@ requires-dist = [
 
 [[package]]
 name = "pfun-gradio"
-version = "0.1.14"
+version = "0.1.15"
 source = { virtual = "pfun_gradio" }
 dependencies = [
     { name = "gradio" },

@@ -18,7 +18,7 @@ import os
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.debug("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.debug("Logger initialized for pfun-gradio (logger name: %s)", logger.name)
 
 def get_default_description():
     return "The patient is a 45-year-old male with type 2 diabetes and a history of hypoglycemia."

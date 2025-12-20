@@ -30,9 +30,6 @@ ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 # install python + dependencies
 RUN \
-    --mount=type=cache,target=/home/nonroot/.cache/uv \
-    --mount=type=bind,source=pfun_gradio/uv.lock,target=pfun_gradio/uv.lock \
-    --mount=type=bind,source=pfun_gradio/pyproject.toml,target=pfun_gradio/pyproject.toml \
     uv sync --project=pfun_gradio
 
 FROM deps AS dist
