@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = "==3.12.11"
 
 [[package]]
@@ -1786,7 +1786,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.116"
+version = "0.4.118"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },

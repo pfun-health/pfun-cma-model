@@ -9,7 +9,7 @@ RUN useradd -m -u 1000 nonroot
 WORKDIR /app
 
 # Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=/home/nonroot/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=packages,target=packages \
@@ -19,13 +19,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         --group gradio
 
 # Copy the project into the image
-COPY . /app
+COPY --chown=nonroot . /app
 
 # Change ownership of /app to nonroot user
 RUN chown -R nonroot:nonroot /app
 
 # Sync the project
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=/home/nonroot/.cache/uv \
     uv sync --locked \
         --all-extras \
         --group perplexity \
