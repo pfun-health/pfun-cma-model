@@ -4,6 +4,7 @@ Pfun CMA Model API Backend Routes.
 
 # initialize OpenTelemetry instrumentation
 from opentelemetry.instrumentation.auto_instrumentation import initialize
+
 initialize()
 
 # import necessary modules and packages
@@ -12,10 +13,8 @@ from pfun_cma_model.routes import demo as demo_routes
 from pfun_cma_model.routes import params as params_routes
 from pfun_cma_model.routes import data as data_routes
 from redis.asyncio import Redis
-from typing import Optional
 from pfun_cma_model.engine.cma_model_params import (
     _BOUNDED_PARAM_KEYS_DEFAULTS,
-    CMAModelParams,
 )
 import pfun_cma_model
 import importlib
@@ -34,11 +33,10 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Optional, Annotated, Mapping
 import pfun_path_helper as pph  # type: ignore
+
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common import (
-    load_environment_variables, setup_logging
-)
-from pfun_common.settings import Settings, get_settings
+from pfun_common import setup_logging
+from pfun_common.settings import get_settings
 from pfun_cma_model.routes import dexcom as dexcom_routes
 from pfun_cma_model.misc.templating import templates
 
@@ -64,12 +62,13 @@ redis_client: Redis | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
-    
+
     # --- Startup task: download sample data
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
-    
+
     # --- Startup task: connect to Redis ---
     global redis_client
     try:
@@ -99,13 +98,10 @@ app = FastAPI(
     servers=[
         {
             "url": "https://cloud.tail38611b.ts.net",
-            "description": "tailscale-funnel for pfun demos."
+            "description": "tailscale-funnel for pfun demos.",
         },
-        {
-            "url": "http://localhost:8001",
-            "description": "Local development server."
-        }
-    ]
+        {"url": "http://localhost:8001", "description": "Local development server."},
+    ],
 )
 
 # --- Application Configuration ---
@@ -154,25 +150,19 @@ app.add_middleware(
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],  # for debug mode, allow all
-    False: set(
-        [
-            "localhost",
-            "127.0.0.1",
-            "0.0.0.0",
-            "*.robcapps.com",
-            "pfun-cma-model.local.pfun.run",
-            "*.pfun.run",
-            "*.pfun.one",
-            "*.pfun.me",
-            "*.pfun.app",
-            "*.robcapps.com",
-            "*.tail38611b.ts.net",
-        ]
-    ),
+    False: {
+        "localhost",
+        "127.0.0.1",
+        "pfun.run",
+        "pfun.one",
+        "pfun.me",
+        "pfun.app",
+        "cloud.tail38611b.ts.net",
+    },
 }
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_all_origins[debug_mode],
+    allow_origins=allow_all_origins[debug_mode],  # type: ignore  # pyright: ignore[reportArgumentType]
     allow_headers=[
         "Authorization",
         "Access-Control-Allow-Origin",
@@ -183,7 +173,6 @@ app.add_middleware(
     allow_credentials=True,
     max_age=300,
 )
-
 
 # --- Include Routers ---
 
@@ -220,10 +209,12 @@ def root(request: Request):
         },
     )
 
+
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
     with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
         return Response(content=f.read(), media_type="image/x-icon")
+
 
 # -- CMA Model endpoints --
 
