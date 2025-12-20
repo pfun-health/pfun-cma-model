@@ -64,11 +64,17 @@ redis_client: Redis | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
-    global redis_client
+    
+    # --- Startup task: download sample data
+    from pfun_cma_model.misc.pathdefs import PFunDataPaths
+    pfun_data_paths = PFunDataPaths()
+    pfun_data_paths.download_sample_data()
+    
     # --- Startup task: connect to Redis ---
+    global redis_client
     try:
         redis_client = Redis(
-            host=os.getenv("REDIS_HOST", "0.0.0.0"),
+            host=settings.redis_host,
             port=int(os.getenv("REDIS_PORT", "6379")),
             db=int(os.getenv("REDIS_DB", "0")),
             password=os.getenv("REDIS_PASSWORD", None),

@@ -1,22 +1,22 @@
+from fastapi.middleware.cors import CORSMiddleware
+import importlib
+import gradio as gr
+from fastapi.responses import RedirectResponse
+from fastapi import Depends, FastAPI
+from contextlib import asynccontextmanager
 import logging
-from pathlib import Path
-import sys
 from typing import Annotated
 import pfun_path_helper as pph  # type: ignore
-import os
+
 
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pfun_cma_model")
-logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info(
+    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
-from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI
-from fastapi.responses import RedirectResponse
-import gradio as gr
-import importlib
 
 try:
     from pfun_common.settings import Settings, get_settings
@@ -34,7 +34,8 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 def _mount_gradio_app(app: FastAPI, settings: Settings) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     logger.info(
-        "llm_gen_scenario_endpoint: %s", str(settings.llm_gen_scenario_endpoint)
+        "llm_gen_scenario_endpoint: %s", str(
+            settings.llm_gen_scenario_endpoint)
     )
     demo_blocks_iface = setup_gradio_ui(
         llm_gen_scenario_endpoint=settings.llm_gen_scenario_endpoint
@@ -59,6 +60,30 @@ app = FastAPI(
     title="PFun Gradio Demo App",
     description="A FastAPI app that serves a Gradio UI for generating pfun scenarios."
 )
+
+
+def setup_middleware(app: FastAPI):
+    """Set up CORS middleware for the FastAPI app."""
+    logger.info("Setting up CORS middleware.")
+    settings = get_settings()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:7860",
+            "http://localhost:8001",
+            f"{settings.server_scheme}://{settings.server_host}:{settings.server_port}",
+            f"{settings.gradio_server_scheme}://{settings.gradio_server_host}:{settings.gradio_server_port}",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    logger.debug("...CORS middleware set up.")
+    return app
+
+
+# Apply CORS middleware to the FastAPI app
+app = setup_middleware(app)
 
 
 @app.get("/")

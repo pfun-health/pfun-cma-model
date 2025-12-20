@@ -1801,6 +1801,7 @@ dependencies = [
     { name = "flask-oauthlib" },
     { name = "graphql-core" },
     { name = "gunicorn" },
+    { name = "httpx" },
     { name = "ipykernel" },
     { name = "jinja2" },
     { name = "matplotlib" },
@@ -1895,6 +1896,7 @@ requires-dist = [
     { name = "flask-oauthlib", specifier = ">=0.9.6" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jinja2", specifier = ">=3.1.2" },
     { name = "matplotlib", specifier = ">=3.8.0" },
@@ -1909,7 +1911,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "pfun-common", directory = "packages/pfun_common" },
-    { name = "pfun-data", url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.3.tar.gz" },
+    { name = "pfun-data", url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.4.tar.gz" },
     { name = "pfun-path-helper", specifier = ">=0.1.4" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "plotly", marker = "extra == 'ui'", specifier = ">=5.18.0" },
@@ -1980,7 +1982,7 @@ requires-dist = [
 [[package]]
 name = "pfun-data"
 version = "0.1.3"
-source = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.3.tar.gz" }
+source = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.4.tar.gz" }
 dependencies = [
     { name = "duckdb" },
     { name = "fastapi" },
@@ -1997,7 +1999,7 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "tabulate" },
 ]
-sdist = { hash = "sha256:2d0b5a182961a376a30318203277fc6648e514274e539ecacd00862a826ecb54" }
+sdist = { hash = "sha256:14bdf6c30fefbdbbe894d5579516210884029bb38a24f151ad3730d09ba17699" }
 
 [package.metadata]
 requires-dist = [

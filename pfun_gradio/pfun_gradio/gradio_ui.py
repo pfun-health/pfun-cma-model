@@ -175,11 +175,12 @@ def setup_gradio_ui(
 
 
 def launch_demo(
-    server_scheme: str = "http",
-    server_name: str = "0.0.0.0",
-    server_port: int = 7860,
     **kwargs,
 ):
+    settings = get_settings()
+    server_scheme = settings.server_scheme
+    server_name = settings.server_host
+    server_port = settings.server_port
     endpoint = f"{server_scheme}://{server_name}:{server_port}/llm/generate-scenario"
     demo = setup_gradio_ui(llm_gen_scenario_endpoint=endpoint)
     return demo.launch(server_name=server_name, server_port=server_port, **kwargs)

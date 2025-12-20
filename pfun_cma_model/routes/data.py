@@ -1,30 +1,60 @@
 """
 PFun CMA Model - Data API Routes
 """
+from io import StringIO
 from fastapi import APIRouter, Request, Response, HTTPException, status
 from starlette.responses import StreamingResponse
-from pandas import DataFrame
+import pandas as pd
 import logging
-import json
-from typing import Any
-from dataclasses import dataclass, InitVar
+from typing import Any, Literal, Optional
+from dataclasses import dataclass, InitVar, field
 
 from pfun_cma_model.data import read_sample_data
 
 router = APIRouter()
 
 
+PFunDatasetMediaType = Literal["json", "text", "html"]
+
+
+@dataclass
+class PFunDatasetResponseFormatter:
+    """
+    A formatter class for converting pandas DataFrame responses into multiple output formats.
+    This class provides methods to serialize a pandas DataFrame into JSON, CSV (text),
+    and HTML formats, making it suitable for returning dataset responses in different
+    content types.
+
+    :var data: The pandas DataFrame containing the dataset to be formatted.
+    :type data: pd.DataFrame
+    """
+    data: pd.DataFrame
+
+    def json(self) -> str:
+        return self.data.to_json(orient='records')
+
+    def text(self) -> str:
+        buf = StringIO()
+        self.data.to_csv(buf=buf)  # type:ignore
+        buf.seek(0)
+        return buf.getvalue()
+
+    def html(self) -> str:
+        return self.data.to_html()
+
+
 @dataclass
 class PFunDatasetResponse:
-    data: DataFrame | None = None
+    data: Optional[pd.DataFrame] = field(default_factory=read_sample_data)
     pct0: float = 0.0
     nrows: InitVar[int] = 23
     nrows_given: bool | None = None
+    media_type: PFunDatasetMediaType = "json"
 
     def __post_init__(self, nrows: int):
         """Post-initialization to parse nrows and data."""
         _, self.nrows_given = self._parse_nrows(nrows)
-        self.data = self._parse_data(
+        self.data: pd.DataFrame = self._parse_data(
             self.data, self.pct0, nrows, self.nrows_given)
 
     @property
@@ -32,27 +62,51 @@ class PFunDatasetResponse:
         """Generate a streaming Response object with the dataset as JSON."""
         return StreamingResponse(
             content=self._stream,
-            media_type="application/json"
+            media_type=f"application/{self.media_type}"
         )
+
+    @property
+    def _stream(self) -> Any:
+        """Yield the dataset as streamable generator."""
+        if self.media_type == 'json':
+            yield '[\n'
+        for record in self.formatted_output.split("\n"):
+            yield record
+        if self.media_type == 'json':
+            yield ']'
+
+    @property
+    def formatted_output(self) -> str:
+        """
+        return the formatted output to be passed as content to the response.
+
+        :param self: Description
+        :return: Description
+        :rtype: Any
+        """
+        data: pd.DataFrame = self.data  # type: ignore
+        response_formatter = PFunDatasetResponseFormatter(data=data)
+        output = getattr(response_formatter, self.media_type)()
+        return output
 
     @property
     def response(self) -> Response:
         """Generate a Response object with the dataset as JSON."""
-        output = self.data.to_json(orient='records')  # type: ignore
+        formatted_output = self.formatted_output
         return Response(
-            content=output,
+            content=formatted_output,
             status_code=200,
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/{self.media_type}"}
         )
 
     @classmethod
-    def _parse_data(cls, data: DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
+    def _parse_data(cls, data: pd.DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
         """Parse and limit the dataset based on pct0, nrows and nrows_given."""
         # If no data provided, read the default sample dataset
         if data is None:
             data = read_sample_data(convert2json=False)  # type: ignore
-        # ensure DataFrame
-        dataset = DataFrame(data)
+        # ensure pd.DataFrame
+        dataset = pd.DataFrame(data)
         logging.debug("Sample dataset loaded with %d rows.", len(dataset))
 
         # Calculate row0 from pct0
@@ -72,13 +126,6 @@ class PFunDatasetResponse:
         else:
             # no nrows limit, return from row0 to end
             return dataset.iloc[row0:, :]  # type: ignore
-
-    @property
-    def _stream(self) -> Any:
-        """Yield the dataset as streamable chunks."""
-        rec_array = self.data.to_dict(orient='records')  # type: ignore
-        for record in rec_array:  # type: ignore
-            yield json.dumps(record) + '\n'
 
     @classmethod
     def _parse_nrows(cls, nrows: int) -> tuple[int, bool]:
@@ -108,7 +155,11 @@ class PFunDatasetResponse:
 
 
 @router.get("/sample/download")
-def get_sample_dataset(request: Request, nrows: int = 23):
+def get_sample_dataset(
+    request: Request,
+    nrows: int = 23,
+    media_type: PFunDatasetMediaType = "text"
+):
     """(slow) Download the sample dataset with optional row limit.
 
     Args:
@@ -116,12 +167,18 @@ def get_sample_dataset(request: Request, nrows: int = 23):
         nrows (int): The number of rows to return. If -1, return the full dataset.
     """
     # Read the sample dataset (data=None means use default sample data)
-    dataset_response = PFunDatasetResponse(data=None, nrows=nrows)
+    dataset_response = PFunDatasetResponse(
+        data=None, nrows=nrows, media_type=media_type)
     return dataset_response.response
 
 
 @router.get("/sample/stream")
-async def stream_sample_dataset(request: Request, pct0: float = 0.0, nrows: int = -1) -> StreamingResponse:
+async def stream_sample_dataset(
+    request: Request,
+    pct0: float = 0.0,
+    nrows: int = -1,
+    media_type: PFunDatasetMediaType = "text"
+) -> StreamingResponse:
     """(fast) Stream the sample dataset with optional row limit.
     Args:
         request (Request): The FastAPI request object.
@@ -129,6 +186,6 @@ async def stream_sample_dataset(request: Request, pct0: float = 0.0, nrows: int 
         nrows (int): The number of rows to include in the stream. If -1, stream the full dataset.
     """
     dataset_response = PFunDatasetResponse(
-        data=None, pct0=pct0, nrows=nrows)
+        data=None, pct0=pct0, nrows=nrows, media_type=media_type)
     # return the iterable (generating) streaming response
     return dataset_response.streaming_response

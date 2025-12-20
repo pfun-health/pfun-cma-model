@@ -49,6 +49,7 @@ dependencies = [
     "opentelemetry-sdk>=1.39.1",
     "opentelemetry-distro>=0.60b1",
     "opentelemetry-exporter-otlp>=1.39.1",
+    "httpx>=0.28.1",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
@@ -127,7 +128,7 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
 [tool.uv.sources]
-pfun-data = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.3.tar.gz" }
+pfun-data = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.4.tar.gz" }
 pfun-gradio = { workspace = true }
 pfun-common = { path = "./packages/pfun_common" }
 
