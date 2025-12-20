@@ -27,7 +27,6 @@ services:
         "--workers",
         "1",
       ]
-    tty: true
 
   pfun-gradio:
     restart: unless-stopped
@@ -56,4 +55,3 @@ services:
         "--workers",
         "1",
       ]
-    tty: true

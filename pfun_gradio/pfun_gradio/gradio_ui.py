@@ -65,7 +65,10 @@ def setup_gradio_ui(
     """Set up the Gradio demo interface using gr.Interface."""
 
     async def interface_fn(description, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
-        return await async_generate_parameters(description, llm_gen_scenario_endpoint)
+        try:
+            return asyncio.wait_for(async_generate_parameters(description, llm_gen_scenario_endpoint), timeout=30)
+        except asyncio.TimeoutError:
+            return "Request timed out. Please try again later."
 
     placeholder_text = "E.g., 'The patient has type 1 diabetes and struggle with high blood sugar after meals.'"
     default_value = get_default_description()
@@ -101,7 +104,7 @@ def setup_gradio_ui(
             ],
         ],
         cache_examples=False,
-        concurrency_limit=1,
+        concurrency_limit=10,
         time_limit=30
     )
     return iface

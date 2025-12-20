@@ -29,6 +29,8 @@ echo "..." &&
 	uv build &&
 	echo -e "...rebuilt locally."
 
+echo -e "relaunching compose services..."
+sleep 1s
 docker compose up -d \
 	--remove-orphans \
 	--renew-anon-volumes \
