@@ -2,6 +2,14 @@
 
 __TODO for `pfun-cma-model`__
 
+__Maintenance:__
+
++ **Finish integrating telemetry (need metrics to debug properly):**
+  + https://opentelemetry.io/docs/zero-code/python/logs-example/
++ **Example illustrating how to setup Docker with uv + uvicorn:**
+  + https://uvicorn.dev/deployment/docker/#quickstart
+
+
 __Demos:__
 
 + ~~Complete a simple gradio-based LLM demo.~~

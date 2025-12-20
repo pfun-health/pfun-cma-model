@@ -16,3 +16,4 @@ examples/
 .mypy_cache/
 .pytest_cache/
 .tox/
+generated_clients/

@@ -17,19 +17,15 @@ import os
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("pfun_cma_model")
-logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
-
-# Global variables and constants
-debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-
+logger = logging.getLogger(__name__)
+logger.debug("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 def get_default_description():
     return "The patient is a 45-year-old male with type 2 diabetes and a history of hypoglycemia."
 
 
 async def async_generate_parameters(description, llm_gen_scenario_endpoint):
-    logger.info("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
+    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with httpx.AsyncClient(timeout=30) as client:
         try:
             response = await client.post(
@@ -68,7 +64,7 @@ def setup_gradio_ui(
 ):
     """Set up the Gradio demo interface using gr.Interface."""
 
-    async def interface_fn(description):
+    async def interface_fn(description, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
         return await async_generate_parameters(description, llm_gen_scenario_endpoint)
 
     placeholder_text = "E.g., 'The patient has type 1 diabetes and struggle with high blood sugar after meals.'"
