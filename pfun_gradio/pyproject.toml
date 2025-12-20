@@ -1,17 +1,18 @@
 [project]
 name = "pfun-gradio"
-version = "0.1.17"
+version = "0.1.18"
 description = "A Gradio interface for pfun"
 readme = "README.md"
 requires-python = "==3.12.11"
 dependencies = [
     "gradio>=6.2.0",
     "pfun-path-helper>=0.1.4",
+    "pfun-common"
 ]
 
 [tool.uv.sources]
 pfun_path_helper = { git = "https://github.com/rocapp/pfun_path_helper.git" }
-pfun_common = { path = "../packages/pfun_common" }
+pfun-common = { path = "../packages/pfun_common" }
 
 [tool.uv.workspace]
 members = [

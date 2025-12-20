@@ -33,9 +33,11 @@ RUN \
     uv sync --project=pfun-gradio
 
 FROM deps AS dist
+
 # final stage (entrypoint)
 USER nonroot
 WORKDIR /app/pfun_gradio
+
 # overridden in compose
 # Run the application.
-CMD ["/app/.venv/bin/fastapi", "run", "pfun_gradio/main.py", "--port", "7860", "--host", "0.0.0.0"]
+CMD ["bash"]
