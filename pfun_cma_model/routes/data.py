@@ -7,7 +7,7 @@ from starlette.responses import StreamingResponse
 import pandas as pd
 import logging
 from typing import Any, Literal, Optional
-from dataclasses import dataclass, InitVar, field
+from dataclasses import dataclass, InitVar, field, MISSING
 
 from pfun_cma_model.data import read_sample_data
 
@@ -35,7 +35,7 @@ class PFunDatasetResponseFormatter:
 
     def text(self) -> str:
         buf = StringIO()
-        self.data.to_csv(buf=buf)  # type:ignore
+        self.data.to_csv(path_or_buf=buf)  # type:ignore
         buf.seek(0)
         return buf.getvalue()
 
@@ -45,7 +45,8 @@ class PFunDatasetResponseFormatter:
 
 @dataclass
 class PFunDatasetResponse:
-    data: Optional[pd.DataFrame] = field(default_factory=read_sample_data)
+    data: Optional[pd.DataFrame] = field(
+        default=MISSING, default_factory=read_sample_data)
     pct0: float = 0.0
     nrows: InitVar[int] = 23
     nrows_given: bool | None = None
@@ -165,6 +166,7 @@ def get_sample_dataset(
     Args:
         request (Request): The FastAPI request object.
         nrows (int): The number of rows to return. If -1, return the full dataset.
+        media_type (PFunDatasetMediaType): The return type expected of the response. 
     """
     # Read the sample dataset (data=None means use default sample data)
     dataset_response = PFunDatasetResponse(
