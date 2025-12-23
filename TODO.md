@@ -2,12 +2,26 @@
 
 __TODO for `pfun-cma-model`__
 
-__Maintenance:__
 
+__Goals:__
+
++ **Create a huggingface IterableDataset:**
+  + Design as a parametric data factory (generate n_days of data, potentially with specified trends).
+  + <https://huggingface.co/docs/datasets/v4.4.2/en/package_reference/main_classes#datasets.IterableDataset>
+  + <https://huggingface.co/docs/datasets/en/create_dataset>
++ **LoRA training (likely better for use-case than finetuning):**
+  + <https://huggingface.co/docs/trl/lora_without_regret#takeaways>
+  + <https://huggingface.co/docs/trl/lora_without_regret.md>
+
+
+__DevOps:__
+
++ **Setup orchestration, task scheduling with `rq`:**
+  + <https://python-rq.org/patterns/>
 + **Finish integrating telemetry (need metrics to debug properly):**
-  + https://opentelemetry.io/docs/zero-code/python/logs-example/
+  + <https://opentelemetry.io/docs/zero-code/python/logs-example/>
 + **Example illustrating how to setup Docker with uv + uvicorn:**
-  + https://uvicorn.dev/deployment/docker/#quickstart
+  + <https://uvicorn.dev/deployment/docker/#quickstart>
 
 
 __Demos:__
@@ -18,6 +32,7 @@ __Demos:__
   + Integrate with existing CMA demo UI.
   + Finish setting up as a docker-compose service.
   + Host on GCP (App Engine, utilize credits).
+
 
 __Architecture:__
 
