@@ -46,7 +46,7 @@ dependencies = [
     "opentelemetry-distro>=0.60b1",
     "opentelemetry-exporter-otlp>=1.39.1",
     "httpx>=0.28.1",
-    "celery[redis]>=5.6.0",
+    "rq>=2.6.1",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
