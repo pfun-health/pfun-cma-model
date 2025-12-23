@@ -15,8 +15,6 @@ dependencies = [
     "pydantic==2.4.2",
     "click>=8.1.7",
     "pfun_path_helper>=0.1.4",
-    "boto3>=1.28.57",
-    "botocore>=1.31.57",
     "jinja2>=3.1.2",
     "gunicorn>=23.0.0",
     "PyYAML>=6.0.1",
@@ -30,8 +28,6 @@ dependencies = [
     "fastapi[standard]==0.116.1",
     "redis>=6.4.0",
     "python-socketio>=5.13.0",
-    "boto3-stubs[essential]>=1.40.7",
-    "botocore-stubs>=1.38.46",
     "python-socketio-stubs>=5.13.0.12.20250809",
     "aioredis>=2.0.1",
     "mss>=10.1.0",
@@ -50,6 +46,7 @@ dependencies = [
     "opentelemetry-distro>=0.60b1",
     "opentelemetry-exporter-otlp>=1.39.1",
     "httpx>=0.28.1",
+    "celery[redis]>=5.6.0",
 ]
 optional-dependencies = { ui = ["dash>=2.18.2","plotly>=5.18.0",], dev = [
         "click>=8.1.7",
