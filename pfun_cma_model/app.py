@@ -74,9 +74,9 @@ async def lifespan(app: FastAPI):
     try:
         redis_client = Redis(
             host=settings.redis_host,
-            port=int(os.getenv("REDIS_PORT", "6379")),
-            db=int(os.getenv("REDIS_DB", "0")),
-            password=os.getenv("REDIS_PASSWORD", None),
+            port=int(settings.redis_port),
+            db=int(settings.redis_db),
+            password=settings.redis_password,
             decode_responses=True,
         )
         await redis_client.ping()
