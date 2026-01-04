@@ -63,11 +63,11 @@ class Settings(BaseSettings):
         try:
             # initially, strip any surrounding whitespace
             v = v.strip()
+            logging.debug("Parsing REDIS_CONNECTION_STRING: %s", v)
 
             # parse the URL
             parsed = urlparse(v)
-
-            logging.debug("Parsing REDIS_CONNECTION_STRING: %s", v)
+            logging.debug("Parsed Redis URL: %s", parsed)
 
             # Extract host (required)
             if parsed.hostname:
@@ -102,8 +102,9 @@ class Settings(BaseSettings):
                           info.data.get("redis_port"),
                           info.data.get("redis_user"),
                           info.data.get("redis_db"))
-        except Exception:
-            logging.debug("No such REDIS_CONNECTION_STRING: %s", v)
+        except Exception as exc:
+            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
+            logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 
         return v
