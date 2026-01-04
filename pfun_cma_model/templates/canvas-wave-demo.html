@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/demos_common.html" as demos_common %}
 {% block title %}Canvas Wave WebSocket Example{% endblock %}
 
 {% block head %}
@@ -13,9 +14,7 @@
 
     .controls-container {
         flex: 1;
-        max-width: 400px;
-        max-height: 80vh;
-        overflow-y: auto;
+        max-width: 600px;
     }
 
     .chart-container {
@@ -70,54 +69,13 @@
     <div id="content">
         {% block content %}
         <h2>Canvas Wave WebSocket Demo</h2>
-        <p>Drag the mouse on the canvas to control the <code>c_peak</code> (x-axis) and <code>m_peak</code> (y-axis) parameters and see the waveform update in real-time.</p>
+        <p>Drag the mouse on the canvas to control the <code>C_m</code> (Cortisol sensitivity) and <code>toff</code> (time-offset via circadian rhythm) parameters and see the waveform update in real-time.</p>
 
         <div class="demo-container">
+            <!-- Controls Container -->
+            {{ demos_common.render_form_controls_container(params) }}
 
-            <div class="controls-container">
-                <form id="runForm">
-                    <fieldset>
-                        <legend>Simulation Parameters</legend>
-                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Simulation start time (decimal hours).">
-                            <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
-                            <input class="form-control" type="range" step="0.5" id="t0" name="t0" max="24.0" min="0"
-                                value="4" required>
-                            <output for="t0" id="rangeValue-t0" aria-hidden="false">4</output>
-                        </div>
-                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
-                            end time (decimal hours). Note: t1 must be greater than t0.">
-                            <label class="form-label" for="t1">t1 (0, 24.0):</label>
-                            <input class="form-control" type="range" step="0.5" id="t1" name="t1" max="24.0" min="0"
-                                value="20" required>
-                            <output for="t1" id="rangeValue-t1" aria-hidden="false">20</output>
-                        </div>
-                        <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Number of points to simulate.<br>Note: N must be a positive integer.">
-                            <label class="form-label" for="N">N (1, 250):</label>
-                            <input class="form-control" type="range" step="1" id="N" name="N" min="1" max="250"
-                                value="100" required>
-                            <output for="N" id="rangeValue-N" aria-hidden="false">100</output>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Model Parameters</legend>
-                        {% for key, param in params.items() %}
-                        <div class="param-item" data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="{{ param.description }}">
-                            <label class="form-label" for="{{ key }}">{{ key }}:</label>
-                            <input class="form-control" type="range" step="0.05" id="{{ key }}" name="{{ key }}"
-                                value="{{ param.value }}" min="{{ param.min }}" max="{{ param.max }}" required>
-                            <output for="{{ key }}" id="rangeValue-{{ key }}" aria-hidden="true">{{ param.value }}</output>
-                        </div>
-                        {% endfor %}
-                    </fieldset>
-
-                    <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation">
-                </form>
-            </div>
-
+            <!-- Chart Container -->
             <div class="chart-container">
                 <div class="canvas-container">
                     <canvas id="waveCanvas"></canvas>
@@ -151,6 +109,7 @@
                 if (output) {
                     range.addEventListener('input', () => {
                         output.textContent = range.value;
+                        
                     });
                 }
             });

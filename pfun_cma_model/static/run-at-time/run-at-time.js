@@ -82,10 +82,10 @@ class RunAtTimeDemo {
                 data: [],
                 borderColor: 'rgba(54, 162, 235, 1)',
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderWidth: 2,
-                pointRadius: 1,
+                borderWidth: 1,
+                pointRadius: 2,
                 fill: false,
-                tension: 0.1, // Makes the line slightly curved
+                tension: 0.05, // Makes the line slightly curved
             }]
         };
 
@@ -142,6 +142,7 @@ class RunAtTimeDemo {
     }
 
     handleSocketMessage(data) {
+        let iters = 0;
         try {
             const point = JSON.parse(data);
             if (point.error) {
@@ -150,7 +151,10 @@ class RunAtTimeDemo {
             }
             if (typeof point.x !== 'undefined' && typeof point.y !== 'undefined') {
                 this.chart.data.datasets[0].data.push(point);
-                this.chart.update(); // Update the chart to draw the new point
+                iters += 1;
+                if (iters % 10 === 0) {
+                    this.chart.update(); // Update the chart to draw the new point
+                }
             }
         } catch (e) {
             // This might just be a connection message, not an error.
@@ -173,7 +177,7 @@ class RunAtTimeDemo {
         // Range input listeners
         this.dom.ranges.forEach(range => {
             $(range).on("input change", function (e) {
-                console.log(`Range ${range.id} updated to ${range.value}`);
+                // //console.log(`Range ${range.id} updated to ${range.value}`);
                 self.onUpdateRange(this);
             });
             $(range).on("click", function (e) { self.onUpdateRange(this); });
@@ -195,8 +199,14 @@ class RunAtTimeDemo {
         }
 
         // Clear previous results
-        this.chart.data.datasets[0].data = [];
-        this.chart.update();
+        // ...asynchronous to avoid blocking UI
+        (async () => {
+            this.chart.data.datasets[0].data = [];
+            this.chart.data.datasets[0].data = [];
+            setTimeout(() => {
+                this.chart.update();
+            }, 250); // Slight delay to ensure UI responsiveness
+        })();
         this.dom.messagesDiv.innerHTML = ''; // Clear messages
         this.appendMessage('Starting new simulation...');
 
@@ -223,7 +233,7 @@ class RunAtTimeDemo {
     }
 
     onUpdateRange(range) {
-        console.log(`Range ${range.id} updated to ${range.value}`);
+        // console.log(`Range ${range.id} updated to ${range.value}`);
         const outputElement = document.getElementById(`rangeValue-${range.id}`);
         if (range) {
             if (outputElement) {
@@ -237,11 +247,16 @@ class RunAtTimeDemo {
             const paramValue = parseFloat(range.value);
             if (this.chart) {
                 // For demonstration, let's say changing a range updates the chart title
-                console.log(`Updating chart title with ${paramName}: ${paramValue}`);
+                // console.log(`Updating chart title with ${paramName}: ${paramValue}`);
                 this.chart.options.plugins.title = {
                     display: true,
                     text: `Glucose Response Curve - ${paramName}: ${paramValue}`
                 };
+                setTimeout(() => {
+                    if(parseFloat(`${(new Date()).getTime()}`.at(-1)) < 5) {
+                        this.runSimulation();
+                    }
+                }, 100); // Re-run simulation after a short delay
                 this.chart.update();
             }
         }

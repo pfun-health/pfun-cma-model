@@ -2,7 +2,8 @@
 
 # scripts/serve_dev.sh : serve the current version of pfun-cma-model locally with hot-reload
 
-uv sync --active --all-extras --group perplexity --group gradio &&
+# Load common functions
+source "$(dirname "$0")/_funcs.def.sh"
 
 serve_pfun_cma_model() {
 	uv run pfun-cma-model launch
@@ -13,5 +14,6 @@ serve_pfun_gradio() {
 }
 
 
-
-serve_pfun_cma_model
+# Start the development server with full uv sync and serve pfun-cma-model
+full_uv_sync && \
+	serve_pfun_cma_model

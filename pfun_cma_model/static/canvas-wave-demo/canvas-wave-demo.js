@@ -39,7 +39,7 @@ class CanvasWaveDemo {
             runForm: document.getElementById('runForm'),
             messagesDiv: document.getElementById('messages'),
             canvas: document.getElementById('waveCanvas'),
-            cPeakInput: document.getElementById('c_peak'),
+            cPeakInput: document.getElementById(''),
             mPeakInput: document.getElementById('m_peak'),
         };
         this.c = this.dom.canvas.getContext("2d");
@@ -136,6 +136,10 @@ class CanvasWaveDemo {
     }
 
     runSimulationFromMouseEvent(e) {
+        if (!this.dom.cPeakInput || !this.dom.mPeakInput) {
+            this.appendMessage('Error: c_peak or m_peak inputs not found.');
+            return;
+        }
         const rect = this.dom.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;

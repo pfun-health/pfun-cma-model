@@ -10,3 +10,8 @@ full_uv_sync() {
 		--group google \
 		--group gradio
 }
+
+partial_uv_sync() {
+	# Perform a partial uv sync for only the core packages.
+	uv sync
+}

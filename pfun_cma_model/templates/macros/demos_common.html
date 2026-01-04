@@ -1,0 +1,58 @@
+<!-- macros/demos_common.html -->
+
+{% macro render_form_controls_container(params) %}
+<div class="d-flex flex-column flex-md-row mb-0 p-1">
+    <div class="row-sm">
+        <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas">
+            Toggle Controls
+        </button>
+    </div>
+    <div class="row offcanvas offcanvas-start show height-100 width-100 max-width-600" tabindex="-1" id="controlsOffcanvas">
+        <div class="controls-container">
+            <form id="runForm">
+                <fieldset>
+                    <legend>Simulation Parameters</legend>
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Simulation start time (decimal hours).">
+                        <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
+                        <input class="form-control" type="range" step="0.5" id="t0" name="t0" max="24.0" min="0"
+                            value="0" required>
+                        <output for="t0" id="rangeValue-t0" aria-hidden="false"></output>
+                    </div>
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
+                        end time (decimal hours). Note: t1 must be greater than t0.">
+                        <label class="form-label" for="t1">t1 (0, 24.0):</label>
+                        <input class="form-control" type="range" step="0.5" id="t1" name="t1" max="24.0" min="0"
+                            value="24.0" required>
+                        <output for="t1" id="rangeValue-t1" aria-hidden="false"></output>
+                    </div>
+                    <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Number of points to simulate.<br>Note: N must be a positive integer.">
+                        <label class="form-label" for="N">N (1, 250):</label>
+                        <input class="form-control" type="range" step="1" id="N" name="N" min="1" max="250"
+                            value="24" required>
+                        <output for="N" id="rangeValue-N" aria-hidden="false"></output>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Model Parameters</legend>
+                    {% for key, param in params.items() %}
+                    <div class="param-item" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="{{ param.description }}">
+                        <label class="form-label" for="{{ key }}">{{ key }}: <output for="{{ key }}" id="rangeValue-{{ key }}" aria-hidden="true"></output> </label>
+                        <input class="form-control" type="range" step="{{ param.step | round(3) }}" id="{{ key }}" name="{{ key }}"
+                            value="{{ param.value }}" min="{{ param.min }}" max="{{ param.max }}" required>
+                        
+                    </div>
+                    {% endfor %}
+                </fieldset>
+
+                <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation" id="runSimulationBtn-sidebar">
+                <input class="btn btn-secondary" type="reset" title="Reset Parameters" value="Reset Parameters">
+            </form>
+        </div>
+    </div>
+</div>
+{% endmacro %}

@@ -90,6 +90,7 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
                 "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
                 "min": _LB_DEFAULTS[ix],
                 "max": _UB_DEFAULTS[ix],
+                "step": ( _UB_DEFAULTS[ix] + _LB_DEFAULTS[ix] ) * 0.0125,
                 "default": _MID_DEFAULTS[ix],
             }
     # formulate the render context
@@ -138,6 +139,7 @@ async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depend
                 "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
                 "min": _LB_DEFAULTS[ix],
                 "max": _UB_DEFAULTS[ix],
+                "step": ( _UB_DEFAULTS[ix] + _LB_DEFAULTS[ix] ) * 0.0125,
                 "default": _MID_DEFAULTS[ix],
             }
     # formulate the render context

@@ -24,6 +24,6 @@ echo "...local rebuild using uv version ${NEW_VERSION}" &&
 	uv version "${NEW_VERSION}" &&
 	echo -e "updated version" &&
 	full_uv_sync &&
-	uv build &&
+	uv build && uv pip install -e . --force-reinstall -U &&
 	echo -e "...rebuilt locally (uv version ${NEW_VERSION})."
 
