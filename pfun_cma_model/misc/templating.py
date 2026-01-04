@@ -23,6 +23,8 @@ logger.info(
 # Ensure the .env file is loaded
 load_environment_variables(logger=logger)
 
+settings = get_settings()
+
 # Setup logging based on environment
 debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
 setup_logging(logger=logger, debug_mode=debug_mode)
@@ -45,7 +47,7 @@ def get_templates() -> Jinja2Templates:
     Returns:
         Jinja2Templates: The Jinja2 templates object.
     """
-    debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
+    debug_mode: bool = get_settings().debug
     templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
 
     templates.env.globals["https_url_for"] = https_url_for

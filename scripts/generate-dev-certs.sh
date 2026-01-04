@@ -25,6 +25,6 @@ generate_certs_openssl() {
 
 generate_certs_tailscale() {
     # Generate a private key and self-signed certificate using Tailscale's cert tool
-    tailscale cert --cert-file="${CERTS_DIR}/cert.pem" --key-file="${CERTS_DIR}/key.pem" localhost
+    tailscale cert --cert-file="${CERTS_DIR}/cert.pem" --key-file="${CERTS_DIR}/key.pem" gbot.tail38611b.ts.net
 }
 echo -e "Certificates generated in ${CERTS_DIR}/"

@@ -6,6 +6,7 @@ import os
 import logging
 from datetime import datetime
 from fastapi import APIRouter, Depends, Request
+from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.misc.templating import get_templates
@@ -16,7 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/gradio")
-def demo_gradio(request: Request, settings: Settings = Depends(get_settings)):
+def demo_gradio(
+    request: Request,
+    templates: Jinja2Templates = Depends(get_templates),
+    settings: Settings = Depends(get_settings),
+):
     """Demo UI endpoint to embed the Gradio interface via an iframe."""
     gradio_url_path = "/gradio/gradio/" if not settings.debug else "/"
     gradio_server_port = f":{settings.gradio_server_port}" if settings.debug else ""
@@ -48,21 +53,21 @@ def demo_gradio(request: Request, settings: Settings = Depends(get_settings)):
 
 
 @router.get("/dexcom")
-def demo_dexcom(request: Request):
+def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     return templates.TemplateResponse(
         "dexcom-demo.html", {"request": request, "year": datetime.now().year}
     )
 
 
 @router.get("/data-stream")
-def demo_data_stream(request: Request):
+def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     return templates.TemplateResponse(
         "data-stream-demo.html", {"request": request, "year": datetime.now().year}
     )
 
 
 @router.get("/run-at-time")
-async def demo_run_at_time(request: Request):
+async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     # load default bounded parameters
     cma_params = CMAModelParams()
@@ -110,7 +115,7 @@ async def demo_run_at_time(request: Request):
 
 
 @router.get("/webgl-demo")
-async def demo_webgl(request: Request):
+async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint for the WebGL-based real-time plot."""
     # load default bounded parameters
     cma_params = CMAModelParams()

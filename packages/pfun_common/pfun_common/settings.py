@@ -61,12 +61,17 @@ class Settings(BaseSettings):
             return v
 
         try:
+            # initially, strip any surrounding whitespace
+            v = v.strip()
+
+            # parse the URL
             parsed = urlparse(v)
 
             logging.debug("Parsing REDIS_CONNECTION_STRING: %s", v)
 
             # Extract host (required)
             if parsed.hostname:
+                logging.debug("Parsed Redis host: %s", parsed.hostname)
                 info.data["redis_host"] = parsed.hostname
 
             # Extract port (optional, defaults to 6379)
