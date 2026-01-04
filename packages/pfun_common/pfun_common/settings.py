@@ -63,6 +63,8 @@ class Settings(BaseSettings):
         try:
             # initially, strip any surrounding whitespace
             v = v.strip()
+            # somewhat intelligently access the URL itself (without extra params)
+            v = [piece for piece in v.split(" ") if "redis://" in piece][0].strip()
             logging.debug("Parsing REDIS_CONNECTION_STRING: %s", v)
 
             # parse the URL
