@@ -8,7 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Request
 from starlette.responses import HTMLResponse
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
-from pfun_cma_model.misc.templating import templates
+from pfun_cma_model.misc.templating import get_templates
 from pfun_common.settings import Settings, get_settings
 
 router = APIRouter()

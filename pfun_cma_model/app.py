@@ -25,6 +25,7 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi import FastAPI, Request, Response, Body, Depends
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
@@ -69,11 +70,9 @@ templates: Jinja2Templates | None = None
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
 
-    # --- Startup task: download sample data
-    from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
-    pfun_data_paths = PFunDataPaths()
-    pfun_data_paths.download_sample_data()
+    # --- Startup task: initialize templates ---
+    global templates
+    templates = get_templates()
 
     # --- Startup task: connect to Redis ---
     global redis_client
@@ -89,6 +88,15 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
+    
+    # --- Startup task: download sample data if not present ---
+    from pfun_cma_model.misc.pathdefs import PFunDataPaths
+    pfun_data_paths = PFunDataPaths()
+    pfun_data_paths.download_sample_data()
+
+    # ---
+    # --- Shutdown tasks will be handled after this point ---
+    # ---
     yield
     # --- Shutdown task: disconnect from Redis ---
     if redis_client is not None:
@@ -165,9 +173,10 @@ allow_all_origins = {
         "cloud.tail38611b.ts.net",
     },
 }
+allowed_hosts = allow_all_origins[debug_mode]  # type: ignore  # pyright: ignore[reportArgumentType]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_all_origins[debug_mode],  # type: ignore  # pyright: ignore[reportArgumentType]
+    allow_origins=allowed_hosts,
     allow_headers=[
         "Authorization",
         "Access-Control-Allow-Origin",
@@ -179,10 +188,16 @@ app.add_middleware(
     max_age=300,
 )
 
+# Add TrustedHost middleware
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=allowed_hosts,
+)
+
 # Add Session middleware (added last, executes first)
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development"),
+    secret_key=settings.secret_key,
 )
 
 # --- Include Routers ---

@@ -1,9 +1,24 @@
 """pfun_common settings module."""
 import logging
+from base64 import b64encode
+from datetime import datetime
 from urllib.parse import urlparse
+from secrets import token_urlsafe
 
-from pydantic import field_validator
+from pydantic import field_validator, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def generate_default_secret_key() -> str:
+    """Generate a default secret key based on the current timestamp.
+
+    Note: This is not secure and should only be used for development purposes.
+    In production, set the SECRET_KEY environment variable to a secure value.
+    """
+    timestamp = datetime.now().isoformat("YYYY-MM-DD").encode("utf-8")
+    timestamp_nonce = b64encode(timestamp).decode("utf-8")
+    rand_token = token_urlsafe(16) # 16 bytes of randomness
+    return f"{timestamp_nonce}-{rand_token}"
 
 
 class Settings(BaseSettings):
@@ -23,7 +38,7 @@ class Settings(BaseSettings):
     redis_db: str | int | bool = "0"
     redis_connection_string: str = ""
     perplexity_api_key: str = ""
-    secret_key: str = "SChp11HMytLzSj3gaJQAJhq5sqc9Aicnz"
+    secret_key: str = Field(default_factory=lambda: generate_default_secret_key())
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
 
@@ -47,6 +62,8 @@ class Settings(BaseSettings):
 
         try:
             parsed = urlparse(v)
+
+            logging.debug("Parsing REDIS_CONNECTION_STRING: %s", v)
 
             # Extract host (required)
             if parsed.hostname:
@@ -74,8 +91,14 @@ class Settings(BaseSettings):
                         info.data["redis_db"] = int(db_str)
                     except ValueError:
                         pass  # Keep existing value if db is not a valid integer
-
+            
+            logging.debug("Parsed Redis settings: host=%s, port=%s, user=%s, db=%s",
+                          info.data.get("redis_host"),
+                          info.data.get("redis_port"),
+                          info.data.get("redis_user"),
+                          info.data.get("redis_db"))
         except Exception:
+            logging.debug("No such REDIS_CONNECTION_STRING: %s", v)
             pass  # Keep existing values if parsing fails
 
         return v

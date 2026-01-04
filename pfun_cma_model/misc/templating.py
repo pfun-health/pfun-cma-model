@@ -9,7 +9,8 @@ from jinja2 import pass_context
 from fastapi.templating import Jinja2Templates
 import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common import load_environment_variables, setup_logging
+from pfun_common import load_environment_variables, setup_logging  # type: ignore
+from pfun_common.settings import get_settings
 
 
 # Initially, Get the logger (globally accessible)
@@ -21,6 +22,10 @@ logger.info(
 
 # Ensure the .env file is loaded
 load_environment_variables(logger=logger)
+
+# Setup logging based on environment
+debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
+setup_logging(logger=logger, debug_mode=debug_mode)
 
 
 @pass_context
@@ -52,6 +57,3 @@ def get_templates() -> Jinja2Templates:
     elif debug_mode:
         logging.debug("(debug mode) Using HTTP for url_for in templates.")
     return templates
-
-
-templates = get_templates()

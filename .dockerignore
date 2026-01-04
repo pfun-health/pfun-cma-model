@@ -17,3 +17,4 @@ examples/
 .pytest_cache/
 .tox/
 generated_clients/
+certs/
