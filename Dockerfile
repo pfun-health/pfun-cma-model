@@ -23,6 +23,7 @@ FROM base AS deps
 
 # install python + dependencies
 # NOTE: specify extras, groups, e.g., '--extra standard --group perplexity'
+# ...also, download the sample data (overwrite anything existing)
 USER nonroot
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
@@ -30,7 +31,8 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    ./scripts/uv-full-sync.sh
+    ./scripts/uv-full-sync.sh && \
+    uv run pfun-cma-model download-sample-data --overwrite
 
 
 FROM deps AS dist

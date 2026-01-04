@@ -1700,7 +1700,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.131"
+version = "0.4.132"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -1872,7 +1872,7 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.29"
+version = "0.1.30"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "matplotlib" },

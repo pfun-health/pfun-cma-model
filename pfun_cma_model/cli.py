@@ -143,7 +143,6 @@ def download_sample_data(ctx, overwrite=False):
     click.secho("Downloading sample data for the pfun-cma-model package...")
     if overwrite:
         click.secho("Overwrite is enabled; existing files will be replaced if they exist.", fg='yellow', bold=True)
-        input("Press [enter] to continue...")
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data(overwrite=overwrite)
