@@ -15,7 +15,7 @@ def generate_default_secret_key() -> str:
     Note: This is not secure and should only be used for development purposes.
     In production, set the SECRET_KEY environment variable to a secure value.
     """
-    timestamp = datetime.now().isoformat("YYYY-MM-DD").encode("utf-8")
+    timestamp = datetime.now().isoformat().encode("utf-8")
     timestamp_nonce = b64encode(timestamp).decode("utf-8")
     rand_token = token_urlsafe(16) # 16 bytes of randomness
     return f"{timestamp_nonce}-{rand_token}"

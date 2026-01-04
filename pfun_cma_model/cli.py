@@ -1,3 +1,4 @@
+from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
 from pfun_cma_model.main import run_app
 from pfun_cma_model.engine.fit import fit_model as call_fit_model
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
@@ -105,8 +106,8 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     # plot the results (if '--plot' is indicated)
     if plot is True:
         from pfun_cma_model.engine.cma_plot import CMAPlotConfig
-        fig, _ = CMAPlotConfig().plot_model_results(
-            df=fit_result.formatted_data, soln=fit_result.soln, as_blob=False)
+        fig, _ = CMAPlotSolnConfig().plot(
+            df=fit_result.formatted_data)
         fig_output_fpath = os.path.join(output_dir, "fit_result.png")
         fig.savefig(fig_output_fpath)
         click.secho(f"...saved plot to: '{fig_output_fpath}'")

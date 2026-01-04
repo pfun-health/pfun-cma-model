@@ -230,7 +230,7 @@ def root(request: Request):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(  # type: ignore
         "index.html",
         {
             "request": request,

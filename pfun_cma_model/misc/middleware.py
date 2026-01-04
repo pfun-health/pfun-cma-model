@@ -36,14 +36,23 @@ async def track_client_request_middleware(request: Request, call_next):
         "path": request.url.path,
         "query_params": query_params,
         "timestamp": datetime.now().isoformat(),
+        "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         "user_agent": request.headers.get("user-agent", "unknown"),
         "referer": request.headers.get("referer", None),
     }
     
     # Store in Redis if available
-    if redis_client is not None:
+    if redis_client is None:
+        logging.debug(
+            "Redis not connected. Client request info (debug only): IP=%s, Request=%s",
+            client_ip,
+            request_info,
+        )
+        return await call_next(request)
+    elif redis_client is not None:
         try:
-            redis_key = f"client_request:{client_ip}"
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            redis_key = f"client_request:{client_ip}:{session_id or 'no-session'}:{timestamp}"
             request_json = json.dumps(request_info, default=str)
             await redis_client.set(
                 redis_key, 
@@ -59,14 +68,8 @@ async def track_client_request_middleware(request: Request, call_next):
         except Exception as exc:
             logging.warning(
                 "Failed to store client request in Redis: %s",
-                str(exc),
+                str(exc), exc_info=True
             )
-    else:
-        logging.debug(
-            "Redis not connected. Client request info (debug only): IP=%s, Request=%s",
-            client_ip,
-            request_info,
-        )
     
     # Continue with the request
     response = await call_next(request)
