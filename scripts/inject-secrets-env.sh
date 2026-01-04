@@ -9,7 +9,7 @@ DCLI="$(which dcli)"
 if [[ -z $DCLI ]]; then
     echo -e "dashlane cli not installed (exiting!)"
     exit 1
-done
+fi
 
 TEMPLATE_FN='./.env.template'
 OUTPUT_FN='./.env'

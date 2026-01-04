@@ -1,4 +1,5 @@
 import logging
+# initialize logger
 logger = logging.getLogger('pfun_cma_model')
 logger.setLevel(level=logging.INFO)
 import os
@@ -11,6 +12,7 @@ import pfun_path_helper as pph  # type: ignore
 pph.get_lib_path('pfun_cma_model')
 from pfun_common.utils import setup_logging
 from pfun_common.settings import get_settings
+# Initialize logging based on settings
 setup_logging(logger=logger, debug_mode=get_settings().debug)
 
 __all__ = [
@@ -29,8 +31,11 @@ class PFunDataPaths:
         os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
     _remote_data_fpath: str = 'https://github.com/pfun-health/pfun-data/releases/download/0.1.4/valid_data.csv'
     
-    def download_sample_data(self):
+    def download_sample_data(self, overwrite: bool = False) -> None:
         """Download sample data from the remote file path."""
+        if os.path.exists(self._sample_data_fpath) and not overwrite:
+            logger.info(f"Sample data already exists at {self._sample_data_fpath}. Skipping download.")
+            return
         with httpx.Client(follow_redirects=True, max_redirects=2) as client:
             response = client.get(self._remote_data_fpath)
             if response.status_code == 200:

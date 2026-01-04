@@ -49,7 +49,7 @@ def get_templates() -> Jinja2Templates:
     if not debug_mode:
         templates.env.globals["url_for"] = https_url_for
         logging.debug("(not debug mode) Using HTTPS for url_for in templates.")
-    else:
+    elif debug_mode:
         logging.debug("(debug mode) Using HTTP for url_for in templates.")
     return templates
 

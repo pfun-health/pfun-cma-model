@@ -45,8 +45,8 @@ class PFunDatasetResponseFormatter:
 
 @dataclass
 class PFunDatasetResponse:
-    data: Optional[pd.DataFrame] = field(
-        default=MISSING, default_factory=read_sample_data)
+    data: Optional[pd.DataFrame] = field(  # type: ignore
+        default=MISSING, default_factory=read_sample_data)  # type: ignore
     pct0: float = 0.0
     nrows: InitVar[int] = 23
     nrows_given: bool | None = None

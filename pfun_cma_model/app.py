@@ -3,6 +3,7 @@ Pfun CMA Model API Backend Routes.
 """
 
 # initialize OpenTelemetry instrumentation
+from fastapi.templating import Jinja2Templates
 from opentelemetry.instrumentation.auto_instrumentation import initialize
 
 initialize()
@@ -39,7 +40,7 @@ pph.append_path(Path(__file__).parent.parent)
 from pfun_common import setup_logging  # type: ignore
 from pfun_common.settings import get_settings
 from pfun_cma_model.routes import dexcom as dexcom_routes
-from pfun_cma_model.misc.templating import templates
+from pfun_cma_model.misc.templating import get_templates
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -58,6 +59,10 @@ setup_logging(logger, debug_mode=debug_mode)
 # --- Setup app Lifespan events ---
 
 redis_client: Redis | None = None
+#: Global Redis client instance
+
+templates: Jinja2Templates | None = None
+#: Global Jinja2 templates instance
 
 
 @asynccontextmanager
@@ -140,80 +145,12 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# --- Client Request Tracking Middleware ---
-
-
-async def track_client_request_middleware(request: Request, call_next):
-    """
-    Middleware to track client requests and store them in Redis.
-    
-    Stores: {client_ip: {cookies, session_id, request_info, timestamp}}
-    """
-    # Extract client IP address
-    client_ip = request.client.host if request.client else "unknown"
-    
-    # Extract cookies
-    cookies = dict(request.cookies) if request.cookies else {}
-    
-    # Extract session ID if available
-    session_id = request.session.get("session_id") if hasattr(request, "session") else None
-    
-    # Extract request details
-    query_params = dict(request.query_params) if request.query_params else {}
-    
-    # Build request info object
-    request_info = {
-        "client_ip": client_ip,
-        "cookies": cookies,
-        "session_id": session_id,
-        "method": request.method,
-        "path": request.url.path,
-        "query_params": query_params,
-        "timestamp": datetime.now().isoformat(),
-        "user_agent": request.headers.get("user-agent", "unknown"),
-        "referer": request.headers.get("referer", None),
-    }
-    
-    # Store in Redis if available
-    if redis_client is not None:
-        try:
-            redis_key = f"client_request:{client_ip}"
-            request_json = json.dumps(request_info, default=str)
-            await redis_client.set(
-                redis_key, 
-                request_json, 
-                ex=3600  # Expire after 1 hour
-            )
-            logging.debug(
-                "Client request tracked in Redis: IP=%s, Method=%s, Path=%s",
-                client_ip,
-                request.method,
-                request.url.path,
-            )
-        except Exception as exc:
-            logging.warning(
-                "Failed to store client request in Redis: %s",
-                str(exc),
-            )
-    else:
-        logging.debug(
-            "Redis not connected. Client request info (debug only): IP=%s, Request=%s",
-            client_ip,
-            request_info,
-        )
-    
-    # Continue with the request
-    response = await call_next(request)
-    return response
-
 
 # --- Setup middleware ---
 
-# Add Session middleware
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development"),
-)
+# Add client request tracking middleware (added first, executes last)
+from pfun_cma_model.misc.middleware import track_client_request_middleware
+app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -242,8 +179,11 @@ app.add_middleware(
     max_age=300,
 )
 
-# Add client request tracking middleware
-app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
+# Add Session middleware (added last, executes first)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SECRET_KEY", "a-secure-secret-key-for-development"),
+)
 
 # --- Include Routers ---
 

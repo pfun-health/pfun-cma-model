@@ -134,6 +134,16 @@ def run_param_grid(ctx):
     click.secho(f"...saved result to: '{output_fpath}'")
     click.secho('...done.')
 
+@cli.command()
+@click.pass_context
+def download_sample_data(ctx):
+    """Download the sample data for the pfun-cma-model package."""
+    click.secho("Downloading sample data for the pfun-cma-model package...")
+    from pfun_cma_model.misc.pathdefs import PFunDataPaths
+    pfun_data_paths = PFunDataPaths()
+    pfun_data_paths.download_sample_data()
+    click.secho(f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'")
+
 
 @cli.command()
 def version():
