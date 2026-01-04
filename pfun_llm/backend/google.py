@@ -3,6 +3,7 @@ import os
 from typing import Optional
 import google.genai as genai
 from pfun_llm.backend.base import BaseGenerativeModel
+from pfun_common.settings import get_settings
 
 
 class GeminiGenerativeModel(BaseGenerativeModel):
@@ -30,11 +31,11 @@ class GeminiGenerativeModel(BaseGenerativeModel):
             genai.Client: The Gemini API client.
         """
         # use VertexAI with auth ADC
+        settings = get_settings()
         client = genai.Client(
             vertexai=True,
-            project=os.environ.get(
-                "GOOGLE_CLOUD_PROJECT_ID", "pfun-cma-model"),
-            location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+            project=settings.google_cloud_project_id,
+            location=settings.google_cloud_location
         )
         logging.debug("Gemini API client setup successfully.")
         logging.debug("Gemini API client: %s", repr(client))

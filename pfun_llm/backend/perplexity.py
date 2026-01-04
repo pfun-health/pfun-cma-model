@@ -2,6 +2,7 @@
 import logging
 import os
 from typing import Optional
+from pfun_common import get_settings
 from pydantic import BaseModel, Field, field_validator, field_serializer
 from pfun_llm.backend.base import BaseGenerativeModel
 import perplexity as pexai
@@ -94,4 +95,5 @@ class PerplexityGenerativeModel(BaseGenerativeModel):
             pexai.Perplexity: The Perplexity API client.
         """
         # setup Perplexity client with API key from environment variable PERPLEXITY_API_KEY
-        return pexai.Perplexity()
+        settings = get_settings()
+        return pexai.Perplexity(api_key=settings.perplexity_api_key)

@@ -2,8 +2,20 @@ import logging
 import os
 import json
 import re
+import importlib
 from typing import Optional, Any
-from pfun_llm.backend.perplexity import PerplexityGenerativeModel as GenerativeModel
+from pfun_common.settings import get_settings
+settings = get_settings()
+
+_backend_map = {
+    "google": ("pfun_llm.backend.google", "GeminiGenerativeModel"),
+    "perplexity": ("pfun_llm.backend.perplexity", "PerplexityGenerativeModel"),
+}
+
+_module_name, _class_name = _backend_map[settings.llm_backend]  # type: ignore
+_module = importlib.import_module(_module_name)
+GenerativeModel = getattr(_module, _class_name)
+
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 

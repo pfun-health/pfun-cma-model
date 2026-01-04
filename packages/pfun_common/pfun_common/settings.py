@@ -5,6 +5,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from secrets import token_urlsafe
 
+from typing import Literal
 from pydantic import field_validator, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -38,7 +39,9 @@ class Settings(BaseSettings):
     redis_db: str | int | bool = "0"
     redis_connection_string: str = ""
     perplexity_api_key: str = ""
-    secret_key: str = Field(default_factory=lambda: generate_default_secret_key())
+    google_api_key: str = ""
+    llm_backend: Literal["google", "perplexity"] = "google"
+    secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
 
