@@ -30,6 +30,15 @@ class PFunDataPaths:
     _sample_data_fpath: os.PathLike = Path(
         os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
     _remote_data_fpath: str = 'https://github.com/pfun-health/pfun-data/releases/download/0.1.4/valid_data.csv'
+
+    def remove_sample_data(self) -> None:
+        """Remove the sample data file if it exists."""
+        if os.path.exists(self._sample_data_fpath):
+            os.remove(self._sample_data_fpath)
+            logger.debug(f"Sample data file {self._sample_data_fpath} removed.")
+        else:
+            logger.warning(f"(attempted to remove sample data) Sample data file {self._sample_data_fpath} does not exist. No action taken.")
+        return
     
     def download_sample_data(self, overwrite: bool = False) -> None:
         """Download sample data from the remote file path."""

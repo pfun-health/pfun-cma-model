@@ -98,6 +98,10 @@ async def lifespan(app: FastAPI):
     # --- Shutdown tasks will be handled after this point ---
     # ---
     yield
+    # --- Delete the templates instance ---
+    templates = None
+    # --- Delete the sample data ---
+    pfun_data_paths.remove_sample_data()
     # --- Shutdown task: disconnect from Redis ---
     if redis_client is not None:
         await redis_client.close()
