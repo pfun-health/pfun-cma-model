@@ -36,6 +36,7 @@ class DataRow {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    /* @todo THIS NEEDS TO BE COMPLETELY REDONE */
     const startButton = document.getElementById('startStream');
     const stopButton = document.getElementById('stopStream');
     const dataBody = document.getElementById('data-body');
