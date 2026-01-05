@@ -44,6 +44,7 @@ dependencies = [
     "opentelemetry-distro>=0.60b1",
     "opentelemetry-exporter-otlp>=1.39.1",
     "httpx>=0.28.1",
+    "itsdangerous>=2.2.0",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
