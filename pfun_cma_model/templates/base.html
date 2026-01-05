@@ -12,7 +12,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script>
-    window.addEventListener('DOMContentLoaded', function () {
+    
+  window.addEventListener('DOMContentLoaded', function () {
+        // Show survey modal on page load
         var modalEl = document.getElementById('surveyModal');
         if (!modalEl) return;
         var modal = new bootstrap.Modal(modalEl, {
@@ -21,6 +23,7 @@
         });
         modal.show();
   });
+
   // Initialize all tooltips
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
   const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
@@ -36,7 +39,36 @@
       $(".offcanvas-backdrop").css({'opacity': '0.001'}); // adjust backdrop opacity
     });
     return offcanvas;
-  })
+  });
+
+    // setup google forms survey modal (only once per client)
+    (() => {
+      let localStorageKey = 'pfun_survey_completed';
+      if (localStorage.getItem(localStorageKey)) {
+        // already completed survey
+        console.log("Survey already completed, not showing again.");
+        return; // return cleanly
+      } else {
+        // not yet completed survey
+        var modalEl = document.getElementById('surveyModal');
+        if (!modalEl) {
+          console.warn("Survey modal element not found!");
+          return;
+        }
+        var modal = new bootstrap.Modal(modalEl, {
+            backdrop: 'static',  // optional: prevent closing on backdrop click
+            keyboard: true
+          });
+        // when survey modal is closed, set localStorage flag
+        modalEl.addEventListener('hidden.bs.modal', function () {
+          localStorage.setItem(localStorageKey, 'true');
+        }, { once: true });
+        // setup offcanvas hidden event to show survey modal
+        offcanvasEl.addEventListener('hidden.bs.offcanvas', function () {          
+          modal.show();
+        });
+    }
+  })();
 </script>
 {% endmacro %}
 

@@ -50,7 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dataBody.innerHTML = ''; // Clear previous data
 
         try {
-            const response = await fetch(`/data/sample/stream?pct0=${pct0}&nrows=${nrows}`, { signal });
+            const response = await fetch(
+                `/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=json`,
+                { headers: { 'Content-Type': 'application/json' }, signal });
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 

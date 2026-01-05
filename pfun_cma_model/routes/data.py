@@ -1,7 +1,7 @@
 """
 PFun CMA Model - Data API Routes
 """
-from io import StringIO
+from io import StringIO, BytesIO
 from fastapi import APIRouter, Request, Response, HTTPException, status
 from starlette.responses import StreamingResponse
 import pandas as pd
@@ -14,7 +14,7 @@ from pfun_cma_model.data import read_sample_data
 router = APIRouter()
 
 
-PFunDatasetMediaType = Literal["json", "text", "html"]
+PFunDatasetMediaType = Literal["json", "text", "html", "octet-stream"]
 
 
 @dataclass
@@ -29,15 +29,60 @@ class PFunDatasetResponseFormatter:
     :type data: pd.DataFrame
     """
     data: pd.DataFrame
+    
+    def __post_init__(self):
+        """Post-initialization to set up formatted output methods."""
+        # Map of available formatted output methods
+        self.output_format_map = {
+            "aggregate": {
+                "json": self.json,
+                "text": self.text,
+                "html": self.html
+            },
+            "streaming": {
+                "json": self.json_stream,
+                "text": self.text_stream,
+                "octet-stream": self.octet_stream
+            }
+        }
 
     def json(self) -> str:
+        """
+        return the dataset as a JSON formatted string.
+        """
         return self.data.to_json(orient='records')
 
     def text(self) -> str:
+        """
+        return the dataset as a CSV formatted string.
+        
+        :param self: instance of the class
+        :return: CSV formatted string of the dataset
+        :rtype: str
+        """
         buf = StringIO()
-        self.data.to_csv(path_or_buf=buf)  # type:ignore
+        self.data.to_csv(path_or_buf=buf, encoding='utf-8')  # type:ignore
         buf.seek(0)
         return buf.getvalue()
+    
+    def text_stream(self) -> Any:
+        """Yield the dataset as a CSV formatted string stream."""
+        buf = StringIO()
+        self.data.to_csv(path_or_buf=buf, encoding='utf-8', index=False)  # type:ignore
+        buf.seek(0)
+        for line in buf:
+            yield line
+            
+    def json_stream(self) -> Any:
+        """Yield the dataset as a JSON formatted string stream."""
+        records = self.data.to_dict(orient='records')
+        for record in records:
+            yield f"{pd.io.json.dumps(record)}\n"
+            
+    async def octet_stream(self) -> Any:
+        """Yield the dataset as a binary octet-stream."""
+        buf = BytesIO()
+        self.data.iterrows()
 
     def html(self) -> str:
         return self.data.to_html()
@@ -59,47 +104,23 @@ class PFunDatasetResponse:
             self.data, self.pct0, nrows, self.nrows_given)
 
     @property
-    def streaming_response(self) -> StreamingResponse:
-        """Generate a streaming Response object with the dataset as JSON."""
-        return StreamingResponse(
-            content=self._stream,
-            media_type=f"application/{self.media_type}"
-        )
-
-    @property
-    def _stream(self) -> Any:
-        """Yield the dataset as streamable generator."""
-        if self.media_type == 'json':
-            yield '[\n'
-        for record in self.formatted_output.split("\n"):
-            yield record
-        if self.media_type == 'json':
-            yield ']'
-
-    @property
-    def formatted_output(self) -> str:
-        """
-        return the formatted output to be passed as content to the response.
-
-        :param self: Description
-        :return: Description
-        :rtype: Any
-        """
-        data: pd.DataFrame = self.data  # type: ignore
-        response_formatter = PFunDatasetResponseFormatter(data=data)
-        output = getattr(response_formatter, self.media_type)()
-        return output
-
-    @property
     def response(self) -> Response:
         """Generate a Response object with the dataset as JSON."""
-        formatted_output = self.formatted_output
+        logging.debug("Downloading aggregate formatted data sample response generated with media_type=%s", self.media_type)
         return Response(
-            content=formatted_output,
+            content=PFunDatasetResponseFormatter,
             status_code=200,
             headers={"Content-Type": "application/{self.media_type}"}
         )
-
+    
+    @property
+    def streaming_response(self) -> StreamingResponse:
+        """Generate a streaming Response object with the dataset as JSON."""
+        return StreamingResponse(
+            content=self.formatted_output,
+            media_type=f"application/{self.media_type}"
+        )
+    
     @classmethod
     def _parse_data(cls, data: pd.DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
         """Parse and limit the dataset based on pct0, nrows and nrows_given."""
@@ -157,7 +178,7 @@ class PFunDatasetResponse:
 
 @router.get("/sample/download")
 def get_sample_dataset(
-    request: Request,
+    request: Request,  # type: ignore
     nrows: int = 23,
     media_type: PFunDatasetMediaType = "text"
 ):
@@ -176,9 +197,9 @@ def get_sample_dataset(
 
 @router.get("/sample/stream")
 async def stream_sample_dataset(
-    request: Request,
-    pct0: float = 0.0,
-    nrows: int = -1,
+    request: Request,  # type: ignore
+    pct0: float = 0.5,
+    nrows: int = 10,
     media_type: PFunDatasetMediaType = "text"
 ) -> StreamingResponse:
     """(fast) Stream the sample dataset with optional row limit.
