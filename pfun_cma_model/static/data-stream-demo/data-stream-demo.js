@@ -50,12 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dataBody.innerHTML = ''; // Clear previous data
 
         try {
+            // Fetch the data stream
             const response = await fetch(
-                `/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=json`,
-                { headers: { 'Content-Type': 'application/json' }, signal });
+                `/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=octet-stream`,
+                { headers: { 'Content-Type': 'application/octet-stream' }, signal }
+            );
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 
+            // Function to read and process the stream (async -> formatted table rows)
             const read = async () => {
                 const { done, value } = await reader.read();
                 if (done) {
@@ -77,12 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (e) {
                         console.error('Failed to parse row:', row, e);
                     }
-                });
-
-                read();
+                });    
             };
 
+            // begin reading the stream (async)
             read();
+            console.log('Streaming the sample data has started');
 
         } catch (error) {
             if (error.name === 'AbortError') {
