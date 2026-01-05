@@ -1,3 +1,4 @@
+"""Google-backend class for generative model interfaces."""
 import logging
 import os
 from typing import Optional

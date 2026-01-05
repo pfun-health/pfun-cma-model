@@ -12,7 +12,6 @@ dependencies = [
     "pandas>=2.1.1",
     "scipy>=1.11.3",
     "matplotlib>=3.8.0",
-    "pydantic==2.4.2",
     "click>=8.1.7",
     "pfun_path_helper>=0.1.4",
     "jinja2>=3.1.2",
@@ -39,12 +38,7 @@ dependencies = [
     "pfun-common",
     "pfun-data",
     "numba>=0.63.1",
-    "opentelemetry-api>=1.39.1",
-    "opentelemetry-sdk>=1.39.1",
-    "opentelemetry-distro>=0.60b1",
-    "opentelemetry-exporter-otlp>=1.39.1",
-    "httpx>=0.28.1",
-    "itsdangerous>=2.2.0",
+    "itsdangerous>=2.2.0"
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -52,7 +46,6 @@ optional-dependencies = { ui = [], dev = [
         "types-tabulate>=0.9.0.20241207",
          "dotenv>=0.9.9",
         "fastapi[standard]>=0.115.12",
-        "httpx>=0.28.1",
         "ipykernel>=6.29.5",
         "ipython>=8.37.0",
         "mypy>=1.18.1",
@@ -79,10 +72,14 @@ requires = ["hatchling", "wheel", "setuptools"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
+# ollama-related dependencies
+ollama = [
+  "ollama",
+]
 # Google-related dependencies
 google = [
-    "google>=3.0.0",
-    "google-genai>=1.36.0"
+  # "google",
+  # "google-genai"
 ]
 # Perplexity-related dependencies
 perplexity = [

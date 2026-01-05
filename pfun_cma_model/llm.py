@@ -1,15 +1,22 @@
+"""pfun_cma_model/llm.py: LLM prompting logic"""
 import logging
 import os
 import json
 import re
 import importlib
+import asyncio
 from typing import Optional, Any
 from pfun_common.settings import get_settings
 settings = get_settings()
 
+"""
+@TODO this horrifying mess of a pattern needs to be removed promptly before it gets worse.
+"""
 _backend_map = {
     "google": ("pfun_llm.backend.google", "GeminiGenerativeModel"),
     "perplexity": ("pfun_llm.backend.perplexity", "PerplexityGenerativeModel"),
+    "ollama": ("pfun_llm.backend.ollama", "OllamaGenerativeModel"),
+    "openai": ("pfun_llm.backend.openai", "OpenaiGenerativeModel")
 }
 
 _module_name, _class_name = _backend_map[settings.llm_backend]  # type: ignore
@@ -19,9 +26,16 @@ GenerativeModel = getattr(_module, _class_name)
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 
-def _get_resp_text(response: Any | str) -> str:
-    """Get the response text attribute if it exists, otherwise return the string."""
-    return str(getattr(response, "text", str(response)))
+async def _parse_generated_response(response: Any | str) -> str:
+    """Parse the response that was returned by the generative model.
+    Await the future if it's an async routine-like object.
+    Get the response text attribute if it exists, otherwise return the string.
+    """
+    # explicitly test is_future to see if the response needs awaited
+    if not asyncio.is_future(response):
+        return str(getattr(response, "text", str(response)))
+    # use recursion after awaiting (bc we're cool like that...)
+    return _parse_generated_response(await response)
 
 
 def _call_llm_for_json(prompt: str) -> dict:
@@ -39,7 +53,7 @@ def _call_llm_for_json(prompt: str) -> dict:
     """
     model = GenerativeModel()
     response = model.generate_content(prompt)
-    resp_text: str = _get_resp_text(response)
+    resp_text: str = _parse_generated_response(response)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
         json_match = re.search(
@@ -132,7 +146,7 @@ Assistant:
     response = GenerativeModel().generate_content(prompt)
 
     try:
-        json_str = _get_resp_text(response).strip().replace(
+        json_str = _parse_generated_response(response).strip().replace(
             "`", "").replace("json", "")  # type: ignore
         explanation = json.loads(json_str)
         return explanation
@@ -201,7 +215,8 @@ Assistant:
     "qualitative_description": "{scenario_description}",
     "parameters": {{
         "Cm": {{ "value": 1.5,  "stderr": 0.5, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
-        "B": {{ "value": -0.2, "stderr": 0.25, "description": "Low baseline glucose" }}
+        "B": {{ "value": -0.2, "stderr": 0.25, "description": "Low baseline glucose" }},
+        "tM": {{ "value: "7, 11, 18", "description": "Consistent meal times throughout the day, keep up the great work! Consider eating a small snack after dinner to avoid hypoglycemia at night." }}
     }}
 }}
 ```

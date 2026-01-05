@@ -6,30 +6,6 @@
 {% endblock %}
 
 <body>
- 
-<!-- Modal -->
-    <div class="modal fade" id="surveyModal" tabindex="-1" aria-labelledby="surveyModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="surveyModalLabel">Quick survey</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body p-0">
-            <!-- Your Google Form iframe -->
-            <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSeQ8TujEgwzt0L1enhA3k_fR9eVqWLtehr8ilv9NBy5_bj39Q/viewform?embedded=true"
-              width="100%"
-              height="820"
-              frameborder="0"
-              marginheight="0"
-              marginwidth="0"
-            >Loading…</iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <header>
         {% block navheader %}
         {{ super() }}
@@ -63,12 +39,11 @@
         <h5>Notebooks</h5>
         <ul>
             <li>
-                <a href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html') }}" target="_blank">Modular
-                    CMA Model Demo</a>
+              <a href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html') }}" target="_blank">Modular CMA Model Demo</a>
             </li>
             <li>
-                <a href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html') }}"
-                    target="_blank">Visualize Generated Scenarios</a>
+              <a href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html') }}"
+                 target="_blank">Visualize Generated Scenarios</a>
             </li>
         </ul>
         <hr />

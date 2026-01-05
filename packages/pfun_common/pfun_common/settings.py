@@ -40,7 +40,9 @@ class Settings(BaseSettings):
     redis_connection_string: str = ""
     perplexity_api_key: str = ""
     google_api_key: str = ""
-    llm_backend: Literal["google", "perplexity"] = "google"
+    ollama_api_key: str = ""
+    ollama_host: str = "http://localhost:11434"
+    llm_backend: Literal["google", "perplexity", "ollama", "openai"] = "ollama"
     secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"

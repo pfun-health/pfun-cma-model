@@ -72,7 +72,19 @@
 </script>
 {% endmacro %}
 
-<!-- Demos macros -->
+<!-- other macros -->
+
+{% macro github_star_embed() %}
+<iframe
+  src="https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
+  frameborder="0"
+  scrolling="0"
+  width="170" height="30"
+  title="GitHub">
+</iframe>
+{% endmacro %}
+
+<!-- end macros -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -104,6 +116,10 @@
 </head>
 
 <body>
+
+  <!-- placeholder for survey modal window (configured via javascript) -->
+  <div id="surveyModal" class="modal"></div>
+  
   <header>
     {% block navheader %}
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -144,10 +160,13 @@
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="/demo/webgl-demo" target="_blank">(WebGL) Real-time Streaming Demo</a>
+                  <a class="dropdown-item" href="/demo/webgl-demo" target="_blank">(WebGL) Streaming Demo</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="/demo/run-at-time" target="_blank">Run-at-Time Demo</a>
+                  <a class="dropdown-item" href="/demo/run-at-time" target="_blank">(Chart.js) Run-at-Time Demo</a>
+                </li>
+		<li>
+                  <a class="dropdown-item" href="/demo/canvas-wave" target="_blank">(HTML5) Canvas Wave Demo</a>
                 </li>
               </ul>
             </li>
@@ -164,9 +183,8 @@
               </ul>
             </li>
           </ul>
-          <iframe
-            src="https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
-            frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+	  <!-- insert github star repo iframe via macro -->
+	  {{ github_star_embed() }}
         </div>
       </div>
     </nav>
@@ -175,11 +193,9 @@
   <div id="content">{% block content %}{% endblock %}</div>
   <footer>
     {% block footer %}
-    <div class="container-fluid text-center mb-0">
+    <div class="container-fluid text-center mb-2">
       <div class="container-row mb-2 mt-2">
-        <iframe
-          src="https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
-          frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+	{{ github_star_embed() }}
       </div>
       <span class="text-muted">
         <small>PFun Digital Health ~ {{ year }}. All rights reserved.</small>

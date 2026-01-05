@@ -60,19 +60,6 @@ services:
     networks:
       - pfun-cma-network
 
-  # otel-collector:
-  #   image: otel/opentelemetry-collector
-  #   volumes:
-  #     - ./opentelemetry-collector/otel-collector-config.yaml:/etc/otelcol/config.yaml
-  #   ports:
-  #     - 1888:1888 # pprof extension
-  #     - 8888:8888 # Prometheus metrics exposed by the Collector
-  #     - 8889:8889 # Prometheus exporter metrics
-  #     - 13133:13133 # health_check extension
-  #     - 4317:4317 # OTLP gRPC receiver
-  #     - 4318:4318 # OTLP http receiver
-  #     - 55679:55679 # zpages extension
-
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
@@ -80,6 +67,7 @@ services:
       - "1080:1080"  # Expose NGINX on port
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the NGINX config
+      - ./nginx/html/index.html:/etc/nginx/nginx.conf:ro  # Mount the NGINX index page
     depends_on:
       - pfun-cma-model
       - pfun-gradio
