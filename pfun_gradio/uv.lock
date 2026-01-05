@@ -512,7 +512,7 @@ wheels = [
 
 [[package]]
 name = "pfun-common"
-version = "0.1.29"
+version = "0.1.30"
 source = { directory = "../packages/pfun_common" }
 dependencies = [
     { name = "matplotlib" },
@@ -529,7 +529,7 @@ requires-dist = [
 
 [[package]]
 name = "pfun-gradio"
-version = "0.1.29"
+version = "0.1.30"
 source = { virtual = "." }
 dependencies = [
     { name = "gradio" },
