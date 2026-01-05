@@ -67,10 +67,10 @@ services:
       - "1080:1080"  # Expose NGINX on port
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the NGINX config
-      - ./nginx/html/index.html:/etc/nginx/nginx.conf:ro  # Mount the NGINX index page
-    depends_on:
-      - pfun-cma-model
-      - pfun-gradio
+      - ./nginx/html/index.html:/etc/nginx/html/index.html:ro  # Mount the NGINX index page
+    # depends_on:
+    #   - pfun-cma-model
+    #   - pfun-gradio
     networks:
       - pfun-cma-network  # Attach to the network
     
