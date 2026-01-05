@@ -23,7 +23,7 @@ dependencies = [
     "requests>=2.32.4",
     "pyarrow>=20.0.0",
     "ipykernel>=6.29.5",
-    "websockets>=15.0.1",
+    "websockets>=13.0,<15.0",
     "fastapi[standard]==0.116.1",
     "redis>=6.4.0",
     "python-socketio>=5.13.0",
@@ -38,7 +38,7 @@ dependencies = [
     "pfun-common",
     "pfun-data",
     "numba>=0.63.1",
-    "itsdangerous>=2.2.0"
+    "itsdangerous>=2.2.0",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -78,8 +78,8 @@ ollama = [
 ]
 # Google-related dependencies
 google = [
-  # "google",
-  # "google-genai"
+  "google",
+  "google-genai"
 ]
 # Perplexity-related dependencies
 perplexity = [

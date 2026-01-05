@@ -1,9 +1,9 @@
 """Ollama-backend class for generative model interfaces."""
 import asyncio
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field, field_validator, field_serializer
 from ollama import AsyncClient
-from pfun_common.setttings import get_settings
+from pfun_common.settings import get_settings
 
 
 class OllamaMessage(BaseModel):
@@ -34,7 +34,7 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-_OLLAMA_DEFAULT_MODEL: Literal["tinyllama", ] = "tinyllama"
+_OLLAMA_DEFAULT_MODEL: Literal["tinyllama"] = "tinyllama"
 
 
 class OllamaGenerativeModel:
