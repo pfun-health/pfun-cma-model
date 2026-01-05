@@ -5,19 +5,22 @@ JSON.parseall = function (text) {
 
 class DataRow {
     constructor(data) {
-        this.data = data;
+        this.data = data.split(",");
     }
 
     get ts_local() {
-        return this.data.ts_local;
+	// expect string
+        return this.data[4];
     }
 
     get sg() {
-        return this.data.sg;
+	// expect number
+        return new Number(this.data[6]);
     }
 
     get meal_tag() {
-        return this.data.meal_tag;
+	// expect string ['false', 'true']
+        return this.data[8];
     }
 
     insertRow(tableBody) {
@@ -69,13 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const chunk = decoder.decode(value, { stream: true });
+		// pre-clean the rows
                 const rows = chunk.split('\n').filter(row => row.trim() !== '');
 
                 rows.forEach(row => {
+		    // first check to see if this might be a title or other expected non-conforming row
+		    if(!Number(row.split(",")[0])) {
+			console.warn('Skipping this row, it seems to be non-conforming.', row);
+			return;
+		    }
                     try {
-                        // Replace NaN with null for JSON parsing
-                        const data = JSON.parseall(row);
-                        const dataRow = new DataRow(data);
+                        const dataRow = new DataRow(row);
                         dataRow.insertRow(dataBody);
                     } catch (e) {
                         console.error('Failed to parse row:', row, e);
@@ -98,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const stopStream = () => {
+    const stopStream = async () => {
         if (controller) {
             controller.abort();
             console.log('Stopping stream...');

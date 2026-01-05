@@ -154,7 +154,8 @@ async def stream_sample_dataset(
         )
     elif media_type == "octet-stream":
         buffer = BytesIO()
-        dataset.to_csv(buffer, index=False)
+        # the client expects the extra index to be removed, header should be gone also
+        dataset.to_csv(buffer, index=False, header=False)
         buffer.seek(0)
         return StreamingResponse(
             content=buffer,
