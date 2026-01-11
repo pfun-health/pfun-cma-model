@@ -5,6 +5,7 @@ PFun CMA Model - Demo API Routes
 import os
 import logging
 from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
@@ -14,6 +15,22 @@ from pfun_common.settings import Settings, get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+class PFunDemoRoutesContext(BaseModel):
+    """Defines the context to include for rendering demo routes (jinja2templates)."""
+
+    model_config = ConfigDict(
+        extra='allow',
+        arbitrary_types_allowed=True,
+    )
+    #: Model configuration
+
+    request: Request
+    #: The current request for the route
+
+    year: int = Field(default_factory=lambda: datetime.now().year)
+    #: Current calendar year (YYYY)
 
 
 @router.get("/gradio")
@@ -54,15 +71,17 @@ def demo_gradio(
 
 @router.get("/dexcom")
 def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+    context = PFunDemoRoutesContext(request=request).model_dump()
     return templates.TemplateResponse(
-        "dexcom-demo.html", {"request": request, "year": datetime.now().year}
+        "dexcom-demo.html", context=context
     )
 
 
 @router.get("/data-stream")
 def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+    context = PFunDemoRoutesContext(request=request).model_dump()
     return templates.TemplateResponse(
-        "data-stream-demo.html", {"request": request, "year": datetime.now().year}
+        "data-stream-demo.html", context=context
     )
 
 
@@ -106,11 +125,14 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
                 "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
             },
         },
+        "year": datetime.now().year
     }
-    logger.debug("Demo context: %s", context_dict)
+    logger.debug("Demo context: %s", str(context_dict))
+    context = PFunDemoRoutesContext(**context_dict)
+    context = context.model_dump()
     return templates.TemplateResponse(
         "run-at-time-demo.html",
-        context=context_dict,
+        context=context,
         headers={"Content-Type": "text/html"},
     )
 
@@ -154,9 +176,10 @@ async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depend
         },
     }
     logger.debug("Demo context: %s", context_dict)
+    context = PFunDemoRoutesContext(**context_dict)
     return templates.TemplateResponse(
         "canvas-wave-demo.html",
-        context=context_dict,
+        context=context,
         headers={"Content-Type": "text/html"},
     )
 
