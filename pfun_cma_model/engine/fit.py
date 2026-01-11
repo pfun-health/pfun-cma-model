@@ -1,18 +1,27 @@
-from pfun_cma_model.engine.data_utils import (
-    dt_to_decimal_hours, format_data, downsample_data
-)
-from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.misc.types import NumpyArray
-import pandas as pd
-from typing import Annotated, Any, Dict, Iterable, Container, Generator
-import numpy as np
-from pydantic import BaseModel, computed_field, ConfigDict, field_serializer  # type: ignore
 import importlib
+import logging
 import sys
 from pathlib import Path
-import logging
+from typing import Annotated, Any, Container, Dict, Generator, Iterable
+
+import numpy as np
+import pandas as pd
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    computed_field,  # type: ignore
+    field_serializer,
+)
 from scipy.optimize import minimize  # type: ignore
 from scipy.optimize._optimize import OptimizeResult  # type: ignore
+
+from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.engine.data_utils import (
+    downsample_data,
+    dt_to_decimal_hours,
+    format_data,
+)
+from pfun_cma_model.misc.types import NumpyArray
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
@@ -24,11 +33,7 @@ if root_path not in sys.path:
 if mod_path not in sys.path:
     sys.path.insert(0, mod_path)
 
-__all__ = [
-    "CMAFitResult",
-    "fit_model",
-    "estimate_mealtimes"
-]
+__all__ = ["CMAFitResult", "fit_model", "estimate_mealtimes"]
 
 # import custom ndarray schema
 
@@ -54,7 +59,7 @@ class CMAFitResult(BaseModel):
         indent=None,
         include=None,
         # exclude infodict (@ v0.3.2a1 fails to serialize on nested numpy arrays)
-        exclude=['infodict'],
+        exclude=["infodict"],
         by_alias=False,
         exclude_unset=False,
         exclude_defaults=False,
@@ -73,7 +78,10 @@ class CMAFitResult(BaseModel):
             elif isinstance(value, (Generator)):
                 logging.warning(
                     "Could not convert '%s' (key=%s, type=%s) to JSON (saving as naive string representation).",
-                    str(key), str(value), type(value))
+                    str(key),
+                    str(value),
+                    type(value),
+                )
                 self.__dict__[key] = str(value)
             if isinstance(value, dict):
                 for k, v in value.items():
@@ -114,10 +122,7 @@ class CMAFitResult(BaseModel):
             bounded_param_keys = self.cma.bounded_param_keys
         else:
             bounded_param_keys = self.cma.get("bounded_param_keys")
-        return {
-            k: v
-            for k, v in zip(bounded_param_keys, self.popt, strict=True)
-        }
+        return {k: v for k, v in zip(bounded_param_keys, self.popt, strict=True)}
 
     @computed_field
     def cond(self) -> float:
@@ -136,7 +141,9 @@ class CMAFitResult(BaseModel):
         return df
 
     @field_serializer("popt", "pcov", "diag")
-    def serialize_numpy_array(self, arr: Annotated[np.ndarray, NumpyArray] | np.ndarray | list, *args) -> list:
+    def serialize_numpy_array(
+        self, arr: Annotated[np.ndarray, NumpyArray] | np.ndarray | list, *args
+    ) -> list:
         if isinstance(arr, np.ndarray):
             return arr.tolist()
         return arr
@@ -158,11 +165,9 @@ class CMAFitResult(BaseModel):
         return infodict
 
 
-def estimate_mealtimes(data,
-                       ycol: str = "G",
-                       tm_freq: str = "2h",
-                       n_meals: int = 4,
-                       **kwds):
+def estimate_mealtimes(
+    data, ycol: str = "G", tm_freq: str = "2h", n_meals: int = 4, **kwds
+):
     n_meals = int(n_meals)
     df = data[["t", ycol]]
     if not isinstance(df.index, pd.TimedeltaIndex):
@@ -170,9 +175,18 @@ def estimate_mealtimes(data,
         df = df.assign(dt=pd.to_timedelta(df["t"], "h"))
         df.set_index("dt", inplace=True)
     dfres = df.resample(tm_freq).mean()
-    tM = (dfres[ycol].diff().dropna().groupby(
-        pd.Grouper(freq=tm_freq)).max().sort_values().index.to_series().apply(
-            lambda d: dt_to_decimal_hours(d)).unique()[-n_meals:] - 0.05)
+    tM = (
+        dfres[ycol]
+        .diff()
+        .dropna()
+        .groupby(pd.Grouper(freq=tm_freq))
+        .max()
+        .sort_values()
+        .index.to_series()
+        .apply(lambda d: dt_to_decimal_hours(d))
+        .unique()[-n_meals:]
+        - 0.05
+    )
     tM[tM < 0.0] += 23.9999
     tM[tM > 24.0] -= 23.9999
     tM.sort()
@@ -193,7 +207,10 @@ class CurveFitNS:
     def get_errors(self):
         self.errors = {
             0: ["Optimization terminated successfully.", None],
-            1: ["Maximum number of function evaluations has been exceeded.", ValueError],
+            1: [
+                "Maximum number of function evaluations has been exceeded.",
+                ValueError,
+            ],
             2: ["Optimization failed to converge.", ValueError],
             3: ["Optimization stopped for unknown reason.", ValueError],
             4: ["Optimization failed due to error.", ValueError],
@@ -252,15 +269,19 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
         "disp": kwds.get("verbose", 0) > 0,
     }
     # handle method-specific options (bounded/unbounded)
-    bounded_methods = [mm.lower() for mm in ["L-BFGS-B",
-                                             "Nelder-Mead", "Powell", "TNC", "trust-constr"]]
+    bounded_methods = [
+        mm.lower()
+        for mm in ["L-BFGS-B", "Nelder-Mead", "Powell", "TNC", "trust-constr"]
+    ]
     if method.lower() not in bounded_methods:
         options.pop("maxfun", None)
     # Convert bounds to scipy format if needed
     if bounds is not None:
         if isinstance(bounds, dict):
             bounds = [tuple(bounds[k]) for k in sorted(bounds)]
-        elif isinstance(bounds, (list, tuple)) and isinstance(bounds[0], (list, tuple, np.ndarray)):
+        elif isinstance(bounds, (list, tuple)) and isinstance(
+            bounds[0], (list, tuple, np.ndarray)
+        ):
             bounds = [tuple(b) for b in bounds]
         else:
             bounds = None
@@ -275,9 +296,9 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
 
     popt = result.x
     # Estimate covariance matrix if possible
-    if result.hess_inv is not None and hasattr(result.hess_inv, 'todense'):
+    if result.hess_inv is not None and hasattr(result.hess_inv, "todense"):
         pcov = result.hess_inv.todense()
-    elif result.hess_inv is not None and hasattr(result.hess_inv, '__array__'):
+    elif result.hess_inv is not None and hasattr(result.hess_inv, "__array__"):
         pcov = np.atleast_2d(result.hess_inv)
     else:
         pcov = np.eye(len(popt))
@@ -286,8 +307,7 @@ def curve_fit(fun, xdata, ydata, p0=None, bounds=None, **kwds):
     errmsg, err = cns.errors.get(ier, ["Unknown error", None])
     infodict = {"message": errmsg, "error": err, "ier": ier, "result": result}
     if not result.success:
-        raise RuntimeError(
-            f"Optimal parameters not found: {errmsg}\n{result.message}")
+        raise RuntimeError(f"Optimal parameters not found: {errmsg}\n{result.message}")
     return popt, pcov, infodict, errmsg, ier
 
 
@@ -316,10 +336,10 @@ def fit_model(
         curve_fit_kwds = {}
 
     # N takes precedence if passed explicitly in kwds
-    if 'N' in kwds and 'n' in kwds:
+    if "N" in kwds and "n" in kwds:
         raise ValueError("Cannot specify both 'N' and 'n' in kwargs.")
     # N timestamps for final result (data is downsampled internally)
-    N = kwds.pop("N", kwds.pop('n', 1024))
+    N = kwds.pop("N", kwds.pop("n", 1024))
 
     # pre-process data to ensure it is in the correct format
     data = format_data(data, N=N)  # reformat columns, downsample as needed
@@ -352,8 +372,8 @@ def fit_model(
     t = t_kwds
     if t_kwds is not xdata:
         logger.warning(
-            "Two values were provided for 't' parameter... Using: '%s'",
-            str(t))
+            "Two values were provided for 't' parameter... Using: '%s'", str(t)
+        )
     cma = CMASleepWakeModel(t=t, N=t.size, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         logging.debug("taup0=%f", cma.taup)
@@ -361,13 +381,7 @@ def fit_model(
     def fun(p, fvec, args=(), cma=cma):
         y, pcov, pmu, Niters = args
         d, taup, taug, B, Cm, toff = p
-        cma.update(inplace=True,
-                   d=d,
-                   taup=taup,
-                   taug=taug,
-                   B=B,
-                   Cm=Cm,
-                   toff=toff)
+        cma.update(inplace=True, d=d, taup=taup, taug=taug, B=B, Cm=Cm, toff=toff)
         fvec[:] = np.power(y - cma.g_instant, 2)[:]
 
     pkeys_include = cma.bounded_param_keys
@@ -377,12 +391,7 @@ def fit_model(
     bounds = cma.bounds
 
     popt_internal, pcov, infodict, mesg, ier = curve_fit(
-        fun,
-        xdata,
-        ydata,
-        p0=p0,
-        bounds=bounds,
-        **curve_fit_kwds
+        fun, xdata, ydata, p0=p0, bounds=bounds, **curve_fit_kwds
     )
     popt = popt_internal
 

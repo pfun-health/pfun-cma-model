@@ -2,10 +2,35 @@ import json
 import logging
 from collections.abc import Mapping
 from typing import Optional
-from fastapi import FastAPI
+
 import socketio
+from fastapi import FastAPI
+from numpy import array, ndarray
+
 from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.stream import stream_run_at_time_func
+from pfun_cma_model.stream import stream_full_model_run, stream_run_at_time_func
+
+
+class CustomCMASleepWakeModel(CMASleepWakeModel):
+    """
+    Subclass of CMASleepWakeModel that allows setting the time vector 't' directly.
+    The base class attempts to set 't' via self.params.t, which is read-only/derived in CMAModelParams.
+    This subclass stores 't' locally to allow custom simulation timeframes for the full model run.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._custom_t: Optional[ndarray] = None
+
+    @property
+    def t(self) -> ndarray:
+        if self._custom_t is not None:
+            return self._custom_t
+        return super().t
+
+    @t.setter
+    def t(self, value):
+        self._custom_t = array(value)
 
 
 async def get_logger():
@@ -129,4 +154,23 @@ class PFunWebsocketNamespace(NoPrefixNamespace):
 
         except Exception as e:
             logging.error(f"Error in handle_run: {e}", exc_info=True)
+            await self.sio.emit("message", json.dumps({"error": str(e)}), to=sid)
+
+    async def on_run_full(self, sid, data):
+        """Handle 'run_full' event from client, run model, and stream results as 'message' events."""
+        try:
+            # Accept both dict and JSON string
+            run_args = data if isinstance(data, dict) else json.loads(data)
+            t0 = run_args.get("t0", 0)
+            t1 = run_args.get("t1", 100)
+            n = run_args.get("n", 100)
+            config = run_args.get("config", {})
+
+            model = CustomCMASleepWakeModel()
+            # Use an async for loop to iterate over the async generator
+            async for point in stream_full_model_run(model, t0, t1, n, **config):
+                await self.sio.emit("message", point, to=sid)
+
+        except Exception as e:
+            logging.error(f"Error in handle_run_full: {e}", exc_info=True)
             await self.sio.emit("message", json.dumps({"error": str(e)}), to=sid)

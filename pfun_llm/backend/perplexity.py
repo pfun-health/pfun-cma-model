@@ -1,21 +1,26 @@
 """Perplexity generative model interface."""
+
 import logging
 import os
 from typing import Optional
-from pfun_common import get_settings
-from pydantic import BaseModel, Field, field_validator, field_serializer
-from pfun_llm.backend.base import BaseGenerativeModel
+
 import perplexity as pexai
+from pfun_common import get_settings
+from pydantic import BaseModel, Field, field_serializer, field_validator
+
+from pfun_llm.backend.base import BaseGenerativeModel
 
 
 class PerplexityMessage(BaseModel):
     """Message schema for Perplexity API."""
+
     role: str = Field(default="user")
     content: str = Field()
 
 
 class PerplexityMessages(BaseModel):
     """Messages schema for Perplexity API."""
+
     messages: list[PerplexityMessage | str] = Field(default_factory=list)
 
     @field_serializer("messages")
@@ -24,10 +29,9 @@ class PerplexityMessages(BaseModel):
         serialized_messages = []
         for message in v:
             if isinstance(message, PerplexityMessage):
-                serialized_messages.append({
-                    "role": message.role,
-                    "content": message.content
-                })
+                serialized_messages.append(
+                    {"role": message.role, "content": message.content}
+                )
             else:
                 raise ValueError(
                     "Each message must be a PerplexityMessage instance. "
@@ -44,7 +48,8 @@ class PerplexityMessages(BaseModel):
             for item in v:
                 if isinstance(item, str):
                     validated_messages.append(
-                        PerplexityMessage(role="user", content=item))
+                        PerplexityMessage(role="user", content=item)
+                    )
                 elif isinstance(item, PerplexityMessage):
                     validated_messages.append(item)
                 else:
@@ -70,21 +75,32 @@ class PerplexityGenerativeModel(BaseGenerativeModel):
         return obj
 
     def call_genai_client(
-            self,
-            model: Optional[str] = None,
-            contents: Optional[list | str | PerplexityMessages | PerplexityMessage] = None):
+        self,
+        model: Optional[str] = None,
+        contents: Optional[list | str | PerplexityMessages | PerplexityMessage] = None,
+    ):
         """Call the API client with the specified model and contents."""
         super().call_genai_client(model=model, contents=contents)
         if not isinstance(contents, PerplexityMessages):
             contents = PerplexityMessages(
-                messages=contents if isinstance(contents, list) else [contents, ])
+                messages=(
+                    contents
+                    if isinstance(contents, list)
+                    else [
+                        contents,
+                    ]
+                )
+            )
         serialized_messages = contents.model_dump()["messages"]
-        logging.debug("Serialized messages for Perplexity API (type=%s): %s",
-                      type(serialized_messages), repr(serialized_messages))
+        logging.debug(
+            "Serialized messages for Perplexity API (type=%s): %s",
+            type(serialized_messages),
+            repr(serialized_messages),
+        )
         response = self._client.chat.completions.create(
             model=model,
             messages=serialized_messages,
-            web_search_options={"search_type": "pro"}
+            web_search_options={"search_type": "pro"},
         )
         return response.choices[0].message.content
 

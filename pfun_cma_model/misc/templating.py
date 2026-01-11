@@ -1,24 +1,25 @@
 """
 PFun CMA Model - Templating utilities
 """
-import os
+
 import logging
+import os
 from pathlib import Path
 from typing import Any
-from jinja2 import pass_context
-from fastapi.templating import Jinja2Templates
+
 import pfun_path_helper as pph  # type: ignore
+from fastapi.templating import Jinja2Templates
+from jinja2 import pass_context
+
 pph.append_path(Path(__file__).parent.parent)
 from pfun_common import load_environment_variables, setup_logging  # type: ignore
 from pfun_common.settings import get_settings
-
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-logger.info(
-    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 # Ensure the .env file is loaded
 load_environment_variables(logger=logger)

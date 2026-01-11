@@ -1,13 +1,15 @@
 """
 PFun CMA Model - Data API Routes
 """
-from io import StringIO
-from fastapi import APIRouter, Request, Response, HTTPException, status
-from starlette.responses import StreamingResponse
-import pandas as pd
+
 import logging
+from dataclasses import MISSING, InitVar, dataclass, field
+from io import StringIO
 from typing import Any, Literal, Optional
-from dataclasses import dataclass, InitVar, field, MISSING
+
+import pandas as pd
+from fastapi import APIRouter, HTTPException, Request, Response, status
+from starlette.responses import StreamingResponse
 
 from pfun_cma_model.data import read_sample_data
 
@@ -28,10 +30,11 @@ class PFunDatasetResponseFormatter:
     :var data: The pandas DataFrame containing the dataset to be formatted.
     :type data: pd.DataFrame
     """
+
     data: pd.DataFrame
 
     def json(self) -> str:
-        return self.data.to_json(orient='records')
+        return self.data.to_json(orient="records")
 
     def text(self) -> str:
         buf = StringIO()
@@ -46,7 +49,8 @@ class PFunDatasetResponseFormatter:
 @dataclass
 class PFunDatasetResponse:
     data: Optional[pd.DataFrame] = field(  # type: ignore
-        default=MISSING, default_factory=read_sample_data)  # type: ignore
+        default=MISSING, default_factory=read_sample_data
+    )  # type: ignore
     pct0: float = 0.0
     nrows: InitVar[int] = 23
     nrows_given: bool | None = None
@@ -56,25 +60,25 @@ class PFunDatasetResponse:
         """Post-initialization to parse nrows and data."""
         _, self.nrows_given = self._parse_nrows(nrows)
         self.data: pd.DataFrame = self._parse_data(
-            self.data, self.pct0, nrows, self.nrows_given)
+            self.data, self.pct0, nrows, self.nrows_given
+        )
 
     @property
     def streaming_response(self) -> StreamingResponse:
         """Generate a streaming Response object with the dataset as JSON."""
         return StreamingResponse(
-            content=self._stream,
-            media_type=f"application/{self.media_type}"
+            content=self._stream, media_type=f"application/{self.media_type}"
         )
 
     @property
     def _stream(self) -> Any:
         """Yield the dataset as streamable generator."""
-        if self.media_type == 'json':
-            yield '[\n'
+        if self.media_type == "json":
+            yield "[\n"
         for record in self.formatted_output.split("\n"):
             yield record
-        if self.media_type == 'json':
-            yield ']'
+        if self.media_type == "json":
+            yield "]"
 
     @property
     def formatted_output(self) -> str:
@@ -97,11 +101,13 @@ class PFunDatasetResponse:
         return Response(
             content=formatted_output,
             status_code=200,
-            headers={"Content-Type": "application/{self.media_type}"}
+            headers={"Content-Type": "application/{self.media_type}"},
         )
 
     @classmethod
-    def _parse_data(cls, data: pd.DataFrame | None, pct0: float, nrows: int, nrows_given: bool):
+    def _parse_data(
+        cls, data: pd.DataFrame | None, pct0: float, nrows: int, nrows_given: bool
+    ):
         """Parse and limit the dataset based on pct0, nrows and nrows_given."""
         # If no data provided, read the default sample dataset
         if data is None:
@@ -138,8 +144,7 @@ class PFunDatasetResponse:
         """
         # Check if nrows is valid
         if nrows < -1:
-            logging.error(
-                "Invalid nrows value: %s. Must be -1 or greater.", nrows)
+            logging.error("Invalid nrows value: %s. Must be -1 or greater.", nrows)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="nrows must be -1 (for full dataset) or a non-negative integer.",
@@ -148,29 +153,28 @@ class PFunDatasetResponse:
             nrows_given = False  # -1 means no limit, return full dataset
         else:
             nrows_given = True  # nrows is given, return only the first nrows
+        logging.debug("Received request for sample dataset with nrows=%s", nrows)
         logging.debug(
-            "Received request for sample dataset with nrows=%s", nrows)
-        logging.debug("(nrows_given) Was nrows_given? %s",
-                      "'Yes.'" if nrows_given else "'No.'")
+            "(nrows_given) Was nrows_given? %s", "'Yes.'" if nrows_given else "'No.'"
+        )
         return nrows, nrows_given
 
 
 @router.get("/sample/download")
 def get_sample_dataset(
-    request: Request,
-    nrows: int = 23,
-    media_type: PFunDatasetMediaType = "text"
+    request: Request, nrows: int = 23, media_type: PFunDatasetMediaType = "text"
 ):
     """(slow) Download the sample dataset with optional row limit.
 
     Args:
         request (Request): The FastAPI request object.
         nrows (int): The number of rows to return. If -1, return the full dataset.
-        media_type (PFunDatasetMediaType): The return type expected of the response. 
+        media_type (PFunDatasetMediaType): The return type expected of the response.
     """
     # Read the sample dataset (data=None means use default sample data)
     dataset_response = PFunDatasetResponse(
-        data=None, nrows=nrows, media_type=media_type)
+        data=None, nrows=nrows, media_type=media_type
+    )
     return dataset_response.response
 
 
@@ -179,7 +183,7 @@ async def stream_sample_dataset(
     request: Request,
     pct0: float = 0.0,
     nrows: int = -1,
-    media_type: PFunDatasetMediaType = "text"
+    media_type: PFunDatasetMediaType = "text",
 ) -> StreamingResponse:
     """(fast) Stream the sample dataset with optional row limit.
     Args:
@@ -188,6 +192,7 @@ async def stream_sample_dataset(
         nrows (int): The number of rows to include in the stream. If -1, stream the full dataset.
     """
     dataset_response = PFunDatasetResponse(
-        data=None, pct0=pct0, nrows=nrows, media_type=media_type)
+        data=None, pct0=pct0, nrows=nrows, media_type=media_type
+    )
     # return the iterable (generating) streaming response
     return dataset_response.streaming_response

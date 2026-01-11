@@ -8,40 +8,44 @@ from opentelemetry.instrumentation.auto_instrumentation import initialize
 
 initialize()
 
-# import necessary modules and packages
-from pfun_cma_model.routes import llm as llm_routes
-from pfun_cma_model.routes import demo as demo_routes
-from pfun_cma_model.routes import params as params_routes
-from pfun_cma_model.routes import data as data_routes
-from redis.asyncio import Redis
-from pfun_cma_model.engine.cma_model_params import (
-    _BOUNDED_PARAM_KEYS_DEFAULTS,
-)
-import pfun_cma_model
 import importlib
-from pandas import DataFrame
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
-from pfun_cma_model.engine.cma import CMASleepWakeModel
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi import FastAPI, Request, Response, Body, Depends
-from fastapi.staticfiles import StaticFiles
-from datetime import datetime
 import json
 import logging
 import os
-from pathlib import Path
 from contextlib import asynccontextmanager
-from typing import Optional, Annotated, Mapping
+from datetime import datetime
+from pathlib import Path
+from typing import Annotated, Mapping, Optional
+
 import pfun_path_helper as pph  # type: ignore
+from fastapi import Body, Depends, FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.staticfiles import StaticFiles
+from pandas import DataFrame
+from redis.asyncio import Redis
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+
+import pfun_cma_model
+from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.engine.cma_model_params import (
+    _BOUNDED_PARAM_KEYS_DEFAULTS,
+    CMAModelParams,
+)
+
+# import necessary modules and packages
+from pfun_cma_model.routes import data as data_routes
+from pfun_cma_model.routes import demo as demo_routes
+from pfun_cma_model.routes import llm as llm_routes
+from pfun_cma_model.routes import params as params_routes
 
 pph.append_path(Path(__file__).parent.parent)
 from pfun_common import setup_logging  # type: ignore
 from pfun_common.settings import get_settings
-from pfun_cma_model.routes import dexcom as dexcom_routes
+
 from pfun_cma_model.misc.templating import get_templates
+from pfun_cma_model.routes import dexcom as dexcom_routes
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -88,9 +92,10 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
-    
+
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -162,6 +167,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Add client request tracking middleware (added first, executes last)
 from pfun_cma_model.misc.middleware import track_client_request_middleware
+
 app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
@@ -403,6 +409,7 @@ async def fit_model_to_data(
     data: dict | str, config: Optional[CMAModelParams | str] = None  # type: ignore
 ):
     from pandas import DataFrame
+
     from pfun_cma_model.data import read_sample_data
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
 

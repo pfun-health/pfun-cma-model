@@ -4,12 +4,14 @@ Uses Gradio for the interface. Hits the /llm/generate-scenario endpoint
 to generate a scenario based on user input.
 """
 
+import asyncio
 import logging
+from pathlib import Path
+
 import gradio as gr
 import httpx
-import asyncio
-from pathlib import Path
 import pfun_path_helper as pph  # type: ignore
+
 pph.append_path(Path(__file__).parent.parent)
 
 try:
@@ -18,44 +20,40 @@ except (ImportError, ModuleNotFoundError):
     from pfun_common.pfun_common.settings import Settings, get_settings
 
 
-
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.debug(
-    "Logger initialized for pfun-gradio (logger name: %s)", logger.name)
+logger.debug("Logger initialized for pfun-gradio (logger name: %s)", logger.name)
 
 
 def get_default_description():
     return "The patient is a 45-year-old male with type 2 diabetes and a history of hypoglycemia."
 
 
-async def async_generate_parameters(description: str, llm_gen_scenario_endpoint: str) -> str:
+async def async_generate_parameters(
+    description: str, llm_gen_scenario_endpoint: str
+) -> str:
     """
     Asynchronously generate parameters for a scenario description.
     :param description: Description
     :param llm_gen_scenario_endpoint: Description
     """
-    logger.debug("Hitting llm generation endpoint: %s",
-                 str(llm_gen_scenario_endpoint))
+    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with httpx.AsyncClient(timeout=30) as client:
         try:
             response = await client.post(
-                llm_gen_scenario_endpoint,
-                json={"description": description},
-                timeout=27
+                llm_gen_scenario_endpoint, json={"description": description}, timeout=27
             )
             if response.status_code == 200:
                 # Successful response (JSON object)
                 response_jdict = response.json()
-                description_text = response_jdict.get(
-                    "qualitative_description", "")
+                description_text = response_jdict.get("qualitative_description", "")
                 import pandas as pd
+
                 parameters = response_jdict.get("parameters", {})
                 if parameters:
-                    param_df = pd.DataFrame.from_dict(
-                        parameters, orient="index")
+                    param_df = pd.DataFrame.from_dict(parameters, orient="index")
                     param_df.index.name = "Parameter"
                     param_df.reset_index(inplace=True)
                     formatted_params_table = param_df.to_markdown(index=False)
@@ -80,25 +78,21 @@ def generate_parameters(description: str, llm_gen_scenario_endpoint: str) -> str
     :param description: Description
     :param llm_gen_scenario_endpoint: Description
     """
-    logger.debug("Hitting llm generation endpoint: %s",
-                 str(llm_gen_scenario_endpoint))
+    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     with httpx.Client(timeout=30) as client:
         try:
             response = client.post(
-                llm_gen_scenario_endpoint,
-                json={"description": description},
-                timeout=27
+                llm_gen_scenario_endpoint, json={"description": description}, timeout=27
             )
             if response.status_code == 200:
                 # Successful response (JSON object)
                 response_jdict = response.json()
-                description_text = response_jdict.get(
-                    "qualitative_description", "")
+                description_text = response_jdict.get("qualitative_description", "")
                 import pandas as pd
+
                 parameters = response_jdict.get("parameters", {})
                 if parameters:
-                    param_df = pd.DataFrame.from_dict(
-                        parameters, orient="index")
+                    param_df = pd.DataFrame.from_dict(parameters, orient="index")
                     param_df.index.name = "Parameter"
                     param_df.reset_index(inplace=True)
                     formatted_params_table = param_df.to_markdown(index=False)
@@ -122,13 +116,19 @@ def setup_gradio_ui(
 ):
     """Set up the Gradio demo interface using gr.Interface."""
 
-    async def async_interface_fn(description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
+    async def async_interface_fn(
+        description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
+    ):
         try:
-            return await async_generate_parameters(description, llm_gen_scenario_endpoint)
+            return await async_generate_parameters(
+                description, llm_gen_scenario_endpoint
+            )
         except asyncio.TimeoutError:
             return "Request timed out. Please try again later."
-        
-    def interface_fn(description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint):
+
+    def interface_fn(
+        description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
+    ):
         try:
             return generate_parameters(description, llm_gen_scenario_endpoint)
         except asyncio.TimeoutError:
@@ -150,7 +150,7 @@ def setup_gradio_ui(
             elem_id="output-markdown",
             container=True,
             show_label=True,
-            height="20vh"
+            height="20vh",
         ),
         title="PFun CMA Model - Generate Condition-Based Parameters",
         description=(
@@ -169,7 +169,7 @@ def setup_gradio_ui(
         ],
         cache_examples=False,
         concurrency_limit=10,
-        time_limit=30
+        time_limit=30,
     )
     return iface
 

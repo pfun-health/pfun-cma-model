@@ -1,10 +1,12 @@
+import importlib
+import json
 import logging
 import os
-import json
 import re
-import importlib
-from typing import Optional, Any
+from typing import Any, Optional
+
 from pfun_common.settings import get_settings
+
 settings = get_settings()
 
 _backend_map = {
@@ -42,10 +44,12 @@ def _call_llm_for_json(prompt: str) -> dict:
     resp_text: str = _get_resp_text(response)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(
-            r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-        json_str = json_match.group(1) if json_match else resp_text.strip().replace(
-            "`", "").replace("json", "")
+        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_str = (
+            json_match.group(1)
+            if json_match
+            else resp_text.strip().replace("`", "").replace("json", "")
+        )
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
         raise Exception(f"Failed to parse Gemini API response: {e}") from e
@@ -132,8 +136,9 @@ Assistant:
     response = GenerativeModel().generate_content(prompt)
 
     try:
-        json_str = _get_resp_text(response).strip().replace(
-            "`", "").replace("json", "")  # type: ignore
+        json_str = (
+            _get_resp_text(response).strip().replace("`", "").replace("json", "")
+        )  # type: ignore
         explanation = json.loads(json_str)
         return explanation
     except (json.JSONDecodeError, KeyError, AttributeError) as e:
@@ -168,7 +173,10 @@ def generate_scenario(query: Optional[str] = None) -> dict:
     scenario_params = CMAModelParams(Cm=1.5, B=-0.2)
     scenario_param_descriptions = scenario_params.generate_markdown_table(
         output_fmt="md",
-        included_params=["Cm", "B"],  # Only include the parameters that are different from the baseline
+        included_params=[
+            "Cm",
+            "B",
+        ],  # Only include the parameters that are different from the baseline
     )
 
     prompt = f"""\

@@ -18,6 +18,7 @@ def setup_test_environment():
         sys.path.insert(0, mod_path)
     # Import the pfun_path_helper module to ensure it is available for use.
     import pfun_path_helper as pph  # type: ignore
+
     return root_path, mod_path, pph
 
 

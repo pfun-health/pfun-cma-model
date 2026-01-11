@@ -1,12 +1,14 @@
 """
 PFun CMA Model - Parameters API Routes
 """
-from typing import Literal
-from fastapi import APIRouter, Response
-from fastapi.responses import JSONResponse, HTMLResponse
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
+
 import json
-from typing import Mapping, Any
+from typing import Any, Literal, Mapping
+
+from fastapi import APIRouter, Response
+from fastapi.responses import HTMLResponse, JSONResponse
+
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 router = APIRouter()
 
@@ -34,9 +36,7 @@ def default_params():
 
 
 @router.post("/describe")
-def describe_params(
-    params: CMAModelParams | Mapping[str, Any]
-):
+def describe_params(params: CMAModelParams | Mapping[str, Any]):
     """
     Describe a given (single) or set of parameters using CMAModelParams.describe and generate_qualitative_descriptor.
     Args:
@@ -56,7 +56,7 @@ def describe_params(
             result[key] = {
                 "description": desc,
                 "qualitative": qual,
-                "value": getattr(params, key, None)
+                "value": getattr(params, key, None),
             }
         except Exception as e:
             result[key] = {"error": str(e)}
@@ -70,7 +70,7 @@ def describe_params(
 @router.post("/tabulate/{output_fmt}")
 def tabulate_params(
     output_fmt: Literal["json", "html", "md"],
-    params: CMAModelParams | Mapping[str, Any]
+    params: CMAModelParams | Mapping[str, Any],
 ):
     """Generate a markdown table of a given (single) or set of parameters."""
     #: enforce CMAModelParams type

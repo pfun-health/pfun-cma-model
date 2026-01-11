@@ -1,7 +1,6 @@
 import logging
 from base64 import b64encode
 from dataclasses import dataclass, field
-
 from io import BytesIO
 from typing import Annotated, Iterable, Literal, Tuple
 
@@ -15,15 +14,38 @@ __all__ = ["CMAPlotConfig"]
 @dataclass
 class CMAPlotConfig:
     """configuration for plotting the CMA model results"""
-    plot_cols: Tuple[str, ...] = field(default_factory=lambda: (
-        "g_0", "g_1", "g_2", "G", "c", "m", "a", "L", "I_S", "I_E", "is_meal", "value"))
+
+    plot_cols: Tuple[str, ...] = field(
+        default_factory=lambda: (
+            "g_0",
+            "g_1",
+            "g_2",
+            "G",
+            "c",
+            "m",
+            "a",
+            "L",
+            "I_S",
+            "I_E",
+            "is_meal",
+            "value",
+        )
+    )
     labels: Annotated[  # type: ignore
         tuple[str],
         tuple[
-            Literal["Breakfast"], Literal["Lunch"], Literal["Dinner"], Literal["Glucose"], Literal["Cortisol"],
-            Literal["Melatonin"], Literal["Adiponectin"], Literal[
-                "Photoperiod (irradiance)"],
-            Literal["Insulin (secreted)"], Literal["Insulin (effective)"], Literal["Meals"], Literal["Glucose (Data)"],
+            Literal["Breakfast"],
+            Literal["Lunch"],
+            Literal["Dinner"],
+            Literal["Glucose"],
+            Literal["Cortisol"],
+            Literal["Melatonin"],
+            Literal["Adiponectin"],
+            Literal["Photoperiod (irradiance)"],
+            Literal["Insulin (secreted)"],
+            Literal["Insulin (effective)"],
+            Literal["Meals"],
+            Literal["Glucose (Data)"],
         ],
     ] = (
         "Breakfast",
@@ -79,9 +101,7 @@ class CMAPlotConfig:
         pass
 
     def __call__(self, **subplot_kwds):
-        self.fig, self.axes = self.setup_figure_axes(
-            **subplot_kwds
-        )
+        self.fig, self.axes = self.setup_figure_axes(**subplot_kwds)
         return self
 
     @property
@@ -102,8 +122,7 @@ class CMAPlotConfig:
 
     @classmethod
     def get_color(
-        cls, col: Iterable[str] | str, rgba=False, as_hex=False,
-        keep_alpha=False
+        cls, col: Iterable[str] | str, rgba=False, as_hex=False, keep_alpha=False
     ):
         if not isinstance(col, str):
             return [cls.get_color(c, rgba=rgba) for c in col]
@@ -227,8 +246,7 @@ class CMAPlotConfig:
     def plot_meals(cls, df, axs):
         """plot meal times, meal sizes."""
         ax = axs[0]
-        ax = df.plot.area(y="G_soln", color="k", ax=ax,
-                          label="Estimated Meal Size")
+        ax = df.plot.area(y="G_soln", color="k", ax=ax, label="Estimated Meal Size")
         ax.vlines(
             x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
             ymin=ax.get_ylim()[0],
@@ -319,5 +337,4 @@ class CMAPlotCombinedConfig(CMAPlotConfig):
         soln = self.setup_solution(soln)
         df_combined = self.combine_dataframes(df, soln)
         plot_cols = self.prune_plot_cols(df, plot_cols)
-        self.fig, self.axes = super().plot(
-            df_combined, plot_cols, separate2subplots)
+        self.fig, self.axes = super().plot(df_combined, plot_cols, separate2subplots)

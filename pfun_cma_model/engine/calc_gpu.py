@@ -1,13 +1,16 @@
-from numba import cuda, jit, float32
 import numpy as np
+from numba import cuda, float32, jit
+
 
 @cuda.jit(device=True)
 def exp_cuda(x):
     return np.exp(x)
 
+
 @cuda.jit(device=True)
 def expit_pfun_cuda(x):
     return 1.0 / (1.0 + exp_cuda(-2.0 * x))
+
 
 @cuda.jit
 def calc_vdep_current_cuda(v, v1, v2, A, B, result):
@@ -15,11 +18,13 @@ def calc_vdep_current_cuda(v, v1, v2, A, B, result):
     if i < v.shape[0]:
         result[i] = A * expit_pfun_cuda(B * (v[i] - v1) / v2)
 
+
 @cuda.jit
 def E_norm_cuda(x, result):
     i = cuda.grid(1)
     if i < x.shape[0]:
         result[i] = 2.0 * (expit_pfun_cuda(2.0 * x[i]) - 0.5)
+
 
 @cuda.jit
 def normalize_glucose_cuda(G, g0, g1, g_s, result):

@@ -1,21 +1,19 @@
-from fastapi.middleware.cors import CORSMiddleware
 import importlib
-import gradio as gr
-from fastapi.responses import RedirectResponse
-from fastapi import Depends, FastAPI
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
 from typing import Annotated
+
+import gradio as gr
 import pfun_path_helper as pph  # type: ignore
-
-
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pfun_cma_model")
-logger.info(
-    "Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
+logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
 
 
 try:
@@ -34,8 +32,7 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 def _mount_gradio_app(app: FastAPI, settings: Settings) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
     logger.info(
-        "llm_gen_scenario_endpoint: %s", str(
-            settings.llm_gen_scenario_endpoint)
+        "llm_gen_scenario_endpoint: %s", str(settings.llm_gen_scenario_endpoint)
     )
     demo_blocks_iface = setup_gradio_ui(
         llm_gen_scenario_endpoint=settings.llm_gen_scenario_endpoint
@@ -58,7 +55,7 @@ app = FastAPI(
     app_name="PFun Gradio Demo App",
     lifespan=lifespan,
     title="PFun Gradio Demo App",
-    description="A FastAPI app that serves a Gradio UI for generating pfun scenarios."
+    description="A FastAPI app that serves a Gradio UI for generating pfun scenarios.",
 )
 
 
