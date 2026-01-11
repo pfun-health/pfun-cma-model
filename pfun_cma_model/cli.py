@@ -54,6 +54,9 @@ def launch(ctx, host, port, reload, args):
 def generate_scenario(ctx, query):
     """Generate a realistic pfun scenario (using Google AI Studio)."""
     from pfun_cma_model.llm import generate_scenario as gen_scene
+    click.secho(
+        f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
+    )
     response = gen_scene(query=query)
     click.secho(json.dumps(response, indent=4))
 

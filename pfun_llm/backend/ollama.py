@@ -1,9 +1,11 @@
 """Ollama-backend class for generative model interfaces."""
+import logging
 import asyncio
 from typing import Optional, Literal
 from pydantic import BaseModel, Field, field_validator, field_serializer
 from ollama import AsyncClient
 from pfun_common.settings import get_settings
+from pfun_llm.backend.base import BaseGenerativeModel
 
 
 class OllamaMessage(BaseModel):
@@ -34,10 +36,34 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-_OLLAMA_DEFAULT_MODEL: Literal["tinyllama"] = "tinyllama"
+_OLLAMA_DEFAULT_MODEL: Literal["gemma3:4b"] = "gemma3:4b"
 
 
-class OllamaGenerativeModel:
+def _conv_str2msg(
+        message_content: str | OllamaMessage,
+        role: str = "user"
+) -> OllamaMessage:
+    """convert raw string to OllamaMessage."""
+    if isinstance(message_content, OllamaMessage):
+        return message_content
+    return OllamaMessage(content=message_content, role=role)
+
+
+def _format_messages(
+        raw_messages: str | list,
+        role: str = "user"
+) -> OllamaMessages:
+    """format raw messages (str|list), return OllamaMessages object."""
+    if not isinstance(raw_messages, list):
+        raw_messages: list = [raw_messages, ]
+    return OllamaMessages(
+        messages=[
+            _conv_str2msg(msg_, role=role) for msg_ in raw_messages
+        ]
+    )
+
+
+class OllamaGenerativeModel(BaseGenerativeModel):
     """Ollama-backend class for generative model interfaces."""
 
     #: The default model to use if no model is specified.
@@ -72,8 +98,7 @@ class OllamaGenerativeModel:
         """Call the API client with the specified model and contents."""
         super().call_genai_client(model=model, contents=contents)
         if not isinstance(contents, OllamaMessages):
-            contents = OllamaMessages(
-                messages=contents if isinstance(contents, list) else [contents, ])
+            contents = _format_messages(contents)
         serialized_messages = contents.model_dump()["messages"]
         logging.debug("Serialized messages for Ollama API (type=%s): %s",
                       type(serialized_messages), repr(serialized_messages))

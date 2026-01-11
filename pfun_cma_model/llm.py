@@ -1,41 +1,45 @@
-"""pfun_cma_model/llm.py: LLM prompting logic"""
+"""pfun_cma_model/llm.py: LLM prompting logic."""
 import logging
 import os
 import json
 import re
 import importlib
 import asyncio
-from typing import Optional, Any
+from typing import Optional, Any, Literal
 from pfun_common.settings import get_settings
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
 settings = get_settings()
 
-"""
-@TODO this horrifying mess of a pattern needs to be removed promptly before it gets worse.
-"""
-_backend_map = {
-    "google": ("pfun_llm.backend.google", "GeminiGenerativeModel"),
-    "perplexity": ("pfun_llm.backend.perplexity", "PerplexityGenerativeModel"),
-    "ollama": ("pfun_llm.backend.ollama", "OllamaGenerativeModel"),
-    "openai": ("pfun_llm.backend.openai", "OpenaiGenerativeModel")
-}
 
-_module_name, _class_name = _backend_map[settings.llm_backend]  # type: ignore
-_module = importlib.import_module(_module_name)
-GenerativeModel = getattr(_module, _class_name)
+LLMBackendChoice = Literal["google", "perplexity", "ollama", "openai"]
 
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
+def _import_genai_with_backend(llm_backend: LLMBackendChoice):
+    """dynamically import the currently selected LLM backend (using settings.llm_backend)."""
+    module_name = f"pfun_llm.backend.{llm_backend}"
+    class_name = f"{llm_backend}".title() + "GenerativeModel"
+    _module = importlib.import_module(module_name)
+    return getattr(_module, class_name)
 
 
-async def _parse_generated_response(response: Any | str) -> str:
+# Dynamically import the LLM generative backend (settings.llm_backend)
+GenerativeModel = _import_genai_with_backend(settings.llm_backend)
+
+
+# async event loop
+loop = asyncio.get_event_loop()
+
+
+def _parse_generated_response(response: Any | str) -> str:
     """Parse the response that was returned by the generative model.
     Await the future if it's an async routine-like object.
     Get the response text attribute if it exists, otherwise return the string.
     """
-    # explicitly test is_future to see if the response needs awaited
-    if not asyncio.is_future(response):
-        return str(getattr(response, "text", str(response)))
+    # explicitly test to see if the response needs awaited
+    if not asyncio.isfuture(response):
+        txt_resp = getattr(response, "text", str(response))
+        return str(txt_resp).replace("'", '"')
     # use recursion after awaiting (bc we're cool like that...)
-    return _parse_generated_response(await response)
+    return _parse_generated_response(loop.run_until_complete(response))
 
 
 def _call_llm_for_json(prompt: str) -> dict:
@@ -54,15 +58,29 @@ def _call_llm_for_json(prompt: str) -> dict:
     model = GenerativeModel()
     response = model.generate_content(prompt)
     resp_text: str = _parse_generated_response(response)
+    logging.debug("LLM Response (raw text attribute):\n'%s'", resp_text)
+    try:
+        # attempt to load without parsing
+        resp_dict = json.loads(resp_text)
+        resp_text = resp_dict["content"]
+    except (json.JSONDecodeError, KeyError) as e:
+        logging.debug("Failed in initial pre-parsing, attempting without...", exc_info=True)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
         json_match = re.search(
             r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-        json_str = json_match.group(1) if json_match else resp_text.strip().replace(
-            "`", "").replace("json", "")
+        json_str = json_match.group(1) if json_match else resp_text\
+                             .strip()\
+                             .replace("`", "")\
+                             .replace("json", "")\
+                             .replace("\\n","")\
+                             .replace("    ","")
+        json_str = json_str.replace("\\n","")\
+                           .replace("    ","")
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
-        raise Exception(f"Failed to parse Gemini API response: {e}") from e
+        logging.error("Failed to parse LLM API Response. %s", e, exc_info=True)
+        raise Exception(f"Failed to parse LLM API response: {e}")
 
 
 def translate_query_to_params(query: str) -> dict:
