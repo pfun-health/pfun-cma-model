@@ -40,8 +40,10 @@ class PFunCMAParamsGridCollator:
         self.params = pa.Table.from_pandas(self.df_params.to_frame())
         self.df_solns = pd.concat([r.result for r in self.raw_results])
         self.solns = pa.Table.from_pandas(self.df_solns)
-        self.table = pa.Table.from_pydict(
-            {"params": self.params, "solns": self.solns},
+        self.table = pa.Table.from_pylist(
+            pd.DataFrame(
+            {"params": self.params, "solns": self.solns}
+            ).to_dict(orient="records")
         )
 
 
