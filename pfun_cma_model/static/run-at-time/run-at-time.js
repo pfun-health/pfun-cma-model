@@ -168,11 +168,11 @@ class RunAtTimeDemo {
             e.preventDefault();
             this.runSimulation();
         });
-        this.dom.submitButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-                this.runSimulation();
-            });
-        });
+        // this.dom.submitButtons.forEach((button) => {
+        //     button.addEventListener('click', () => {
+        //         this.runSimulation();
+        //     });
+        // });
         let self = this;
         // Range input listeners
         this.dom.ranges.forEach(range => {
@@ -204,29 +204,36 @@ class RunAtTimeDemo {
         }
 
         // Clear previous results
-        // ...asynchronous to avoid blocking UI
-        (async () => {
-            this.chart.data.datasets.forEach(ds => ds.data = []);
-            setTimeout(() => {
-                this.chart.update();
-            }, 50);
-        })();
-        this.dom.messagesDiv.innerHTML = ''; // Clear messages
-        this.appendMessage('Starting new simulation...');
+        // ensure order of operations
+	var self = this;
+	new Promise(() => {
+	    // reset chart datasets
+            self.chart.data.datasets.forEach(ds => ds.data = []);
+	}).then(() => {
+	    // update chart view
+	    self.chart.update();
+	}).then(() => {
+	    self.dom.messagesDiv.innerHTML = ''; // Clear messages
+            self.appendMessage('Starting new simulation...');
+	}).then(() => {
+	    // Collect form data-derived simulation parameters
+            const simParams = self.simParams;
 
-        // Collect form data-derived simulation parameters
-        const simParams = this.simParams;
-
-        // Basic validation
-        if (!simParams.isValid()) {
-            this.appendMessage('Invalid simulation parameters. Please check t0, t1, and N.');
-            return;
-        }
-
-        // Send run request
-        const payload = simParams.toPayload();
-        this.socket.emit('run', payload);
-        this.appendMessage('Sent run request: ' + JSON.stringify(payload));
+            // Basic validation
+            if (!simParams.isValid()) {
+		let failed_validation_str = 'Invalid simulation parameters. Please check t0, t1, and N.';
+		self.appendMessage(failed_validation_str);
+		throw new Error(failed_validation_str);
+            } else {
+		return simParams;
+	    }
+	}).then((simParams) => {
+            // Send run request
+            const payload = simParams.toPayload();
+            self.socket.emit('run', payload);
+            self.appendMessage('Sent run request: ' + JSON.stringify(payload));
+	})
+	    .catch((err) => { console.error("Failed to update chart.", err); });
     }
 
     appendMessage(msg) {
@@ -250,18 +257,14 @@ class RunAtTimeDemo {
             const paramName = range.id;
             const paramValue = parseFloat(range.value);
             if (this.chart) {
-                // For demonstration, let's say changing a range updates the chart title
+                // Changing a range updates the chart title & re-run simulation
                 // console.log(`Updating chart title with ${paramName}: ${paramValue}`);
                 this.chart.options.plugins.title = {
                     display: true,
                     text: `Glucose Response Curve - ${paramName}: ${paramValue}`
                 };
-                this.chart.data.datasets[0].data = [];
-                setTimeout(() => {
-                    if(parseFloat(`${(new Date()).getTime()}`.at(-1)) < 5) {
-                        this.runSimulation();
-                    }
-                }, 100); // Re-run simulation after a short delay
+		// clear data, re-run simulation
+		this.runSimulation();
             }
         }
     }
