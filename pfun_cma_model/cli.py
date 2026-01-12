@@ -1,3 +1,4 @@
+import asyncio
 from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
 from pfun_cma_model.main import run_app
 from pfun_cma_model.engine.fit import fit_model as call_fit_model
@@ -57,7 +58,11 @@ def generate_scenario(ctx, query):
     click.secho(
         f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
     )
-    response = gen_scene(query=query)
+    try:
+        loop = asyncio.get_running_loop()
+        response = loop.run_until_complete(gen_scene(query=query))
+    except RuntimeError:
+        response = asyncio.run(gen_scene(query=query))
     click.secho(json.dumps(response, indent=4))
 
 

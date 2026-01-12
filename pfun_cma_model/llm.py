@@ -25,10 +25,6 @@ def _import_genai_with_backend(llm_backend: LLMBackendChoice):
 GenerativeModel = _import_genai_with_backend(settings.llm_backend)
 
 
-# async event loop
-loop = asyncio.get_event_loop()
-
-
 async def _parse_generated_response(response: Any | str) -> str:
     """Parse the response that was returned by the generative model.
     Await the future if it's an async routine-like object.
@@ -40,7 +36,7 @@ async def _parse_generated_response(response: Any | str) -> str:
         txt_resp = getattr(response, "text", str(response))
         return str(txt_resp).replace("'", '"')
     # use recursion after awaiting (bc we're cool like that...)
-    return await _parse_generated_response(response)
+    return await _parse_generated_response(await response)
 
 
 async def _call_llm_for_json(prompt: str) -> dict:
