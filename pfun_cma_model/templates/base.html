@@ -13,12 +13,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock %} ~ PFun Digital Health</title>
- 
+
   <!-- bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
- 
-    <!-- Jquery CSS stylesheets -->
+
+  <!-- Jquery CSS stylesheets -->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
   <!-- ~~~ Katex (render latex math) ~~~ -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css"
@@ -62,7 +62,7 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <!-- Notebooks dropdown -->
-            <li class="nav-item dropdown">
+            <li id="notebooks-dropdown" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
                 Notebooks
@@ -80,20 +80,21 @@
               </ul>
             </li>
             <!-- Demos Dropdown -->
-            <li class="nav-item dropdown">
+            <li id="demos-dropdown" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
                 Demos
               </a>
               <ul class="dropdown-menu">
-		<li>
+                <li>
                   <a class="dropdown-item" href="/demo/canvas-wave" target="_self">(HTML5) Canvas Wave Demo</a>
                 </li>
-		<li>
+                <li>
                   <a class="dropdown-item" href="/demo/webgl-demo" target="_self">(WebGL) Streaming Demo</a>
                 </li>
-		<li>
-                  <a class="dropdown-item" href="/demo/full-model-run" target="_self">(WebSockets) Full Model (c, m, a)</a>
+                <li>
+                  <a class="dropdown-item" href="/demo/full-model-run" target="_self">(WebSockets) Full Model (c, m,
+                    a)</a>
                 </li>
                 <li>
                   <a class="dropdown-item" href="/demo/run-at-time" target="_self">(Chart.js) Run-at-Time Demo</a>

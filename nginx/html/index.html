@@ -1,114 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PFun CMA Model API Proxy Landing Page</title>
-    <style>
-      :root {
-          --sidebar-width: 260px;
-          --bg-color: #f8f9fa;
-          --accent-color: #3b82f6;
-      }
 
-      body, html {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          overflow: hidden;
-          display: flex;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PFun CMA Model API Proxy Landing Page</title>
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --bg-color: #f8f9fa;
+      --accent-color: #3b82f6;
+    }
 
-      /* Sidebar - Only shown if multiple pages exist */
-      nav {
-          width: var(--sidebar-width);
-          background: white;
-          border-right: 1px solid #e5e7eb;
-          display: flex;
-          flex-direction: column;
-          z-index: 10;
-      }
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+    }
 
-      .nav-header {
-          padding: 20px;
-          font-weight: 600;
-          font-size: 0.9rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: #6b7280;
-      }
+    /* Sidebar - Only shown if multiple pages exist */
+    nav {
+      width: var(--sidebar-width);
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
 
-      .nav-link {
-          padding: 12px 20px;
-          text-decoration: none;
-          color: #374151;
-          font-size: 0.95rem;
-          transition: background 0.2s;
-          border-left: 3px solid transparent;
-      }
+    .nav-header {
+      padding: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+    }
 
-      .nav-link:hover {
-          background: var(--bg-color);
-      }
+    .nav-link {
+      padding: 12px 20px;
+      text-decoration: none;
+      color: #374151;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
 
-      .nav-link.active {
-          background: #eff6ff;
-          color: var(--accent-color);
-          border-left-color: var(--accent-color);
-      }
+    .nav-link:hover {
+      background: var(--bg-color);
+    }
 
-      /* Main Viewport */
-      main {
-          flex-grow: 1;
-          height: 100%;
-          background: var(--bg-color);
-          position: relative;
-      }
+    .nav-link.active {
+      background: #eff6ff;
+      color: var(--accent-color);
+      border-left-color: var(--accent-color);
+    }
 
-      iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-          display: none; /* Hidden by default, toggled via JS */
-      }
+    /* Main Viewport */
+    main {
+      flex-grow: 1;
+      height: 100%;
+      background: var(--bg-color);
+      position: relative;
+    }
 
-      iframe.active {
-          display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <div class="nav-header">Navigation</div>
-      <a href="#0" class="nav-link active" 
-	 onclick="showFrame('frame-0', this)">
-	Landing Page
-      </a>
-      <a href="#1" class="nav-link"
-	 onclick="showFrame('frame-1', this)">
-	PFun CMA Model API
-      </a>
-    </nav>
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      /* Hidden by default, toggled via JS */
+    }
 
-    <main>
-      <iframe id="frame-0" src="https://github.com/pfun-health/pfun-cma-model/blob/1a7a790b66c4dd687459c08da13cc04586da94ac/README.md" class="active"></iframe>
-      <iframe id="frame-1" src="https://cloud.tail38611b.ts.net/"></iframe>
-    </main>
+    iframe.active {
+      display: block;
+    }
+  </style>
+  <!-- jquery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+</head>
 
-    <script>
-      function showFrame(id, element) {
-          // Hide all frames
-          document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-          // Remove active class from all links
-          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-          
-          // Show selected
-          document.getElementById(id).classList.add('active');
-          element.classList.add('active');
-          
-          event.preventDefault();
-      }
-    </script>
-  </body>
+<body>
+  <nav>
+    <div class="nav-header">Navigation</div>
+    <a href="#0" class="nav-link active" onclick="showFrame('frame-0', this)">
+      Landing Page
+    </a>
+    <a href="#1" class="nav-link" onclick="showFrame('frame-1', this)">
+      PFun CMA Model API
+    </a>
+  </nav>
+
+  <main>
+    <div id="frame-0" class="proxy-frame active"></div>
+    <div id="frame-1" class="proxy-frame"></div>
+  </main>
+
+  <script>
+    function showFrame(id, element) {
+      // Hide all frames
+      document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
+      // Remove active class from all links
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+      // Show selected
+      document.getElementById(id).classList.add('active');
+      element.classList.add('active');
+
+      event.preventDefault();
+    }
+    $(document).ready(function () {
+      // Load html into divs
+      $(".proxy-frame#frame-0").html(`<iframe src="${window.location.protocol}//${window.location.hostname}:8001/docs" style="width:100%; height:100%; border:none;"></iframe>`);
+      $(".proxy-frame#frame-1").html(`<iframe src="${window.location.protocol}//${window.location.hostname}:8001/" style="width:100%; height:100%; border:none;"></iframe>`);
+    });
+  </script>
+</body>
+
 </html>
