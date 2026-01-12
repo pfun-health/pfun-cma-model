@@ -176,11 +176,16 @@ class RunAtTimeDemo {
         let self = this;
         // Range input listeners
         this.dom.ranges.forEach(range => {
-            $(range).on("input change", function (e) {
-                // //console.log(`Range ${range.id} updated to ${range.value}`);
+            // Update display value on load
+            self.onUpdateRange(range, false);
+
+            range.addEventListener("input", function (e) {
                 self.onUpdateRange(this);
             });
-            $(range).on("click", function (e) { self.onUpdateRange(this); });
+            // Also trigger on change just in case
+            range.addEventListener("change", function (e) {
+                 // self.onUpdateRange(this); // duplicative if input handles it
+            });
         });
     }
 
@@ -201,8 +206,10 @@ class RunAtTimeDemo {
         // Clear previous results
         // ...asynchronous to avoid blocking UI
         (async () => {
-            this.chart.data.datasets[0].data = [];
-            this.chart.update();
+            this.chart.data.datasets.forEach(ds => ds.data = []);
+            setTimeout(() => {
+                this.chart.update();
+            }, 50);
         })();
         this.dom.messagesDiv.innerHTML = ''; // Clear messages
         this.appendMessage('Starting new simulation...');
@@ -254,8 +261,7 @@ class RunAtTimeDemo {
                     if(parseFloat(`${(new Date()).getTime()}`.at(-1)) < 5) {
                         this.runSimulation();
                     }
-                }, 250); // Re-run simulation after a short delay
-                this.chart.update();
+                }, 100); // Re-run simulation after a short delay
             }
         }
     }

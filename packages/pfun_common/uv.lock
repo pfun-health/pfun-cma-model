@@ -157,7 +157,7 @@ wheels = [
 
 [[package]]
 name = "pfun-common"
-version = "0.1.36"
+version = "0.1.37"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },

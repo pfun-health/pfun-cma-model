@@ -1,6 +1,6 @@
 [project]
 name = "pfun-common"
-version = "0.1.36"
+version = "0.1.37"
 description = "Common utilities and functions for PFun projects."
 readme = "README.md"
 authors = [
