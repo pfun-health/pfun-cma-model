@@ -10,7 +10,7 @@ source "$(dirname "$0")/_funcs.def.sh"
 export CURRENT_VERSION NEW_VERSION
 
 get_version() {
-	uv version | python -c 'import sys; print(sys.stdin.read().split(" ")[-1].strip())'
+	uv version | uv run python -c 'import sys; print(sys.stdin.read().split(" ")[-1].strip())'
 }
 CURRENT_VERSION="$(get_version)"
 echo -e "current version: '$CURRENT_VERSION'"
