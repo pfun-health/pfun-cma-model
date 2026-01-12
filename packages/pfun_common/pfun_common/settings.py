@@ -142,6 +142,25 @@ class Settings(BaseSettings):
         :rtype: str
         """
         return f"{self.gradio_server_scheme}://{self.gradio_server_host}:{self.gradio_server_port}/gradio/"
+    
+    @property
+    def redis_url(self) -> str:
+        """
+        Construct the Redis connection URL.
+
+        :return: Redis connection URL
+        :rtype: str
+        """
+        user = self.redis_user
+        password = self.redis_password
+        host = self.redis_host
+        port = self.redis_port
+        db = self.redis_db if isinstance(self.redis_db, int) else 0
+
+        if password:
+            return f"redis://{user}:{password}@{host}:{port}/{db}"
+        else:
+            return f"redis://{host}:{port}/{db}"
 
 
 def get_settings() -> Settings:
