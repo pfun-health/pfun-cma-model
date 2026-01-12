@@ -1,0 +1,1584 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="91" time="3.409" timestamp="2026-01-12T06:45:06.607581-08:00" hostname="gbot"><testcase classname="generated_clients.pfun-cma-model-client.test.test_body_fit_model_to_data_model_fit_post.TestBodyFitModelToDataModelFitPost" name="testBodyFitModelToDataModelFitPost" file="generated_clients/pfun-cma-model-client/test/test_body_fit_model_to_data_model_fit_post.py" line="46" time="0.001" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_cma_model_params.TestCMAModelParams" name="testCMAModelParams" file="generated_clients/pfun-cma-model-client/test/test_cma_model_params.py" line="53" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_config.TestConfig" name="testConfig" file="generated_clients/pfun-cma-model-client/test/test_config.py" line="53" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_data.TestData" name="testData" file="generated_clients/pfun-cma-model-client/test/test_data.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_data_api.TestDataApi" name="test_get_sample_dataset_data_sample_download_get" file="generated_clients/pfun-cma-model-client/test/test_data_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_data_api.TestDataApi" name="test_stream_sample_dataset_data_sample_stream_get" file="generated_clients/pfun-cma-model-client/test/test_data_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_fit_model_to_data_model_fit_post" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_health_check_health_get" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_health_check_run_at_time_health_ws_run_at_time_get" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="42" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_root_get" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="49" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_run_at_time_route_model_run_at_time_post" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="56" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_run_at_time_stream_route_model_run_at_time_stream_post" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="63" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_default_api.TestDefaultApi" name="test_run_model_model_run_post" file="generated_clients/pfun-cma-model-client/test/test_default_api.py" line="70" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_demo_api.TestDemoApi" name="test_demo_data_stream_demo_data_stream_get" file="generated_clients/pfun-cma-model-client/test/test_demo_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_demo_api.TestDemoApi" name="test_demo_dexcom_demo_dexcom_get" file="generated_clients/pfun-cma-model-client/test/test_demo_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_demo_api.TestDemoApi" name="test_demo_gemini_demo_gemini_get" file="generated_clients/pfun-cma-model-client/test/test_demo_api.py" line="42" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_demo_api.TestDemoApi" name="test_demo_run_at_time_demo_run_at_time_get" file="generated_clients/pfun-cma-model-client/test/test_demo_api.py" line="49" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_demo_api.TestDemoApi" name="test_demo_webgl_demo_webgl_demo_get" file="generated_clients/pfun-cma-model-client/test/test_demo_api.py" line="56" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_dexcom_api.TestDexcomApi" name="test_auth_callback_dexcom_auth_callback_get" file="generated_clients/pfun-cma-model-client/test/test_dexcom_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_dexcom_api.TestDexcomApi" name="test_get_devices_dexcom_users_self_devices_get" file="generated_clients/pfun-cma-model-client/test/test_dexcom_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_dexcom_api.TestDexcomApi" name="test_get_egvs_dexcom_users_self_egvs_get" file="generated_clients/pfun-cma-model-client/test/test_dexcom_api.py" line="42" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_dexcom_api.TestDexcomApi" name="test_get_token_dexcom_token_post" file="generated_clients/pfun-cma-model-client/test/test_dexcom_api.py" line="49" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_dexcom_api.TestDexcomApi" name="test_test_dexcom_route_dexcom_test_get" file="generated_clients/pfun-cma-model-client/test/test_dexcom_api.py" line="56" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_http_validation_error.TestHTTPValidationError" name="testHTTPValidationError" file="generated_clients/pfun-cma-model-client/test/test_http_validation_error.py" line="51" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_llm_api.TestLlmApi" name="test_generate_scenario_llm_generate_scenario_post" file="generated_clients/pfun-cma-model-client/test/test_llm_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_llm_api.TestLlmApi" name="test_translate_query_to_params_llm_translate_query_post" file="generated_clients/pfun-cma-model-client/test/test_llm_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_params.TestParams" name="testParams" file="generated_clients/pfun-cma-model-client/test/test_params.py" line="53" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_params_api.TestParamsApi" name="test_default_params_params_default_get" file="generated_clients/pfun-cma-model-client/test/test_params_api.py" line="28" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_params_api.TestParamsApi" name="test_describe_params_params_describe_post" file="generated_clients/pfun-cma-model-client/test/test_params_api.py" line="35" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_params_api.TestParamsApi" name="test_params_schema_params_schema_get" file="generated_clients/pfun-cma-model-client/test/test_params_api.py" line="42" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_params_api.TestParamsApi" name="test_tabulate_params_params_tabulate_post" file="generated_clients/pfun-cma-model-client/test/test_params_api.py" line="49" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_seed.TestSeed" name="testSeed" file="generated_clients/pfun-cma-model-client/test/test_seed.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_t0.TestT0" name="testT0" file="generated_clients/pfun-cma-model-client/test/test_t0.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_t01.TestT01" name="testT01" file="generated_clients/pfun-cma-model-client/test/test_t01.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_t1.TestT1" name="testT1" file="generated_clients/pfun-cma-model-client/test/test_t1.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_t11.TestT11" name="testT11" file="generated_clients/pfun-cma-model-client/test/test_t11.py" line="43" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_validation_error.TestValidationError" name="testValidationError" file="generated_clients/pfun-cma-model-client/test/test_validation_error.py" line="53" time="0.000" /><testcase classname="generated_clients.pfun-cma-model-client.test.test_validation_error_loc_inner.TestValidationErrorLocInner" name="testValidationErrorLocInner" file="generated_clients/pfun-cma-model-client/test/test_validation_error_loc_inner.py" line="43" time="0.000" /><testcase classname="tests.test_app" name="test_get_sample_dataset_route_integration" file="tests/test_app.py" line="44" time="0.008"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'">+ Exception Group Traceback (most recent call last):
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 79, in collapse_excgroups
+  |     yield
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 353, in from_call
+    |     result: TResult | None = func()
+    |                              ^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 245, in &lt;lambda&gt;
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    |     item.runtest()
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/python.py", line 1720, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/unittest/mock.py", line 1396, in patched
+    |     return func(*newargs, **newkeywargs)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/tests/test_app.py", line 49, in test_get_sample_dataset_route_integration
+    |     response = client.get("/data/sample/download?nrows=2")
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 479, in get
+    |     return super().get(
+    |            ^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1053, in get
+    |     return self.request(
+    |            ^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 451, in request
+    |     return super().request(
+    |            ^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 326, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    |     return self.__get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    |     raise self._exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 257, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 85, in __call__
+    |     await self.app(scope, receive, send_wrapper)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py", line 36, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/middleware.py", line 57, in track_client_request_middleware
+    |     return await call_next(request)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 215, in run_endpoint_function
+    |     return await run_in_threadpool(dependant.call, **values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    |     return await anyio.to_thread.run_sync(func)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 61, in run_sync
+    |     return await get_async_backend().run_sync_in_worker_thread(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2525, in run_sync_in_worker_thread
+    |     return await future
+    |            ^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    |     result = context.run(func, *args)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 94, in get_sample_dataset
+    |     dataset = parse_data_parameters(
+    |               ^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 52, in parse_data_parameters
+    |     data = read_sample_data(convert2json=False)  # type: ignore
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/data.py", line 29, in read_sample_data
+    |     df = PFunDataPaths().read_sample_data()
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/pathdefs.py", line 83, in read_sample_data
+    |     df = pd.read_csv(fpath)
+    |          ^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    |     return _read(filepath_or_buffer, kwds)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    |     parser = TextFileReader(filepath_or_buffer, **kwds)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    |     self._engine = self._make_engine(f, self.engine)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    |     self.handles = get_handle(
+    |                    ^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/common.py", line 873, in get_handle
+    |     handle = open(
+    |              ^^^^^
+    | FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robbiec/Git/pfun-cma-model/tests/test_app.py", line 49, in test_get_sample_dataset_route_integration
+    response = client.get("/data/sample/download?nrows=2")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 479, in get
+    return super().get(
+           ^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 451, in request
+    return super().request(
+           ^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 354, in handle_request
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 326, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 257, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py", line 36, in __call__
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/middleware.py", line 57, in track_client_request_middleware
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    raise app_exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 215, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 61, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2525, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 94, in get_sample_dataset
+    dataset = parse_data_parameters(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 52, in parse_data_parameters
+    data = read_sample_data(convert2json=False)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/data.py", line 29, in read_sample_data
+    df = PFunDataPaths().read_sample_data()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/pathdefs.py", line 83, in read_sample_data
+    df = pd.read_csv(fpath)
+         ^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+
+During handling of the above exception, another exception occurred:
+
+mock_read_sample_data = &lt;MagicMock name='read_sample_data' id='140190255463888'&gt;, sample_df =    a  b
+0  1  2
+1  3  4
+2  5  6
+
+    @patch("pfun_cma_model.data.read_sample_data")
+    def test_get_sample_dataset_route_integration(mock_read_sample_data, sample_df):
+        # Integration test using TestClient
+        mock_read_sample_data.return_value = sample_df
+&gt;       response = client.get("/data/sample/download?nrows=2")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/starlette/testclient.py:479: in get
+    return super().get(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1053: in get
+    return self.request(
+.venv/lib/python3.12/site-packages/starlette/testclient.py:451: in request
+    return super().request(
+.venv/lib/python3.12/site-packages/httpx/_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:914: in send
+    response = self._send_handling_auth(
+.venv/lib/python3.12/site-packages/httpx/_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+.venv/lib/python3.12/site-packages/httpx/_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/testclient.py:354: in handle_request
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py:85: in __call__
+    await self.app(scope, receive, send_wrapper)
+.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py:36: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py:158: in __exit__
+    self.gen.throw(value)
+.venv/lib/python3.12/site-packages/starlette/_utils.py:85: in collapse_excgroups
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/misc/middleware.py:57: in track_client_request_middleware
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:159: in call_next
+    raise app_exc
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:736: in app
+    await route.handle(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:290: in handle
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:75: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/fastapi/routing.py:302: in app
+    raw_response = await run_endpoint_function(
+.venv/lib/python3.12/site-packages/fastapi/routing.py:215: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/concurrency.py:38: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/anyio/to_thread.py:61: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2525: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:986: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/routes/data.py:94: in get_sample_dataset
+    dataset = parse_data_parameters(
+pfun_cma_model/routes/data.py:52: in parse_data_parameters
+    data = read_sample_data(convert2json=False)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/data.py:29: in read_sample_data
+    df = PFunDataPaths().read_sample_data()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/misc/pathdefs.py:83: in read_sample_data
+    df = pd.read_csv(fpath)
+         ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1026: in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:620: in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1620: in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1880: in _make_engine
+    self.handles = get_handle(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path_or_buf = PosixPath('/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'), mode = 'r'
+
+    @doc(compression_options=_shared_docs["compression_options"] % "path_or_buf")
+    def get_handle(
+        path_or_buf: FilePath | BaseBuffer,
+        mode: str,
+        *,
+        encoding: str | None = None,
+        compression: CompressionOptions | None = None,
+        memory_map: bool = False,
+        is_text: bool = True,
+        errors: str | None = None,
+        storage_options: StorageOptions | None = None,
+    ) -&gt; IOHandles[str] | IOHandles[bytes]:
+        """
+        Get file handle for given path/buffer and mode.
+    
+        Parameters
+        ----------
+        path_or_buf : str or file handle
+            File path or object.
+        mode : str
+            Mode to open path_or_buf with.
+        encoding : str or None
+            Encoding to use.
+        {compression_options}
+    
+               May be a dict with key 'method' as compression mode
+               and other keys as compression options if compression
+               mode is 'zip'.
+    
+               Passing compression options as keys in dict is
+               supported for compression modes 'gzip', 'bz2', 'zstd' and 'zip'.
+    
+            .. versionchanged:: 1.4.0 Zstandard support.
+    
+        memory_map : bool, default False
+            See parsers._parser_params for more information. Only used by read_csv.
+        is_text : bool, default True
+            Whether the type of the content passed to the file/buffer is string or
+            bytes. This is not the same as `"b" not in mode`. If a string content is
+            passed to a binary file/buffer, a wrapper is inserted.
+        errors : str, default 'strict'
+            Specifies how encoding and decoding errors are to be handled.
+            See the errors argument for :func:`open` for a full list
+            of options.
+        storage_options: StorageOptions = None
+            Passed to _get_filepath_or_buffer
+    
+        Returns the dataclass IOHandles
+        """
+        # Windows does not default to utf-8. Set to utf-8 for a consistent behavior
+        encoding = encoding or "utf-8"
+    
+        errors = errors or "strict"
+    
+        # read_csv does not know whether the buffer is opened in binary/text mode
+        if _is_binary_mode(path_or_buf, mode) and "b" not in mode:
+            mode += "b"
+    
+        # validate encoding and errors
+        codecs.lookup(encoding)
+        if isinstance(errors, str):
+            codecs.lookup_error(errors)
+    
+        # open URLs
+        ioargs = _get_filepath_or_buffer(
+            path_or_buf,
+            encoding=encoding,
+            compression=compression,
+            mode=mode,
+            storage_options=storage_options,
+        )
+    
+        handle = ioargs.filepath_or_buffer
+        handles: list[BaseBuffer]
+    
+        # memory mapping needs to be the first step
+        # only used for read_csv
+        handle, memory_map, handles = _maybe_memory_map(handle, memory_map)
+    
+        is_path = isinstance(handle, str)
+        compression_args = dict(ioargs.compression)
+        compression = compression_args.pop("method")
+    
+        # Only for write methods
+        if "r" not in mode and is_path:
+            check_parent_directory(str(handle))
+    
+        if compression:
+            if compression != "zstd":
+                # compression libraries do not like an explicit text-mode
+                ioargs.mode = ioargs.mode.replace("t", "")
+            elif compression == "zstd" and "b" not in ioargs.mode:
+                # python-zstandard defaults to text mode, but we always expect
+                # compression libraries to use binary mode.
+                ioargs.mode += "b"
+    
+            # GZ Compression
+            if compression == "gzip":
+                if isinstance(handle, str):
+                    # error: Incompatible types in assignment (expression has type
+                    # "GzipFile", variable has type "Union[str, BaseBuffer]")
+                    handle = gzip.GzipFile(  # type: ignore[assignment]
+                        filename=handle,
+                        mode=ioargs.mode,
+                        **compression_args,
+                    )
+                else:
+                    handle = gzip.GzipFile(
+                        # No overload variant of "GzipFile" matches argument types
+                        # "Union[str, BaseBuffer]", "str", "Dict[str, Any]"
+                        fileobj=handle,  # type: ignore[call-overload]
+                        mode=ioargs.mode,
+                        **compression_args,
+                    )
+    
+            # BZ Compression
+            elif compression == "bz2":
+                # Overload of "BZ2File" to handle pickle protocol 5
+                # "Union[str, BaseBuffer]", "str", "Dict[str, Any]"
+                handle = get_bz2_file()(  # type: ignore[call-overload]
+                    handle,
+                    mode=ioargs.mode,
+                    **compression_args,
+                )
+    
+            # ZIP Compression
+            elif compression == "zip":
+                # error: Argument 1 to "_BytesZipFile" has incompatible type
+                # "Union[str, BaseBuffer]"; expected "Union[Union[str, PathLike[str]],
+                # ReadBuffer[bytes], WriteBuffer[bytes]]"
+                handle = _BytesZipFile(
+                    handle, ioargs.mode, **compression_args  # type: ignore[arg-type]
+                )
+                if handle.buffer.mode == "r":
+                    handles.append(handle)
+                    zip_names = handle.buffer.namelist()
+                    if len(zip_names) == 1:
+                        handle = handle.buffer.open(zip_names.pop())
+                    elif not zip_names:
+                        raise ValueError(f"Zero files found in ZIP file {path_or_buf}")
+                    else:
+                        raise ValueError(
+                            "Multiple files found in ZIP file. "
+                            f"Only one file per ZIP: {zip_names}"
+                        )
+    
+            # TAR Encoding
+            elif compression == "tar":
+                compression_args.setdefault("mode", ioargs.mode)
+                if isinstance(handle, str):
+                    handle = _BytesTarFile(name=handle, **compression_args)
+                else:
+                    # error: Argument "fileobj" to "_BytesTarFile" has incompatible
+                    # type "BaseBuffer"; expected "Union[ReadBuffer[bytes],
+                    # WriteBuffer[bytes], None]"
+                    handle = _BytesTarFile(
+                        fileobj=handle, **compression_args  # type: ignore[arg-type]
+                    )
+                assert isinstance(handle, _BytesTarFile)
+                if "r" in handle.buffer.mode:
+                    handles.append(handle)
+                    files = handle.buffer.getnames()
+                    if len(files) == 1:
+                        file = handle.buffer.extractfile(files[0])
+                        assert file is not None
+                        handle = file
+                    elif not files:
+                        raise ValueError(f"Zero files found in TAR archive {path_or_buf}")
+                    else:
+                        raise ValueError(
+                            "Multiple files found in TAR archive. "
+                            f"Only one file per TAR archive: {files}"
+                        )
+    
+            # XZ Compression
+            elif compression == "xz":
+                # error: Argument 1 to "LZMAFile" has incompatible type "Union[str,
+                # BaseBuffer]"; expected "Optional[Union[Union[str, bytes, PathLike[str],
+                # PathLike[bytes]], IO[bytes]], None]"
+                handle = get_lzma_file()(
+                    handle, ioargs.mode, **compression_args  # type: ignore[arg-type]
+                )
+    
+            # Zstd Compression
+            elif compression == "zstd":
+                zstd = import_optional_dependency("zstandard")
+                if "r" in ioargs.mode:
+                    open_args = {"dctx": zstd.ZstdDecompressor(**compression_args)}
+                else:
+                    open_args = {"cctx": zstd.ZstdCompressor(**compression_args)}
+                handle = zstd.open(
+                    handle,
+                    mode=ioargs.mode,
+                    **open_args,
+                )
+    
+            # Unrecognized Compression
+            else:
+                msg = f"Unrecognized compression type: {compression}"
+                raise ValueError(msg)
+    
+            assert not isinstance(handle, str)
+            handles.append(handle)
+    
+        elif isinstance(handle, str):
+            # Check whether the filename is to be opened in binary mode.
+            # Binary mode does not support 'encoding' and 'newline'.
+            if ioargs.encoding and "b" not in ioargs.mode:
+                # Encoding
+&gt;               handle = open(
+                    handle,
+                    ioargs.mode,
+                    encoding=ioargs.encoding,
+                    errors=errors,
+                    newline="",
+                )
+E               FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+
+.venv/lib/python3.12/site-packages/pandas/io/common.py:873: FileNotFoundError</failure></testcase><testcase classname="tests.test_app" name="test_get_sample_dataset_route_invalid_nrows" file="tests/test_app.py" line="55" time="0.004"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'">+ Exception Group Traceback (most recent call last):
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 79, in collapse_excgroups
+  |     yield
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 353, in from_call
+    |     result: TResult | None = func()
+    |                              ^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 245, in &lt;lambda&gt;
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    |     item.runtest()
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/python.py", line 1720, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/tests/test_app.py", line 57, in test_get_sample_dataset_route_invalid_nrows
+    |     response = client.get("/data/sample/download?nrows=-5")
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 479, in get
+    |     return super().get(
+    |            ^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1053, in get
+    |     return self.request(
+    |            ^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 451, in request
+    |     return super().request(
+    |            ^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 326, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    |     return self.__get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    |     raise self._exception
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 257, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 85, in __call__
+    |     await self.app(scope, receive, send_wrapper)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py", line 36, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/middleware.py", line 57, in track_client_request_middleware
+    |     return await call_next(request)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 215, in run_endpoint_function
+    |     return await run_in_threadpool(dependant.call, **values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    |     return await anyio.to_thread.run_sync(func)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 61, in run_sync
+    |     return await get_async_backend().run_sync_in_worker_thread(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2525, in run_sync_in_worker_thread
+    |     return await future
+    |            ^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    |     result = context.run(func, *args)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 94, in get_sample_dataset
+    |     dataset = parse_data_parameters(
+    |               ^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 52, in parse_data_parameters
+    |     data = read_sample_data(convert2json=False)  # type: ignore
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/data.py", line 29, in read_sample_data
+    |     df = PFunDataPaths().read_sample_data()
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/pathdefs.py", line 83, in read_sample_data
+    |     df = pd.read_csv(fpath)
+    |          ^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    |     return _read(filepath_or_buffer, kwds)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    |     parser = TextFileReader(filepath_or_buffer, **kwds)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    |     self._engine = self._make_engine(f, self.engine)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    |     self.handles = get_handle(
+    |                    ^^^^^^^^^^^
+    |   File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/common.py", line 873, in get_handle
+    |     handle = open(
+    |              ^^^^^
+    | FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robbiec/Git/pfun-cma-model/tests/test_app.py", line 57, in test_get_sample_dataset_route_invalid_nrows
+    response = client.get("/data/sample/download?nrows=-5")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 479, in get
+    return super().get(
+           ^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 451, in request
+    return super().request(
+           ^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 354, in handle_request
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 326, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/from_thread.py", line 257, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py", line 36, in __call__
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/middleware.py", line 57, in track_client_request_middleware
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 159, in call_next
+    raise app_exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 215, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 61, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2525, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 94, in get_sample_dataset
+    dataset = parse_data_parameters(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/routes/data.py", line 52, in parse_data_parameters
+    data = read_sample_data(convert2json=False)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/data.py", line 29, in read_sample_data
+    df = PFunDataPaths().read_sample_data()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/pfun_cma_model/misc/pathdefs.py", line 83, in read_sample_data
+    df = pd.read_csv(fpath)
+         ^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+
+During handling of the above exception, another exception occurred:
+
+    def test_get_sample_dataset_route_invalid_nrows():
+&gt;       response = client.get("/data/sample/download?nrows=-5")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/starlette/testclient.py:479: in get
+    return super().get(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1053: in get
+    return self.request(
+.venv/lib/python3.12/site-packages/starlette/testclient.py:451: in request
+    return super().request(
+.venv/lib/python3.12/site-packages/httpx/_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:914: in send
+    response = self._send_handling_auth(
+.venv/lib/python3.12/site-packages/httpx/_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+.venv/lib/python3.12/site-packages/httpx/_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/testclient.py:354: in handle_request
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+.venv/lib/python3.12/site-packages/starlette/middleware/sessions.py:85: in __call__
+    await self.app(scope, receive, send_wrapper)
+.venv/lib/python3.12/site-packages/starlette/middleware/trustedhost.py:36: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py:158: in __exit__
+    self.gen.throw(value)
+.venv/lib/python3.12/site-packages/starlette/_utils.py:85: in collapse_excgroups
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/misc/middleware.py:57: in track_client_request_middleware
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:159: in call_next
+    raise app_exc
+.venv/lib/python3.12/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:736: in app
+    await route.handle(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:290: in handle
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:75: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/fastapi/routing.py:302: in app
+    raw_response = await run_endpoint_function(
+.venv/lib/python3.12/site-packages/fastapi/routing.py:215: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/starlette/concurrency.py:38: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/anyio/to_thread.py:61: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2525: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:986: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/routes/data.py:94: in get_sample_dataset
+    dataset = parse_data_parameters(
+pfun_cma_model/routes/data.py:52: in parse_data_parameters
+    data = read_sample_data(convert2json=False)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/data.py:29: in read_sample_data
+    df = PFunDataPaths().read_sample_data()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pfun_cma_model/misc/pathdefs.py:83: in read_sample_data
+    df = pd.read_csv(fpath)
+         ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1026: in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:620: in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1620: in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pandas/io/parsers/readers.py:1880: in _make_engine
+    self.handles = get_handle(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path_or_buf = PosixPath('/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'), mode = 'r'
+
+    @doc(compression_options=_shared_docs["compression_options"] % "path_or_buf")
+    def get_handle(
+        path_or_buf: FilePath | BaseBuffer,
+        mode: str,
+        *,
+        encoding: str | None = None,
+        compression: CompressionOptions | None = None,
+        memory_map: bool = False,
+        is_text: bool = True,
+        errors: str | None = None,
+        storage_options: StorageOptions | None = None,
+    ) -&gt; IOHandles[str] | IOHandles[bytes]:
+        """
+        Get file handle for given path/buffer and mode.
+    
+        Parameters
+        ----------
+        path_or_buf : str or file handle
+            File path or object.
+        mode : str
+            Mode to open path_or_buf with.
+        encoding : str or None
+            Encoding to use.
+        {compression_options}
+    
+               May be a dict with key 'method' as compression mode
+               and other keys as compression options if compression
+               mode is 'zip'.
+    
+               Passing compression options as keys in dict is
+               supported for compression modes 'gzip', 'bz2', 'zstd' and 'zip'.
+    
+            .. versionchanged:: 1.4.0 Zstandard support.
+    
+        memory_map : bool, default False
+            See parsers._parser_params for more information. Only used by read_csv.
+        is_text : bool, default True
+            Whether the type of the content passed to the file/buffer is string or
+            bytes. This is not the same as `"b" not in mode`. If a string content is
+            passed to a binary file/buffer, a wrapper is inserted.
+        errors : str, default 'strict'
+            Specifies how encoding and decoding errors are to be handled.
+            See the errors argument for :func:`open` for a full list
+            of options.
+        storage_options: StorageOptions = None
+            Passed to _get_filepath_or_buffer
+    
+        Returns the dataclass IOHandles
+        """
+        # Windows does not default to utf-8. Set to utf-8 for a consistent behavior
+        encoding = encoding or "utf-8"
+    
+        errors = errors or "strict"
+    
+        # read_csv does not know whether the buffer is opened in binary/text mode
+        if _is_binary_mode(path_or_buf, mode) and "b" not in mode:
+            mode += "b"
+    
+        # validate encoding and errors
+        codecs.lookup(encoding)
+        if isinstance(errors, str):
+            codecs.lookup_error(errors)
+    
+        # open URLs
+        ioargs = _get_filepath_or_buffer(
+            path_or_buf,
+            encoding=encoding,
+            compression=compression,
+            mode=mode,
+            storage_options=storage_options,
+        )
+    
+        handle = ioargs.filepath_or_buffer
+        handles: list[BaseBuffer]
+    
+        # memory mapping needs to be the first step
+        # only used for read_csv
+        handle, memory_map, handles = _maybe_memory_map(handle, memory_map)
+    
+        is_path = isinstance(handle, str)
+        compression_args = dict(ioargs.compression)
+        compression = compression_args.pop("method")
+    
+        # Only for write methods
+        if "r" not in mode and is_path:
+            check_parent_directory(str(handle))
+    
+        if compression:
+            if compression != "zstd":
+                # compression libraries do not like an explicit text-mode
+                ioargs.mode = ioargs.mode.replace("t", "")
+            elif compression == "zstd" and "b" not in ioargs.mode:
+                # python-zstandard defaults to text mode, but we always expect
+                # compression libraries to use binary mode.
+                ioargs.mode += "b"
+    
+            # GZ Compression
+            if compression == "gzip":
+                if isinstance(handle, str):
+                    # error: Incompatible types in assignment (expression has type
+                    # "GzipFile", variable has type "Union[str, BaseBuffer]")
+                    handle = gzip.GzipFile(  # type: ignore[assignment]
+                        filename=handle,
+                        mode=ioargs.mode,
+                        **compression_args,
+                    )
+                else:
+                    handle = gzip.GzipFile(
+                        # No overload variant of "GzipFile" matches argument types
+                        # "Union[str, BaseBuffer]", "str", "Dict[str, Any]"
+                        fileobj=handle,  # type: ignore[call-overload]
+                        mode=ioargs.mode,
+                        **compression_args,
+                    )
+    
+            # BZ Compression
+            elif compression == "bz2":
+                # Overload of "BZ2File" to handle pickle protocol 5
+                # "Union[str, BaseBuffer]", "str", "Dict[str, Any]"
+                handle = get_bz2_file()(  # type: ignore[call-overload]
+                    handle,
+                    mode=ioargs.mode,
+                    **compression_args,
+                )
+    
+            # ZIP Compression
+            elif compression == "zip":
+                # error: Argument 1 to "_BytesZipFile" has incompatible type
+                # "Union[str, BaseBuffer]"; expected "Union[Union[str, PathLike[str]],
+                # ReadBuffer[bytes], WriteBuffer[bytes]]"
+                handle = _BytesZipFile(
+                    handle, ioargs.mode, **compression_args  # type: ignore[arg-type]
+                )
+                if handle.buffer.mode == "r":
+                    handles.append(handle)
+                    zip_names = handle.buffer.namelist()
+                    if len(zip_names) == 1:
+                        handle = handle.buffer.open(zip_names.pop())
+                    elif not zip_names:
+                        raise ValueError(f"Zero files found in ZIP file {path_or_buf}")
+                    else:
+                        raise ValueError(
+                            "Multiple files found in ZIP file. "
+                            f"Only one file per ZIP: {zip_names}"
+                        )
+    
+            # TAR Encoding
+            elif compression == "tar":
+                compression_args.setdefault("mode", ioargs.mode)
+                if isinstance(handle, str):
+                    handle = _BytesTarFile(name=handle, **compression_args)
+                else:
+                    # error: Argument "fileobj" to "_BytesTarFile" has incompatible
+                    # type "BaseBuffer"; expected "Union[ReadBuffer[bytes],
+                    # WriteBuffer[bytes], None]"
+                    handle = _BytesTarFile(
+                        fileobj=handle, **compression_args  # type: ignore[arg-type]
+                    )
+                assert isinstance(handle, _BytesTarFile)
+                if "r" in handle.buffer.mode:
+                    handles.append(handle)
+                    files = handle.buffer.getnames()
+                    if len(files) == 1:
+                        file = handle.buffer.extractfile(files[0])
+                        assert file is not None
+                        handle = file
+                    elif not files:
+                        raise ValueError(f"Zero files found in TAR archive {path_or_buf}")
+                    else:
+                        raise ValueError(
+                            "Multiple files found in TAR archive. "
+                            f"Only one file per TAR archive: {files}"
+                        )
+    
+            # XZ Compression
+            elif compression == "xz":
+                # error: Argument 1 to "LZMAFile" has incompatible type "Union[str,
+                # BaseBuffer]"; expected "Optional[Union[Union[str, bytes, PathLike[str],
+                # PathLike[bytes]], IO[bytes]], None]"
+                handle = get_lzma_file()(
+                    handle, ioargs.mode, **compression_args  # type: ignore[arg-type]
+                )
+    
+            # Zstd Compression
+            elif compression == "zstd":
+                zstd = import_optional_dependency("zstandard")
+                if "r" in ioargs.mode:
+                    open_args = {"dctx": zstd.ZstdDecompressor(**compression_args)}
+                else:
+                    open_args = {"cctx": zstd.ZstdCompressor(**compression_args)}
+                handle = zstd.open(
+                    handle,
+                    mode=ioargs.mode,
+                    **open_args,
+                )
+    
+            # Unrecognized Compression
+            else:
+                msg = f"Unrecognized compression type: {compression}"
+                raise ValueError(msg)
+    
+            assert not isinstance(handle, str)
+            handles.append(handle)
+    
+        elif isinstance(handle, str):
+            # Check whether the filename is to be opened in binary mode.
+            # Binary mode does not support 'encoding' and 'newline'.
+            if ioargs.encoding and "b" not in ioargs.mode:
+                # Encoding
+&gt;               handle = open(
+                    handle,
+                    ioargs.mode,
+                    encoding=ioargs.encoding,
+                    errors=errors,
+                    newline="",
+                )
+E               FileNotFoundError: [Errno 2] No such file or directory: '/home/robbiec/Git/pfun-cma-model/.venv/lib/python3.12/site-packages/pfun_common/data/valid_data.csv'
+
+.venv/lib/python3.12/site-packages/pandas/io/common.py:873: FileNotFoundError</failure></testcase><testcase classname="tests.test_cli.TestCliGroup" name="test_cli_group_creation" file="tests/test_cli.py" line="66" time="0.001" /><testcase classname="tests.test_cli.TestCliGroup" name="test_cli_group_help" file="tests/test_cli.py" line="72" time="0.001" /><testcase classname="tests.test_cli.TestCliGroup" name="test_cli_context_object_initialization" file="tests/test_cli.py" line="83" time="0.001" /><testcase classname="tests.test_cli.TestLaunchCommand" name="test_launch_help" file="tests/test_cli.py" line="94" time="0.001" /><testcase classname="tests.test_cli.TestLaunchCommand" name="test_launch_default_options" file="tests/test_cli.py" line="102" time="0.001" /><testcase classname="tests.test_cli.TestLaunchCommand" name="test_launch_custom_host_port" file="tests/test_cli.py" line="114" time="0.001" /><testcase classname="tests.test_cli.TestLaunchCommand" name="test_launch_with_reload" file="tests/test_cli.py" line="123" time="0.001" /><testcase classname="tests.test_cli.TestLaunchCommand" name="test_launch_with_extra_args" file="tests/test_cli.py" line="131" time="0.001" /><testcase classname="tests.test_cli.TestGenerateScenarioCommand" name="test_generate_scenario_help" file="tests/test_cli.py" line="144" time="0.001" /><testcase classname="tests.test_cli.TestGenerateScenarioCommand" name="test_generate_scenario_default_query" file="tests/test_cli.py" line="150" time="0.001" /><testcase classname="tests.test_cli.TestGenerateScenarioCommand" name="test_generate_scenario_custom_query" file="tests/test_cli.py" line="159" time="0.001" /><testcase classname="tests.test_cli.TestGenerateScenarioCommand" name="test_generate_scenario_json_output" file="tests/test_cli.py" line="168" time="0.001" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_help" file="tests/test_cli.py" line="185" time="0.001" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_default_input" file="tests/test_cli.py" line="194" time="0.002" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_custom_input" file="tests/test_cli.py" line="207" time="0.003" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_custom_N" file="tests/test_cli.py" line="229" time="0.001" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_plot" file="tests/test_cli.py" line="247" time="0.002" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_opts" file="tests/test_cli.py" line="269" time="0.001" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_with_model_config" file="tests/test_cli.py" line="285" time="0.001" /><testcase classname="tests.test_cli.TestFitModelCommand" name="test_fit_model_output_file_creation" file="tests/test_cli.py" line="302" time="0.002" /><testcase classname="tests.test_cli.TestRunParamGridCommand" name="test_run_param_grid_help" file="tests/test_cli.py" line="330" time="0.001" /><testcase classname="tests.test_cli.TestRunParamGridCommand" name="test_run_param_grid_execution" file="tests/test_cli.py" line="335" time="0.249" /><testcase classname="tests.test_cli.TestRunParamGridCommand" name="test_run_param_grid_output_file" file="tests/test_cli.py" line="350" time="0.002" /><testcase classname="tests.test_cli.TestDownloadSampleDataCommand" name="test_download_sample_data_help" file="tests/test_cli.py" line="372" time="0.001" /><testcase classname="tests.test_cli.TestDownloadSampleDataCommand" name="test_download_sample_data_without_overwrite" file="tests/test_cli.py" line="378" time="0.001" /><testcase classname="tests.test_cli.TestDownloadSampleDataCommand" name="test_download_sample_data_with_overwrite" file="tests/test_cli.py" line="388" time="0.001" /><testcase classname="tests.test_cli.TestDownloadSampleDataCommand" name="test_download_sample_data_output_message" file="tests/test_cli.py" line="399" time="0.001" /><testcase classname="tests.test_cli.TestVersionCommand" name="test_version_help" file="tests/test_cli.py" line="413" time="0.001" /><testcase classname="tests.test_cli.TestVersionCommand" name="test_version_output" file="tests/test_cli.py" line="418" time="0.000" /><testcase classname="tests.test_cli.TestVersionCommand" name="test_version_output_format" file="tests/test_cli.py" line="424" time="0.000" /><testcase classname="tests.test_cli.TestRunDoctestsCommand" name="test_run_doctests_help" file="tests/test_cli.py" line="435" time="0.000" /><testcase classname="tests.test_cli.TestRunDoctestsCommand" name="test_run_doctests_execution" file="tests/test_cli.py" line="440" time="0.001" /><testcase classname="tests.test_cli.TestProcessKwds" name="test_process_kwds_with_integers" file="tests/test_cli.py" line="450" time="0.000" /><testcase classname="tests.test_cli.TestProcessKwds" name="test_process_kwds_with_floats" file="tests/test_cli.py" line="462" time="0.000" /><testcase classname="tests.test_cli.TestProcessKwds" name="test_process_kwds_with_non_numeric_values" file="tests/test_cli.py" line="475" time="0.000" /><testcase classname="tests.test_cli.TestProcessKwds" name="test_process_kwds_other_param" file="tests/test_cli.py" line="485" time="0.000" /><testcase classname="tests.test_cli.TestProcessKwds" name="test_process_kwds_mixed_types" file="tests/test_cli.py" line="494" time="0.000" /><testcase classname="tests.test_cma_sleepwake.TestCMASleepWakeModel" name="test_calculate_Gt" file="tests/test_cma_sleepwake.py" line="11" time="0.002" /><testcase classname="tests.test_cma_sleepwake.TestCMASleepWakeModel" name="test_update_with_invalid_parameters" file="tests/test_cma_sleepwake.py" line="22" time="0.000" /><testcase classname="tests.test_cma_sleepwake.TestCMASleepWakeModel" name="test_integrate_G_with_NaN_values" file="tests/test_cma_sleepwake.py" line="41" time="0.000"><failure message="pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams&#10;d&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taup&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.float&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.is-instance[ndarray]&#10;  Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of&#10;B&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;Cm&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;toff&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing">self = &lt;tests.test_cma_sleepwake.TestCMASleepWakeModel object at 0x7f80966093d0&gt;
+
+    def test_integrate_G_with_NaN_values(self):
+        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+        from pfun_cma_model.engine.cma import CMASleepWakeModel
+    
+        # Create an instance of CMASleepWakeModel
+&gt;       model = CMASleepWakeModel()
+                ^^^^^^^^^^^^^^^^^^^
+
+tests/test_cma_sleepwake.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pfun_cma_model/engine/cma.py:260: in __init__
+    if self.seed is not None:
+       ^^^^^^^^^
+pfun_cma_model/engine/cma.py:275: in seed
+    return self.params.seed
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;pfun_cma_model.engine.cma.CMASleepWakeModel object at 0x7f808fe44e00&gt;
+
+    @property
+    def params(self) -&gt; CMAModelParams:
+        """Return the current parameters as a CMAModelParams object."""
+        params_dict = {k: self._params[k] for k in self.param_keys}  # preserve order
+&gt;       return CMAModelParams(**params_dict)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams
+E       d
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taup
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.float
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.is-instance[ndarray]
+E         Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of
+E       B
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       Cm
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       toff
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+
+pfun_cma_model/engine/cma.py:194: ValidationError</failure></testcase><testcase classname="tests.test_cma_sleepwake.TestCMASleepWakeModel" name="test_update_bounds" file="tests/test_cma_sleepwake.py" line="57" time="0.000"><failure message="pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams&#10;d&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taup&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.float&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.is-instance[ndarray]&#10;  Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of&#10;B&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;Cm&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;toff&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing">self = &lt;tests.test_cma_sleepwake.TestCMASleepWakeModel object at 0x7f8096608080&gt;
+
+    def test_update_bounds(self):
+        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+        from pfun_cma_model.engine.cma import CMASleepWakeModel
+    
+        # Create an instance of CMASleepWakeModel
+&gt;       model = CMASleepWakeModel()
+                ^^^^^^^^^^^^^^^^^^^
+
+tests/test_cma_sleepwake.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pfun_cma_model/engine/cma.py:260: in __init__
+    if self.seed is not None:
+       ^^^^^^^^^
+pfun_cma_model/engine/cma.py:275: in seed
+    return self.params.seed
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;pfun_cma_model.engine.cma.CMASleepWakeModel object at 0x7f8094491460&gt;
+
+    @property
+    def params(self) -&gt; CMAModelParams:
+        """Return the current parameters as a CMAModelParams object."""
+        params_dict = {k: self._params[k] for k in self.param_keys}  # preserve order
+&gt;       return CMAModelParams(**params_dict)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams
+E       d
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taup
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.float
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.is-instance[ndarray]
+E         Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of
+E       B
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       Cm
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       toff
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+
+pfun_cma_model/engine/cma.py:194: ValidationError</failure></testcase><testcase classname="tests.test_cma_sleepwake.TestCMASleepWakeModel" name="test_cma_bounded_params_as_dict" file="tests/test_cma_sleepwake.py" line="83" time="0.000"><failure message="pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams&#10;d&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taup&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.float&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;taug.is-instance[ndarray]&#10;  Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of&#10;B&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;Cm&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing&#10;toff&#10;  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing">self = &lt;tests.test_cma_sleepwake.TestCMASleepWakeModel object at 0x7f8096608e30&gt;
+
+    def test_cma_bounded_params_as_dict(self):
+        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+        from pfun_cma_model.engine.cma import CMASleepWakeModel
+    
+&gt;       model = CMASleepWakeModel()
+                ^^^^^^^^^^^^^^^^^^^
+
+tests/test_cma_sleepwake.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pfun_cma_model/engine/cma.py:260: in __init__
+    if self.seed is not None:
+       ^^^^^^^^^
+pfun_cma_model/engine/cma.py:275: in seed
+    return self.params.seed
+           ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;pfun_cma_model.engine.cma.CMASleepWakeModel object at 0x7f8094492750&gt;
+
+    @property
+    def params(self) -&gt; CMAModelParams:
+        """Return the current parameters as a CMAModelParams object."""
+        params_dict = {k: self._params[k] for k in self.param_keys}  # preserve order
+&gt;       return CMAModelParams(**params_dict)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 7 validation errors for CMAModelParams
+E       d
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taup
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.float
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       taug.is-instance[ndarray]
+E         Input should be an instance of ndarray [type=is_instance_of, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/is_instance_of
+E       B
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       Cm
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+E       toff
+E         Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='invalid', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_parsing
+
+pfun_cma_model/engine/cma.py:194: ValidationError</failure></testcase><testcase classname="tests.test_data_utils.TestFormatData" name="test_input_dataframe_with_all_required_columns" file="tests/test_data_utils.py" line="13" time="0.011" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_success" file="tests/test_gradio_ui.py" line="20" time="1.009" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_no_parameters" file="tests/test_gradio_ui.py" line="59" time="0.001" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_http_error" file="tests/test_gradio_ui.py" line="86" time="0.001" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_http_404" file="tests/test_gradio_ui.py" line="110" time="0.002" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_request_exception" file="tests/test_gradio_ui.py" line="134" time="0.001" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_timeout" file="tests/test_gradio_ui.py" line="155" time="0.001" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_json_decode_error" file="tests/test_gradio_ui.py" line="176" time="0.001" /><testcase classname="tests.test_gradio_ui" name="test_async_generate_parameters_with_multiple_params" file="tests/test_gradio_ui.py" line="201" time="0.002" /></testsuite></testsuites>
