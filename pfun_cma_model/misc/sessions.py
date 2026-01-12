@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import socketio
 from fastapi.applications import FastAPI
+from pfun_common.settings import get_settings
 
 
 class PFunSocketIOSession:
@@ -87,11 +88,14 @@ class PFunSocketIOSession:
         )
         self.app.add_websocket_route(path, route=self.sio_app)
 
-    def setup_redis_manager(self):
+    def setup_redis_manager(self, url: str = None, **kwargs) -> socketio.AsyncRedisManager:
         """
         Setup Redis manager for Socket.IO.
         """
-        self.mgr = socketio.AsyncRedisManager(url="redis://localhost:6379/0")
+        if url is None:
+            settings = get_settings()
+            url = settings.redis_url
+        self.mgr = socketio.AsyncRedisManager(url=url, **kwargs)
         return self.mgr
 
 

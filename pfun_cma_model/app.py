@@ -7,7 +7,6 @@ from pfun_cma_model.routes import llm as llm_routes
 from pfun_cma_model.routes import demo as demo_routes
 from pfun_cma_model.routes import params as params_routes
 from pfun_cma_model.routes import data as data_routes
-from redis.asyncio import Redis
 from pfun_cma_model.engine.cma_model_params import (
     _BOUNDED_PARAM_KEYS_DEFAULTS,
 )
@@ -20,13 +19,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi import FastAPI, Request, Response, Body, Depends
+from fastapi import FastAPI, Request, Response, Body, Depends, Header
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import json
 import logging
-import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -111,8 +109,6 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
-
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -255,7 +251,7 @@ def health_check():
 
 
 @app.get("/")
-def root(request: Request):
+def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
     """Root endpoint to display the homepage."""
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)

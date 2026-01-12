@@ -56,6 +56,11 @@ class FullModelRunDemo {
         this.connectSocketIO();
         this.setupEventListeners();
         this.appendMessage('Demo initialized. Ready to run simulation.');
+        try {
+            demoApp.runSimulation();
+        } catch (err) {
+            console.error('Failed to start initial simulation.', err);
+        }
     }
 
     setupChart() {
@@ -151,7 +156,6 @@ class FullModelRunDemo {
     }
 
     handleSocketMessage(data) {
-        let iters = 0;
         try {
             const point = JSON.parse(data);
             if (point.error) {
@@ -163,14 +167,10 @@ class FullModelRunDemo {
                 this.chart.data.datasets[0].data.push({x: point.t, y: point.c});
                 this.chart.data.datasets[1].data.push({x: point.t, y: point.m});
                 this.chart.data.datasets[2].data.push({x: point.t, y: point.a});
-                iters += 1;
-		if( ((iters % 5) === 0) && (iters > 5) ) {
-                    // Update every point or throttling if needed, for now every point as it's not too fast
-                    // or maybe every 10 points like the other demo
-                    this.chart.update();
-		    iters = 0;
-		}
             }
+            // Update every point or throttling if needed, for now every point as it's not too fast
+            // or maybe every 10 points like the other demo
+            this.chart.update();
         } catch (e) {
             console.warn('Received non-JSON message or error parsing:', data);
             this.appendMessage(`Received: ${data}`);

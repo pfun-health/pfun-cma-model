@@ -158,6 +158,23 @@ class CanvasWaveDemo {
         const newBInput = compute_x_delta(x, this.dom.BInput.min, BInputRange, this.dom.canvas.width);
         const newtaugInput = compute_y_delta(y, this.dom.taugInput.min, taugInputRange, this.dom.canvas.height);
 
+        // validation for NaN
+        if (isNaN(newBInput) || isNaN(newtaugInput)) {
+            this.appendMessage('Error: Computed B or taug values are invalid.');
+            return;
+        }
+        // validation for out-of-bounds
+        if (newBInput < parseFloat(this.dom.BInput.min) || newBInput > parseFloat(this.dom.BInput.max) ||
+            newtaugInput < parseFloat(this.dom.taugInput.min) || newtaugInput > parseFloat(this.dom.taugInput.max)) {
+            this.appendMessage('Error: Computed B or taug values are out of range.');
+            return;
+        }
+        if (Math.abs(newBInput - parseFloat(this.dom.BInput.value)) < 0.01 &&
+            Math.abs(newtaugInput - parseFloat(this.dom.taugInput.value)) < 0.01) {
+            // No significant change
+            return;
+        }
+        // Update input values
         this.dom.BInput.value = newBInput.toFixed(2);
         this.dom.taugInput.value = newtaugInput.toFixed(2);
 

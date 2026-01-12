@@ -34,6 +34,8 @@ async def track_client_request_middleware(request: Request, call_next):
     # Build request info object
     request_info = {
         "client_ip": client_ip,
+        "remote_ip": request.headers.get(
+            "X-Forwarded-For", request.headers.get("X-Real-IP", client_ip)),
         "cookies": cookies,
         "session_id": session_id,
         "method": request.method,
