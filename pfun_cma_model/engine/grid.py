@@ -1,11 +1,12 @@
 import concurrent.futures
-import json
 import logging
 import os
 from dataclasses import asdict, dataclass
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from sklearn.model_selection import ParameterGrid
 
 from pfun_cma_model.engine.cma import CMASleepWakeModel
@@ -14,11 +15,34 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 @dataclass
 class PFunCMAParamsGridResult:
     """result object for grid search"""
+    param_keys: list[str]
+    param_values: list[float | int]
+    result: pd.DataFrame
 
-    #: json-string-ified params
-    params: str
-    #: json-string-ified result
-    result: str
+    def __post_init__(self):
+        self.params = pd.Series(
+            {k: v for k, v in zip(self.param_keys, self.param_values)}
+        )
+
+
+@dataclass
+class PFunCMAParamsGridCollator:
+    """Collates parameters, solutions from pfun grid search."""
+    raw_results: list[PFunCMAParamsGridResult]
+
+    def __post_init__(self):
+        """Convert the dataframes to pyarrow tables.
+        
+        :param self: current instance
+        """
+        self.df_params = pd.concat([r.params for r in self.raw_results]).reset_index(drop=True)
+        self.df_params.name = "params"
+        self.params = pa.Table.from_pandas(self.df_params.to_frame())
+        self.df_solns = pd.concat([r.result for r in self.raw_results])
+        self.solns = pa.Table.from_pandas(self.df_solns)
+        self.table = pa.Table.from_pydict(
+            {"params": self.params, "solns": self.solns},
+        )
 
 
 def compute_psample(params, N):
@@ -62,10 +86,12 @@ class PFunCMAParamsGrid:
                     for k, l, u in zip(self.tmK, self.tmL, self.tmU)
                 }
             )
+        # defines the parameter grid to search
         self.pgrid = ParameterGrid(pdict)
-        self.df = None
-        # solutions vector
+        # solutions vector (temporary storage)
         self.solns = []
+        # for the output (collated)
+        self.grid_collated = None
 
     @property
     def Njobs(self):
@@ -103,21 +129,15 @@ class PFunCMAParamsGrid:
                 params = future_to_params[future]
                 try:
                     self.solns.append(
-                        asdict(
-                            PFunCMAParamsGridResult(
-                                json.dumps(params), future.result().to_json()
-                            )
+                        PFunCMAParamsGridResult(
+                            list(params.keys()),
+                            list(params.values()),
+                            future.result()
                         )
                     )
                 except Exception as exc:
                     logging.error("failed to compute", exc_info=exc)
-
-        # format results into a nested dataframe (with rectilinear indices)
-        df = pd.DataFrame(self.solns, columns=["params", "result"])
-        params = df.params.apply(
-            lambda prow: pd.Series(json.loads(prow)))
-        results = [pd.DataFrame.from_dict(json.loads(rrow)) for rrow in df.result]
-        df_formatted = pd.DataFrame(params)
-        df_formatted["result"] = results
-        self.df = df_formatted
-        return self.df
+        # collate to a single pyarrow table
+        self.grid_collated = PFunCMAParamsGridCollator(self.solns)
+        logging.info("...done.")
+        return self.grid_collated
