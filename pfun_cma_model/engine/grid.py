@@ -112,6 +112,12 @@ class PFunCMAParamsGrid:
                 except Exception as exc:
                     logging.error("failed to compute", exc_info=exc)
 
-        # format results
-        self.df = pd.DataFrame(self.solns, columns=["params", "result"])
+        # format results into a nested dataframe (with rectilinear indices)
+        df = pd.DataFrame(self.solns, columns=["params", "result"])
+        params = df.params.apply(
+            lambda prow: pd.Series(json.loads(prow)))
+        results = [pd.DataFrame.from_dict(json.loads(rrow)) for rrow in df.result]
+        df_formatted = pd.DataFrame(params)
+        df_formatted["result"] = results
+        self.df = df_formatted
         return self.df

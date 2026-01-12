@@ -2,3 +2,4 @@
 *.csv filter=lfs diff=lfs merge=lfs -text
 results/cma_paramgrid.feather filter=lfs diff=lfs merge=lfs -text
 results/run_result.csv filter=lfs diff=lfs merge=lfs -text
+results/cma_paramgrid.parquet filter=lfs diff=lfs merge=lfs -text

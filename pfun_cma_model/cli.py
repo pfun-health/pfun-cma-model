@@ -152,22 +152,40 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 
 
 @cli.command()
+@click.option(
+    "--output-filetype",
+    "--output-ftype",
+    "-F",
+    type=click.Choice(('parquet', 'feather', 'csv', 'json')),
+    default='parquet',
+    help="Output file type.",
+)
 @click.pass_context
-def run_param_grid(ctx):
+def run_param_grid(ctx, output_filetype):
     """Run a parameter grid search for the PFun CMA model."""
     click.secho(f"Output directory: {ctx.obj['output_dir']}")
     click.secho("Running parameter grid search for the PFun CMA model...")
     # create the output file path
     if not os.path.exists(ctx.obj["output_dir"]):
         os.makedirs(ctx.obj["output_dir"])
-    output_fpath = os.path.join(ctx.obj["output_dir"], "cma_paramgrid.feather")
+    output_fpath = os.path.join(ctx.obj["output_dir"], f"cma_paramgrid.{output_filetype}")
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
-
     pfun_grid = PFunCMAParamsGrid(N=100, m=3, include_mealtimes=True)
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     df = pfun_grid.run()
-    df.to_feather(output_fpath)
+    # output to the specified filepath (with `output_filetype`)
+    match output_filetype:
+        case "parquet":
+            df.to_parquet(output_fpath)
+        case "feather":
+            df.to_feather(output_fpath)
+        case "csv":
+            df.to_csv(output_fpath)
+        case "json":
+            df.to_json(output_fpath)
+        case _:
+            df.to_parquet(output_fpath)
     click.secho(f"...saved result to: '{output_fpath}'")
     click.secho("...done.")
 
