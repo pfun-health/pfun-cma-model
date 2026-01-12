@@ -1,0 +1,71 @@
+<!-- macros/common.html -->
+<!-- Common macros used across multiple templates
+... -->
+
+<!-- Scripts macros -->
+
+{% macro jquery_script() %}
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+{% endmacro %}
+
+{% macro turnstile_script(turnstile_site_key) %}
+<!-- ref: https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/ -->
+<!--include the turnstile api (from the exact URL) -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<!-- Optimize loading performance: -->
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<!-- Add widget elements -->
+<div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+{% endmacro %}
+
+{% macro recaptcha_script(reCAPTCHA_site_key) %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ reCAPTCHA_site_key }}"></script>
+<script>
+  function onClick(e) {
+    e.preventDefault();
+    grecaptcha.ready(function () {
+      grecaptcha.execute('reCAPTCHA_site_key', { action: 'submit' }).then(function (token) {
+        // Add your logic to submit to your backend server here.
+      });
+    });
+  }
+</script>
+{% endmacro %}
+
+{% macro bootstrap_script() %}
+<!-- bootstrap js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+<!-- bootstrap inline scripts -->
+<script>
+  // Initialize all tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+  // Initialize all offcanvas
+  const offcanvasElementList = document.querySelectorAll('.offcanvas')
+  const offcanvasList = [...offcanvasElementList].map((offcanvasEl) => {
+    // initialize offcanvas element
+    let offcanvas = new bootstrap.Offcanvas(offcanvasEl, { backdrop: true, scroll: true }); // allow body scrolling when offcanvas is open
+    // add custom overflow-y style to offcanvas element
+    $(offcanvasEl).css({ 'overflow-y': 'scroll' });
+    $(offcanvasEl).on('shown.bs.offcanvas', function () {
+      // on offcanvas shown, adjust backdrop opacity
+      $(".offcanvas-backdrop").css({ 'opacity': '0.001' }); // adjust backdrop opacity
+    });
+    return offcanvas;
+  });
+</script>
+{% endmacro %}
+
+<!-- other macros -->
+
+{% macro github_star_embed() %}
+<iframe src="https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
+  frameborder="0" scrolling="0" width="170" height="30" title="GitHub">
+</iframe>
+{% endmacro %}
+
+<!-- end macros -->

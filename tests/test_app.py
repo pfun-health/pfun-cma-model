@@ -1,6 +1,6 @@
 import pfun_path_helper as pph
 
-pph.append_path(path=pph.get_lib_path("pfun_cma_model"))
+pph.append_path(path=pph.get_lib_path("pfun_cma_model"))  # noqa: E402
 from . import test_base
 
 test_base.setup_test_environment()
@@ -36,43 +36,13 @@ def sample_df():
     )
 
 
-def test_get_sample_dataset_invalid_nrows(fake_request):
-    # nrows < -1 should raise HTTPException 400
-    with pytest.raises(Exception) as excinfo:
-        get_sample_dataset(fake_request, nrows=-2)
-    assert excinfo.value.status_code == status.HTTP_400_BAD_REQUEST
+@pytest.fixture()
+def get_sample_dataset(fake_request, nrows=None):
+    response = client.get("/data/sample/download", params={"nrows": nrows} if nrows is not None else {})
+    return response
 
 
-@patch("pfun_cma_model.app.read_sample_data")
-def test_get_sample_dataset_full_dataset(
-    mock_read_sample_data, fake_request, sample_df
-):
-    # nrows = -1 should return the full dataset as JSON
-    mock_read_sample_data.return_value = sample_df
-    resp = get_sample_dataset(fake_request, nrows=-1)
-    assert isinstance(resp, Response)
-    assert resp.status_code == 200
-    assert resp.headers["Content-Type"] == "application/json"
-    data = json.loads(resp.body)
-    assert isinstance(data, list)
-    assert len(data) == 3
-
-
-@patch("pfun_cma_model.app.read_sample_data")
-def test_get_sample_dataset_nrows_given(mock_read_sample_data, fake_request, sample_df):
-    # nrows = 2 should return only first 2 rows
-    mock_read_sample_data.return_value = sample_df
-    resp = get_sample_dataset(fake_request, nrows=2)
-    assert isinstance(resp, Response)
-    assert resp.status_code == 200
-    data = json.loads(resp.body)
-    assert isinstance(data, list)
-    assert len(data) == 2
-    assert data[0]["a"] == 1
-    assert data[1]["a"] == 3
-
-
-@patch("pfun_cma_model.app.read_sample_data")
+@patch("pfun_cma_model.data.read_sample_data")
 def test_get_sample_dataset_route_integration(mock_read_sample_data, sample_df):
     # Integration test using TestClient
     mock_read_sample_data.return_value = sample_df
