@@ -79,13 +79,14 @@ async def lifespan(app: FastAPI):
             password=settings.redis_password,
             decode_responses=True,
         )
-        await redis_client.ping()
+        await redis_client.ping()  # type: ignore
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
-    
+
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -109,11 +110,17 @@ app = FastAPI(
     app_name="PFun CMA Model Backend",
     lifespan=lifespan,
     servers=[
-        {
-            "url": "https://cloud.tail38611b.ts.net",
-            "description": "tailscale-funnel for pfun demos.",
-        },
-        {"url": "http://localhost:8001", "description": "Local development server."},
+        (
+            {
+                "url": "https://cloud.tail38611b.ts.net",
+                "description": "tailscale-funnel for pfun demos.",
+            }
+            if not debug_mode
+            else {
+                "url": "http://localhost:8001",
+                "description": "Local development server.",
+            }
+        ),
     ],
 )
 
@@ -157,6 +164,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Add client request tracking middleware (added first, executes last)
 from pfun_cma_model.misc.middleware import track_client_request_middleware
+
 app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests

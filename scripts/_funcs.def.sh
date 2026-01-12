@@ -7,7 +7,7 @@ set -e
 full_uv_sync() {
 	# Perform a full uv sync including all extras and specific groups.
 	uv sync --all-extras \
-		--group google \
+		--group ollama \
 		--group gradio
 }
 

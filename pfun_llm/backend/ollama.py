@@ -1,8 +1,9 @@
 """Ollama-backend class for generative model interfaces."""
+
 import logging
 import asyncio
-from typing import Optional, Literal
-from pydantic import BaseModel, Field, field_validator, field_serializer
+from typing import Optional, Literal, Any
+from pydantic import BaseModel, Field, field_serializer
 from ollama import AsyncClient
 from pfun_common.settings import get_settings
 from pfun_llm.backend.base import BaseGenerativeModel
@@ -10,12 +11,14 @@ from pfun_llm.backend.base import BaseGenerativeModel
 
 class OllamaMessage(BaseModel):
     """Message schema for Ollama API."""
+
     role: str = Field(default="user")
     content: str = Field()
 
 
 class OllamaMessages(BaseModel):
     """Messages schema for Ollama API."""
+
     messages: list[OllamaMessage | str] = Field(default_factory=list)
 
     @field_serializer("messages")
@@ -24,10 +27,9 @@ class OllamaMessages(BaseModel):
         serialized_messages = []
         for message in v:
             if isinstance(message, OllamaMessage):
-                serialized_messages.append({
-                    "role": message.role,
-                    "content": message.content
-                })
+                serialized_messages.append(
+                    {"role": message.role, "content": message.content}
+                )
             else:
                 raise ValueError(
                     "Each message must be a OllamaMessage instance. "
@@ -40,8 +42,7 @@ _OLLAMA_DEFAULT_MODEL: Literal["gemma3:4b"] = "gemma3:4b"
 
 
 def _conv_str2msg(
-        message_content: str | OllamaMessage,
-        role: str = "user"
+    message_content: str | OllamaMessage, role: str = "user"
 ) -> OllamaMessage:
     """convert raw string to OllamaMessage."""
     if isinstance(message_content, OllamaMessage):
@@ -50,16 +51,17 @@ def _conv_str2msg(
 
 
 def _format_messages(
-        raw_messages: str | list,
+        raw_messages: str | list,  # type: ignore
         role: str = "user"
 ) -> OllamaMessages:
     """format raw messages (str|list), return OllamaMessages object."""
+
     if not isinstance(raw_messages, list):
-        raw_messages: list = [raw_messages, ]
-    return OllamaMessages(
-        messages=[
-            _conv_str2msg(msg_, role=role) for msg_ in raw_messages
+        raw_messages: list = [
+            raw_messages,
         ]
+    return OllamaMessages(
+        messages=[_conv_str2msg(msg_, role=role) for msg_ in raw_messages]
     )
 
 
@@ -78,35 +80,37 @@ class OllamaGenerativeModel(BaseGenerativeModel):
     async def stream_chat(self, messages, model=None):
         if model is None:
             model = self._model
-        async for part in await self._client.chat(model=model, messages=messages, stream=True):
-            yield part['message']['content']
+        async for part in await self._client.chat(
+            model=model, messages=messages, stream=True
+        ):
+            yield part["message"]["content"]
 
     async def chat(self, messages, model=None):
         if model is None:
             model = self._model
-        response = await self._client.chat(
-            model=model,
-            messages=messages
+        response = await asyncio.ensure_future(
+            self._client.chat(model=model, messages=messages)
         )
         return response
 
-    def call_genai_client(
-            self,
-            model: Optional[str] = None,
-            contents: Optional[list | str | OllamaMessages | OllamaMessage] = None,
-            stream: bool = False):
+    async def call_genai_client(
+        self,
+        model: Optional[str] = None,
+        contents: Optional[list | str | OllamaMessages | OllamaMessage] = None,
+        **kwds,
+    ) -> None | Any | asyncio.Future:
         """Call the API client with the specified model and contents."""
-        super().call_genai_client(model=model, contents=contents)
+        super().call_genai_client(model=model, contents=contents, **kwds)
         if not isinstance(contents, OllamaMessages):
             contents = _format_messages(contents)
         serialized_messages = contents.model_dump()["messages"]
-        logging.debug("Serialized messages for Ollama API (type=%s): %s",
-                      type(serialized_messages), repr(serialized_messages))
-        # ensure the response is an awaitable (avoid making this method async, handle in context)
-        response_future = asyncio.ensure_future(
-            self.chat(model=model, messages=serialized_messages)
+        logging.debug(
+            "Serialized messages for Ollama API (type=%s): %s",
+            type(serialized_messages),
+            repr(serialized_messages),
         )
-        return response_future
+        # ensure the response is an awaitable (avoid making this method async, handle in context)
+        return self.chat(model=model, messages=serialized_messages)
 
     @classmethod
     def setup_genai_client(cls) -> AsyncClient:
@@ -116,9 +120,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
             ollama.AsyncClient: The ollama API client.
         """
         settings = get_settings()
-        client = AsyncClient(
-            host=settings.ollama_host
-        )
+        client = AsyncClient(host=settings.ollama_host)
         logging.debug("Ollama API client setup successfully.")
         logging.debug("Ollama API client: %s", repr(client))
         return client

@@ -36,9 +36,9 @@ dependencies = [
     "seaborn>=0.13.2",
     "pydantic-settings>=2.2.1",
     "pfun-common",
-    "pfun-data",
     "numba>=0.63.1",
     "itsdangerous>=2.2.0",
+    "duckdb>=1.4.3",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -74,12 +74,12 @@ build-backend = "hatchling.build"
 [dependency-groups]
 # ollama-related dependencies
 ollama = [
-  "ollama",
+  "ollama==0.6.1",
 ]
 # Google-related dependencies
 google = [
-  "google",
-  "google-genai"
+  "google==3.0.0",
+  "google-genai==1.57.0"
 ]
 # Perplexity-related dependencies
 perplexity = [
@@ -114,7 +114,6 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
 [tool.uv.sources]
-pfun-data = { url = "https://github.com/pfun-health/pfun-data/archive/refs/tags/0.1.4.tar.gz" }
 pfun-gradio = { workspace = true }
 pfun-common = { path = "./packages/pfun_common" }
 

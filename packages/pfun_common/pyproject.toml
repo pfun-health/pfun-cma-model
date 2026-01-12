@@ -21,5 +21,6 @@ build-backend = "hatchling.build"
 packages = [
     "pfun_common",
     "pfun_common.utils",
-    "pfun_common.settings"
+    "pfun_common.settings",
+    "pfun_common.data",
 ]

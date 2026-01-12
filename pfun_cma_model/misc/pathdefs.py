@@ -26,7 +26,7 @@ class PFunDataPaths:
     """Paths for data files used in the pfun_cma_model package."""
 
     _pfun_data_dirpath: os.PathLike = Path(
-        os.path.abspath(pph.get_lib_path("pfun_data")))
+        os.path.abspath(pph.get_lib_path("pfun_common")))
     _sample_data_fpath: os.PathLike = Path(
         os.path.join(_pfun_data_dirpath, 'data/valid_data.csv'))
     _remote_data_fpath: str = 'https://github.com/pfun-health/pfun-data/releases/download/0.1.4/valid_data.csv'

@@ -29,20 +29,21 @@ GenerativeModel = _import_genai_with_backend(settings.llm_backend)
 loop = asyncio.get_event_loop()
 
 
-def _parse_generated_response(response: Any | str) -> str:
+async def _parse_generated_response(response: Any | str) -> str:
     """Parse the response that was returned by the generative model.
     Await the future if it's an async routine-like object.
     Get the response text attribute if it exists, otherwise return the string.
     """
     # explicitly test to see if the response needs awaited
-    if not asyncio.isfuture(response):
+    if not hasattr(response, "__await__"):
+        # parse text attribute if it exists
         txt_resp = getattr(response, "text", str(response))
         return str(txt_resp).replace("'", '"')
     # use recursion after awaiting (bc we're cool like that...)
-    return _parse_generated_response(loop.run_until_complete(response))
+    return await _parse_generated_response(response)
 
 
-def _call_llm_for_json(prompt: str) -> dict:
+async def _call_llm_for_json(prompt: str) -> dict:
     """
     Calls the generative model with a prompt and parses the JSON response.
 
@@ -57,7 +58,7 @@ def _call_llm_for_json(prompt: str) -> dict:
     """
     model = GenerativeModel()
     response = model.generate_content(prompt)
-    resp_text: str = _parse_generated_response(response)
+    resp_text: str = await _parse_generated_response(response)
     logging.debug("LLM Response (raw text attribute):\n'%s'", resp_text)
     try:
         # attempt to load without parsing
@@ -83,7 +84,7 @@ def _call_llm_for_json(prompt: str) -> dict:
         raise Exception(f"Failed to parse LLM API response: {e}")
 
 
-def translate_query_to_params(query: str) -> dict:
+async def translate_query_to_params(query: str) -> dict:
     """
     Translates a plain English query into PFun CMA model parameters using the Gemini API.
 
@@ -119,7 +120,7 @@ Now, please translate the following user query into PFun CMA model parameters.
 User: "{query}"
 Assistant:
 """
-    return _call_llm_for_json(prompt)
+    return await _call_llm_for_json(prompt)
 
 
 def generate_causal_explanation(description: str, trace: str) -> dict:
@@ -172,7 +173,7 @@ Assistant:
         raise Exception(f"Failed to parse LLM API response: {e}") from e
 
 
-def generate_scenario(query: Optional[str] = None) -> dict:
+async def generate_scenario(query: Optional[str] = None) -> dict:
     """
     Generates a realistic "pfun-scene" JSON object using the Gemini API.
 
@@ -243,7 +244,7 @@ Now, please generate a scenario based on the following user query. If the query 
 User: "{query if query else 'No query provided.'}"
 Assistant:
 """
-    return _call_llm_for_json(prompt)
+    return await _call_llm_for_json(prompt)
 
 
 if __name__ == "__main__":

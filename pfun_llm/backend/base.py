@@ -1,5 +1,5 @@
 """Base class for generative model interfaces."""
-from typing import Optional
+from typing import Optional, Any
 
 
 class BaseGenerativeModel:
@@ -27,7 +27,7 @@ class BaseGenerativeModel:
         """(convenience method) Generate content using the specified prompt."""
         return self(model=self._model, contents=prompt)
 
-    def call_genai_client(self, model: Optional[str] = None, contents: Optional[list | str] = None, **kwds):
+    def call_genai_client(self, model: Optional[str] = None, contents: Optional[list | str] = None, **kwds) -> None | Any:
         """Call the API client with the specified model and contents."""
         if model is None:
             model = self._model
