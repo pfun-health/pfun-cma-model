@@ -1,16 +1,20 @@
 import pfun_path_helper as pph
-pph.append_path(path=pph.get_lib_path('pfun_cma_model'))
+
+pph.append_path(path=pph.get_lib_path("pfun_cma_model"))
 from . import test_base
+
 test_base.setup_test_environment()
+import json
+from unittest.mock import MagicMock, patch
+
+import pandas as pd
 import pytest
-from fastapi import status, Request
+from fastapi import Request, status
 from fastapi.responses import Response
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+
 from pfun_cma_model.app import app
-import pandas as pd
 from pfun_cma_model.data import read_sample_data
-import json
 
 client = TestClient(app)
 
@@ -23,11 +27,13 @@ def fake_request():
 
 @pytest.fixture
 def sample_df():
-    return pd.DataFrame([
-        {"a": 1, "b": 2},
-        {"a": 3, "b": 4},
-        {"a": 5, "b": 6},
-    ])
+    return pd.DataFrame(
+        [
+            {"a": 1, "b": 2},
+            {"a": 3, "b": 4},
+            {"a": 5, "b": 6},
+        ]
+    )
 
 
 def test_get_sample_dataset_invalid_nrows(fake_request):
@@ -38,7 +44,9 @@ def test_get_sample_dataset_invalid_nrows(fake_request):
 
 
 @patch("pfun_cma_model.app.read_sample_data")
-def test_get_sample_dataset_full_dataset(mock_read_sample_data, fake_request, sample_df):
+def test_get_sample_dataset_full_dataset(
+    mock_read_sample_data, fake_request, sample_df
+):
     # nrows = -1 should return the full dataset as JSON
     mock_read_sample_data.return_value = sample_df
     resp = get_sample_dataset(fake_request, nrows=-1)

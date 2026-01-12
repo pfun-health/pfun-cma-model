@@ -1,16 +1,15 @@
-from typing import Sequence, Dict, Any, Type
-from pydantic_core import core_schema, PydanticCustomError
-from pydantic import GetCoreSchemaHandler
-import numpy as np
+from typing import Any, Dict, Sequence, Type
 
-__all__ = [
-    'Bounds',
-    'BoundsTypeError'
-]
+import numpy as np
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import PydanticCustomError, core_schema
+
+__all__ = ["Bounds", "BoundsTypeError"]
 
 
 class BoundsTypeError(TypeError):
     """Custom exception for bounds type errors."""
+
     pass
 
 
@@ -20,23 +19,33 @@ False_ = np.bool_(False)
 Bool_ = np.bool_
 
 
-_BOUNDS_SCHEMA = core_schema.typed_dict_schema({
-    "lb": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
-    "ub": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
-    "keep_feasible": core_schema.typed_dict_field(core_schema.list_schema(core_schema.bool_schema())),
-})
+_BOUNDS_SCHEMA = core_schema.typed_dict_schema(
+    {
+        "lb": core_schema.typed_dict_field(
+            core_schema.list_schema(core_schema.float_schema())
+        ),
+        "ub": core_schema.typed_dict_field(
+            core_schema.list_schema(core_schema.float_schema())
+        ),
+        "keep_feasible": core_schema.typed_dict_field(
+            core_schema.list_schema(core_schema.bool_schema())
+        ),
+    }
+)
 
 
-def validate_bounds(value: Any) -> 'Bounds':
+def validate_bounds(value: Any) -> "Bounds":
     if isinstance(value, Bounds):
         return value
     if isinstance(value, dict):
         return Bounds(**value)
     raise PydanticCustomError(
-        'bounds_type', 'Bounds must be a Bounds object or a dictionary with lb, ub, and keep_feasible keys.')
+        "bounds_type",
+        "Bounds must be a Bounds object or a dictionary with lb, ub, and keep_feasible keys.",
+    )
 
 
-def serialize_bounds(bounds: 'Bounds') -> Dict[str, Any]:
+def serialize_bounds(bounds: "Bounds") -> Dict[str, Any]:
     return bounds.__json__()
 
 
@@ -99,7 +108,7 @@ class Bounds:
         return {
             "lb": self.lb.tolist(),
             "ub": self.ub.tolist(),
-            "keep_feasible": self.keep_feasible.tolist()
+            "keep_feasible": self.keep_feasible.tolist(),
         }
 
     def json(self):
@@ -178,16 +187,21 @@ class Bounds:
             keep_feasible = np.tile(keep_feasible, len(lb))
         return np.asarray(list(zip(lb, ub, keep_feasible)))
 
-    def __init__(self, *args, lb: float | Sequence[float] = -np.inf,
-                 ub: float | Sequence[float] = np.inf,
-                 keep_feasible: np.bool_ = True_):
+    def __init__(
+        self,
+        *args,
+        lb: float | Sequence[float] = -np.inf,
+        ub: float | Sequence[float] = np.inf,
+        keep_feasible: np.bool_ = True_,
+    ):
         if len(args) > 0:
             #: handle Bounds positional argument
             if isinstance(args[0], Bounds):
                 lb, ub, keep_feasible = args[0].lb, args[0].ub, args[0].keep_feasible
                 if len(args) > 1:
                     raise ValueError(
-                        "Too many positional arguments. Expected either one (a Bounds) instance, or 0.")
+                        "Too many positional arguments. Expected either one (a Bounds) instance, or 0."
+                    )
             else:
                 #: handle alternative positional arguments
                 lb, ub, keep_feasible = args
@@ -205,12 +219,15 @@ class Bounds:
             end = ")"
         return start + end
 
-    def update_values(self, arr: np.ndarray | Dict) -> np.ndarray | Dict[str, float | int]:
+    def update_values(
+        self, arr: np.ndarray | Dict
+    ) -> np.ndarray | Dict[str, float | int]:
         """
         Update the values of the input array so that they stay within the specified limits.
         Delegates bounds logic to CMABoundedParams for consistency and maintainability.
         """
         from pfun_cma_model.engine.cma_model_params import CMABoundedParams
+
         # If arr is a dict, use keys for mapping
         keys = None
         if isinstance(arr, dict):
@@ -220,8 +237,7 @@ class Bounds:
             arr_values = arr.tolist()
         # Use CMABoundedParams to trim values to bounds
         # Only bounded param keys are considered
-        bounded_keys = getattr(CMABoundedParams(),
-                               'bounded_param_keys', None)
+        bounded_keys = getattr(CMABoundedParams(), "bounded_param_keys", None)
         if bounded_keys is None:
             # fallback: use all indices
             bounded_keys = range(len(arr_values))

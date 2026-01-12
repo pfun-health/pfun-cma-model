@@ -1,5 +1,5 @@
-from numba import cuda
 import numpy as np
+from numba import cuda
 
 
 class DataTransferHandler:
@@ -31,6 +31,7 @@ def main():
 
     # Assuming `calc_vdep_current_cuda` is your CUDA kernel
     from pfun_cma_model.runtime.src.engine.calc_gpu import calc_vdep_current_cuda
+
     handler.execute_function(calc_vdep_current_cuda, gpu_data, ...)
 
     # Transfer result back to CPU

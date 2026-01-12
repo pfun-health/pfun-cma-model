@@ -2,9 +2,11 @@
 import logging
 import os
 from typing import Optional
+
 import google.genai as genai
-from pfun_llm.backend.base import BaseGenerativeModel
 from pfun_common.settings import get_settings
+
+from pfun_llm.backend.base import BaseGenerativeModel
 
 
 class GeminiGenerativeModel(BaseGenerativeModel):
@@ -14,15 +16,11 @@ class GeminiGenerativeModel(BaseGenerativeModel):
     _default_model = "gemini-2.5-flash"
 
     def call_genai_client(
-            self,
-            model: Optional[str] = None,
-            contents: Optional[list | str] = None):
+        self, model: Optional[str] = None, contents: Optional[list | str] = None
+    ):
         """Call the API client with the specified model and contents."""
         super().call_genai_client(model=model, contents=contents)
-        return self._client.models.generate_content(
-            model=model,
-            contents=contents
-        )
+        return self._client.models.generate_content(model=model, contents=contents)
 
     @classmethod
     def setup_genai_client(cls) -> genai.Client:
@@ -36,7 +34,7 @@ class GeminiGenerativeModel(BaseGenerativeModel):
         client = genai.Client(
             vertexai=True,
             project=settings.google_cloud_project_id,
-            location=settings.google_cloud_location
+            location=settings.google_cloud_location,
         )
         logging.debug("Gemini API client setup successfully.")
         logging.debug("Gemini API client: %s", repr(client))

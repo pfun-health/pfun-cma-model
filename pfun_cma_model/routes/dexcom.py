@@ -1,11 +1,13 @@
 """
 PFun CMA Model - Dexcom API Routes
 """
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import RedirectResponse
-import httpx
+
 import os
 from typing import Dict
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 
 router = APIRouter()
 
@@ -13,9 +15,11 @@ DEXCOM_API_BASE_URL = "https://sandbox-api.dexcom.com"
 DEXCOM_CLIENT_ID = os.getenv("DEXCOM_API_CLIENT_ID")
 DEXCOM_CLIENT_SECRET = os.getenv("DEXCOM_API_SECRET")
 
+
 @router.get("/test")
 async def test_dexcom_route():
     return {"message": "Dexcom router is working"}
+
 
 @router.post("/token")
 async def get_token(request: Request, payload: Dict):
@@ -57,7 +61,9 @@ async def auth_callback(request: Request):
     """
     code = request.query_params.get("code")
     if not code:
-        raise HTTPException(status_code=400, detail="Authorization code not found in callback")
+        raise HTTPException(
+            status_code=400, detail="Authorization code not found in callback"
+        )
 
     # Store the code in the session to be retrieved by the frontend
     request.session["dexcom_auth_code"] = code

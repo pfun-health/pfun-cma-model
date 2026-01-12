@@ -1,12 +1,13 @@
 """pfun_common settings module."""
+
 import logging
 from base64 import b64encode
 from datetime import datetime
-from urllib.parse import urlparse
 from secrets import token_urlsafe
-
 from typing import Literal
-from pydantic import field_validator, Field
+from urllib.parse import urlparse
+
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,7 +19,7 @@ def generate_default_secret_key() -> str:
     """
     timestamp = datetime.now().isoformat().encode("utf-8")
     timestamp_nonce = b64encode(timestamp).decode("utf-8")
-    rand_token = token_urlsafe(16) # 16 bytes of randomness
+    rand_token = token_urlsafe(16)  # 16 bytes of randomness
     return f"{timestamp_nonce}-{rand_token}"
 
 
@@ -103,14 +104,18 @@ class Settings(BaseSettings):
                         info.data["redis_db"] = int(db_str)
                     except ValueError:
                         pass  # Keep existing value if db is not a valid integer
-            
-            logging.debug("Parsed Redis settings: host=%s, port=%s, user=%s, db=%s",
-                          info.data.get("redis_host"),
-                          info.data.get("redis_port"),
-                          info.data.get("redis_user"),
-                          info.data.get("redis_db"))
+
+            logging.debug(
+                "Parsed Redis settings: host=%s, port=%s, user=%s, db=%s",
+                info.data.get("redis_host"),
+                info.data.get("redis_port"),
+                info.data.get("redis_user"),
+                info.data.get("redis_db"),
+            )
         except Exception as exc:
-            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
+            logging.warning(
+                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
+            )
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 

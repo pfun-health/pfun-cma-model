@@ -1,24 +1,13 @@
-"""Numba-optimized calculations.
-"""
-from numpy import exp as np_exp
-from numpy import (
-    clip,
-    nan,
-    power,
-    array,
-    ndarray,
-    log,
-    power,
-    cos,
-    pi,
-    piecewise,
-    atleast_1d,
-    zeros,
-)
-from pandas import Series
-from pathlib import Path
-import sys
+"""Numba-optimized calculations."""
+
 import importlib
+import sys
+from pathlib import Path
+
+from numpy import array, atleast_1d, clip, cos
+from numpy import exp as np_exp
+from numpy import log, nan, ndarray, pi, piecewise, power, zeros
+from pandas import Series
 
 try:
     from pfun_cma_model.misc.decorators import check_is_numpy
@@ -30,18 +19,19 @@ except ModuleNotFoundError:
     if mod_path not in sys.path:
         sys.path.insert(0, mod_path)
     check_is_numpy = importlib.import_module(
-        ".misc.decorators", package="pfun_cma_model").check_is_numpy
+        ".misc.decorators", package="pfun_cma_model"
+    ).check_is_numpy
 
 
 def exp(x):
     """
-        Calculate the exponential of a number. Clip to avoid overflow.
+    Calculate the exponential of a number. Clip to avoid overflow.
 
-        Parameters:
-        x (float): The input number.
+    Parameters:
+    x (float): The input number.
 
-        Returns:
-        float: The exponential of the input number.
+    Returns:
+    float: The exponential of the input number.
     """
     x_clipped = clip(x, -709, 709)
     result = np_exp(x_clipped)
@@ -149,13 +139,20 @@ def K(x: ndarray):
     Returns:
         numpy.ndarray: The result of applying the piecewise function to `x`.
     """
-    return piecewise(x, [x > 0.0, x <= 0.0], [
-        lambda x_: exp(-power(log(2.0 * x_), 2)), 0.0])
+    return piecewise(
+        x, [x > 0.0, x <= 0.0], [lambda x_: exp(-power(log(2.0 * x_), 2)), 0.0]
+    )
 
 
-def vectorized_G(t: ndarray | float, I_E: ndarray | float,
-                 tm: ndarray | float, taug: ndarray | float,
-                 B: float, Cm: float, toff: float):
+def vectorized_G(
+    t: ndarray | float,
+    I_E: ndarray | float,
+    tm: ndarray | float,
+    taug: ndarray | float,
+    B: float,
+    Cm: float,
+    toff: float,
+):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
 
     Parameters

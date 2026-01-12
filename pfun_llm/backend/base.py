@@ -12,16 +12,15 @@ class BaseGenerativeModel:
         self._model = model if model is not None else self._default_model
         self._client = self.setup_genai_client()
 
-    def __call__(self, model: Optional[str] = None, contents: Optional[list | str] = None):
+    def __call__(
+        self, model: Optional[str] = None, contents: Optional[list | str] = None
+    ):
         """Call the API with the specified model and contents."""
         if model is None:
             model = self._model
         if contents is None:
             raise ValueError("Contents must be provided.")
-        return self.call_genai_client(
-            model=model,
-            contents=contents
-        )
+        return self.call_genai_client(model=model, contents=contents)
 
     def generate_content(self, prompt: str):
         """(convenience method) Generate content using the specified prompt."""
@@ -39,5 +38,4 @@ class BaseGenerativeModel:
         Returns:
             genai.Client: The API client.
         """
-        raise NotImplementedError(
-            "This method should be implemented by subclasses.")
+        raise NotImplementedError("This method should be implemented by subclasses.")

@@ -3,13 +3,19 @@
 NumPy-friendly wrapper around the C extension pfun_cma_engine.
 """
 from __future__ import annotations
+
+from typing import Optional, Sequence
+
 import numpy as np
-from typing import Sequence, Optional
+
 # import the compiled extension module
 try:
     import pfun_cma_engine
 except ImportError as e:
-    raise ImportError("pfun_cma_engine extension not found — build the extension first.") from e
+    raise ImportError(
+        "pfun_cma_engine extension not found — build the extension first."
+    ) from e
+
 
 def calc_model(
     t: Sequence[float],
@@ -41,8 +47,16 @@ def calc_model(
 
     # call the extension
     result_list = pfun_cma_engine.calc_model(
-        t_list, float(d), float(taup), float(taug),
-        float(B), float(Cm), float(toff), tM_list, seed_arg, float(eps)
+        t_list,
+        float(d),
+        float(taup),
+        float(taug),
+        float(B),
+        float(Cm),
+        float(toff),
+        tM_list,
+        seed_arg,
+        float(eps),
     )
     # convert to numpy array
     return np.asarray(result_list, dtype=float)

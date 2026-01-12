@@ -1,7 +1,6 @@
-from typing import TypeVar, Type
+from typing import Type, TypeVar
 
-
-StringEnumType = TypeVar('StringEnumType', bound='StringEnum')
+StringEnumType = TypeVar("StringEnumType", bound="StringEnum")
 
 
 class StringEnum:

@@ -1,7 +1,8 @@
 """pfun_cma_model/llm.py: LLM prompting logic."""
+import importlib
+import json
 import logging
 import os
-import json
 import re
 import importlib
 import asyncio
@@ -197,7 +198,10 @@ async def generate_scenario(query: Optional[str] = None) -> dict:
     scenario_params = CMAModelParams(Cm=1.5, B=-0.2)
     scenario_param_descriptions = scenario_params.generate_markdown_table(
         output_fmt="md",
-        included_params=["Cm", "B"],  # Only include the parameters that are different from the baseline
+        included_params=[
+            "Cm",
+            "B",
+        ],  # Only include the parameters that are different from the baseline
     )
 
     prompt = f"""\

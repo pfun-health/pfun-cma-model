@@ -1,17 +1,20 @@
+import concurrent.futures
 import json
-import os
 import logging
-from pfun_cma_model.engine.cma import CMASleepWakeModel
+import os
+from dataclasses import asdict, dataclass
+
 import numpy as np
 import pandas as pd
-import concurrent.futures
 from sklearn.model_selection import ParameterGrid
-from dataclasses import dataclass, asdict
+
+from pfun_cma_model.engine.cma import CMASleepWakeModel
 
 
 @dataclass
 class PFunCMAParamsGridResult:
     """result object for grid search"""
+
     #: json-string-ified params
     params: str
     #: json-string-ified result
@@ -53,9 +56,12 @@ class PFunCMAParamsGrid:
         # create m-length parameter ranges
         pdict = {k: np.linspace(l, u, num=self.m) for k, l, u in plist}
         if self.include_mealtimes is True:
-            pdict.update({
-                k: list(range(l, u, self.m)) for k, l, u in zip(self.tmK, self.tmL, self.tmU)
-            })
+            pdict.update(
+                {
+                    k: list(range(l, u, self.m))
+                    for k, l, u in zip(self.tmK, self.tmL, self.tmU)
+                }
+            )
         self.pgrid = ParameterGrid(pdict)
         self.df = None
         # solutions vector
@@ -74,17 +80,18 @@ class PFunCMAParamsGrid:
         elif val > _ncpus:
             logging.warning(
                 "specified Njobs=%d is higher than measured cores %d. "
-                "Setting to %d.", val, _ncpus, _ncpus
+                "Setting to %d.",
+                val,
+                _ncpus,
+                _ncpus,
             )
             self._Njobs = _ncpus
         else:
             self._Njobs = val
 
     def run(self):
-        """Run the parameter grid to produce a dataframe of results.
-        """
-        logging.info("Running parameter grid of size: %02d...",
-                     len(self.pgrid))
+        """Run the parameter grid to produce a dataframe of results."""
+        logging.info("Running parameter grid of size: %02d...", len(self.pgrid))
 
         # distribute tasks in parallel
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:
@@ -98,8 +105,7 @@ class PFunCMAParamsGrid:
                     self.solns.append(
                         asdict(
                             PFunCMAParamsGridResult(
-                                json.dumps(params),
-                                future.result().to_json()
+                                json.dumps(params), future.result().to_json()
                             )
                         )
                     )

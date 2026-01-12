@@ -1,9 +1,8 @@
-from typing import (
-    Optional, List
-)
 from collections.abc import Iterable
-from fastapi.applications import FastAPI
+from typing import List, Optional
+
 import socketio
+from fastapi.applications import FastAPI
 
 
 class PFunSocketIOSession:
@@ -11,14 +10,21 @@ class PFunSocketIOSession:
     A session for interacting with Socket.IO.
     """
 
-    def __init__(self, app: FastAPI, ns: Optional[socketio.AsyncNamespace | List[socketio.AsyncNamespace]] = None):
+    def __init__(
+        self,
+        app: FastAPI,
+        ns: Optional[socketio.AsyncNamespace | List[socketio.AsyncNamespace]] = None,
+    ):
         """
         Initialize the PFunSocketIOSession with a FastAPI app.
         This sets up the Socket.IO server with the provided app.
         """
         self.app = app
-        self.ns = ns if isinstance(ns, Iterable) and not isinstance(
-            ns, (str, bytes)) else [ns] if ns else []
+        self.ns = (
+            ns
+            if isinstance(ns, Iterable) and not isinstance(ns, (str, bytes))
+            else [ns] if ns else []
+        )
         self.sio: Optional[socketio.AsyncServer] = None
         self.mgr = None
         # Setup Socket.IO server and mount it to the FastAPI app
@@ -27,8 +33,7 @@ class PFunSocketIOSession:
         self.mount_socketio()
 
     def __getattr__(self, name):
-        """Pass any non-matching attributes to the Socket.IO server.
-        """
+        """Pass any non-matching attributes to the Socket.IO server."""
         # First, determine if the attribute exists in the Socket.IO server
         if hasattr(self.sio, name):
             # if it does, return it
@@ -39,9 +44,12 @@ class PFunSocketIOSession:
             return getattr(super(), name)
         # otherwise, raise an AttributeError
         raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{name}'")
+            f"'{self.__class__.__name__}' object has no attribute '{name}'"
+        )
 
-    def setup_socketio(self, mgr: Optional[socketio.AsyncRedisManager] = None) -> socketio.AsyncServer:
+    def setup_socketio(
+        self, mgr: Optional[socketio.AsyncRedisManager] = None
+    ) -> socketio.AsyncServer:
         """
         Setup Socket.IO server with FastAPI app.
         This is useful for handling WebSocket connections.
@@ -51,9 +59,7 @@ class PFunSocketIOSession:
         if mgr is None:
             self.setup_redis_manager()
         self.sio = socketio.AsyncServer(
-            async_mode="asgi",
-            cors_allowed_origins="*",
-            connection_manager=self.mgr
+            async_mode="asgi", cors_allowed_origins="*", connection_manager=self.mgr
         )
         # Register namespaces if provided
         if self.ns:
@@ -63,10 +69,12 @@ class PFunSocketIOSession:
                     namespace._set_server(self.sio)  # set the server instance
                 else:
                     raise TypeError(
-                        "Namespaces must be instances of socketio.AsyncNamespace")
+                        "Namespaces must be instances of socketio.AsyncNamespace"
+                    )
         # initialize the Socket.IO server with the FastAPI app
         self.sio_app = socketio.ASGIApp(
-            socketio_server=self.sio, other_asgi_app=self.app)
+            socketio_server=self.sio, other_asgi_app=self.app
+        )
         return self.sio
 
     def mount_socketio(self, path: str = "/socket.io/") -> None:
@@ -75,7 +83,8 @@ class PFunSocketIOSession:
         This allows WebSocket connections to be handled at the given path.
         """
         self.app.add_route(
-            path, route=self.sio_app, methods=["GET", "POST"], include_in_schema=False)
+            path, route=self.sio_app, methods=["GET", "POST"], include_in_schema=False
+        )
         self.app.add_websocket_route(path, route=self.sio_app)
 
     def setup_redis_manager(self):
@@ -88,4 +97,5 @@ class PFunSocketIOSession:
 
 class PFunBotoSession:
     """@todo: Implement a session for interacting with AWS Boto3."""
+
     pass

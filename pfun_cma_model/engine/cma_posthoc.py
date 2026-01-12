@@ -1,10 +1,12 @@
 import logging
 from argparse import Namespace as Namespace_
-import numpy as np
 from dataclasses import dataclass
 from typing import Any
-from pfun_cma_model.engine.fit import CMAFitResult
+
+import numpy as np
 import pandas as pd
+
+from pfun_cma_model.engine.fit import CMAFitResult
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -44,7 +46,7 @@ def calc_model_stats(cma):
         "g_morn": float(np.nanmean(cma.g_morning)),
         "g_eve": float(np.nanmean(cma.g_evening)),
         "i_s_morn": float(np.nanmean(cma.I_morning)),
-        "i_s_eve": float(np.nanmean(cma.I_evening))
+        "i_s_eve": float(np.nanmean(cma.I_evening)),
     }
     return stats
 
@@ -73,11 +75,15 @@ class ChronometabolicIndex:
         if inplace is False:
             df = df.copy()
         for column in cls._columns:
-            peaks = df[df[column] > df[column].shift(1) & df[column] > df[column].shift(-1)]
-            troughs = df[df[column] < df[column].shift(1) & df[column] < df[column].shift(-1)]
+            peaks = df[
+                df[column] > df[column].shift(1) & df[column] > df[column].shift(-1)
+            ]
+            troughs = df[
+                df[column] < df[column].shift(1) & df[column] < df[column].shift(-1)
+            ]
             data_agg = [
                 (f"{column}_peaks", peaks, pd.Series.idxmax),
-                (f"{column}_troughs", troughs, pd.Series.idxmin)
+                (f"{column}_troughs", troughs, pd.Series.idxmin),
             ]
             for label, data, oper in data_agg:
                 df[label] = data.astype(int)  # label local peaks and troughs with 1

@@ -1,6 +1,7 @@
+from base64 import b64decode, b64encode
 from functools import wraps
+
 import numpy as np
-from base64 import b64encode, b64decode
 
 
 def check_is_numpy(f):
@@ -10,4 +11,5 @@ def check_is_numpy(f):
             #: ensure the argument is an array with the input dtype
             a = np.array(a, dtype=type(a[0]))
         return f(a, *args, **kwds)
+
     return decorated_function

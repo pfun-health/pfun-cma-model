@@ -1,20 +1,20 @@
-import os
-from datetime import datetime
-from dotenv import load_dotenv
-from json import dumps
-import sys
-from pathlib import Path
 import logging
+import os
+import sys
+from datetime import datetime
+from json import dumps
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 try:
     # Python 2 fallback
-    from urllib import urlencode, unquote  # type: ignore
-    from urlparse import urlparse, parse_qsl, ParseResult  # type: ignore
+    from urllib import unquote, urlencode  # type: ignore
+
+    from urlparse import ParseResult, parse_qsl, urlparse  # type: ignore
 except ImportError:
     # Python 3 fallback
-    from urllib.parse import (
-        urlencode, unquote, urlparse, parse_qsl, ParseResult
-    )
+    from urllib.parse import ParseResult, parse_qsl, unquote, urlencode, urlparse
 
 
 def setup_logging(logger: logging.Logger, debug_mode: bool = False):
@@ -30,8 +30,8 @@ def setup_logging(logger: logging.Logger, debug_mode: bool = False):
 
 
 def load_environment_variables(
-        logger: logging.Logger = logging.getLogger(__name__)
-    ) -> tuple[bool, Path]:
+    logger: logging.Logger = logging.getLogger(__name__),
+) -> tuple[bool, Path]:
     """Load environment variables from .env file."""
     logger.debug("Attempting to load environment variables from .env file...")
     env_file = Path(__file__).parent.parent.parent / ".env"
@@ -39,20 +39,19 @@ def load_environment_variables(
     if not env_file.exists():
         logger.warning(
             "No .env file found at '%s'. Using system environment variables.",
-            str(env_file))
+            str(env_file),
+        )
         return False, env_file
     logger.debug("...env file exists.")
     loaded = load_dotenv(dotenv_path=env_file)
     if not loaded:
-        logger.warning(
-            f"Failed to load environment variables from {env_file}.")
+        logger.warning(f"Failed to load environment variables from {env_file}.")
     logger.debug(f"Loaded environment variables from {env_file}")
     return loaded, env_file
-        
 
 
 def add_url_params(url, params):
-    """ Add GET params to provided URL being aware of existing.
+    """Add GET params to provided URL being aware of existing.
 
     :param url: string of target URL
     :param params: dict containing requested params to be added
@@ -79,8 +78,7 @@ def add_url_params(url, params):
     # Bool and Dict values should be converted to json-friendly values
     # you may throw this part away if you don't like it :)
     parsed_get_args.update(
-        {k: dumps(v) for k, v in parsed_get_args.items()
-         if isinstance(v, (bool, dict))}
+        {k: dumps(v) for k, v in parsed_get_args.items() if isinstance(v, (bool, dict))}
     )
 
     # Converting URL argument to proper query string
@@ -88,8 +86,12 @@ def add_url_params(url, params):
     # Creating new parsed result object based on provided with new
     # URL arguments. Same thing happens inside urlparse.
     new_url = ParseResult(
-        parsed_url.scheme, parsed_url.netloc, parsed_url.path,
-        parsed_url.params, encoded_get_args, parsed_url.fragment
+        parsed_url.scheme,
+        parsed_url.netloc,
+        parsed_url.path,
+        parsed_url.params,
+        encoded_get_args,
+        parsed_url.fragment,
     ).geturl()
 
     return new_url
