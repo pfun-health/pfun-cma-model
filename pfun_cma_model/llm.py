@@ -140,7 +140,8 @@ You will be given a description of the person's health and lifestyle, and a JSON
 You will return a JSON object with a single key, "causal_explanation", which is a list of potential actions and their probabilities of being the cause for the observed glucose pattern. The probabilities should be realistic and proportionate to the actual likelihood of each action.
 
 Here is an example:
-Description: "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
+Description: "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at  🦉. " + \
+"This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
 Trace: {{ ... (json data of glucose trace) ... }}
 Assistant:
 ```json
@@ -253,7 +254,7 @@ if __name__ == "__main__":
     params = translate_query_to_params(query)
     print("Translated Parameters:", params)
 
-    description = "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
+    description = "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night 🦉. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
     trace = '{"glucose_readings": [150, 140, 130, 120, 110, 100, 90, 80, 70, 60]}'
     explanation = generate_causal_explanation(description, trace)
     print("Causal Explanation:", explanation)

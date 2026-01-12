@@ -39,8 +39,8 @@ class CanvasWaveDemo {
             runForm: document.getElementById('runForm'),
             messagesDiv: document.getElementById('messages'),
             canvas: document.getElementById('waveCanvas'),
-            cPeakInput: document.getElementById(''),
-            mPeakInput: document.getElementById('m_peak'),
+            BInput: document.getElementById('B'),
+            taugInput: document.getElementById('taug'),
         };
         this.c = this.dom.canvas.getContext("2d");
         this.config = {
@@ -136,26 +136,34 @@ class CanvasWaveDemo {
     }
 
     runSimulationFromMouseEvent(e) {
-        if (!this.dom.cPeakInput || !this.dom.mPeakInput) {
-            this.appendMessage('Error: c_peak or m_peak inputs not found.');
+        if (!this.dom.BInput || !this.dom.taugInput) {
+            this.appendMessage('Error: B or taug inputs not found.');
             return;
         }
         const rect = this.dom.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        const cPeakRange = parseFloat(this.dom.cPeakInput.max) - parseFloat(this.dom.cPeakInput.min);
-        const mPeakRange = parseFloat(this.dom.mPeakInput.max) - parseFloat(this.dom.mPeakInput.min);
+        const BInputRange = parseFloat(this.dom.BInput.max) - parseFloat(this.dom.BInput.min);
+        const taugInputRange = parseFloat(this.dom.taugInput.max) - parseFloat(this.dom.taugInput.min);
 
-        const newCPeak = parseFloat(this.dom.cPeakInput.min) + (x / this.dom.canvas.width) * cPeakRange;
-        const newMPeak = parseFloat(this.dom.mPeakInput.min) + (1 - y / this.dom.canvas.height) * mPeakRange;
+        const compute_x_delta = (x, Xmin, Xrange, canvasWidth) => {
+            return parseFloat(Xmin) + (x / canvasWidth) * Xrange;
+        }
 
-        this.dom.cPeakInput.value = newCPeak.toFixed(2);
-        this.dom.mPeakInput.value = newMPeak.toFixed(2);
+        const compute_y_delta = (y, Ymin, Yrange, canvasHeight) => {
+            return parseFloat(Ymin) + (1 - y / canvasHeight) * Yrange;
+        }
+
+        const newBInput = compute_x_delta(x, this.dom.BInput.min, BInputRange, this.dom.canvas.width);
+        const newtaugInput = compute_y_delta(y, this.dom.taugInput.min, taugInputRange, this.dom.canvas.height);
+
+        this.dom.BInput.value = newBInput.toFixed(2);
+        this.dom.taugInput.value = newtaugInput.toFixed(2);
 
         // Update slider output values
-        document.getElementById('rangeValue-c_peak').textContent = newCPeak.toFixed(2);
-        document.getElementById('rangeValue-m_peak').textContent = newMPeak.toFixed(2);
+        document.getElementById('rangeValue-B').textContent = newBInput.toFixed(2);
+        document.getElementById('rangeValue-taug').textContent = newtaugInput.toFixed(2);
 
         this.runSimulation();
     }

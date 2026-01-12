@@ -181,7 +181,7 @@ async def demo_canvas_wave(
         },
     }
     logger.debug("Demo context: %s", context_dict)
-    context = PFunDemoRoutesContext(**context_dict)
+    context = PFunDemoRoutesContext(**context_dict).model_dump()
     return templates.TemplateResponse(
         "canvas-wave-demo.html",
         context=context,
@@ -232,8 +232,10 @@ async def demo_webgl(
         },
     }
     logger.debug("WebGL Demo context: %s", context_dict)
+    context = PFunDemoRoutesContext(**context_dict).model_dump()
+    logger.debug("(post-validation) WebGL Demo context: %s", context)
     return templates.TemplateResponse(
-        "webgl-demo.html", context=context_dict, headers={"Content-Type": "text/html"}
+        "webgl-demo.html", context=context, headers={"Content-Type": "text/html"}
     )
 
 
@@ -281,8 +283,10 @@ async def demo_full_model_run(
         },
     }
     logger.debug("Demo context: %s", context_dict)
+    context = PFunDemoRoutesContext(**context_dict).model_dump()
+    logger.debug("(post-validation) Demo context: %s", context)
     return templates.TemplateResponse(
         "full-model-run-demo.html",
-        context=context_dict,
+        context=context,
         headers={"Content-Type": "text/html"},
     )

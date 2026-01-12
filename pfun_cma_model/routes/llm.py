@@ -17,9 +17,9 @@ This person is mostly healthy but occasionally eats a late dinner.
 
 
 @router.post("/generate-scenario")
-def generate_scenario(prompt: str = DEFAULT_HEALTHY_PROMPT):
+async def generate_scenario(prompt: str = DEFAULT_HEALTHY_PROMPT):
     """Use VertexAI LLM endpoint to generate a realistic scenario (with hypothetical parameters)."""
-    response_data = gen_scene(query=prompt)
+    response_data = await gen_scene(query=prompt)
     return Response(
         content=json.dumps(response_data),
         status_code=200,

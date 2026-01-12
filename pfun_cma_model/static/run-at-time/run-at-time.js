@@ -202,10 +202,7 @@ class RunAtTimeDemo {
         // ...asynchronous to avoid blocking UI
         (async () => {
             this.chart.data.datasets[0].data = [];
-            this.chart.data.datasets[0].data = [];
-            setTimeout(() => {
-                this.chart.update();
-            }, 250); // Slight delay to ensure UI responsiveness
+            this.chart.update();
         })();
         this.dom.messagesDiv.innerHTML = ''; // Clear messages
         this.appendMessage('Starting new simulation...');
@@ -252,11 +249,12 @@ class RunAtTimeDemo {
                     display: true,
                     text: `Glucose Response Curve - ${paramName}: ${paramValue}`
                 };
+                this.chart.data.datasets[0].data = [];
                 setTimeout(() => {
                     if(parseFloat(`${(new Date()).getTime()}`.at(-1)) < 5) {
                         this.runSimulation();
                     }
-                }, 100); // Re-run simulation after a short delay
+                }, 250); // Re-run simulation after a short delay
                 this.chart.update();
             }
         }

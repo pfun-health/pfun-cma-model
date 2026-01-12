@@ -100,9 +100,9 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         **kwds,
     ) -> None | Any | asyncio.Future:
         """Call the API client with the specified model and contents."""
-        super().call_genai_client(model=model, contents=contents, **kwds)
+        super().call_genai_client(model=model, contents=contents, **kwds)  # type: ignore
         if not isinstance(contents, OllamaMessages):
-            contents = _format_messages(contents)
+            contents = _format_messages(contents)  # type: ignore
         serialized_messages = contents.model_dump()["messages"]
         logging.debug(
             "Serialized messages for Ollama API (type=%s): %s",
