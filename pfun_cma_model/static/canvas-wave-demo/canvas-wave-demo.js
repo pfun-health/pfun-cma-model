@@ -3,6 +3,24 @@
     Interactive canvas demo for visualizing CMA model output.
 */
 
+class MousePosVector {
+    constructor(x = 0.5, y = 0.5) {
+        // default is center of canvas
+        this.x = x;
+        this.xp = null;
+        this.y = y;
+        this.yp = null;
+    }
+
+    update(x, y) {
+        
+        this.xp = this.x;
+        this.yp = this.y;
+        this.x = x;
+        this.y = y;
+    }
+};
+
 class SimulationParams {
     constructor(formData) {
         this.t0 = parseFloat(formData.get('t0'));
@@ -47,7 +65,7 @@ class CanvasWaveDemo {
             wsUrl: typeof wsUrl !== 'undefined' ? wsUrl : 'ws://localhost:8000',
         };
         this.mouseDown = false;
-
+        this.mousePos = new MousePosVector(0.5, 0.5);
         this.initialize();
     }
 
@@ -57,6 +75,11 @@ class CanvasWaveDemo {
         this.appendMessage('Demo initialized. Drag on the canvas to start.');
         this.resizeCanvas();
         this.draw();
+        try {
+            this.runSimulation();
+        } catch (e) {
+            this.appendMessage('Error starting initial simulation: ' + e.message);
+        }
     }
 
     connectSocketIO() {
@@ -143,6 +166,7 @@ class CanvasWaveDemo {
         const rect = this.dom.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+        // console.debug("Left:", rect.left, "clientX:", e.clientX, "Top:", rect.top, "clientY:", e.clientY);
 
         const BInputRange = parseFloat(this.dom.BInput.max) - parseFloat(this.dom.BInput.min);
         const taugInputRange = parseFloat(this.dom.taugInput.max) - parseFloat(this.dom.taugInput.min);
@@ -169,8 +193,9 @@ class CanvasWaveDemo {
             this.appendMessage('Error: Computed B or taug values are out of range.');
             return;
         }
-        if (Math.abs(newBInput - parseFloat(this.dom.BInput.value)) < 0.01 &&
-            Math.abs(newtaugInput - parseFloat(this.dom.taugInput.value)) < 0.01) {
+        // validation for significant change
+        if (Math.abs(newBInput - parseFloat(this.dom.BInput.value)) < 0.025 &&
+            Math.abs(newtaugInput - parseFloat(this.dom.taugInput.value)) < 0.025) {
             // No significant change
             return;
         }
@@ -182,6 +207,7 @@ class CanvasWaveDemo {
         document.getElementById('rangeValue-B').textContent = newBInput.toFixed(2);
         document.getElementById('rangeValue-taug').textContent = newtaugInput.toFixed(2);
 
+        // run the simulation (from the current mouse event)
         this.runSimulation();
     }
 
@@ -232,20 +258,35 @@ class CanvasWaveDemo {
         }
 
         this.c.beginPath();
+        // canvas style attributes
         this.c.strokeStyle = 'cyan';
+        this.c.fillStyle = 'cyan';
         this.c.lineWidth = 2;
 
+        let minDrawX = Infinity;
+        let maxDrawX = -Infinity;
+        let minDrawY = Infinity;
+        let maxDrawY = -Infinity;
         for (let i = 0; i < this.cells.length; i++) {
             const p = this.cells[i];
             const x = (p.x - minX) / (maxX - minX) * this.dom.canvas.width;
             const y = this.dom.canvas.height - (p.y - minY) / (maxY - minY) * this.dom.canvas.height;
+            minDrawX = Math.min(minDrawX, x);
+            maxDrawX = Math.max(maxDrawX, x);
+            minDrawY = Math.min(minDrawY, y);
+            maxDrawY = Math.max(maxDrawY, y);
             if (i === 0) {
                 this.c.moveTo(x, y);
             } else {
                 this.c.lineTo(x, y);
             }
         }
+        // before closing, add a final point in the lower right corner
+        this.c.lineTo(maxDrawX, maxDrawY);
+        // finally, close the path, draw the stroke, and fill
+        this.c.closePath();
         this.c.stroke();
+        this.c.fill();
     }
 
     appendMessage(msg) {
@@ -259,6 +300,7 @@ class CanvasWaveDemo {
     }
 }
 
+var demoApp;
 document.addEventListener('DOMContentLoaded', () => {
-    new CanvasWaveDemo();
+    demoApp = new CanvasWaveDemo();
 });
