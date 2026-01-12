@@ -10,10 +10,10 @@
         const surveyFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSeQ8TujEgwzt0L1enhA3k_fR9eVqWLtehr8ilv9NBy5_bj39Q/viewform?embedded=true";
         var surveyFrame = document.getElementById('surveyFrame');
         setTimeout(async () => {
-            if (surveyFrame) {
+            if (surveyFrame && (surveyFrame.src !== surveyFormURL)) {
                 surveyFrame.src = surveyFormURL;
             }
-        }, 1000); // delay setting src to allow modal to initialize
+        }, 100); // delay setting src to allow modal to initialize
         var modalEl = document.getElementById('surveyModal');
         var modal = new bootstrap.Modal(modalEl, {
             backdrop: 'static',  // optional: prevent closing on backdrop click
@@ -76,7 +76,7 @@
                         }
                     });
                 }
-            }, 3000); // delay to ensure iframe is loaded
+            }, 5000); // delay to ensure iframe is loaded
         }
     };
 
