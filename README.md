@@ -32,7 +32,8 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 ### Project Goals
 
-<a href 
+**For development #todo notes, check the `TODO.md`:**
++ [**TODO.md**](./TODO.md "TODO.md")
 
 #### Short-term dev goals
 
