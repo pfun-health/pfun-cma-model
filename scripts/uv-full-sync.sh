@@ -10,5 +10,5 @@ set -e
 
 
 # remove old virtual environment, then fully sync
-rm -rf ./.venv && \
+rm -rf ./.venv ./packages/pfun_common/.venv ./pfun_gradio/.venv && \
 	full_uv_sync

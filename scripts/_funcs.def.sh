@@ -1,14 +1,16 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 set -e
 
 # _funcs.def.sh : Define common functions used across scripts.
 
 full_uv_sync() {
-	# Perform a full uv sync including all extras and specific groups.
-	uv sync --all-extras \
-		--group ollama \
-		--group gradio
+    # Perform a full uv sync including all extras and specific groups.
+    uv sync \
+       --reinstall \
+       --all-extras \
+       --group ollama \
+       --group gradio
 }
 
 partial_uv_sync() {
