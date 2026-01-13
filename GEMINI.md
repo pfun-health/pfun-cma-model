@@ -1,6 +1,8 @@
-  ## Gemini Added Memories
-  - i get this error when i try dragging on the canvas: Uncaught TypeError: can't access property "max", this.dom.cPeakInput is null runSimulationFromMouseEvent
-  http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:143 setupEventListeners http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:111
-  setupEventListeners http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:109 initialize http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:56
-  CanvasWaveDemo http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:51 <anonymous> http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:234
-  EventListener.handleEvent* http://localhost:8001/static/canvas-wave-demo/canvas-wave-demo.js:233
+# Gemini Added Memories
+
+## Key references to understand the `pfun-cma-model` codebase
+
++ [`README.md`](./README.md "README.md")
++ [`pfun-cma-model` package config `./pyproject.toml`](./pyproject.toml)
++ [The central pfun-cma-model app definition: `pfun_cma_model/app.py`](./pfun_cma_model/app.py "pfun_cma_model/app.py")
++ [`pfun-common` workspace package config `pfun_common/pyproject.toml`](./packages/pfun_common/pyproject.toml)

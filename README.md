@@ -8,11 +8,11 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 #### What does the `pfun-cma-model` API do???????
 
-_"It makes it easy to understand how glucose works... in clear english, and in medical-ese."_
++ _"It makes it easy to understand how glucose works... in clear english, and in medical-ese."_
 
-_"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
++ _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
 
-#### Clinical literature search
+#### 
 
 **<a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>**
 
@@ -24,7 +24,18 @@ _"It provides a high-speed interface for understanding how the circadian rhythm 
 
 <div style="border-width: 1px; border-color: #444;">The CMA model leverages physiological modeling principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin. See example notebooks in the live Demo (or in ./examples/notebooks)</div>
 
-### Next steps
+### Next steps (#todo)
+
+#### Setup telemetry
+
++ Currently I'm stil shopping around (`open-telemetry`?)
++ **I don't currently have enough *Compute* to support `open-telemetry` with `prometheus`+`grafana`.**
+
+#### Evaluation pipeline
+
++ **Quantify:** How 
+
+#### Methods, other future directions
 
 + compare LLMs via actor-critic framework.
 + measure relative perplexity, NLP performance metrics.
@@ -33,8 +44,8 @@ _"It provides a high-speed interface for understanding how the circadian rhythm 
 
 ## Links (Demos, Homepage)
 
-+ [Live Web Demos](https://cloud.tail38611b.ts.net/)
 + [PFun Homepage](https://pfun.one/)
++ [Live `Canvas Wave` Web Demo](https://cloud.tail38611b.ts.net/demo/canvas-wave)
 
 ## CMA Model Description
 
@@ -129,8 +140,7 @@ In summary, your data suggests a well-regulated glucose metabolism with a tenden
 
 ## Development notes
 
-+ Look at websockets
-+ Using `uv` for super fast dependency management, usage, and publishing.
++ Using `uv` for super fast dependency management, intuitive CLI, and ezpz publishing to pypi.
 
 ### Quick start
 
