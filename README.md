@@ -1,5 +1,10 @@
 # pfun-cma-model
 
+## Links (Demos, Homepage)
+
++ [**PFun Homepage**](https://pfun.one/)
++ [**Live `Canvas Wave` Web Demo**](https://cloud.tail38611b.ts.net/demo/canvas-wave)
+
 ## Overview
 
 ### Description
@@ -12,9 +17,10 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 + _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
 
-#### 
+#### Background
 
-**<a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>**
++ **About the project:** <a href="https://cloud.tail38611b.ts.net/pitch">PFun Glucose ~ App pitch summary</a>
++ **Preliminary research summary (includes citations):** <a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>
 
 ### About this repository
 
@@ -24,28 +30,27 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 <div style="border-width: 1px; border-color: #444;">The CMA model leverages physiological modeling principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin. See example notebooks in the live Demo (or in ./examples/notebooks)</div>
 
-### Next steps (#todo)
+### Project Goals
 
-#### Setup telemetry
+<a href 
+
+#### Short-term dev goals
 
 + Currently I'm stil shopping around (`open-telemetry`?)
 + **I don't currently have enough *Compute* to support `open-telemetry` with `prometheus`+`grafana`.**
+  + **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`**)
 
-#### Evaluation pipeline
+#### Mid-term goals (60~90 days)
 
-+ **Quantify:** How 
++ **Evaluation pipeline**
+  + *Quantify, evaluate performace on training, test datasets.*
 
-#### Methods, other future directions
+#### Future directions (ongoing methods)
 
-+ compare LLMs via actor-critic framework.
-+ measure relative perplexity, NLP performance metrics.
++ Compare LLMs via actor-critic framework.
++ Measure relative perplexity, NLP performance metrics.
   + KS Test to quantify the hypothesis space;
     + Predicted: neural dynamics of the learning layer (LLM orchestration layer) can be measured & understood as in silico "twin" populations of corticostriatal interneurons.
-
-## Links (Demos, Homepage)
-
-+ [PFun Homepage](https://pfun.one/)
-+ [Live `Canvas Wave` Web Demo](https://cloud.tail38611b.ts.net/demo/canvas-wave)
 
 ## CMA Model Description
 

@@ -14,27 +14,29 @@ __Goals:__
   + <https://huggingface.co/docs/trl/lora_without_regret.md>
 
 
-__DevOps:__
+__Maintenance:__
 
-+ **Setup orchestration, task scheduling with `rq`:**
-  + <https://python-rq.org/patterns/>
-+ **Finish integrating telemetry (need metrics to debug properly):**
+**This orchestration layer can likely be replaced with cloudflare worker load-balancing between api instances**
++ ~~Setup orchestration, task scheduling with `rq`:~~
+  + ~~<https://python-rq.org/patterns/>~~
+
++ (Continue research) **Finish integrating telemetry (need metrics to debug properly):**
   + <https://opentelemetry.io/docs/zero-code/python/logs-example/>
-+ **Example illustrating how to setup Docker with uv + uvicorn:**
-  + <https://uvicorn.dev/deployment/docker/#quickstart>
-
 
 __Demos:__
 
 + ~~Complete a simple gradio-based LLM demo.~~
-  + Time series plotting of /model/run results.
-    + Use Gradio's plotting capabilities to visualize CMA model outputs over time.
-  + Integrate with existing CMA demo UI.
-  + Finish setting up as a docker-compose service.
-  + Host on GCP (App Engine, utilize credits).
+  + ~~Time series plotting of /model/run results.~~
++ Model definitions for specialized health recommendation features
+  + Transformer model
+  + Vector-search (enhanced) RAG (RAFT, `LlamaIndex`)
++ **Evaluation demos:** Compare between a few systems that don't need fine-tuning.
++ **What specifically is the performance advantage?**
+  + **Evaluate, compare overall performance (order-of-magnitude)**:
+	+ `(vector-search + RAG) <--> (multi-stage RAG)`
+    + `(Non-FT modeling approach) <--> (Fine-tuned LLM)`
 
-
-__Architecture:__
+__Infra:__
 
 + Gcp Fabric (terraform)
 + Use OpenRLHF (or similar for GCP native) for LLM safeguard experiments.
