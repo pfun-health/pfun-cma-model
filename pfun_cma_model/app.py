@@ -190,7 +190,6 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # Add client request tracking middleware (added first, executes last)
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 
-
 app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
@@ -253,6 +252,15 @@ def health_check():
     return {"status": "ok", "message": "PFun CMA Model API is running."}
 
 
+@app.get("/pitch")
+def pitch_document(request: Request):
+    """PFun pitch document."""
+    return templates.TemplateResponse(
+        "pitch-doc.html",
+        context={"request": request}
+    )
+
+
 @app.get("/")
 def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
     """Root endpoint to display the homepage."""
@@ -264,15 +272,17 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
         {
             "request": request,
             "year": datetime.now().year,
-            "message": f"Accessed at: {ts_msg}",
+            "message": f"Accessed at: {ts_msg}; from: {real_ip}",
         },
     )
 
 
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
+    img = None
     with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
-        return Response(content=f.read(), media_type="image/x-icon")
+        img = f.read()
+    return Response(content=img, media_type="image/x-icon")
 
 
 # -- CMA Model endpoints --
