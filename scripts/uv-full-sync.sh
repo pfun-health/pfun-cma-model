@@ -1,10 +1,14 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+
+# scripts/uv-full-sync.sh
+# execute full sync (for prod/pre-prod deployments)
 
 set -e
 
 # Load common functions
-source "$(dirname "$0")/_funcs.def.sh"
+. "$(dirname "$0")/_funcs.def.sh"
 
-# execute full sync (for prod/pre-prod deployments)
 
-full_uv_sync
+# remove old virtual environment, then fully sync
+rm -rf ./.venv && \
+	full_uv_sync

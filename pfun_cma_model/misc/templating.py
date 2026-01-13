@@ -1,30 +1,15 @@
 """
 PFun CMA Model - Templating utilities
 """
-
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
-import pfun_path_helper as pph  # type: ignore
 from fastapi.templating import Jinja2Templates
 from jinja2 import pass_context
-
+import pfun_path_helper as pph  # type: ignore
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common import setup_logging  # type: ignore
 from pfun_common.settings import get_settings
-
-# Initially, Get the logger (globally accessible)
-# Will be overridden by setup_logging()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
-
-settings = get_settings()
-
-# Setup logging based on environment
-debug_mode: bool = os.getenv("DEBUG", "0") in ["1", "true"]
-setup_logging(logger=logger, debug_mode=debug_mode)
 
 
 @pass_context
@@ -46,7 +31,6 @@ def get_templates() -> Jinja2Templates:
     """
     debug_mode: bool = get_settings().debug
     templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
-
     templates.env.globals["https_url_for"] = https_url_for
     # For DEV, use the default url_for, unless explicitly specified
     # For PROD, use https

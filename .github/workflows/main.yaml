@@ -9,8 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      
       - name: Run Tests
-        run: ...
+        run: uv run pytest --junit-xml=junit.xml -o junit_family=xunit1
 
       - name: Upload Test Results to Trunk.io
         if: ${{ !cancelled() }} # Upload the results even if the tests fail

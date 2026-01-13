@@ -257,10 +257,14 @@ class CanvasWaveDemo {
              minY -=1;
         }
 
+        /*
+            Begin drawing the path to the canvas.
+        */
         this.c.beginPath();
-        // canvas style attributes
+
+        // Set path style attributes (color, linewidth, ...)
         this.c.strokeStyle = 'cyan';
-        this.c.fillStyle = 'cyan';
+        this.c.fillStyle = 'rgba(255, 0, 0, 0.82)';
         this.c.lineWidth = 2;
 
         let minDrawX = Infinity;

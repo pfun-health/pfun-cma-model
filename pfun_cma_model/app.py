@@ -68,8 +68,11 @@ debug_mode: bool = settings.debug
 
 # --- Setup app Lifespan events ---
 
-logger = None
-#: globally accessible logger
+logger = logging.getLogger()
+logger.setLevel(
+    level=logging.DEBUG if debug_mode is True else logging.INFO
+)
+#: globally accessible logger (with appropriate logging level)
 
 redis_client: Redis | None = None
 #: Global Redis client instance
@@ -81,10 +84,6 @@ templates: Jinja2Templates | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
-    
-    # --- Startup task: setup globally-accessible logger ---
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger()
 
     # --- Startup task: initialize templates ---
     global templates

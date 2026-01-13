@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # new-version.sh
 # Bump pfun-cma-model to a new patch version, record it.
@@ -6,19 +6,24 @@
 set -e
 
 # Load common functions
-source "$(dirname "$0")/_funcs.def.sh"
+. "$(dirname "$0")/_funcs.def.sh"
 
-# bump pfun-cma-model package version
-uv version --bump patch --project pfun-cma-model &&
-/usr/bin/env bash -c 'cd pfun_gradio && uv version --bump patch --project pfun-gradio && cd -' &&
-/usr/bin/env bash -c 'cd packages/pfun_common && uv version --bump patch --project pfun-common && cd -'
 
-# sync uv.lock and build the package
-full_uv_sync && uv build
+bump_package_versions() {
+	# bump pfun-cma-model package version
+	uv version --bump patch --project pfun-cma-model &&
+	/usr/bin/env -S sh -c 'cd pfun_gradio && uv version --bump patch --project pfun-gradio && cd -' &&
+	/usr/bin/env -S sh -c 'cd packages/pfun_common && uv version --bump patch --project pfun-common && cd -'
+}
 
-# # build and start the services in the background
-# docker compose up -d --build --quiet || echo -e "Skipping docker rebuild..."
-# sleep 1s
+bump_package_versions
+
+sync_build() {
+	# sync uv.lock and build the package
+	full_uv_sync && uv build
+}
+
+sync_build
 
 create_new_tag() {
 	# create tags for the latest version.

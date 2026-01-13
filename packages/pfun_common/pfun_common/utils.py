@@ -1,13 +1,7 @@
-import asyncio
 import logging
-import os
 import sys
-from datetime import datetime
 from json import dumps
 from pathlib import Path
-
-from dotenv import load_dotenv
-
 try:
     # Python 2 fallback
     from urllib import unquote, urlencode  # type: ignore
@@ -15,41 +9,18 @@ try:
     from urlparse import ParseResult, parse_qsl, urlparse  # type: ignore
 except ImportError:
     # Python 3 fallback
-    from urllib.parse import ParseResult, parse_qsl, unquote, urlencode, urlparse
+    from urllib.parse import (
+        ParseResult, parse_qsl, unquote, urlencode, urlparse
+    )
 
 
-async def setup_logging(logger: logging.Logger, debug_mode: bool = False):
-    """Setup logging configuration."""
-    # Set the logger to the desired level
-    if debug_mode:
-        logger.setLevel(logging.DEBUG)
-        logger.debug("Debug mode is enabled. Setting logger level to DEBUG.")
-    else:
-        logger.setLevel(logging.INFO)
-        # NOTE: this is hidden on purpose in PROD
-        logger.debug("Debug mode is disabled. Setting logger level to INFO.")
-    logger.debug("...Logging setup complete.")
-
-
-async def load_environment_variables(
-    logger: logging.Logger = logging.getLogger(__name__),
-) -> tuple[bool, Path]:
-    """Load environment variables from .env file."""
-    logger.debug("Attempting to load environment variables from .env file...")
-    env_file = Path(__file__).parent.parent.parent / ".env"
-    logger.debug("Checking for .env file at: %s", str(env_file))
-    if not env_file.exists():
-        logger.warning(
-            "No .env file found at '%s'. Using system environment variables.",
-            str(env_file),
-        )
-        return False, env_file
-    logger.debug("...env file exists.")
-    loaded = load_dotenv(dotenv_path=env_file)
-    if not loaded:
-        logger.warning(f"Failed to load environment variables from {env_file}.")
-    logger.debug(f"Loaded environment variables from {env_file}")
-    return loaded, env_file
+def setup_logging(**kwargs) -> logging.Logger:
+    """Setup the logger according to settings."""
+    from pfun_common.settings import get_settings  # type: ignore
+    debug_mode: bool = kwargs.get("debug", get_settings().debug)
+    logger = logging.getLogger(name=kwargs.get("name", None))
+    logger.setLevel(level=logging.DEBUG if debug_mode else logging.INFO)
+    return logger
 
 
 def add_url_params(url, params):
@@ -77,10 +48,12 @@ def add_url_params(url, params):
     # Merging URL arguments dict with new params
     parsed_get_args.update(params)
 
-    # Bool and Dict values should be converted to json-friendly values
-    # you may throw this part away if you don't like it :)
+    # Bool and Dict values should be converted to json-friendly values.
     parsed_get_args.update(
-        {k: dumps(v) for k, v in parsed_get_args.items() if isinstance(v, (bool, dict))}
+        {
+            k: dumps(v) for k, v in parsed_get_args.items()
+            if isinstance(v, (bool, dict))
+        }
     )
 
     # Converting URL argument to proper query string
