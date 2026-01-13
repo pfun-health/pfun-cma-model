@@ -60,21 +60,16 @@ from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
 from pfun_cma_model.routes import dexcom as dexcom_routes
 
-# Initially, Get the logger (globally accessible)
-# Will be overridden by setup_logging()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
-logger.info("Logger initialized for pfun_cma_model (logger name: %s)", logger.name)
-
 # Ensure the .env file is loaded
 settings = get_settings()
 
 # Global variables and constants
 debug_mode: bool = settings.debug
-# Perform logging setup...
-setup_logging(logger, debug_mode=debug_mode)
 
 # --- Setup app Lifespan events ---
+
+logger = None
+#: globally accessible logger
 
 redis_client: Redis | None = None
 #: Global Redis client instance
@@ -86,6 +81,10 @@ templates: Jinja2Templates | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
+    
+    # --- Startup task: setup globally-accessible logger ---
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
 
     # --- Startup task: initialize templates ---
     global templates
@@ -106,7 +105,6 @@ async def lifespan(app: FastAPI):
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
 
-
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
     pfun_data_paths = PFunDataPaths()
@@ -116,8 +114,12 @@ async def lifespan(app: FastAPI):
     # --- Shutdown tasks will be handled after this point ---
     # ---
     yield
+    # ---
+    # NOTE: Yes, these steps are technically unnecessary.
+    # ...It's an extra guarantee when you're using hot reload.
     # --- Delete the templates instance ---
     templates = None
+    # TODO: sample data needs to be loaded via db connection.
     # --- Delete the sample data ---
     pfun_data_paths.remove_sample_data()
     # --- Shutdown task: disconnect from Redis ---
@@ -150,8 +152,11 @@ app = FastAPI(
 
 
 # Set the application title and description
-app.title = "PFun CMA Model Backend"
-app.description = "Backend API for the PFun CMA Model, providing endpoints for model parameters, data handling, and model execution."
+app.title = "PFun CMA Model Routing API"
+app.description = (
+    "Server-side operations for operating the PFun CMA model; ",
+    "schema definitions, data IO, model execution."
+)
 
 
 def set_app_version(app: FastAPI = app) -> FastAPI:
@@ -246,7 +251,7 @@ app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
-    logger.info("Health check endpoint accessed.")
+    logger.debug("Health check endpoint accessed.")
     return {"status": "ok", "message": "PFun CMA Model API is running."}
 
 
@@ -416,7 +421,7 @@ pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
 @app.get("/health/ws/run-at-time")
 async def health_check_run_at_time():
     """Health check endpoint for the 'run-at-time' WebSocket functionality."""
-    logger.info("Health check for 'run-at-time' WebSocket endpoint accessed.")
+    logger.debug("Health check for 'run-at-time' WebSocket endpoint accessed.")
     # @todo: implement further health check logic as needed
     return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
 
@@ -434,13 +439,13 @@ async def fit_model_to_data(
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
 
     if len(data) == 0:
+        logger.debug("Sample data will be loaded as no data was provided in query.")
         data = read_sample_data(convert2json=False)  # type: ignore
-        logger.info("...Sample data loaded as no data provided.")
         logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
     if isinstance(config, str):
-        logger.info("Config received as string, parsing JSON.")
+        logger.debug("Config received as string, parsing JSON.")
         # @note: config expected as JSON string
         config_dict = json.loads(config)
         # @note: config -> CMAModelParams object
@@ -448,7 +453,7 @@ async def fit_model_to_data(
     try:
         df = DataFrame(data)
         fit_result = cma_fit_model(df, **config.model_dump())  # type: ignore
-        logger.info("Model fitted successfully.")
+        logger.debug("Model fitted successfully.")
         logger.debug("Fit result: %s", fit_result)
         if fit_result is None:
             raise ValueError("Fit result is None. Model fitting failed.")

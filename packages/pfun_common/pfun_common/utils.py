@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import sys
@@ -17,7 +18,7 @@ except ImportError:
     from urllib.parse import ParseResult, parse_qsl, unquote, urlencode, urlparse
 
 
-def setup_logging(logger: logging.Logger, debug_mode: bool = False):
+async def setup_logging(logger: logging.Logger, debug_mode: bool = False):
     """Setup logging configuration."""
     # Set the logger to the desired level
     if debug_mode:
@@ -25,11 +26,12 @@ def setup_logging(logger: logging.Logger, debug_mode: bool = False):
         logger.debug("Debug mode is enabled. Setting logger level to DEBUG.")
     else:
         logger.setLevel(logging.INFO)
-        logger.info("Debug mode is disabled. Setting logger level to INFO.")
-    logger.info("...Logging setup complete.")
+        # NOTE: this is hidden on purpose in PROD
+        logger.debug("Debug mode is disabled. Setting logger level to INFO.")
+    logger.debug("...Logging setup complete.")
 
 
-def load_environment_variables(
+async def load_environment_variables(
     logger: logging.Logger = logging.getLogger(__name__),
 ) -> tuple[bool, Path]:
     """Load environment variables from .env file."""

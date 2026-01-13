@@ -1,5 +1,6 @@
 /examples/data/
 /generated_clients/
+openapi.json
 
 #  Ignore self-generated certificate files
 certs/

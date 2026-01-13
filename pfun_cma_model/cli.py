@@ -8,10 +8,6 @@ import pandas as pd
 
 # Ignore mypy for the next line (this is my repo)
 import pfun_path_helper as pph  # type: ignore
-
-from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
-from pfun_cma_model.engine.fit import fit_model as call_fit_model
-from pfun_cma_model.main import run_app
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 pph.get_lib_path("pfun_cma_model")
@@ -49,6 +45,7 @@ def launch(ctx, host, port, reload, args):
 
     Any additional arguments (ARGS) are passed through to the application.
     """
+    from pfun_cma_model.main import run_app
     run_app(host, port, reload=reload, debug=True, extra_args=list(args))
 
 
@@ -130,7 +127,9 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     # read the input dataset
     data = pd.read_csv(input_fpath)
     # fit the model
-    fit_result = call_fit_model(data, n=n, plot=plot, opts=opts, **model_config)
+    from pfun_cma_model.engine.fit import fit_model as call_fit_model
+    fit_result = call_fit_model(
+        data, n=n, plot=plot, opts=opts, **model_config)
     fit_result_global = fit_result
     # write fitted model parameters (with the corresponding time-series solution) to disk
     output_fpath = os.path.join(output_dir, "fit_result.json")
@@ -139,8 +138,7 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     click.secho(f"...wrote fitted model params to: '{output_fpath}'")
     # plot the results (if '--plot' is indicated)
     if plot is True:
-        from pfun_cma_model.engine.cma_plot import CMAPlotConfig
-
+        from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
         fig, _ = CMAPlotSolnConfig().plot(df=fit_result.formatted_data)
         fig_output_fpath = os.path.join(output_dir, "fit_result.png")
         fig.savefig(fig_output_fpath)
@@ -180,7 +178,8 @@ def run_param_grid(ctx, output_filetype, n, m):
     # create the output file path
     if not os.path.exists(ctx.obj["output_dir"]):
         os.makedirs(ctx.obj["output_dir"])
-    output_fpath = os.path.join(ctx.obj["output_dir"], f"cma_paramgrid.{output_filetype}")
+    output_fpath = os.path.join(
+        ctx.obj["output_dir"], f"cma_paramgrid.{output_filetype}")
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
     pfun_grid = PFunCMAParamsGrid(N=n, m=m, include_mealtimes=True)
     # run the grid search
@@ -217,17 +216,16 @@ def download_sample_data(ctx, overwrite=False):
             bold=True,
         )
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data(overwrite=overwrite)
-    click.secho(f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'")
+    click.secho(
+        f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'")
 
 
 @cli.command()
 def version():
     """Print the version of the pfun-cma-model package."""
     import pfun_cma_model
-
     click.secho(f"pfun-cma-model version: {pfun_cma_model.__version__}")
 
 
@@ -235,7 +233,6 @@ def version():
 def run_doctests():
     """Run the doctests for the pfun-cma-model cli."""
     import doctest
-
     doctest.testmod()
 
 
