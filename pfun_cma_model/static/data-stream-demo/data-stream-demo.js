@@ -1,7 +1,17 @@
+/* generic utility function for parsing NaN-containg json */
 JSON.parseall = function (text) {
   // Replace NaN with null for JSON parsing
   return JSON.parse(text.replaceAll(/\bNaN\b/g, "null"));
 };
+
+function isNumeric(str) {
+  // Source - https://stackoverflow.com/a
+  // Posted by Dan, modified by community. See post 'Timeline' for change history
+  // Retrieved 2026-01-12, License - CC BY-SA 4.0
+  if (typeof str != "string") 
+    return false; // we only process strings!
+  return (!isNaN(str) && !isNaN(parseFloat(str))) // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...); // ...and ensure strings of whitespace fail
+}
 
 class DataRow {
   constructor(data) {
@@ -57,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Fetch the data stream
       const response = await fetch(`/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=octet-stream`, {
         headers: {
-          "Content-Type": "application/octet-stream"
+          "Content-Type": "application/octet-stream",
         },
         signal
       });
@@ -80,8 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         rows.forEach(row => {
           // first check to see if this might be a title or other expected non-conforming row
-          if (!Number(row.split(",")[0])) {
-            console.warn("Skipping this row, it seems to be non-conforming.", row);
+          let testnum_str = row.split(",")[0].replaceAll(" ", "");
+          if ( !isNumeric(testnum_str) ) {
+            console.warn("Skipping this row, it seems to be non-conforming.", "testnum_str:", testnum_str, "original_row:", row);
             return;
           }
           try {
@@ -111,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (controller) {
       controller.abort();
       console.log("Stopping stream...");
+      startButton.disabled = false;
+      stopButton.disabled = true;
     }
   };
 

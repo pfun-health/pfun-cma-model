@@ -69,9 +69,7 @@ debug_mode: bool = settings.debug
 # --- Setup app Lifespan events ---
 
 logger = logging.getLogger()
-logger.setLevel(
-    level=logging.DEBUG if debug_mode is True else logging.INFO
-)
+logger.setLevel(level=logging.DEBUG if debug_mode is True else logging.INFO)
 #: globally accessible logger (with appropriate logging level)
 
 redis_client: Redis | None = None
@@ -106,6 +104,7 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -153,8 +152,8 @@ app = FastAPI(
 # Set the application title and description
 app.title = "PFun CMA Model Routing API"
 app.description = (
-    "Server-side operations for operating the PFun CMA model; ",
-    "schema definitions, data IO, model execution."
+    "Server-side operations for operating the PFun CMA model; "
+    + "schema definitions, data IO, model execution."
 )
 
 

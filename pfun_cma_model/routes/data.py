@@ -153,12 +153,18 @@ async def stream_sample_dataset(
             media_type="text/html",
         )
     elif media_type == "octet-stream":
+        logging.debug("streaming response with media_type=%s", media_type)
         buffer = BytesIO()
         # the client expects the extra index to be removed, header should be gone also
-        dataset.to_csv(buffer, index=False, header=False)
+        dataset.to_csv(
+            buffer, index=False, header=False
+        )
         buffer.seek(0)
         return StreamingResponse(
             content=buffer,
             media_type="application/octet-stream",
-            headers={"Content-Disposition": "attachment; filename=valid_data.csv"},  # type: ignore
+            headers={
+                'Content-Type': 'application/octet-stream',
+                'Transfer-Encoding': 'chunked',
+            }
         )

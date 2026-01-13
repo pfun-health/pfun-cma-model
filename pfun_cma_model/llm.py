@@ -1,4 +1,5 @@
 """pfun_cma_model/llm.py: LLM prompting logic."""
+
 import importlib
 import json
 import logging
@@ -9,10 +10,22 @@ import asyncio
 from typing import Optional, Any, Literal
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
-settings = get_settings()
+
+
+'''TODO:
+
++ Enhance RAG with vector search: use chromadb (or duckdb, ...)
++ Split this into multiple endpoints, likely will use Cloudflare Worker for load balancing
++ Test with Ollama cloud LLMs (e.g., gpt-oss-20B)
+  + Develop an evaluation pipeline:
+    + { TrainingDataset[VariationalParameterSpace, QualitativeDescription] }
+  + ...then see how performance holds up with fewer parameters, quantization.
+  + ...eventually fine-tuning should happen naturally from this process. 
+'''
 
 
 LLMBackendChoice = Literal["google", "perplexity", "ollama", "openai"]
+
 
 def _import_genai_with_backend(llm_backend: LLMBackendChoice):
     """dynamically import the currently selected LLM backend (using settings.llm_backend)."""
@@ -23,7 +36,7 @@ def _import_genai_with_backend(llm_backend: LLMBackendChoice):
 
 
 # Dynamically import the LLM generative backend (settings.llm_backend)
-GenerativeModel = _import_genai_with_backend(settings.llm_backend)
+GenerativeModel = _import_genai_with_backend(get_settings().llm_backend)
 
 
 async def _parse_generated_response(response: Any | str) -> str:
@@ -62,19 +75,22 @@ async def _call_llm_for_json(prompt: str) -> dict:
         resp_dict = json.loads(resp_text)
         resp_text = resp_dict["content"]
     except (json.JSONDecodeError, KeyError) as e:
-        logging.debug("Failed in initial pre-parsing, attempting without...", exc_info=True)
+        logging.debug(
+            "Failed in initial pre-parsing, attempting without...", exc_info=True
+        )
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(
-            r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-        json_str = json_match.group(1) if json_match else resp_text\
-                             .strip()\
-                             .replace("`", "")\
-                             .replace("json", "")\
-                             .replace("\\n","")\
-                             .replace("    ","")
-        json_str = json_str.replace("\\n","")\
-                           .replace("    ","")
+        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_str = (
+            json_match.group(1)
+            if json_match
+            else resp_text.strip()
+            .replace("`", "")
+            .replace("json", "")
+            .replace("\\n", "")
+            .replace("    ", "")
+        )
+        json_str = json_str.replace("\\n", "").replace("    ", "")
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
         logging.error("Failed to parse LLM API Response. %s", e, exc_info=True)
@@ -163,8 +179,12 @@ Assistant:
     response = GenerativeModel().generate_content(prompt)
 
     try:
-        json_str = _parse_generated_response(response).strip().replace(
-            "`", "").replace("json", "")  # type: ignore
+        json_str = (
+            _parse_generated_response(response)
+            .strip()
+            .replace("`", "")
+            .replace("json", "")
+        )  # type: ignore
         explanation = json.loads(json_str)
         return explanation
     except (json.JSONDecodeError, KeyError, AttributeError) as e:
