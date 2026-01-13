@@ -27,6 +27,12 @@ __Demos:__
 
 + ~~Complete a simple gradio-based LLM demo.~~
   + ~~Time series plotting of /model/run results.~~
++ **Datasets for training, counterfactuals, twin studies**
+  + Consider MIMO (multi-input, multi-output) embedding approach for flexibility.
+  + **ScenarioDataset:**
+	+ {X1: ScenarioConditionedParameters},
+	+ {X2: QualitativeDescription},
+	+ {X3: **ParameterSensitivityAnalysis**}  __Jacobian: Key advantage of using world model (#DynamicalSystems)__
 + Model definitions for specialized health recommendation features
   + Transformer model
   + Vector-search (enhanced) RAG (RAFT, `LlamaIndex`)
