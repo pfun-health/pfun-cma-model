@@ -1,17 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests the audacity pipe.
-
-Keep pipe_test.py short!!
-You can make more complicated longer tests to test other functionality
-or to generate screenshots etc in other scripts.
-
-Make sure Audacity is running first and that mod-script-pipe is enabled
-before running this script.
-
-Requires Python 2.7 or later. Python 3 is strongly recommended.
-
+"""Example code, demo for Audacity audio pipes.
 """
 
 import os
