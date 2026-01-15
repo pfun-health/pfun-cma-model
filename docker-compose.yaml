@@ -101,8 +101,6 @@ services:
       - ts-nginx  # ensure tailscale starts first
       - pfun-cma-model
       - pfun-gradio
-    networks:
-      - pfun-cma-network  # Attach to the network
     entrypoint: [
       "sh", "-c",
       # Substitutes environment variables and starts NGINX
