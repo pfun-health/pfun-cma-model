@@ -182,12 +182,18 @@ class RunAtTimeDemo {
     let self = this;
     this.dom.runForm.addEventListener("submit", e => {
       e.preventDefault();
-      console.log("Form submitted, running simulation...");
-      self.runSimulation();
+      self.clearChartData();
+      setTimeout(() => {
+        // delay to ensure chart data is cleared
+        self.runSimulation();
+      }, 100);
+      // refocus the canvas
+      self.dom.canvas.focus();
+      $(".offcanvas").hide();
     });
     this.dom.submitButtons.forEach(button => {
       button.addEventListener("click", () => {
-        self.runSimulation();
+        self.dom.runForm.submit();
       });
     });
     // Range input listeners
@@ -213,6 +219,10 @@ class RunAtTimeDemo {
     return new SimulationParams(this.formData);
   }
 
+  clearChartData() {
+    this.chart.data.datasets.forEach(ds => (ds.data = []));
+  }
+
   async runSimulation() {
     if (!this.socket || !this.socket.connected) {
       this.appendMessage("Socket.IO not connected. Cannot send.");
@@ -224,18 +234,19 @@ class RunAtTimeDemo {
     var self = this;
     Promise.resolve().then(() => {
       // reset chart datasets
-      console.debug("Clearing previous chart data...");
-      self.chart.data.datasets.forEach(ds => (ds.data = []));
+      // console.debug("Clearing previous chart data...");
+      self.clearChartData(); //self.chart.data.datasets.forEach(ds => (ds.data = []));
+      
       // update chart view
-      console.debug("Updating chart view...");
+      // console.debug("Updating chart view...");
       self.chart.update();
       // clear messages
-      console.debug("Clearing previous messages...");
+      // console.debug("Clearing previous messages...");
       self.dom.messagesDiv.innerHTML = ""; // Clear messages
       self.appendMessage("Starting new simulation...");
 
       // Collect form data-derived simulation parameters
-      console.debug("Collecting simulation parameters from form...");
+      // console.debug("Collecting simulation parameters from form...");
       const simParams = self.simParams;
 
       // Basic validation

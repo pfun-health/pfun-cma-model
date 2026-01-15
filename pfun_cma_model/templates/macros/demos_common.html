@@ -1,8 +1,9 @@
 <!-- macros/demos_common.html -->
 
 {% macro render_form_controls_container(params) %}
-  <div class="row-sm">
-    <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas">
+  <div class="row-sm col-sm"
+  onmouseover="setTimeout(()=>{document.getElementById('toggleFormControlsBtn').classList.remove('hidden')},1000)">
+    <button id="toggleFormControlsBtn" class="hidden btn btn-primary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas">
       Show controls
     </button>
   </div>
