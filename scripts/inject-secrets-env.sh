@@ -1,21 +1,21 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # inject-secrets-env.sh
 
 set -e
 
-DCLI="$(which dcli)"
+DCLI="$HOME/standalone-apps/dcli-linux-x64"
 
 if [[ -z $DCLI ]]; then
-    echo -e "dashlane cli not installed (exiting!)"
+    echo "dashlane cli not installed (exiting!)"
     exit 1
 fi
 
 TEMPLATE_FN='./.env.template'
 OUTPUT_FN='./.env'
 
-echo -e "(from template: ${TEMPLATE_FN})"
-echo -e "Injecting secrets into $OUTPUT_FN..."
+echo "(from template: ${TEMPLATE_FN})"
+echo "Injecting secrets into $OUTPUT_FN..."
 
 # inject secrets into the .env file
 $DCLI inject \
