@@ -86,7 +86,6 @@ class NoPrefixNamespace(socketio.AsyncNamespace):
 
     Arguments:
         namespace (str): The namespace for this Socket.IO server.
-        sio (socketio.AsyncServer): The Socket.IO server instance.
         app (FastAPI): The FastAPI application instance.
     """
 
