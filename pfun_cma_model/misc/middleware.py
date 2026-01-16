@@ -15,7 +15,7 @@ async def track_client_request_middleware(request: Request, call_next):
 
     Stores: {client_ip: {cookies, session_id, request_info, timestamp}}
     """
-    from pfun_cma_model.app import redis_client  # Avoid circular import
+    from pfun_cma_model.api import redis_client  # Avoid circular import
 
     # Extract client IP address
     client_ip = request.client.host if request.client else "unknown"
