@@ -7,6 +7,7 @@ set -e
 
 nix run github:aksiksi/compose2nix -- \
     -project=pfun-cma-model \
-    -include_env_files \
-    -env_files '.env' \
+    -include_env_files=true \
+    -env_files='.env' \
+    -env_files_only=true \
     -output 'oci-container.nix'
