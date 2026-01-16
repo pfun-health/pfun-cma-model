@@ -21,26 +21,15 @@
 
   <!-- Jquery CSS stylesheets -->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css" />
-  <!-- ~~~ Katex (render latex math) ~~~ -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css"
-    integrity="sha384-Pu5+C18nP5dwykLJOhd2U4Xen7rjScHN/qusop27hdd2drI+lL5KvX7YntvT8yew" crossorigin="anonymous" />
 
   <!-- Google Tags script -->
   {{ google_tags.google_tags_head_script() }}
 
-  <!-- The loading of KaTeX is deferred to speed up page rendering -->
-  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.js"
-    integrity="sha384-2B8pfmZZ6JlVoScJm/5hQfNS2TI/6hPqDZInzzPc8oHpN5SgeNOf4LzREO6p5YtZ"
-    crossorigin="anonymous"></script>
-
-  <!-- To automatically render math in text elements, include the auto-render extension: -->
-  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/contrib/auto-render.min.js"
-    integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
   {% endblock %}
 </head>
 
 <body>
+  {% block body %}
   <!-- Google Tags body script -->
   {{ google_tags.google_tags_body() }}
 
@@ -72,7 +61,8 @@
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html.jinja2') }}"
+                  <a class="dropdown-item"
+                    href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html.jinja2') }}"
                     target="_self">Modular CMA Model Demo</a>
                 </li>
                 <li>
@@ -152,8 +142,8 @@
   <!-- Scripts (inserted via macro) -->
   {{ common.jquery_script() }}
   {{ common.bootstrap_script() }}
-  {{
-  survey_modal.survey_modal_script() }}
+  {{ survey_modal.survey_modal_script() }}
+  {% endblock body %}
 </body>
 
 </html>

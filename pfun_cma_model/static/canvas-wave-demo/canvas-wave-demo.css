@@ -1,107 +1,153 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 2em;
-    padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 2em;
+  padding: 20px;
 }
 
 h1,
 h2,
 h3 {
-    color: #2c3e50;
+  color: #2c3e50;
 }
 
 a {
-    color: #2980b9;
-    text-decoration: none;
+  color: #2980b9;
+  text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 label,
 input {
-    margin: 0.3em;
+  margin: 0.3em;
 }
 
 #messages {
-    margin-top: 1em;
-    border: 1px solid #aaa;
-    padding: 1em;
-    height: 200px;
-    overflow-y: auto;
+  margin-top: 1em;
+  border: 1px solid #aaa;
+  padding: 1em;
+  height: 200px;
+  overflow-y: auto;
 }
 
 .params-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1em;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1em;
 }
 
 .param-item {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1em;
-    gap: 1em;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1em;
+  gap: 1em;
 }
 
 .tooltip {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #555;
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1px dotted #555;
 }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 220px;
-    background-color: #333;
-    color: #fff;
-    text-align: left;
-    border-radius: 6px;
-    padding: 8px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -110px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 0.95em;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  visibility: hidden;
+  width: 220px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -110px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.95em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 .canvas-container {
-    width: 100%;
-    max-width: 900px;
-    margin: auto;
-    height: 400px;
-    border: #333 solid 1px;
-}
-
-canvas {
-    width: 100%;
-    height: 100%;
-    background-color: #000;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  height: 400px;
+  border: #333 solid 1px;
 }
 
 footer {
-    text-align: center;
-    margin-top: 2em;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5em;
+  text-align: center;
+  margin-top: 2em;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#demo-container {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+}
+
+#controls-container {
+  flex: 1;
+  max-width: 600px;
+}
+
+#chart-container {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#canvas-container {
+  width: 100%;
+  height: max-content;
+  border: #333 solid 1px;
+}
+
+canvas #waveCanvas {
+  width: 100%;
+  max-width: max-content;
+  background-color: rgb(0, 25, 45);
+  cursor: crosshair;
+}
+
+#messages {
+  border: 1px solid #aaa;
+  padding: 1em;
+  height: 150px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+fieldset {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+legend {
+  width: auto;
+  padding: 0 10px;
+  font-weight: bold;
 }

@@ -3,16 +3,14 @@
 import importlib
 import json
 import logging
-import os
 import re
 import importlib
-import asyncio
 from typing import Optional, Any, Literal
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 
-'''TODO:
+"""TODO:
 
 + Enhance RAG with vector search: use chromadb (or duckdb, ...)
 + Split this into multiple endpoints, likely will use Cloudflare Worker for load balancing
@@ -21,7 +19,7 @@ from pfun_cma_model.engine.cma_model_params import CMAModelParams
     + { TrainingDataset[VariationalParameterSpace, QualitativeDescription] }
   + ...then see how performance holds up with fewer parameters, quantization.
   + ...eventually fine-tuning should happen naturally from this process. 
-'''
+"""
 
 
 LLMBackendChoice = Literal["google", "perplexity", "ollama", "openai"]
@@ -49,6 +47,8 @@ async def _parse_generated_response(response: Any | str) -> str:
         # parse text attribute if it exists
         txt_resp = getattr(response, "text", str(response))
         return str(txt_resp).replace("'", '"')
+    # TODO: this is clearly unsafe and will be resolved in a future update.
+    # TODO: stop spending time fixing this catastrophe :)
     # use recursion after awaiting (bc we're cool like that...)
     return await _parse_generated_response(await response)
 
@@ -80,7 +80,8 @@ async def _call_llm_for_json(prompt: str) -> dict:
         )
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_match = re.search(
+            r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
         json_str = (
             json_match.group(1)
             if json_match
@@ -206,7 +207,8 @@ async def generate_scenario(query: Optional[str] = None) -> dict:
 
     # baseline cma model parameters
     basal_params = CMAModelParams()
-    basal_param_descriptions = basal_params.generate_markdown_table(output_fmt="md")
+    basal_param_descriptions = basal_params.generate_markdown_table(
+        output_fmt="md")
 
     # hypothetical scenario-conditioned parameters
     scenario_description = (

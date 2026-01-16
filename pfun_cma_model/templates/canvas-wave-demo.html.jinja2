@@ -5,59 +5,6 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.css') }}">
-<style>
-    #demo-container {
-        display: flex;
-        flex-direction: row;
-        gap: 15px;
-    }
-
-    #controls-container {
-        flex: 1;
-        max-width: 600px;
-    }
-
-    #chart-container {
-        flex: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    #canvas-container {
-        width: 100%;
-        height: 475px;
-        border: #333 solid 1px;
-    }
-
-    canvas #waveCanvas {
-        width: 100%;
-        max-width: max-content;
-        background-color: rgb(0, 25, 45);
-        cursor: crosshair;
-    }
-
-    #messages {
-        border: 1px solid #aaa;
-        padding: 1em;
-        height: 150px;
-        overflow-y: auto;
-        background-color: #f9f9f9;
-    }
-
-    fieldset {
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        border-radius: 5px;
-    }
-
-    legend {
-        width: auto;
-        padding: 0 10px;
-        font-weight: bold;
-    }
-</style>
 {% endblock %}
 
 <body>
@@ -70,14 +17,18 @@
     <div id="content">
         {% block content %}
         <h2>Canvas Wave WebSocket Demo</h2>
-        <p>Drag the mouse on the canvas to control the baseline glucose (<code>B</code>, y-axis), and the glucose time constant (<code>taug</code>, x-axis) parameters and see the waveform update in real-time.</p>
+        <p class=" text-start text-wrap">
+            Drag the mouse on the canvas to control the baseline glucose (<code>B</code>, y-axis),
+            and the glucose time constant (<code>taug</code>, x-axis) parameters and see the waveform update in
+            real-time.
+        </p>
 
-        <div id="demo-container" class="grid d-flex">
+        <div id="demo-container" class="">
             <!-- Controls Container -->
             {{ demos_common.render_form_controls_container(params) }}
 
             <!-- Chart Container -->
-            <div id="chart-container" class="d-flex flex-column p-1">
+            <div id="chart-container" class="col-lg-auto col-lg-4 p-1">
                 <div id="canvas-container">
                     <canvas id="waveCanvas"></canvas>
                 </div>
@@ -101,7 +52,8 @@
         <!-- Socket.IO CDN -->
         <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
         <!-- canvas-wave-demo app script -->
-        <script src="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.js') }}"
+            crossorigin="anonymous"></script>
 
         <script>
             // Script to update range slider outputs
@@ -110,7 +62,7 @@
                 if (output) {
                     range.addEventListener('input', () => {
                         output.textContent = range.value;
-                        
+
                     });
                 }
             });

@@ -73,6 +73,7 @@ class RunAtTimeDemo {
   }
 
   initialize() {
+    this.taskQueue = [];
     this.setupChart();
     this.connectSocketIO();
     this.setupEventListeners();
@@ -183,20 +184,12 @@ class RunAtTimeDemo {
   setupEventListeners() {
     let self = this;
 
-    // on mouseover, show the controls again.
-    self.dom.toggleFormButton.addEventListener("enter", e => {
-      setTimeout(self.controlsOffcanvas.show, 1000);
-    });
-
     const submitFormAction = e => {
       e.preventDefault();
       self.clearChartData();
-      setTimeout(() => {
-        // delay to ensure chart data is cleared
-        self.runSimulation();
-      }, 100);
+      // delay to ensure chart data is cleared
+      setTimeout(() => self.runSimulation(), 500);
       // hide the controls, refocus the canvas
-      self.dom.controlsOffcanvas.hide();
       self.dom.canvas.focus();
     };
 
@@ -270,7 +263,7 @@ class RunAtTimeDemo {
         self.appendMessage(failed_validation_str);
         throw new Error(failed_validation_str);
       } else {
-        console.debug("Simulation parameters collected:", simParams);
+        // console.debug("Simulation parameters collected:", simParams);
         return simParams;
       }
     }).then(simParams => {
@@ -290,7 +283,7 @@ class RunAtTimeDemo {
     this.dom.messagesDiv.scrollTop = this.dom.messagesDiv.scrollHeight;
   }
 
-  onUpdateRange(range) {
+  async onUpdateRange(range) {
     // console.log(`Range ${range.id} updated to ${range.value}`);
     const outputElement = document.getElementById(`rangeValue-${range.id}`);
     if (range) {
@@ -310,8 +303,19 @@ class RunAtTimeDemo {
           display: true,
           text: `Glucose Response Curve - ${paramName}: ${paramValue}`
         };
-        // clear data, re-run simulation
-        this.runSimulation();
+        // execute most recent task
+        if (this.taskQueue.length >= 3) {
+          Promise.resolve(new Promise(async () => {
+            await Promise.race(this.taskQueue)
+          }));
+          // clear task queue
+          this.taskQueue = [];
+        }
+        // add to task queue
+        this.taskQueue.push(
+          // clear data, re-run simulation
+          new Promise(() => this.runSimulation())
+        );
       }
     }
   }
