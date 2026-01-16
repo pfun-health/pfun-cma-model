@@ -14,19 +14,3 @@ sso_provider = GoogleSSO(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redir
 # Get the user's JWT stored in cookie 'token', parse it and return the user's OpenID.
 """
 
-from fastapi_sso.sso.generic import create_provider
-
-def createOrcidProvider():
-    discovery = {
-            "authorization_endpoint": "http://localhost:9090/auth",
-            "token_endpoint": "http://localhost:9090/token",
-            "userinfo_endpoint": "http://localhost:9090/me",
-    }
-
-    OrcidSSOProvider = create_provider(name="ORCiD", discovery_document=discovery)
-    sso = OrcidSSOProvider(
-        client_id="test",
-        client_secret="secret",
-        redirect_uri="http://localhost:8080/callback",
-        allow_insecure_http=True
-    )

@@ -1,46 +1,46 @@
-<!-- base.html -->
-
-<!-- macro imports -->
-{% import 'macros/common.html' as common %}
-{% import 'macros/survey_modal.html' as survey_modal %}
-{% import 'macros/google_tags.html' as google_tags %}
-
+<!-- base.html.jinja2 -->
 <!DOCTYPE html>
 <html lang="en">
 
+{# <!-- macro imports --> #}
+{% import 'macros/common.html.jinja2' as common %}
+{% import 'macros/survey_modal.html.jinja2' as survey_modal %}
+{% import 'macros/google_tags.html.jinja2' as google_tags %}
+
 <head>
   {% block head %}
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{% endblock %} ~ PFun Digital Health</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    {% block title %}{% endblock %}
+    ~ PFun Digital Health</title>
 
   <!-- bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
 
   <!-- Jquery CSS stylesheets -->
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css" />
   <!-- ~~~ Katex (render latex math) ~~~ -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css"
-    integrity="sha384-Pu5+C18nP5dwykLJOhd2U4Xen7rjScHN/qusop27hdd2drI+lL5KvX7YntvT8yew" crossorigin="anonymous">
+    integrity="sha384-Pu5+C18nP5dwykLJOhd2U4Xen7rjScHN/qusop27hdd2drI+lL5KvX7YntvT8yew" crossorigin="anonymous" />
 
   <!-- Google Tags script -->
   {{ google_tags.google_tags_head_script() }}
 
   <!-- The loading of KaTeX is deferred to speed up page rendering -->
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.js"
+  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.js"
     integrity="sha384-2B8pfmZZ6JlVoScJm/5hQfNS2TI/6hPqDZInzzPc8oHpN5SgeNOf4LzREO6p5YtZ"
     crossorigin="anonymous"></script>
 
   <!-- To automatically render math in text elements, include the auto-render extension: -->
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/contrib/auto-render.min.js"
+  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/contrib/auto-render.min.js"
     integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
   {% endblock %}
 </head>
 
 <body>
-
   <!-- Google Tags body script -->
   {{ google_tags.google_tags_body() }}
 
@@ -61,7 +61,7 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
-	    <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" aria-current="page" href="/pitch" title="About PFun">About</a>
             </li>
             <!-- Notebooks dropdown -->
@@ -72,12 +72,12 @@
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html') }}"
+                  <a class="dropdown-item" href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html.jinja2') }}"
                     target="_self">Modular CMA Model Demo</a>
                 </li>
                 <li>
                   <a class="dropdown-item"
-                    href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html') }}"
+                    href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html.jinja2') }}"
                     target="_self">Visualize Generated Scenarios</a>
                 </li>
               </ul>
@@ -111,9 +111,15 @@
                 API Docs
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/docs">Documentation (SwaggerUI)</a></li>
-                <li><a class="dropdown-item" href="/redoc">Documentation (ReDoc)</a></li>
-                <li><a class="dropdown-item" href="/openapi.json">OpenAPI Schema</a></li>
+                <li>
+                  <a class="dropdown-item" href="/docs">Documentation (SwaggerUI)</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/redoc">Documentation (ReDoc)</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/openapi.json">OpenAPI Schema</a>
+                </li>
               </ul>
             </li>
           </ul>
@@ -124,7 +130,9 @@
     </nav>
     {% endblock %}
   </header>
-  <div id="content">{% block content %}{% endblock %}</div>
+  <div id="content">
+    {% block content %}{% endblock %}
+  </div>
   <footer>
     {% block footer %}
     <div class="container-fluid text-center mb-2">
@@ -132,16 +140,20 @@
         {{ common.github_star_embed() }}
       </div>
       <span class="text-muted">
-        <small>PFun Digital Health ~ {{ year }}. All rights reserved.</small>
+        <small>PFun Digital Health ~
+          {{ year }}. All rights reserved.</small>
       </span>
     </div>
-    <p><small>{{ message }}</small></p>
+    <p>
+      <small>{{ message }}</small>
+    </p>
     {% endblock %}
   </footer>
   <!-- Scripts (inserted via macro) -->
   {{ common.jquery_script() }}
   {{ common.bootstrap_script() }}
-  {{ survey_modal.survey_modal_script() }}
+  {{
+  survey_modal.survey_modal_script() }}
 </body>
 
 </html>

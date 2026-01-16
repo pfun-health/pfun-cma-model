@@ -57,6 +57,8 @@ class RunAtTimeDemo {
       ranges: document.querySelectorAll("input[type=range]"),
       runForm: document.getElementById("runForm"),
       submitButtons: document.querySelectorAll("input[type=submit]"),
+      toggleFormButton: document.getElementById("toggleControlsBtn"),
+      controlsOffcanvas: document.getElementById("controlsOffcanvas"),
       messagesDiv: document.getElementById("messages"),
       canvas: document.getElementById("scatterPlot")
     };
@@ -180,22 +182,35 @@ class RunAtTimeDemo {
 
   setupEventListeners() {
     let self = this;
-    this.dom.runForm.addEventListener("submit", e => {
+
+    // on mouseover, show the controls again.
+    self.dom.toggleFormButton.addEventListener("enter", e => {
+      setTimeout(self.controlsOffcanvas.show, 1000);
+    });
+
+    const submitFormAction = e => {
       e.preventDefault();
       self.clearChartData();
       setTimeout(() => {
         // delay to ensure chart data is cleared
         self.runSimulation();
       }, 100);
-      // refocus the canvas
+      // hide the controls, refocus the canvas
+      self.dom.controlsOffcanvas.hide();
       self.dom.canvas.focus();
-      $(".offcanvas").hide();
-    });
+    };
+
+    // on submit, do custom actions
+    this.dom.runForm.addEventListener("submit", submitFormAction);
+
+    // on click submit buttons, submit the form.
     this.dom.submitButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        self.dom.runForm.submit();
+      button.addEventListener("click", e => {
+        e.preventDefault();
+        submitFormAction(e);
       });
     });
+
     // Range input listeners
     this.dom.ranges.forEach(range => {
       // Update display value on load
@@ -236,7 +251,7 @@ class RunAtTimeDemo {
       // reset chart datasets
       // console.debug("Clearing previous chart data...");
       self.clearChartData(); //self.chart.data.datasets.forEach(ds => (ds.data = []));
-      
+
       // update chart view
       // console.debug("Updating chart view...");
       self.chart.update();
@@ -258,7 +273,7 @@ class RunAtTimeDemo {
         console.debug("Simulation parameters collected:", simParams);
         return simParams;
       }
-    }).then((simParams) => {
+    }).then(simParams => {
       // Send run request
       const payload = simParams.toPayload();
       self.socket.emit("run", payload);

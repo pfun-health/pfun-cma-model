@@ -74,7 +74,7 @@ def demo_gradio(
 def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
     return templates.TemplateResponse(
-        "dexcom-demo.html", context=context
+        "dexcom-demo.html.jinja2", context=context
     )
 
 
@@ -82,7 +82,7 @@ def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templ
 def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
     return templates.TemplateResponse(
-        "data-stream-demo.html", context=context
+        "data-stream-demo.html.jinja2", context=context
     )
 
 
@@ -134,7 +134,7 @@ async def demo_run_at_time(
     context = PFunDemoRoutesContext(**context_dict)
     context = context.model_dump()
     return templates.TemplateResponse(
-        "run-at-time-demo.html",
+        "run-at-time-demo.html.jinja2",
         context=context,
         headers={"Content-Type": "text/html"},
     )
@@ -183,7 +183,7 @@ async def demo_canvas_wave(
     logger.debug("Demo context: %s", context_dict)
     context = PFunDemoRoutesContext(**context_dict).model_dump()
     return templates.TemplateResponse(
-        "canvas-wave-demo.html",
+        "canvas-wave-demo.html.jinja2",
         context=context,
         headers={"Content-Type": "text/html"},
     )
@@ -235,7 +235,7 @@ async def demo_webgl(
     context = PFunDemoRoutesContext(**context_dict).model_dump()
     logger.debug("(post-validation) WebGL Demo context: %s", context)
     return templates.TemplateResponse(
-        "webgl-demo.html", context=context, headers={"Content-Type": "text/html"}
+        "webgl-demo.html.jinja2", context=context, headers={"Content-Type": "text/html"}
     )
 
 
@@ -286,7 +286,7 @@ async def demo_full_model_run(
     context = PFunDemoRoutesContext(**context_dict).model_dump()
     logger.debug("(post-validation) Demo context: %s", context)
     return templates.TemplateResponse(
-        "full-model-run-demo.html",
+        "full-model-run-demo.html.jinja2",
         context=context,
         headers={"Content-Type": "text/html"},
     )

@@ -1,40 +1,40 @@
-{% extends "base.html" %}
-{% import "macros/demos_common.html" as demos_common %}
-{% block title %}Canvas Wave WebSocket Example{% endblock %}
+{% extends "base.html.jinja2" %}
+{% import "macros/demos_common.html.jinja2" as demos_common %}
+
+{% block title %}Full Model Run (c, m, a) WebSocket Demo{% endblock %}
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.css') }}">
+
 <style>
-    #demo-container {
+    .demo-container {
         display: flex;
         flex-direction: row;
         gap: 15px;
     }
 
-    #controls-container {
+    .controls-container {
         flex: 1;
-        max-width: 600px;
+        max-width: 400px;
     }
 
-    #chart-container {
+    .chart-container {
         flex: 2;
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
 
-    #canvas-container {
+    #chartCanvasContainer {
         width: 100%;
         height: 475px;
+        /* Increased height */
         border: #333 solid 1px;
     }
 
-    canvas #waveCanvas {
+    #chartCanvas {
         width: 100%;
-        max-width: max-content;
-        background-color: rgb(0, 25, 45);
-        cursor: crosshair;
+        height: 100%;
     }
 
     #messages {
@@ -69,21 +69,23 @@
 
     <div id="content">
         {% block content %}
-        <h2>Canvas Wave WebSocket Demo</h2>
-        <p>Drag the mouse on the canvas to control the baseline glucose (<code>B</code>, y-axis), and the glucose time constant (<code>taug</code>, x-axis) parameters and see the waveform update in real-time.</p>
+        <h2>Full Model Run (c, m, a) Demo</h2>
 
-        <div id="demo-container" class="grid d-flex">
+        <div class="demo-container">
+
             <!-- Controls Container -->
             {{ demos_common.render_form_controls_container(params) }}
 
             <!-- Chart Container -->
-            <div id="chart-container" class="d-flex flex-column p-1">
-                <div id="canvas-container">
-                    <canvas id="waveCanvas"></canvas>
+            <div class="chart-container">
+                <div id="chartCanvasContainer">
+                    <canvas id="chartCanvas"></canvas>
                 </div>
                 <div id="message-list">
-                    <h4>Log</h4>
                     <div id="messages"></div>
+                </div>
+                <div id="submit-btn-container">
+                    <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation" id="runSimulationBtn">
                 </div>
             </div>
         </div>
@@ -98,23 +100,13 @@
             const wsUrl = `${wsConfig.scheme}://${wsConfig.host}:${wsConfig.port}`;
         </script>
 
+        <!-- Chart.js CDN -->
+        <script src="{{ cdn['chartjs']['url'] }}" crossorigin="anonymous"></script>
         <!-- Socket.IO CDN -->
         <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
-        <!-- canvas-wave-demo app script -->
-        <script src="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.js') }}" crossorigin="anonymous"></script>
+        <!-- full-model-run demo app script -->
+        <script src="/static/full-model-run/full-model-run.js" crossorigin="anonymous"></script>
 
-        <script>
-            // Script to update range slider outputs
-            document.querySelectorAll('input[type=range]').forEach(range => {
-                const output = document.getElementById(`rangeValue-${range.id}`);
-                if (output) {
-                    range.addEventListener('input', () => {
-                        output.textContent = range.value;
-                        
-                    });
-                }
-            });
-        </script>
         {% endblock %}
     </div>
 </body>

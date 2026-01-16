@@ -1,63 +1,11 @@
-{% extends "base.html" %}
-{% import "macros/demos_common.html" as demos_common %}
+{% extends "base.html.jinja2" %}
+{% import "macros/demos_common.html.jinja2" as demos_common %}
 
-{% block title %}Full Model Run (c, m, a) WebSocket Demo{% endblock %}
+{% block title %}Run-at-Time WebSocket Example{% endblock %}
 
 {% block head %}
 {{ super() }}
-
-<style>
-    .demo-container {
-        display: flex;
-        flex-direction: row;
-        gap: 15px;
-    }
-
-    .controls-container {
-        flex: 1;
-        max-width: 400px;
-    }
-
-    .chart-container {
-        flex: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    #chartCanvasContainer {
-        width: 100%;
-        height: 475px;
-        /* Increased height */
-        border: #333 solid 1px;
-    }
-
-    #chartCanvas {
-        width: 100%;
-        height: 100%;
-    }
-
-    #messages {
-        border: 1px solid #aaa;
-        padding: 1em;
-        height: 150px;
-        overflow-y: auto;
-        background-color: #f9f9f9;
-    }
-
-    fieldset {
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        border-radius: 5px;
-    }
-
-    legend {
-        width: auto;
-        padding: 0 10px;
-        font-weight: bold;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', path='run-at-time/run-at-time.css') }}" />
 {% endblock %}
 
 <body>
@@ -69,17 +17,17 @@
 
     <div id="content">
         {% block content %}
-        <h2>Full Model Run (c, m, a) Demo</h2>
+        <h2>Run-at-Time WebSocket Demo</h2>
 
-        <div class="demo-container">
+        <div class="demo-container row">
 
             <!-- Controls Container -->
             {{ demos_common.render_form_controls_container(params) }}
 
             <!-- Chart Container -->
             <div class="chart-container">
-                <div id="chartCanvasContainer">
-                    <canvas id="chartCanvas"></canvas>
+                <div id="scatterPlotContainer">
+                    <canvas id="scatterPlot"></canvas>
                 </div>
                 <div id="message-list">
                     <div id="messages"></div>
@@ -104,8 +52,8 @@
         <script src="{{ cdn['chartjs']['url'] }}" crossorigin="anonymous"></script>
         <!-- Socket.IO CDN -->
         <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
-        <!-- full-model-run demo app script -->
-        <script src="/static/full-model-run/full-model-run.js" crossorigin="anonymous"></script>
+        <!-- run-at-time demo app script -->
+        <script src="{{ url_for('static', path='run-at-time/run-at-time.js') }}" crossorigin="anonymous"></script>
 
         {% endblock %}
     </div>

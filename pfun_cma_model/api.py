@@ -26,7 +26,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
-import pfun_path_helper as pph  # type: ignore
 from fastapi import Body, Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -40,7 +39,6 @@ from pfun_cma_model.engine.cma_model_params import (
     _BOUNDED_PARAM_KEYS_DEFAULTS,
     CMAModelParams,
 )
-from pfun_common import setup_logging  # type: ignore
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
 from pfun_cma_model.routes import dexcom as dexcom_routes
@@ -238,7 +236,7 @@ def health_check():
 def pitch_document(request: Request):
     """PFun pitch document."""
     return templates.TemplateResponse(
-        "pitch-doc.html",
+        "pitch-doc.html.jinja2",
         context={"request": request}
     )
 
@@ -250,7 +248,7 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
     return templates.TemplateResponse(  # type: ignore
-        "index.html",
+        "index.html.jinja2",
         {
             "request": request,
             "year": datetime.now().year,

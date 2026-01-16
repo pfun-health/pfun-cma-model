@@ -1,6 +1,6 @@
 # TODO.md
 
-__TODO for `pfun-cma-model`__
+TODO for `pfun-cma-model`
 
 Goals
 =====
@@ -23,7 +23,8 @@ Goals
 + _RAFT (consider starting here for the near-term):_
   + Low-effort, relatively-performant variant of RAG.
 
-__DevOps:__
+DevOps:
+=======
 
 + _Setup orchestration, task scheduling:_
   + _Compare options:_
@@ -33,14 +34,15 @@ __DevOps:__
 + _Finish integrating telemetry (need metrics to debug properly):_
   + NOTE: `fastapi-guard` includes telemetry routes
 
-__Demos:__
+Demos:
+======
 
 + _Datasets for training, counterfactuals, twin studies_
   + Consider MIMO (multi-input, multi-output) embedding approach for flexibility.
   + _ScenarioDataset:_
     + {X1: ScenarioConditionedParameters},
     + {X2: QualitativeDescription},
-    + {X3: _ParameterSensitivityAnalysis_}  __Jacobian: Key advantage of using world model (#DynamicalSystems)__
+    + {X3: _ParameterSensitivityAnalysis_}  Jacobian: Key advantage of using world model (#DynamicalSystems)
 + Model definitions for specialized health recommendation features
   + Transformer model
   + Vector-search (enhanced) RAG (RAFT, `LlamaIndex`)
@@ -50,7 +52,8 @@ __Demos:__
     + `(vector-search + RAG) <--> (multi-stage RAG)`
     + `(Non-FT modeling approach) <--> (Fine-tuned LLM)`
 
-__Infra:__
+Infra:
+======
 
 + Gcp Fabric (terraform)
 + Use OpenRLHF (or similar for GCP native) for LLM safeguard experiments.
