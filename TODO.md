@@ -2,44 +2,52 @@
 
 __TODO for `pfun-cma-model`__
 
+Goals
+=====
 
-__Goals:__
+## Overall Goal: Complete Evaluation Pipeline
 
-+ **Create a huggingface IterableDataset:**
+### Curate Dataset(s)
+
++ _Create a huggingface IterableDataset:_
   + Design as a parametric data factory (generate n_days of data, potentially with specified trends).
   + <https://huggingface.co/docs/datasets/v4.4.2/en/package_reference/main_classes#datasets.IterableDataset>
   + <https://huggingface.co/docs/datasets/en/create_dataset>
-+ **LoRA training (likely better for use-case than finetuning):**
+
+### Model Development
+
++ _LoRA training (likely better for use-case than finetuning):_
   + <https://huggingface.co/docs/trl/lora_without_regret#takeaways>
   + <https://huggingface.co/docs/trl/lora_without_regret.md>
 
++ _RAFT (consider starting here for the near-term):_
+  + Low-effort, relatively-performant variant of RAG.
 
-__Maintenance:__
+__DevOps:__
 
-**This orchestration layer can likely be replaced with cloudflare worker load-balancing between api instances**
-+ ~~Setup orchestration, task scheduling with `rq`:~~
-  + ~~<https://python-rq.org/patterns/>~~
++ _Setup orchestration, task scheduling:_
+  + _Compare options:_
+    + Digital Ocean droplet (serverless)
+    + Cloudflare Worker: load-balancing between api instances
 
-+ (Continue research) **Finish integrating telemetry (need metrics to debug properly):**
-  + <https://opentelemetry.io/docs/zero-code/python/logs-example/>
++ _Finish integrating telemetry (need metrics to debug properly):_
+  + NOTE: `fastapi-guard` includes telemetry routes
 
 __Demos:__
 
-+ ~~Complete a simple gradio-based LLM demo.~~
-  + ~~Time series plotting of /model/run results.~~
-+ **Datasets for training, counterfactuals, twin studies**
++ _Datasets for training, counterfactuals, twin studies_
   + Consider MIMO (multi-input, multi-output) embedding approach for flexibility.
-  + **ScenarioDataset:**
-	+ {X1: ScenarioConditionedParameters},
-	+ {X2: QualitativeDescription},
-	+ {X3: **ParameterSensitivityAnalysis**}  __Jacobian: Key advantage of using world model (#DynamicalSystems)__
+  + _ScenarioDataset:_
+    + {X1: ScenarioConditionedParameters},
+    + {X2: QualitativeDescription},
+    + {X3: _ParameterSensitivityAnalysis_}  __Jacobian: Key advantage of using world model (#DynamicalSystems)__
 + Model definitions for specialized health recommendation features
   + Transformer model
   + Vector-search (enhanced) RAG (RAFT, `LlamaIndex`)
-+ **Evaluation demos:** Compare between a few systems that don't need fine-tuning.
-+ **What specifically is the performance advantage?**
-  + **Evaluate, compare overall performance (order-of-magnitude)**:
-	+ `(vector-search + RAG) <--> (multi-stage RAG)`
++ _Evaluation demos:_ Compare between a few systems that don't need fine-tuning.
++ _What specifically is the performance advantage?_
+  + _Evaluate, compare overall performance (order-of-magnitude)_:
+    + `(vector-search + RAG) <--> (multi-stage RAG)`
     + `(Non-FT modeling approach) <--> (Fine-tuned LLM)`
 
 __Infra:__
@@ -49,4 +57,4 @@ __Infra:__
 + Continue implementing gemini demo:
   + <https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python>
 
-<img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" />
+<img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" alt="openrlhf-arch.png" />  

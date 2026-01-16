@@ -1,36 +1,36 @@
 # Copilot Instructions for pfun-cma-model
 
 ## Project Overview
-- **Domain:** Circadian and metabolic modeling, with a focus on glucose and cortisol dynamics.
-- **Core:** The `pfun_cma_model` package implements the main model logic, CLI, and FastAPI app.
-- **Data Flow:** Model parameters are defined, fitted, and interpreted; results are visualized and output to files in `output/` and `results/`.
-- **Key Directories:**
+- __Domain:__ Circadian and metabolic modeling, with a focus on glucose and cortisol dynamics.
+- __Core:__ The `pfun_cma_model` package implements the main model logic, CLI, and FastAPI app.
+- __Data Flow:__ Model parameters are defined, fitted, and interpreted; results are visualized and output to files in `output/` and `results/`.
+- __Key Directories:__
   - `pfun_cma_model/`: Main model, API, CLI, and engine logic
   - `pfun_common/`, `pfun_data/`: Shared utilities and data helpers
   - `examples/`: Scripts and notebooks for demos, parameter interpretation, and UI
   - `tests/`: Pytest-based test suite
 
 ## Developer Workflows
-- **Environment:** Use `uv` for dependency management and running commands. Create a venv with `uv venv`.
-- **Install dependencies:** `uv sync` (syncs with lock files)
-- **Run dev server:** `uv run fastapi dev pfun_cma_model/app.py --port 8001`
-- **Run CLI:** `uv run pfun-cma-model` (shows usage)
-- **Fit model:** `uv run pfun-cma-model run-fit-model --plot`
-- **Run tests:** `pytest` or `uvx pytest`
-- **Add dev dependency:** `uv add --dev <package>`
+- __Environment:__ Use `uv` for dependency management and running commands. Create a venv with `uv venv`.
+- __Install dependencies:__ `uv sync` (syncs with lock files)
+- __Run dev server:__ `uv run fastapi dev pfun_cma_model/app.py --port 8001`
+- __Run CLI:__ `uv run pfun-cma-model` (shows usage)
+- __Fit model:__ `uv run pfun-cma-model run-fit-model --plot`
+- __Run tests:__ `pytest` or `uvx pytest`
+- __Add dev dependency:__ `uv add --dev <package>`
 
 ## Project Conventions & Patterns
-- **Parameter schemas:** Defined in `pfun_cma_model/engine/` and described in README tables.
-- **Notebooks:** `notebooks/` and `examples/` provide usage, visualization, and parameter interpretation.
-- **Output:** Model results and plots are written to `output/` and `results/`.
-- **Testing:** All tests are in `tests/`, use `pytest` for running.
-- **CLI/Server:** Both CLI and FastAPI server entrypoints are in `pfun_cma_model/`.
-- **Data:** Example and training data in `examples/data/`.
+- __Parameter schemas:__ Defined in `pfun_cma_model/engine/` and described in README tables.
+- __Notebooks:__ `notebooks/` and `examples/` provide usage, visualization, and parameter interpretation.
+- __Output:__ Model results and plots are written to `output/` and `results/`.
+- __Testing:__ All tests are in `tests/`, use `pytest` for running.
+- __CLI/Server:__ Both CLI and FastAPI server entrypoints are in `pfun_cma_model/`.
+- __Data:__ Example and training data in `examples/data/`.
 
 ## Integration & Extensibility
-- **OpenAPI:** `openapi.json` and scripts in `scripts/` for client generation.
-- **Dash UI:** Example Dash UI in `examples/dash_ui/`.
-- **Docker:** `Dockerfile` and `docker-compose.yaml` for containerization.
+- __OpenAPI:__ `openapi.json` and scripts in `scripts/` for client generation.
+- __Dash UI:__ Example Dash UI in `examples/dash_ui/`.
+- __Docker:__ `Dockerfile` and `docker-compose.yaml` for containerization.
 
 ## Examples
 - See `examples/` for scripts like `generate-n-samples.py`, `interpret-cma-params.py`.
@@ -44,4 +44,4 @@
 - Follow the structure of `pfun_cma_model/engine/` for new model logic.
 
 ---
-_Last updated: 2025-09-13_
+_Last updated: 2026-01-15_
