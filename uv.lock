@@ -1470,6 +1470,7 @@ numba = [
 [package.dev-dependencies]
 dev = [
     { name = "black" },
+    { name = "openapi-generator-cli", extra = ["jdk4py"] },
 ]
 google = [
     { name = "google" },
@@ -1538,7 +1539,10 @@ requires-dist = [
 provides-extras = ["ui", "dev", "numba", "cext"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "black", specifier = ">=25.12.0" }]
+dev = [
+    { name = "black", specifier = ">=25.12.0" },
+    { name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.18.0" },
+]
 google = [
     { name = "google", specifier = "==3.0.0" },
     { name = "google-genai", specifier = "==1.57.0" },
