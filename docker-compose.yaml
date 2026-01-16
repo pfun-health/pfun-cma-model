@@ -89,8 +89,6 @@ services:
     container_name: ts-$TS_HOSTNAME-nginx
     restart: unless-stopped
     network_mode: service:ts-nginx  # uses tailscale network namespace
-    ports:
-      - "8080:8080"  # Expose NGINX on port
     volumes:
       - ts-nginx-certs:/certs          # Mounts Tailscale certificates
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the NGINX config
