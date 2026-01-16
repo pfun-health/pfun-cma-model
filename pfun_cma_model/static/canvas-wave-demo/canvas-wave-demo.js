@@ -12,8 +12,7 @@ class MousePosVector {
         this.yp = null;
     }
 
-    update(x, y) {
-        
+    update(x, y) {        
         this.xp = this.x;
         this.yp = this.y;
         this.x = x;
@@ -59,6 +58,7 @@ class CanvasWaveDemo {
             canvas: document.getElementById('waveCanvas'),
             BInput: document.getElementById('B'),
             taugInput: document.getElementById('taug'),
+	    ranges: document.querySelectorAll("input[type=range]")
         };
         this.c = this.dom.canvas.getContext("2d");
         this.config = {
