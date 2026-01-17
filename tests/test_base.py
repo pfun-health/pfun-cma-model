@@ -1,5 +1,6 @@
 # tests/test_base.py
 # This file sets up the test environment for the pfun-cma-model package.
+import os
 import sys
 from pathlib import Path
 
@@ -8,6 +9,10 @@ def setup_test_environment():
     """Sets up the test environment by adding the root and module paths to sys.path.
     This allows the tests to import modules from the pfun-cma-model package.
     """
+    # Set environment variables for testing
+    os.environ["DEBUG"] = "True"
+    os.environ["Testing"] = "True"
+
     # Get the root path of the project (two levels up from this file)
     # and the module path (one level up from this file).
     root_path = str(Path(__file__).parents[2])

@@ -102,7 +102,7 @@ class TestLaunchCommand:
 
     def test_launch_default_options(self, runner):
         """Test launch command with default options."""
-        with patch('pfun_cma_model.cli.run_app') as mock_run_app:
+        with patch('pfun_cma_model.main.run_app') as mock_run_app:
             result = runner.invoke(cli, ['launch'])
             # Should call run_app with defaults
             mock_run_app.assert_called_once()
@@ -114,7 +114,7 @@ class TestLaunchCommand:
 
     def test_launch_custom_host_port(self, runner):
         """Test launch command with custom host and port."""
-        with patch('pfun_cma_model.cli.run_app') as mock_run_app:
+        with patch('pfun_cma_model.main.run_app') as mock_run_app:
             result = runner.invoke(cli, ['launch', '--host', '127.0.0.1', '--port', '9000'])
             mock_run_app.assert_called_once()
             args, kwargs = mock_run_app.call_args
@@ -123,7 +123,7 @@ class TestLaunchCommand:
 
     def test_launch_with_reload(self, runner):
         """Test launch command with reload flag."""
-        with patch('pfun_cma_model.cli.run_app') as mock_run_app:
+        with patch('pfun_cma_model.main.run_app') as mock_run_app:
             result = runner.invoke(cli, ['launch', '--reload'])
             mock_run_app.assert_called_once()
             args, kwargs = mock_run_app.call_args
@@ -131,7 +131,7 @@ class TestLaunchCommand:
 
     def test_launch_with_extra_args(self, runner):
         """Test launch command with extra arguments passed through."""
-        with patch('pfun_cma_model.cli.run_app') as mock_run_app:
+        with patch('pfun_cma_model.main.run_app') as mock_run_app:
             result = runner.invoke(cli, ['launch', '--', '--some-arg', 'value'])
             mock_run_app.assert_called_once()
             args, kwargs = mock_run_app.call_args
@@ -198,7 +198,7 @@ class TestFitModelCommand:
         mock_fit_result.model_dump_json.return_value = '{}'
         mock_fit_result.formatted_data = pd.DataFrame()
 
-        with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+        with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
                 mock_read.return_value = pd.DataFrame({'glucose': [100, 110]})
                 result = runner.invoke(cli, ['fit-model'], input='{}')
@@ -216,7 +216,7 @@ class TestFitModelCommand:
             mock_fit_result.model_dump_json.return_value = '{}'
             mock_fit_result.formatted_data = sample_data_df
 
-            with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+            with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
                 result = runner.invoke(
                     cli,
                     ['fit-model', '--input-fpath', input_file, '--output-dir', temp_output_dir],
@@ -233,7 +233,7 @@ class TestFitModelCommand:
         mock_fit_result.model_dump_json.return_value = '{}'
         mock_fit_result.formatted_data = pd.DataFrame()
 
-        with patch('pfun_cma_model.cli.call_fit_model') as mock_fit:
+        with patch('pfun_cma_model.engine.fit.fit_model') as mock_fit:
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
                 mock_read.return_value = pd.DataFrame()
                 result = runner.invoke(
@@ -251,9 +251,9 @@ class TestFitModelCommand:
         mock_fit_result.model_dump_json.return_value = '{}'
         mock_fit_result.formatted_data = pd.DataFrame()
 
-        with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+        with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
-                with patch('pfun_cma_model.cli.CMAPlotSolnConfig') as mock_plot:
+                with patch('pfun_cma_model.engine.cma_plot.CMAPlotSolnConfig') as mock_plot:
                     mock_read.return_value = pd.DataFrame()
                     mock_fig = MagicMock()
                     mock_plot.return_value.plot.return_value = (mock_fig, None)
@@ -273,7 +273,7 @@ class TestFitModelCommand:
         mock_fit_result.model_dump_json.return_value = '{}'
         mock_fit_result.formatted_data = pd.DataFrame()
 
-        with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+        with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
                 mock_read.return_value = pd.DataFrame()
                 result = runner.invoke(
@@ -290,7 +290,7 @@ class TestFitModelCommand:
         mock_fit_result.model_dump_json.return_value = '{}'
         mock_fit_result.formatted_data = pd.DataFrame()
 
-        with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+        with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
                 mock_read.return_value = pd.DataFrame()
                 result = runner.invoke(
@@ -313,7 +313,7 @@ class TestFitModelCommand:
                 mock_fit_result.model_dump_json.return_value = fit_json
                 mock_fit_result.formatted_data = sample_data_df
 
-                with patch('pfun_cma_model.cli.call_fit_model', return_value=mock_fit_result):
+                with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
                     result = runner.invoke(
                         cli,
                         ['fit-model', '--input-fpath', input_file, '--output-dir', tmpdir],
@@ -336,35 +336,41 @@ class TestRunParamGridCommand:
     def test_run_param_grid_execution(self, runner, temp_output_dir):
         """Test run_param_grid command execution."""
         mock_grid = MagicMock()
-        mock_df = pd.DataFrame({
-            'param1': [1, 2, 3],
-            'param2': [4, 5, 6]
-        })
+
+        # Mock the result of run() to be an object with a .params attribute
+        mock_result = MagicMock()
+        mock_result.params = MagicMock() # Mock the params attribute (PyArrow Table)
+
         mock_grid.pgrid = [1, 2, 3]
-        mock_grid.run.return_value = mock_df
+        mock_grid.run.return_value = mock_result
 
         with patch('pfun_cma_model.engine.grid.PFunCMAParamsGrid', return_value=mock_grid):
-            result = runner.invoke(cli, ['run-param-grid'])
-            assert result.exit_code == 0
-            assert 'Running a parameter grid search' in result.output
+            # Also mock pyarrow.parquet.write_table to avoid writing files or needing real tables
+            with patch('pyarrow.parquet.write_table'):
+                result = runner.invoke(cli, ['run-param-grid'])
+                assert result.exit_code == 0
+                assert 'Running a parameter grid search' in result.output
 
     def test_run_param_grid_output_file(self, runner):
-        """Test that run_param_grid creates output feather file."""
+        """Test that run_param_grid creates output file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_grid = MagicMock()
-            mock_df = pd.DataFrame({
-                'param1': [1, 2, 3],
-                'param2': [4, 5, 6]
-            })
+
+            # Mock the result of run() to be an object with a .params attribute
+            mock_result = MagicMock()
+            mock_result.params = MagicMock()
+
             mock_grid.pgrid = [1, 2, 3]
-            mock_grid.run.return_value = mock_df
+            mock_grid.run.return_value = mock_result
 
             with patch('pfun_cma_model.engine.grid.PFunCMAParamsGrid', return_value=mock_grid):
-                with patch('pfun_cma_model.cli.os.path.exists', return_value=False):
-                    with patch('pfun_cma_model.cli.os.makedirs'):
-                        result = runner.invoke(cli, ['run-param-grid'])
-                        assert result.exit_code == 0
-                        assert 'saved result' in result.output.lower()
+                with patch('pyarrow.parquet.write_table') as mock_write:
+                    with patch('pfun_cma_model.cli.os.path.exists', return_value=False):
+                        with patch('pfun_cma_model.cli.os.makedirs'):
+                            result = runner.invoke(cli, ['run-param-grid'])
+                            assert result.exit_code == 0
+                            assert 'saved result' in result.output.lower()
+                            mock_write.assert_called_once()
 
 
 class TestDownloadSampleDataCommand:

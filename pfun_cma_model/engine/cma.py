@@ -228,6 +228,9 @@ class CMASleepWakeModel:
             seed (None | int, optional): Random seed value. If provided, random noise will be included in the model solution, scaled by parameter eps. Defaults to None.
             eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
         """
+        # Initialize _params as a fresh copy of the default parameters
+        self._params = self._DEFAULT_PARAMS_MODEL.model_dump()
+
         # update with any given config:
         if config is not None:
             if isinstance(config, CMAModelParams):

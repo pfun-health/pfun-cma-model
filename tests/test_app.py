@@ -42,18 +42,20 @@ def get_sample_dataset(fake_request, nrows=None):
     return response
 
 
-@patch("pfun_cma_model.data.read_sample_data")
+@patch("pfun_cma_model.routes.data.read_sample_data")
 def test_get_sample_dataset_route_integration(mock_read_sample_data, sample_df):
     # Integration test using TestClient
     mock_read_sample_data.return_value = sample_df
-    response = client.get("/data/sample/download?nrows=2")
+    response = client.get("/data/sample/download?nrows=2&media_type=json")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
     assert len(data) == 2
 
 
-def test_get_sample_dataset_route_invalid_nrows():
+@patch("pfun_cma_model.routes.data.read_sample_data")
+def test_get_sample_dataset_route_invalid_nrows(mock_read_sample_data, sample_df):
+    mock_read_sample_data.return_value = sample_df
     response = client.get("/data/sample/download?nrows=-5")
     assert response.status_code == 400
     assert "nrows" in response.text
