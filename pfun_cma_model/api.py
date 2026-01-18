@@ -1,39 +1,24 @@
 """PFun CMA Model API."""
 # import necessary modules and packages
-from pfun_cma_model.routes import llm as llm_routes
-from pfun_cma_model.routes import demo as demo_routes
-from pfun_cma_model.routes import params as params_routes
-from pfun_cma_model.routes import data as data_routes
-from pfun_cma_model.engine.cma_model_params import (
-    _BOUNDED_PARAM_KEYS_DEFAULTS,
-)
-import pfun_cma_model
-import importlib
-from pandas import DataFrame
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
-from pfun_cma_model.engine.cma import CMASleepWakeModel
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi import FastAPI, Request, Response, Body, Depends, Header
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from datetime import datetime
-import json
-import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
+import importlib
+import json
+import logging
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
-from fastapi import Body, Depends, FastAPI, Request, Response
+
+from fastapi import Body, Depends, FastAPI, Request, Response, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pandas import DataFrame
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+
+import pfun_cma_model
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_model_params import (
     _BOUNDED_PARAM_KEYS_DEFAULTS,
@@ -41,7 +26,13 @@ from pfun_cma_model.engine.cma_model_params import (
 )
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
-from pfun_cma_model.routes import dexcom as dexcom_routes
+from pfun_cma_model.routes import (
+    dexcom as dexcom_routes,
+    data as data_routes,
+    params as params_routes,
+    demo as demo_routes,
+    llm as llm_routes,
+)
 
 # Global variables and constants
 debug_mode: bool = get_settings().debug
@@ -298,29 +289,6 @@ async def run_model(
     return response
 
 
-async def run_at_time_func(
-    model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config
-) -> str:
-    """calculate the glucose signal for the given timeframe"""
-    logger.debug(
-        "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s",
-        t0,
-        t1,
-        n,
-        config,
-    )
-    bounded_params = {
-        k: v for k, v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS
-    }
-    model.update(bounded_params)
-    logger.debug("(run_at_time_func) Model parameters updated: %s", model.params)
-    logger.debug(f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
-    t = model.new_tvector(t0, t1, n)
-    df: DataFrame = model.calc_Gt(t=t)
-    output = df.to_json()
-    return output
-
-
 @app.post("/model/run-at-time")
 async def run_at_time_route(
     t0: float | int,
@@ -344,6 +312,13 @@ async def run_at_time_route(
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
+
+        # Import local function to avoid circular dependency if I moved it to stream.py
+        # But wait, stream.py imports cma which is fine.
+        # Ideally I should import it from stream.py or a new ops.py
+        # For now, I'll use the one I moved to stream.py
+        from pfun_cma_model.stream import run_at_time_func
+
         output = await run_at_time_func(model, t0, t1, n, **config_dict)
         return output
     except Exception as err:
@@ -403,15 +378,26 @@ PFunSocketIOSession = importlib.import_module(
 PFunWebsocketNamespace = importlib.import_module(
     "pfun_cma_model.routes.ws"
 ).PFunWebsocketNamespace
-pfun_sio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
+
+# Consolidated Socket.IO session instantiation
+socketio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
+pfun_sio_session = socketio_session # alias for backward compatibility
 
 
 @app.get("/health/ws/run-at-time")
 async def health_check_run_at_time():
     """Health check endpoint for the 'run-at-time' WebSocket functionality."""
     logger.debug("Health check for 'run-at-time' WebSocket endpoint accessed.")
-    # @todo: implement further health check logic as needed
-    return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
+
+    # Simple check if the socketio server is set
+    if socketio_session.sio is not None:
+         return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
+    else:
+         return Response(
+            content=json.dumps({"status": "error", "message": "'run-at-time' WebSocket is NOT running."}),
+            status_code=503,
+            headers={"Content-Type": "application/json"},
+        )
 
 
 # -- Model Fitting Endpoints --
@@ -453,10 +439,11 @@ async def fit_model_to_data(
             exc_info=False,
         )
         error_response = Response(
-            content={
+            content=json.dumps({
                 "error": "failed to fit data. See error message on server log.",
                 "exception": str(exc),
-            },
+                "exception_type": type(exc).__name__
+            }),
             status_code=500,
             headers={"Content-Type": "application/json"},
         )
@@ -467,7 +454,3 @@ async def fit_model_to_data(
         headers={"Content-Type": "application/json"},
     )
     return response
-
-
-# Setup the Socket.IO session
-socketio_session = PFunSocketIOSession(app)

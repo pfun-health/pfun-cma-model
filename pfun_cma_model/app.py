@@ -1,8 +1,8 @@
 """pfun_cma_model/app.py : pfun-cma-model fastapi app definition."""
 import pfun_cma_model.api as api_core
 
-# monkey-patch for the fastapi app
+# Export the FastAPI app from api_core
 app = api_core.app
 
-# socket-io session
+# Export the socket-io session from api_core
 socketio_session = api_core.socketio_session

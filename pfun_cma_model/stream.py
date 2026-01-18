@@ -24,6 +24,29 @@ async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:
         yield line.strip()  # Yield the line, removing any extra whitespace
 
 
+async def run_at_time_func(
+    model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config
+) -> str:
+    """calculate the glucose signal for the given timeframe"""
+    logger.debug(
+        "(run_at_time_func) Running model at time: t0=%s, t1=%s, n=%s, config=%s",
+        t0,
+        t1,
+        n,
+        config,
+    )
+    bounded_params = {
+        k: v for k, v in config.items() if k in _BOUNDED_PARAM_KEYS_DEFAULTS
+    }
+    model.update(bounded_params)
+    logger.debug("(run_at_time_func) Model parameters updated: %s", model.params)
+    logger.debug(f"(run_at_time_func) Generating time vector<{t0}, {t1}, {n}>...")
+    t = model.new_tvector(t0, t1, n)
+    df: DataFrame = model.calc_Gt(t=t)
+    output = df.to_json()
+    return output
+
+
 async def stream_run_at_time_func(
     model: CMASleepWakeModel, t0: float | int, t1: float | int, n: int, **config
 ) -> AsyncGenerator[str, None]:
