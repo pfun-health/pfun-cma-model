@@ -1,7 +1,7 @@
 import concurrent.futures
 import logging
 import os
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -15,6 +15,7 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 @dataclass
 class PFunCMAParamsGridResult:
     """result object for grid search"""
+
     param_keys: list[str]
     param_values: list[float | int]
     result: pd.DataFrame
@@ -28,23 +29,22 @@ class PFunCMAParamsGridResult:
 @dataclass
 class PFunCMAParamsGridCollator:
     """Collates parameters, solutions from pfun grid search."""
+
     raw_results: list[PFunCMAParamsGridResult]
 
     def __post_init__(self):
         """Convert the dataframes to pyarrow tables.
-        
+
         :param self: current instance
         """
-        self.df_params = pd.concat([r.params for r in self.raw_results]).reset_index(drop=True)
-        self.df_params.name = "params"
-        self.params = pa.Table.from_pandas(self.df_params.to_frame())
-        self.df_solns = pd.concat([r.result for r in self.raw_results])
-        self.solns = pa.Table.from_pandas(self.df_solns)
-        self.table = pa.Table.from_pylist(
-            pd.DataFrame(
-            {"params": self.params, "solns": self.solns}
-            ).to_dict(orient="records")
+        self.df_params: pd.DataFrame = pd.concat([r.params for r in self.raw_results]).reset_index(  # type: ignore
+            drop=True
         )
+        self.params = pa.Table.from_pandas(self.df_params.to_frame())
+        self.df_solns: pd.DataFrame = pd.concat([r.result for r in self.raw_results])
+        self.solns = pa.Table.from_pandas(self.df_solns)
+        # combine params and solns into a single table
+        self.table = self.params.join(self.solns)
 
 
 def compute_psample(params, N):
@@ -101,7 +101,8 @@ class PFunCMAParamsGrid:
 
     @Njobs.setter
     def Njobs(self, val):
-        """safely set the number of jobs (without exceeding 'os.cpu_count()')."""
+        """Safely set the number of jobs (without exceeding 'os.cpu_count()').
+        """
         _ncpus = os.cpu_count()
         if val < 1:
             self._Njobs = _ncpus
@@ -119,10 +120,10 @@ class PFunCMAParamsGrid:
 
     def run(self):
         """Run the parameter grid to produce a dataframe of results."""
-        logging.info("Running parameter grid of size: %02d...", len(self.pgrid))
+        logging.info("Running parameter grid of size: %02d...", len(self.pgrid))  # type: ignore
 
         # distribute tasks in parallel
-        with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:  # type: ignore
             future_to_params = {
                 pool.submit(compute_psample, params, N=self.N): params
                 for params in self.pgrid
@@ -132,9 +133,7 @@ class PFunCMAParamsGrid:
                 try:
                     self.solns.append(
                         PFunCMAParamsGridResult(
-                            list(params.keys()),
-                            list(params.values()),
-                            future.result()
+                            list(params.keys()), list(params.values()), future.result()  # type: ignore
                         )
                     )
                 except Exception as exc:

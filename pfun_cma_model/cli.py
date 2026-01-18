@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 
 import click
 import matplotlib.pyplot as plt
@@ -178,8 +179,8 @@ def run_param_grid(ctx, output_filetype, n, m):
     # create the output file path
     if not os.path.exists(ctx.obj["output_dir"]):
         os.makedirs(ctx.obj["output_dir"])
-    output_fpath = os.path.join(
-        ctx.obj["output_dir"], f"cma_paramgrid.{output_filetype}")
+    output_fpath = Path(ctx.obj["output_dir"]) / f"cma_paramgrid.{output_filetype}"  # type: ignore
+    # create the parameter grid
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
     pfun_grid = PFunCMAParamsGrid(N=n, m=m, include_mealtimes=True)
     # run the grid search
@@ -187,13 +188,14 @@ def run_param_grid(ctx, output_filetype, n, m):
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     grid_collated = pfun_grid.run()
     # output to the specified filepath (with `output_filetype`)
+    import pyarrow.parquet as pq
     match output_filetype:
         case "parquet":
-            import pyarrow.parquet as pq
-            pq.write_table(grid_collated.params, output_fpath)
+            pq.write_table(grid_collated.table, output_fpath)
         case "feather":
-            # df.to_feather(output_fpath)
-            raise NotImplementedError('not yet implemented')
+            pq.write_table(grid_collated.table, output_fpath)
+        case _:
+            raise ValueError(f"Unknown output file type: {output_filetype}")
     click.secho(f"...saved result to: '{output_fpath}'")
     click.secho("...done.")
 
