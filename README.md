@@ -3,7 +3,7 @@
 ## Links (Demos, Homepage)
 
 + [**PFun Homepage**](https://pfun.one/)
-+ [**Live `Canvas Wave` Web Demo**](https://cloud.tail38611b.ts.net/demo/canvas-wave)
++ [**Live `Canvas Wave` Web Demo**](https://pfun.one/demo/canvas-wave)
 
 ## Overview
 
