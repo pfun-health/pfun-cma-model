@@ -112,13 +112,19 @@ class CMASleepWakeModel:
 
     def update_bounds(
         self,
-        keys=[],
-        lb=[],
-        ub=[],
+        keys=None,
+        lb=None,
+        ub=None,
         keep_feasible: bool_ | Iterable[bool_] = Bounds.True_,
         return_bounds=False,
     ):
         """Update the bounds of the model."""
+        if keys is None:
+            keys = []
+        if lb is None:
+            lb = []
+        if ub is None:
+            ub = []
         keys = [keys] if isinstance(keys, str) else keys
         lb = [float(lb)] if isinstance(lb, (float, int)) else lb
         ub = [float(ub)] if isinstance(ub, (float, int)) else ub
