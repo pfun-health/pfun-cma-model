@@ -10,15 +10,49 @@ from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 
-"""TODO:
+"""
+TODO:
+=====
+
+# Algorithm overview
+
+## Generate Valid Parameters (real data -> ϑ_p)
+
+[[START]] --> Generate_Parameters_Corresponding_To_Real_Data(
+  github:pfun-health/pfun-data
+)
+|
+|------> Generate_DeltaTheta { EndocrineExpertModel } (
+Generate the tip (delta_descr), therapeutic potential (delta_theta))
+ \-----> Store_ContextVector( ChromaDB ; {
+  theta_original,delta_theta,description,delta_description }
+)
+\--> [[END]]
+
+## Inference RAFT (User Query)
+
+    [[START]]
+    |--> "Tip for me (descr_i, context_i, Optional theta_fitt_i) ...?"
+    |
+     \------> <chromadb>.vector_search( UserProvidedContext )
+    |-> "...Here's your tip (Final_description, ...<context_vector_indexing>)" [[END]]
+
+
+
+----
+
+# TODO Notes
 
 + Enhance RAG with vector search: use chromadb (or duckdb, ...)
+
 + Split this into multiple endpoints, likely will use Cloudflare Worker for load balancing
 + Test with Ollama cloud LLMs (e.g., gpt-oss-20B)
-  + Develop an evaluation pipeline:
+
++ Develop an evaluation pipeline:
     + { TrainingDataset[VariationalParameterSpace, QualitativeDescription] }
-  + ...then see how performance holds up with fewer parameters, quantization.
-  + ...eventually fine-tuning should happen naturally from this process. 
+     + ...then see how performance holds up with fewer parameters, quantization.
+     + ...eventually fine-tuning should happen naturally from this process.
+
 """
 
 
