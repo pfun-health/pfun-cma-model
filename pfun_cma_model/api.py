@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Annotated, Mapping, Optional
 
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -262,7 +263,8 @@ async def github_button():
     Proxy endpoint that returns the button HTML.
     """
     target_url = "https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    import httpx
+    async with httpx.AsyncClient(timeout=30.0) as client:
         try:
             upstream = await client.get(target_url, follow_redirects=True)
         except httpx.RequestError as exc:
@@ -275,8 +277,12 @@ async def github_button():
     content = upstream.text
 
     # Return as HTML, letting your own CORS middleware decide who can embed it
-    return HTMLResponse(content=content)
-
+    return HTMLResponse(
+        content=content,
+        headers={
+            'Cross-Origin-Embedder-Policy': 'credentialless'
+        }
+    )
 
 
 # -- CMA Model endpoints --
