@@ -8,9 +8,10 @@ class BaseGenerativeModel:
     #: The default model to use if no model is specified.
     _default_model: Optional[str] = None
 
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: Optional[str] = None, **kwargs):
         self._model = model if model is not None else self._default_model
         self._client = self.setup_genai_client()
+        self._extra_kwds = kwargs or {}
 
     def __call__(
         self, model: Optional[str] = None, contents: Optional[list | str] = None

@@ -27,7 +27,7 @@ Generate the tip (delta_descr), therapeutic potential (delta_theta))
  \\-----> Store_ContextVector( ChromaDB ; {
   theta_original,delta_theta,description,delta_description }
 )
-\--> [[END]]
+\\--> [[END]]
 
 ## Inference RAFT (User Query)
 
@@ -36,8 +36,6 @@ Generate the tip (delta_descr), therapeutic potential (delta_theta))
     |
      \\------> <chromadb>.vector_search( UserProvidedContext )
     |-> "...Here's your tip (Final_description, ...<context_vector_indexing>)" [[END]]
-
-
 
 ----
 
@@ -68,7 +66,21 @@ def _import_genai_with_backend(llm_backend: LLMBackendChoice):
 
 
 # Dynamically import the LLM generative backend (settings.llm_backend)
-GenerativeModel = _import_genai_with_backend(get_settings().llm_backend)
+def init_gen_model(**kwds):
+    kwargs = dict(
+        options={
+            "temperature": 0,
+            "seed": 23
+        }
+    )
+    kwargs.update(kwds)
+    GenerativeModel = _import_genai_with_backend(get_settings().llm_backend)
+    model = GenerativeModel()
+    model._extra_kwds.update(kwargs)
+    return model
+
+
+GenerativeModel = init_gen_model
 
 
 async def _parse_generated_response(response: Any | str) -> str:
@@ -128,6 +140,7 @@ async def _call_llm_for_json(prompt: str) -> dict:
         json_str = json_str.replace("\\n", "").replace("    ", "")
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
+        logging.debug("raw response text: %s", resp_text)
         logging.error("Failed to parse LLM API Response. %s", e, exc_info=True)
         raise Exception(f"Failed to parse LLM API response: {e}")
 

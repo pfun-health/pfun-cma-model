@@ -83,15 +83,23 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         if model is None:
             model = self._model
         async for part in await self._client.chat(
-            model=model, messages=messages, stream=True
+            model=model,
+            messages=messages,
+            stream=True,  # with streaming enabled
+            **self._extra_kwds
         ):
             yield part["message"]["content"]
 
     async def chat(self, messages, model=None):
         if model is None:
             model = self._model
+        logging.debug("Extra arguments (called on ollama.chat): %s", self._extra_kwds)
         response = await asyncio.ensure_future(
-            self._client.chat(model=model, messages=messages)
+            self._client.chat(
+                model=model,
+                messages=messages,
+                **self._extra_kwds
+            )
         )
         return response
 

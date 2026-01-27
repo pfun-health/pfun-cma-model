@@ -45,39 +45,6 @@ def launch(ctx, host, port, reload, args):
     run_app(host, port, reload=reload, debug=True, extra_args=list(args))
 
 
-@cli.command(context_settings=dict(ignore_unknown_options=True))
-@click.option(
-    "--query",
-    default="A healthy individual.",
-    help="Specify a query describing the desired llm-generated scenario.",
-    required=False,
-)
-@click.pass_context
-def generate_scenario(ctx, query):
-    """Generate a realistic pfun scenario (using selected LLM backend)."""
-    from pfun_cma_model.llm import generate_scenario as gen_scene
-    click.secho(
-        f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
-    )
-    try:
-        loop = asyncio.get_running_loop()
-        response = loop.run_until_complete(gen_scene(query=query))
-    except RuntimeError:
-        response = asyncio.run(gen_scene(query=query))
-
-    # pretty-print the output for CLI
-    output_json_formatted = json.dumps(response, indent=4)
-    click.secho(output_json_formatted)
-
-    # # # ####################
-    # Save result to database.
-    # # # ####################
-
-    df_result = pd.DataFrame([response], index=[0])
-    df_result.to_parquet(os.path.join(
-        ctx.obj["output_dir"], "cma_scenes.parquet"))
-
-
 def process_kwds(ctx, param, value):
     if param.name != "opts":
         return value
@@ -156,6 +123,50 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
         plt.close("all")
 
 
+@cli.command(context_settings=dict(ignore_unknown_options=True))
+@click.option(
+    "--query",
+    default="A healthy individual.",
+    help="Specify a query describing the desired llm-generated scenario.",
+    required=False,
+)
+@click.pass_context
+def generate_scenario(ctx, query):
+    """Generate a realistic pfun scenario (using selected LLM backend)."""
+    from pfun_cma_model.llm import generate_scenario as gen_scene
+    click.secho(
+        f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
+    )
+    try:
+        loop = asyncio.get_running_loop()
+        response = loop.run_until_complete(gen_scene(query=query))
+    except RuntimeError:
+        response = asyncio.run(gen_scene(query=query))
+
+    # pretty-print the output for CLI
+    output_json_formatted = json.dumps(response, indent=4)
+    click.secho(
+        output_json_formatted.encode("utf8").decode("unicode_escape"), fg="green", bold=True)
+
+    # # # ####################
+    # Save result to database.
+    # # # ####################
+
+    df_result = pd.DataFrame([response], index=[0])
+    df_result.to_parquet(os.path.join(
+        ctx.obj["output_dir"], "cma_scenes.parquet"))
+    # save to duckdb database
+    import duckdb
+    with duckdb.connect(database='results/duckdb.db') as connection:
+        # create the table if it doesn't yet exist
+        table_id = "cma_scenes"
+        connection.sql(
+            f"CREATE TABLE IF NOT EXISTS {table_id} AS SELECT * FROM df_result")
+        # update the table otherwise
+        connection.sql(f"INSERT INTO {table_id} SELECT * FROM df_result")
+        connection.commit()
+
+
 @cli.command()
 @click.option(
     "-N", "-n",
@@ -213,18 +224,21 @@ def run_param_grid(ctx, n, m, params):
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     pfun_grid.run()
     # get the results as a dataframe
-    df_grid: pd.DataFrame = pfun_grid.collection
+    df_grid: pd.DataFrame = pfun_grid.collection  # type: ignore
     # save to duckdb database
     import duckdb
     with duckdb.connect(database='results/duckdb.db') as connection:
         # create the table if it doesn't yet exist
-        connection.sql("CREATE TABLE IF NOT EXISTS cma_pgrid AS SELECT * FROM df_grid")
+        table_id = "cma_pgrid"
+        connection.sql(
+            f"CREATE TABLE IF NOT EXISTS {table_id} AS SELECT * FROM df_grid")
         # update the table otherwise
-        connection.sql("INSERT INTO cma_pgrid SELECT * FROM df_grid")
+        connection.sql(f"INSERT INTO {table_id} SELECT * FROM df_grid")
         connection.commit()
     # save to parquet
     df_grid.to_parquet(
-        os.path.join(ctx.obj["output_dir"], f"param_grid_{n:02d}x{m:02d}.parquet")
+        os.path.join(ctx.obj["output_dir"],
+                     f"param_grid_{n:02d}x{m:02d}.parquet")
     )
     click.secho("...done (saved to local database).")
 
