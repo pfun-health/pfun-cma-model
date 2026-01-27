@@ -152,14 +152,6 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 
 @cli.command()
 @click.option(
-    "--output-filetype",
-    "--output-ftype",
-    "-F",
-    type=click.Choice(('parquet', 'feather')),
-    default='parquet',
-    help="Output file type.",
-)
-@click.option(
     "-N", "-n",
     type=click.INT,
     default=100,
@@ -172,14 +164,13 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     help="Parameter grid width (in span of parameter values).",
 )
 @click.pass_context
-def run_param_grid(ctx, output_filetype, n, m):
+def run_param_grid(ctx, n, m):
     """Run a parameter grid search for the PFun CMA model."""
     click.secho(f"Output directory: {ctx.obj['output_dir']}")
     click.secho("Running parameter grid search for the PFun CMA model...")
     # create the output file path
     if not os.path.exists(ctx.obj["output_dir"]):
         os.makedirs(ctx.obj["output_dir"])
-    output_fpath = Path(ctx.obj["output_dir"]) / f"cma_paramgrid.{output_filetype}"  # type: ignore
     # create the parameter grid
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
     pfun_grid = PFunCMAParamsGrid(N=n, m=m, include_mealtimes=True)
@@ -187,17 +178,7 @@ def run_param_grid(ctx, output_filetype, n, m):
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     grid_collated = pfun_grid.run()
-    # output to the specified filepath (with `output_filetype`)
-    import pyarrow.parquet as pq
-    match output_filetype:
-        case "parquet":
-            pq.write_table(grid_collated.table, output_fpath)
-        case "feather":
-            pq.write_table(grid_collated.table, output_fpath)
-        case _:
-            raise ValueError(f"Unknown output file type: {output_filetype}")
-    click.secho(f"...saved result to: '{output_fpath}'")
-    click.secho("...done.")
+    click.secho("...done (saved to 'pfun_common/data/chromadb'.")
 
 
 @cli.command()

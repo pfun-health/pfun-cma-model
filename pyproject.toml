@@ -41,6 +41,7 @@ dependencies = [
     "duckdb>=1.4.3",
     "fastapi-sso>=0.19.0",
     "python-jose[cryptography]>=3.5.0",
+    "chromadb>=1.4.1",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",

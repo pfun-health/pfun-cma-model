@@ -119,9 +119,11 @@ footer {
 }
 
 #canvas-container {
-  width: 100%;
-  height: max-content;
-  border: #333 solid 1px;
+    max-width: 100%;
+    min-width: 250px;
+    height: max-content;
+    max-height: 100%;
+    border: #333 solid 1px;
 }
 
 canvas #waveCanvas {

@@ -13,7 +13,7 @@ from typing import (
 )
 
 import pfun_path_helper  # type: ignore
-from numpy import array, linspace, ndarray
+from numpy import array, linspace, ndarray, nan
 from pydantic import BaseModel, ConfigDict, Field, field_serializer  # type: ignore
 from tabulate import tabulate  # type: ignore
 
@@ -27,7 +27,6 @@ __all__ = ["CMAModelParams", "CMABoundedParams", "QualsMap"]
 # import custom bounds types
 
 Bounds = bounds.Bounds  # necessary for typing (linter)
-# BoundsType = type[bounds.BoundsType]  # Removed because bounds.BoundsType is not defined
 
 _LB_DEFAULTS = (-12.0, 0.5, 0.1, 0.0, 0.0, -3.0)
 _MID_DEFAULTS = (0.0, 1.0, 1.0, 0.05, 0.0, 0.0)
@@ -36,12 +35,12 @@ _STEP_DEFAULTS = (0.05, 0.01, 0.01, 0.01, 0.01, 0.01)
 _BOUNDED_PARAM_KEYS_DEFAULTS = ("d", "taup", "taug", "B", "Cm", "toff")
 _EPS = 0.1 + 1e-8
 _BOUNDED_PARAM_DESCRIPTIONS = (
-    "Time zone offset (hours)",
-    "Photoperiod length (hours)",
-    "Glucose response time constant",
-    "Glucose Bias constant (baseline glucose level)",
-    "Cortisol temporal sensitivity coefficient",
-    "Solar noon offset (effects of latitude)",
+    "Time zone offset; hours[time]",
+    "Photoperiod duration; hours[time]",
+    "Glucose meal-response time constant; dimensionless[time]",
+    "Glucose baseline constant; dimensionless[Glucose]",
+    "Cortisol sensitivity coefficient; dimensionless[Cortisol]",
+    "Solar-noon offset; hours[time]",
 )
 
 
@@ -80,6 +79,26 @@ class QualsMap:
 
 
 _DEFAULT_BOUNDS = Bounds(lb=_LB_DEFAULTS, ub=_UB_DEFAULTS, keep_feasible=Bounds.True_)
+
+
+class CMAModelParam(BaseModel):
+    """Defines a single CMA Model Parameter."""
+    name: str
+    value: float | int
+    serr: float
+    description: str
+
+
+class BoundedCMAModelParam(CMAModelParam):
+    """Defines a single *bounded* CMA Model Parameter."""
+    lb: int | float = Field(default=nan, aliases=["min"])
+    ub: int | float = Field(default=nan, aliases=["max"])
+    step: int | float = Field(default=nan)
+    
+    @property
+    def bounds(self):
+        return Bounds(lb=[self.lb], ub=[self.ub], keep_feasible=[True])
+
 
 
 class CMABoundedParams(Namespace):

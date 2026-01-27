@@ -2,57 +2,81 @@ import concurrent.futures
 import logging
 import os
 from dataclasses import dataclass
-
+import json
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import gzip
 from sklearn.model_selection import ParameterGrid
-
+import chromadb
 from pfun_cma_model.engine.cma import CMASleepWakeModel
+from pfun_cma_model.engine.cma_model_params import (
+    CMAModelParams,
+    BoundedCMAModelParam
+)
 
 
 @dataclass
 class PFunCMAParamsGridResult:
-    """result object for grid search"""
+    """Result object for grid search.
+
+    Mutability consistency not guaranteed.
+    """
 
     param_keys: list[str]
     param_values: list[float | int]
-    result: pd.DataFrame
+    soln: pd.DataFrame
 
     def __post_init__(self):
-        self.params = pd.Series(
-            {k: v for k, v in zip(self.param_keys, self.param_values)}
+        self.param_dict = dict(
+            zip(self.param_keys, self.param_values)
         )
+        self.params_json = json.dumps(self.param_dict)
+        self.params = CMAModelParams(**self.param_dict)
+        self.params_md = self.params.generate_markdown_table("md")
+
+    def get_markdown_document(self):
+        params_md = self.params_md
+        soln_md = self.soln.to_markdown()
+        return 
+
+    def get_soln_as_json(self) -> str:
+        return self.soln.to_json()
+
+    def get_soln_as_gzjson(self) -> bytes:
+        s = self.get_soln_as_json()
+        return gzip.compress(s)
 
 
-@dataclass
-class PFunCMAParamsGridCollator:
-    """Collates parameters, solutions from pfun grid search."""
-
-    raw_results: list[PFunCMAParamsGridResult]
-
-    def __post_init__(self):
-        """Convert the dataframes to pyarrow tables.
-
-        :param self: current instance
-        """
-        self.df_params: pd.DataFrame = pd.concat([r.params for r in self.raw_results]).reset_index(  # type: ignore
-            drop=True
-        )
-        _params = self.df_params.to_frame()
-        self.params = pa.Table.from_pandas(_params)
-        self.df_solns: pd.DataFrame = pd.concat([r.result for r in self.raw_results])
-        self.solns = pa.Table.from_pandas(self.df_solns)
-        # combine params and solns into a single table
-        self.table = self.params.join(self.solns)
-
-
-def compute_psample(params, N):
-    """compute from a single sample of parameters from the grid."""
+def compute_psample(params, N) -> pd.DataFrame:
+    """Compute the (CMA, Glucose) solution from a given parameter set."""
     cma = CMASleepWakeModel(config=params, N=N)
     out = cma.run()
     return out
+
+
+def get_db_client() -> chromadb.Client:
+    """get the chromadb client"""
+    from pfun_cma_model.data import get_chromadb_path
+    chroma_client = chromadb.PersistentClient(
+        path = str(get_chromadb_path()),
+    )
+    return chroma_client
+
+
+def collate_results(
+        results: list[PFunCMAParamsGridResult],
+        collection_id: str = "cma_results"
+) -> chromadb.Collection:
+    """Store results in chromadb database."""
+    chroma_client = get_db_client()
+    # create a collection with given ID as the name
+    collection = chroma_client.create_collection(name=collection_id)
+    # add the results, labeled according to compressed 
+    collection.add(
+        ids=[result.params_json for result in results],
+        documents=[result.get_soln_as_json() for result in results]
+    )
+    return collection
 
 
 class PFunCMAParamsGrid:
@@ -94,7 +118,7 @@ class PFunCMAParamsGrid:
         # solutions vector (temporary storage)
         self.solns = []
         # for the output (collated)
-        self.grid_collated = None
+        self.grid = None
 
     @property
     def Njobs(self):
@@ -139,7 +163,7 @@ class PFunCMAParamsGrid:
                     )
                 except Exception as exc:
                     logging.error("failed to compute", exc_info=exc)
-        # collate to a single pyarrow table
-        self.grid_collated = PFunCMAParamsGridCollator(self.solns)
-        logging.info("...done.")
-        return self.grid_collated
+        # collate to a single database
+        logging.info("...done searching parameter grid and collating results.")
+        self.grid = collate_results(self.solns)
+        return self.grid

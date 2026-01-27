@@ -10,9 +10,6 @@ from typing import Optional
 
 import httpx
 import pandas as pd
-import pfun_path_helper as pph  # type: ignore
-
-pph.get_lib_path("pfun_cma_model")
 from pfun_common.settings import get_settings
 from pfun_common.utils import setup_logging
 

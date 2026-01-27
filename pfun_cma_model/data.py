@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 
 from pfun_cma_model.engine.data_utils import format_data
@@ -7,7 +8,15 @@ __all__ = [
     "format_data",
     "PFunDataPaths",
     "read_sample_data",
+    "get_chromadb_path",
 ]
+
+
+def get_chromadb_path() -> Path:
+    """Return the chromadb database directory path."""
+    from pfun_cma_model.misc.pathdefs import PFunDataPaths
+    data_dirpath = Path(PFunDataPaths().pfun_data_dirpath)
+    return data_dirpath / "chromadb"
 
 
 def read_sample_data(convert2json: bool) -> pd.DataFrame | str:

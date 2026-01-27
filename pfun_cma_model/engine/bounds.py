@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Sequence, Type
 
 import numpy as np
@@ -208,7 +209,16 @@ class Bounds:
         lb: np.ndarray = np.asarray(lb, dtype=float)
         ub: np.ndarray = np.asarray(ub, dtype=float)
         keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
-        self._array = self._assemble_array(lb, ub, keep_feasible)
+
+        # throw error with extra verbiage if unexpected input format
+        try:
+            self._array = self._assemble_array(lb, ub, keep_feasible)
+        except Exception as handled_exception:
+            logging.error(
+                "Unable to handle values passed to Bounds() constructor!", exc_info=True)
+            raise handled_exception
+
+        # check that collated arrays are broadcastable
         self._input_validation()
 
     def __repr__(self):
