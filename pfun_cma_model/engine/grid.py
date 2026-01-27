@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import gzip
 from sklearn.model_selection import ParameterGrid
-import chromadb
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_model_params import (
     CMAModelParams,
@@ -54,29 +53,33 @@ def compute_psample(params, N) -> pd.DataFrame:
     return out
 
 
-def get_db_client() -> chromadb.Client:
-    """get the chromadb client"""
-    from pfun_cma_model.data import get_chromadb_path
-    chroma_client = chromadb.PersistentClient(
-        path = str(get_chromadb_path()),
+def get_db_client():
+    """get the database client"""
+    from pfun_cma_model.data import get_db_path
+    import duckdb
+    connection = duckdb.connect(
+        database = get_db_path()
     )
-    return chroma_client
+    return connection
 
 
 def collate_results(
         results: list[PFunCMAParamsGridResult],
         collection_id: str = "cma_results"
-) -> chromadb.Collection:
-    """Store results in chromadb database."""
-    chroma_client = get_db_client()
+):
+    """Store results in database."""
+    connection = get_db_client()
     # create a collection with given ID as the name
-    collection = chroma_client.create_collection(name=collection_id)
-    # add the results, labeled according to compressed 
-    collection.add(
-        ids=[result.params_json for result in results],
-        documents=[result.get_soln_as_json() for result in results]
+    df_collection = pd.DataFrame.from_dict(
+        dict(
+            ids=[result.params_json for result in results],
+            documents=[result.get_soln_as_json() for result in results]
+        )
     )
-    return collection
+    connection.sql(
+        f"CREATE TABLE IF NOT EXISTS {collection_id} as SELECT * FROM df_collection"
+    )
+    return connection
 
 
 class PFunCMAParamsGrid:
@@ -117,8 +120,8 @@ class PFunCMAParamsGrid:
         self.pgrid = ParameterGrid(pdict)
         # solutions vector (temporary storage)
         self.solns = []
-        # for the output (collated)
-        self.grid = None
+        # database client
+        self.client = None
 
     @property
     def Njobs(self):
@@ -165,5 +168,9 @@ class PFunCMAParamsGrid:
                     logging.error("failed to compute", exc_info=exc)
         # collate to a single database
         logging.info("...done searching parameter grid and collating results.")
-        self.grid = collate_results(self.solns)
-        return self.grid
+        self.client = collate_results(self.solns)
+        return self
+
+    def __del__(self):
+        if hasattr(self.client, 'close'):
+            self.client.close()

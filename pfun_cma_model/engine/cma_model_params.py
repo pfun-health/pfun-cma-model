@@ -91,8 +91,8 @@ class CMAModelParam(BaseModel):
 
 class BoundedCMAModelParam(CMAModelParam):
     """Defines a single *bounded* CMA Model Parameter."""
-    lb: int | float = Field(default=nan, aliases=["min"])
-    ub: int | float = Field(default=nan, aliases=["max"])
+    lb: int | float = Field(default=nan)
+    ub: int | float = Field(default=nan)
     step: int | float = Field(default=nan)
     
     @property

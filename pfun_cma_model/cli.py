@@ -59,7 +59,7 @@ def launch(ctx, host, port, reload, args):
 )
 @click.pass_context
 def generate_scenario(ctx, query):
-    """Generate a realistic pfun scenario (using Google AI Studio)."""
+    """Generate a realistic pfun scenario (using selected LLM backend)."""
     from pfun_cma_model.llm import generate_scenario as gen_scene
     click.secho(
         f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
@@ -69,7 +69,25 @@ def generate_scenario(ctx, query):
         response = loop.run_until_complete(gen_scene(query=query))
     except RuntimeError:
         response = asyncio.run(gen_scene(query=query))
-    click.secho(json.dumps(response, indent=4))
+
+    # pretty-print the output for CLI
+    output_json_formatted = json.dumps(response, indent=4)
+    click.secho(output_json_formatted)
+
+    # # # ####################
+    # Save result to database.
+    # # # ####################
+
+    df_result = pd.DataFrame([response], index=[0])
+    from pfun_cma_model.data import get_db_path
+    import duckdb
+    with duckdb.connect(database = str(get_db_path()), read_only=False) as connection:
+        table_id = "cma_raw_scenario"
+        connection.sql(
+            f"SELECT * FROM df_result"
+        ).write_parquet(str(get_db_path()) + ".parquet")
+
+    return 
 
 
 def process_kwds(ctx, param, value):
