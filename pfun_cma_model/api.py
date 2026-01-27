@@ -256,6 +256,29 @@ def favicon():
     return Response(content=img, media_type="image/x-icon")
 
 
+@app.get("/github-button", include_in_schema=False)
+async def github_button():
+    """
+    Proxy endpoint that returns the button HTML.
+    """
+    target_url = "https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            upstream = await client.get(target_url, follow_redirects=True)
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502, detail=f"Upstream request failed: {exc}") from exc
+
+    if upstream.status_code != 200:
+        raise HTTPException(status_code=upstream.status_code, detail="Upstream returned error")
+
+    # Strip framing headers that would block the iframe
+    content = upstream.text
+
+    # Return as HTML, letting your own CORS middleware decide who can embed it
+    return HTMLResponse(content=content)
+
+
+
 # -- CMA Model endpoints --
 
 
