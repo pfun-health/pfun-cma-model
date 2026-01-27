@@ -1,17 +1,11 @@
 import asyncio
 import json
 import os
-from pathlib import Path
 
 import click
 import matplotlib.pyplot as plt
 import pandas as pd
-
-# Ignore mypy for the next line (this is my repo)
-import pfun_path_helper as pph  # type: ignore
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
-pph.get_lib_path("pfun_cma_model")
 
 
 @click.group()
@@ -24,6 +18,7 @@ def cli(ctx):
     # for sample data and output directory
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
+    import pfun_path_helper as pph  # type: ignore
     ctx.obj["output_dir"] = os.path.abspath(
         os.path.join(pph.get_lib_path("pfun_cma_model"), "../results")
     )
@@ -79,15 +74,8 @@ def generate_scenario(ctx, query):
     # # # ####################
 
     df_result = pd.DataFrame([response], index=[0])
-    from pfun_cma_model.data import get_db_path
-    import duckdb
-    with duckdb.connect(database = str(get_db_path()), read_only=False) as connection:
-        table_id = "cma_raw_scenario"
-        connection.sql(
-            f"SELECT * FROM df_result"
-        ).write_parquet(str(get_db_path()) + ".parquet")
-
-    return 
+    df_result.to_parquet(os.path.join(
+        ctx.obj["output_dir"], "cma_scenes.parquet"))
 
 
 def process_kwds(ctx, param, value):
@@ -196,7 +184,7 @@ def run_param_grid(ctx, n, m):
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     grid_collated = pfun_grid.run()
-    click.secho("...done (saved to 'pfun_common/data/chromadb'.")
+    click.secho("...done (saved to local database.")
 
 
 @cli.command()

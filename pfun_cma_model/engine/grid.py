@@ -170,7 +170,3 @@ class PFunCMAParamsGrid:
         logging.info("...done searching parameter grid and collating results.")
         self.client = collate_results(self.solns)
         return self
-
-    def __del__(self):
-        if hasattr(self.client, 'close'):
-            self.client.close()
