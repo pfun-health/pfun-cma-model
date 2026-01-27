@@ -270,7 +270,7 @@ class CMASleepWakeModel:
             self.rng = default_rng(seed=self.seed)
 
     @property
-    def eps(self) -> float:
+    def eps(self) -> float | None:
         """eps : float
         Random noise scale ("epsilon").
         """
