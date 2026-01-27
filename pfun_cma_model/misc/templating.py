@@ -1,15 +1,17 @@
 """
 PFun CMA Model - Templating utilities
 """
+
 import logging
 from pathlib import Path
 from typing import Any
-
+import urllib.parse as urlparse
 from fastapi.templating import Jinja2Templates
 from jinja2 import pass_context
 import pfun_path_helper as pph  # type: ignore
+
 pph.append_path(Path(__file__).parent.parent)
-from pfun_common.settings import get_settings
+from pfun_common.settings import get_settings  # type: ignore
 
 
 @pass_context
@@ -19,8 +21,19 @@ def https_url_for(context: dict, name: str, **path_params: Any) -> str:
     ref: https://waylonwalker.com/thoughts-223
     """
     request = context["request"]
+    # initially get the original url (possibly http, possibly https)
     http_url = request.url_for(name, **path_params)
-    return str(http_url).replace("http", "https", 1)
+    url_pieces = urlparse.urlsplit(http_url)
+    # ensure the scheme is correct
+    valid_pieces = urlparse.SplitResult(
+        "https",
+        url_pieces.netloc,
+        url_pieces.path,
+        url_pieces.query,
+        url_pieces.fragment
+    )
+    # return a string with the corresponding verified pieces
+    return urlparse.urlunsplit(valid_pieces)
 
 
 def get_templates() -> Jinja2Templates:
@@ -30,7 +43,9 @@ def get_templates() -> Jinja2Templates:
         Jinja2Templates: The Jinja2 templates object.
     """
     debug_mode: bool = get_settings().debug
-    templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
+    templates = Jinja2Templates(
+        directory=Path(__file__).parent.parent / "templates"
+    )
     templates.env.globals["https_url_for"] = https_url_for
     # For DEV, use the default url_for, unless explicitly specified
     # For PROD, use https

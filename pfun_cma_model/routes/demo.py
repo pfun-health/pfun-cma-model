@@ -140,10 +140,10 @@ async def demo_run_at_time(
     }
     logger.debug("Demo context: %s", str(context_dict))
     context = PFunDemoRoutesContext(**context_dict)
-    context = context.model_dump()
+    context_output = context.model_dump()
     return templates.TemplateResponse(
         "run-at-time-demo.html.jinja2",
-        context=context,
+        context=context_output,
         headers={"Content-Type": "text/html"},
     )
 
