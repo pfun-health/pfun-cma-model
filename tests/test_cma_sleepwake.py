@@ -96,3 +96,22 @@ class TestCMASleepWakeModel:
             "toff": 0.0,
         }
         assert params == expected_dict
+
+    def test_cma_separate_instances_retain_statehood(self):
+        from pfun_cma_model.engine.cma import CMASleepWakeModel
+
+        # create two instances of the cma sleep-wake model
+        model = CMASleepWakeModel()
+        model1 = CMASleepWakeModel()
+
+        # update the taug parameter on the first instance
+        model.update(taug=1.5)
+
+        taug_expected = 1.5
+        taug1_expected = 1.0
+        
+        taug = model.taug
+        taug1 = model1.taug
+        
+        assert taug == taug_expected
+        assert taug1 == taug1_expected
