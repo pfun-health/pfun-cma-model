@@ -195,22 +195,22 @@ class CMASleepWakeModel:
 
     @property
     def params(self) -> CMAModelParams:
-        """Return the current parameters as a CMAModelParams object."""
-        params_dict = {k: self._params[k] for k in self.param_keys}  # preserve order
-        return CMAModelParams(**params_dict)
+        """Return the current parameters as a CMAModelParams object.
 
-    # class-level private storage of parameters
-    _params: Dict = CMAModelParams().model_dump()
+        Returns a deep copy to prevent accidental mutation of the internal state.
+        To update the parameters, use the `update` method or setting properties directly.
+        """
+        return self._params.model_copy(deep=True)
 
     def new_tvector(self, t0: int | float, t1: int | float, n: int) -> ndarray:
         return self.params.new_tvector(t0, t1, n)
 
     def __getitem__(self, key):
         """Get parameter value by key."""
-        return getattr(self.params, key)
+        return getattr(self._params, key)
 
     @params.setter  # type: ignore
-    def params(self, value):
+    def params(self, value: CMAModelParams):
         self._params = value
 
     @property
@@ -235,15 +235,15 @@ class CMASleepWakeModel:
             eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
         """
         # Initialize _params as a fresh copy of the default parameters
-        self._params = self._DEFAULT_PARAMS_MODEL.model_dump()
+        self._params: CMAModelParams = self._DEFAULT_PARAMS_MODEL.model_copy(deep=True)
 
         # update with any given config:
         if config is not None:
             if isinstance(config, CMAModelParams):
                 config = config.model_dump()
-            self._params.update(config)
+            self._params.update(**config)  # type: ignore
         # update with any given kwds:
-        self._params.update(kwds)
+        self._params.update(**kwds)
         # Setup bounds (for bounded params):
         self.bounds = copy.copy(self._DEFAULT_PARAMS_MODEL.bounds)
         if all(
@@ -288,22 +288,22 @@ class CMASleepWakeModel:
         """tM : ndarray
         Meal times (hours).
         """
-        return array(self.params.tM)  # type: ignore
+        return array(self._params.tM)  # type: ignore
 
     @tM.setter  # type: ignore
     def tM(self, value):
-        self.params.tM = array(value)  # type: ignore
+        self._params.tM = array(value)  # type: ignore
 
     @property
     def t(self) -> ndarray:
         """t : ndarray
         Time vector (decimal hours).
         """
-        return array(self.params.t)
+        return array(self._params.t)
 
     @t.setter  # type: ignore
     def t(self, value):
-        self.params.t = array(value)  # type: ignore
+        self._params.t = array(value)  # type: ignore
 
     @property
     def N(self) -> int:
@@ -312,11 +312,11 @@ class CMASleepWakeModel:
 
         Default to self.t.size.
         """
-        return int(self.params.N)
+        return int(self._params.N)
 
     @N.setter  # type: ignore
     def N(self, value):
-        self.params.N = int(value)
+        self._params.N = int(value)
 
     @property
     def bounded_params_as_dict(self) -> Dict:
@@ -403,17 +403,17 @@ class CMASleepWakeModel:
             new_inst.update(inplace=True, **kwds)
             return new_inst
         #: ! handle case in which taug was given as a vector initially
-        if "taug" in kwds and isinstance(getattr(self.params, "taug", None), Container):
+        if "taug" in kwds and isinstance(getattr(self._params, "taug", None), Container):
             taug_new = kwds.pop("taug")
             match isinstance(taug_new, Container):
                 case True:
                     #: ! replace current values elementwise if given a vector
-                    self.params["taug"] = broadcast_to(  # type: ignore
+                    self._params.taug = broadcast_to(  # type: ignore
                         taug_new, (self.n_meals,)
                     )
                 case False:  # ! else, taug is a scale: <old_taug> *= new_taug
-                    self.params["taug"] = array(  # type: ignore
-                        self.params["taug"], dtype=float
+                    self._params.taug = array(  # type: ignore
+                        self._params.taug, dtype=float
                     ) * float(taug_new)
         #: update all given params by updating the private dict directly
         self._params.update(**kwds)
