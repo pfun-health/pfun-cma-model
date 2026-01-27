@@ -41,6 +41,10 @@
             // show the modal
             modal.show();
 
+            // set modal body to fill frame
+            //$("#surveyModal iframe").css({"overflow-y": "visible"});
+            //$("#surveyModal .modal-body").css({"width": "100%", "overflow-y": "scroll"});
+
             setTimeout(async () => {
 
                 // Monitor iframe for navigation/redirect after form submission
@@ -80,10 +84,12 @@
         }
     };
 
-    window.addEventListener('DOMContentLoaded', function () {
-        // Show survey modal on page load
-        setupSurveyModal();
-    });
+    /*
+        window.addEventListener('DOMContentLoaded', function () {
+            // Show survey modal on page load
+            setupSurveyModal();
+        });
+    */
 
 </script>
 {% endmacro %}
@@ -96,7 +102,7 @@
             <div class="modal-header">
                 <h6 class="modal-title">PFun Digital Health ~ Beta Signup</h6>
             </div>
-            <div class="modal-body">
+            <div class="modal-body mw-100">
                 <iframe id="surveyFrame" name="surveyFrame" width="640" height="814" frameborder="0" marginheight="0"
                     marginwidth="0">Loading…
                 </iframe>

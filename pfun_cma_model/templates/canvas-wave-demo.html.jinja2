@@ -27,9 +27,9 @@
             {{ demos_common.render_form_controls_container(params) }}
 
             <!-- Chart Container -->
-            <div id="chart-container" class="col-lg-auto col-lg-4 p-1">
-                <div id="canvas-container">
-                    <canvas id="waveCanvas"></canvas>
+            <div id="chart-container" class="container-fluid vh-100">
+                <div id="canvas-container" class="container">
+                    <canvas id="waveCanvas" style="min-width: inherit; min-height: inherit;"></canvas>
                 </div>
                 <div id="message-list">
                     <h4>Log</h4>

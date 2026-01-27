@@ -1,31 +1,3 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  margin: 2em;
-  padding: 20px;
-}
-
-h1,
-h2,
-h3 {
-  color: #2c3e50;
-}
-
-a {
-  color: #2980b9;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-label,
-input {
-  margin: 0.3em;
-}
-
 #messages {
   margin-top: 1em;
   border: 1px solid #aaa;
@@ -84,9 +56,9 @@ input {
 
 .canvas-container {
   width: 100%;
+  height: 100vh;
   max-width: 900px;
   margin: auto;
-  height: 400px;
   border: #333 solid 1px;
 }
 
@@ -119,18 +91,16 @@ footer {
 }
 
 #canvas-container {
-    max-width: 100%;
-    min-width: 250px;
-    height: max-content;
-    max-height: 100%;
     border: #333 solid 1px;
+    min-width: 100vh;
+    min-height: 50vh;
 }
 
 canvas #waveCanvas {
-  width: 100%;
-  max-width: max-content;
   background-color: rgb(0, 25, 45);
   cursor: crosshair;
+  min-width: inherit;
+  min-height: inherit;
 }
 
 #messages {

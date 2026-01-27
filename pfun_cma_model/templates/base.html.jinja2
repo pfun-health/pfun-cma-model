@@ -34,13 +34,15 @@
   {{ google_tags.google_tags_body() }}
 
   <!-- insert survey modal html via macro -->
+  <div class="container-fluid">
   {{ survey_modal.survey_modal_html() }}
+  </div>
 
   <header>
     {% block navheader %}
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">PFun</a>
+        <a class="navbar-brand" href="/"><img src="/favicon.ico" width="50px"></a>
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBase"
           aria-controls="navbarBase" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -51,7 +53,7 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="/pitch" title="About PFun">About</a>
+              <a class="nav-link" aria-current="page" href="/pitch" target="_new" title="About PFun">About</a>
             </li>
             <!-- Notebooks dropdown -->
             <li id="notebooks-dropdown" class="nav-item dropdown">
