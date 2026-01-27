@@ -24,7 +24,7 @@ TODO:
 |
 |------> Generate_DeltaTheta { EndocrineExpertModel } (
 Generate the tip (delta_descr), therapeutic potential (delta_theta))
- \-----> Store_ContextVector( ChromaDB ; {
+ \\-----> Store_ContextVector( ChromaDB ; {
   theta_original,delta_theta,description,delta_description }
 )
 \--> [[END]]
@@ -34,7 +34,7 @@ Generate the tip (delta_descr), therapeutic potential (delta_theta))
     [[START]]
     |--> "Tip for me (descr_i, context_i, Optional theta_fitt_i) ...?"
     |
-     \------> <chromadb>.vector_search( UserProvidedContext )
+     \\------> <chromadb>.vector_search( UserProvidedContext )
     |-> "...Here's your tip (Final_description, ...<context_vector_indexing>)" [[END]]
 
 

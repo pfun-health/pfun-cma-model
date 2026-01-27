@@ -40,7 +40,8 @@ class PFunCMAParamsGridCollator:
         self.df_params: pd.DataFrame = pd.concat([r.params for r in self.raw_results]).reset_index(  # type: ignore
             drop=True
         )
-        self.params = pa.Table.from_pandas(self.df_params.to_frame())
+        _params = self.df_params.to_frame()
+        self.params = pa.Table.from_pandas(_params)
         self.df_solns: pd.DataFrame = pd.concat([r.result for r in self.raw_results])
         self.solns = pa.Table.from_pandas(self.df_solns)
         # combine params and solns into a single table
