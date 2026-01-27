@@ -1,58 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Demo</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
-</head>
+{% extends "base.html.jinja2" %}
+{% import "macros/demos_common.html.jinja2" as demos_common %}
+{% block title %}LLM Generate Scenario Demo{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+{% endblock %}
+
 <body>
-    <h1>LLM Demo</h1>
-    <p>Enter a plain English query to translate it into PFun CMA model parameters.</p>
-    <form id="query-form">
-      <textarea id="query-input" rows="10" cols="150"
-		placeholder="e.g., a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
-		value="a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
-		>
-        A patient with chronic stress that exacerbates the risk of glucose lows in the evening.
-      </textarea>
-        <br>
-        <button type="submit">Translate</button>
-    </form>
-    <h2>Parameters:</h2>
-    <div class="container-lg container grid flex p-2">
-        <pre id="response-output"></pre>
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock %}
+    </header>
+
+    <div id="content">
+	{% block content %}
+	<h1>LLM Demo</h1>
+	<h3>Input:</h3>
+	<p>Enter a plain English query to translate it into PFun CMA model parameters.</p>
+	<form id="query-form">
+	    <textarea id="query-input" rows="10" cols="150"
+			  placeholder="e.g., a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
+	    >A relatively healthy individual who likes to read.</textarea>
+            <button type="submit">Submit</button>
+	</form>
+	<hr />
+	<h3>Output:</h3>
+	<div class="container-lg container grid flex p-2">
+	    <div class="container d-flex flex p-2">
+		<pre id="response-output" class="text-wrap" style="width: 100em;"></pre>
+	    </div>
+	</div>
+
+	<script>
+         document.getElementById('query-form').addEventListener('submit', async (event) => {
+             event.preventDefault();
+             const query = document.getElementById('query-input').value;
+             const query_url = new URL(window.location.origin + "/llm/generate-scenario");
+             const responseOutput = document.getElementById('response-output');
+             responseOutput.textContent = 'Loading...';
+
+             try {
+                 query_url.searchParams.set('prompt', query);
+                 const response = await fetch(query_url.toString(), {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json'
+                     },
+                     body: null
+                 });
+
+                 if (!response.ok) {
+                     const error = await response.json();
+                     throw new Error(error.detail);
+                 }
+
+		 const data = await response.json();
+                 const str_content = JSON.stringify(data, null, 2);
+		 if(!str_content.startsWith("Err")) {
+		     responseOutput.textContent = str_content;
+		 } else {
+		     // there was an error otherwise
+		     throw new Error(str_content);
+		 }
+             } catch (error) {
+                 console.error(`Error: ${error.message}`);
+		 responseOutput.textContent =
+		     "Whoops. The server is busy right now... try again in a moment."
+		     " The page will refresh automatically in a few seconds...";
+		 setTimeout(() => {
+		     // reload the window (try again momentarily)
+		     window.location.reload();
+		 }, 3000);
+             }
+         });
+	</script>
+	{% endblock content %}
     </div>
-
-    <script>
-        document.getElementById('query-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const query = document.getElementById('query-input').value;
-            const query_url = new URL(window.location.origin + "/llm/generate-scenario");
-            const responseOutput = document.getElementById('response-output');
-            responseOutput.textContent = 'Loading...';
-
-            try {
-                query_url.searchParams.set('prompt', query);
-                const response = await fetch(query_url.toString(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: null
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail);
-                }
-
-                const data = await response.json();
-                responseOutput.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                responseOutput.textContent = `Error: ${error.message}`;
-            }
-        });
-    </script>
 </body>
 </html>

@@ -489,6 +489,27 @@ wheels = [
 ]
 
 [[package]]
+name = "fastapi-guard"
+version = "4.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cachetools" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "maxminddb" },
+    { name = "pydantic" },
+    { name = "redis" },
+    { name = "requests" },
+    { name = "starlette" },
+    { name = "typing-extensions" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b6/fd/7763d89d7053fd507ddc58f0cd33424ae95df906fa1111c0197d8a96f873/fastapi_guard-4.2.2.tar.gz", hash = "sha256:b20169e83fcf040038ce848f0f1f0d42c4c360227131468a4a4806c2cb5e900e", size = 97299, upload-time = "2025-12-02T02:52:28.759Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/58/c7094e95d6920d02cfa02599bdeeee42fe54cbe7d250ed85ce36ec96d067/fastapi_guard-4.2.2-py3-none-any.whl", hash = "sha256:0570383798513916e785e347417859ef16f6407108c23817e0fffd5f43bd2852", size = 130906, upload-time = "2025-12-02T02:52:27.501Z" },
+]
+
+[[package]]
 name = "fastapi-sso"
 version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1015,6 +1036,24 @@ wheels = [
 ]
 
 [[package]]
+name = "maxminddb"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b2/6e/6adbb0b2280a853e8b3344737fea5167e8a2a2ff67168555589b7278e2e8/maxminddb-3.0.0.tar.gz", hash = "sha256:9792b19625945dff146e2e3187f9e470b82330a912f7cea5581b8bd5af30da8b", size = 199784, upload-time = "2025-10-15T20:50:07.283Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/df/dec231686a814f9e279afb39f3e27091770d970964bb94e7bfc1fdf01428/maxminddb-3.0.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:bcf83c60a44ec5dfab9e5d3a0c2347ee429d31fa89f88aa283d8551fd5e2c37a", size = 54352, upload-time = "2025-10-15T20:48:51.488Z" },
+    { url = "https://files.pythonhosted.org/packages/14/e3/efb6d621a8940371ecbf393f84fde01f0521116bc281c40124292a593198/maxminddb-3.0.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:56856d0fadab323fb5dc3fa69bc4cb975242133cab1df2c710779738dadda75d", size = 36328, upload-time = "2025-10-15T20:48:52.85Z" },
+    { url = "https://files.pythonhosted.org/packages/51/e8/17cbe454829befb32fec83745141bb6f9ef0b593d53c4e333e938d83ed26/maxminddb-3.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:1bd05d919787719fc1026d53b0e7462cf0c389534620e407676ecf61c2d289bb", size = 36174, upload-time = "2025-10-15T20:48:53.874Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/1d/5492205210570d851d5a74f5c9c01022993edc74296eb792c890318eff25/maxminddb-3.0.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:29515dc3606d1d8fffdb4025dccf01c93d16651683e9c6d8611892a4c9f2566d", size = 101153, upload-time = "2025-10-15T20:48:55.013Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/07/f96b5e4fdfdd2cc7a9724f3fa40b6bc282c9d9bdcf85b1920a0dee50c00b/maxminddb-3.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:52b5edc32894643c93279de2d889c0b98906277e7e91cbba709bc55f5500ecca", size = 99465, upload-time = "2025-10-15T20:48:56.198Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/30/ef2c167277292ce360bcd2a11e0fa9fe2e4e67e7c7b49fff2eab7caae787/maxminddb-3.0.0-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:0a095ce04e404315f9d47a186a7d96b11a283430d811ba6b0530167233100b95", size = 98395, upload-time = "2025-10-15T20:48:57.489Z" },
+    { url = "https://files.pythonhosted.org/packages/04/c9/71ce286a4ba12ec74b094d1a627d57a306349f4f23ce66d3ec2eca045e9f/maxminddb-3.0.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:1d3645a44c392d9ffdea4d2252d70b2910eee47d56b8305da0c0923a63e895d6", size = 97320, upload-time = "2025-10-15T20:48:58.7Z" },
+    { url = "https://files.pythonhosted.org/packages/da/4a/3e3f24f876242dd53a8a95250669e2f08b8cd8bc4640e947c982efcdaca6/maxminddb-3.0.0-cp312-cp312-win32.whl", hash = "sha256:c0e6d54da5d85d38e674fee9b04b1ad9212c38cb57adcc7c86bb4ed71b2b6555", size = 35481, upload-time = "2025-10-15T20:49:00.755Z" },
+    { url = "https://files.pythonhosted.org/packages/71/de/56feda63d5d8d896c2dcfa6ef9754a429fa2c5353fa5f0c32ed1f46fa004/maxminddb-3.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:4931ee0cbba030e1b729599e485aca438b668432ccd1eb73770c93bbc38f2b60", size = 37295, upload-time = "2025-10-15T20:49:01.993Z" },
+    { url = "https://files.pythonhosted.org/packages/87/4a/87c86516dee431a9e6cdded7eb865b5b7fc7c73b17262a50c75e2da5c9b6/maxminddb-3.0.0-cp312-cp312-win_arm64.whl", hash = "sha256:f55fb5c607dc4ddab7eba67da92d75921ef7d8e682ab47d21935566dc6990021", size = 34263, upload-time = "2025-10-15T20:49:03.237Z" },
+]
+
+[[package]]
 name = "mdurl"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1354,7 +1393,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.160"
+version = "0.4.161"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -1362,6 +1401,7 @@ dependencies = [
     { name = "dotenv" },
     { name = "duckdb" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "fastapi-guard" },
     { name = "fastapi-sso" },
     { name = "graphql-core" },
     { name = "gunicorn" },
@@ -1440,6 +1480,7 @@ requires-dist = [
     { name = "duckdb", specifier = ">=1.4.4" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.116.1" },
     { name = "fastapi", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.115.12" },
+    { name = "fastapi-guard", specifier = ">=4.2.2" },
     { name = "fastapi-sso", specifier = ">=0.19.0" },
     { name = "graphql-core", specifier = ">=3.2.3" },
     { name = "gunicorn", specifier = ">=23.0.0" },
@@ -1500,7 +1541,7 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.52"
+version = "0.1.53"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "matplotlib" },
