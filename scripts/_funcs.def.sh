@@ -9,8 +9,7 @@ full_uv_sync() {
     uv sync \
        --reinstall \
        --all-extras \
-       --group ollama \
-       --group gradio
+       --group ollama
 }
 
 partial_uv_sync() {

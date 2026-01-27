@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.151"
+version = "0.4.153"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -87,10 +87,6 @@ google = [
 perplexity = [
     "perplexityai>=0.22.0",
 ]
-# gradio UI dependencies
-gradio = [
-    "gradio>=6.2.0",
-]
 dev = [
     "black>=25.12.0",
     "mkdocs>=1.6.1",
@@ -104,7 +100,6 @@ packages = [
     "pfun_cma_model", "pfun_cma_model.engine",
     "pfun_llm",
     "pfun_common", "pfun_common.utils", "pfun_common.settings",
-    "pfun-gradio"
 ]
 # package_data
 [tool.setuptools.package-data]
@@ -121,10 +116,4 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
 [tool.uv.sources]
-pfun-gradio = { workspace = true }
 pfun-common = { path = "./packages/pfun_common" }
-
-[tool.uv.workspace]
-members = [
-    "pfun-gradio",
-]

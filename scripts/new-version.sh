@@ -12,7 +12,6 @@ set -e
 bump_package_versions() {
 	# bump pfun-cma-model package version
 	uv version --bump patch --project pfun-cma-model &&
-	/usr/bin/env -S sh -c 'cd pfun_gradio && uv version --bump patch --project pfun-gradio && cd -' &&
 	/usr/bin/env -S sh -c 'cd packages/pfun_common && uv version --bump patch --project pfun-common && cd -'
 }
 
