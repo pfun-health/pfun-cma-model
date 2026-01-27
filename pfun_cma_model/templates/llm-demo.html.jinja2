@@ -33,7 +33,7 @@
             responseOutput.textContent = 'Loading...';
 
             try {
-                query_url.searchParams.set('query', query);
+                query_url.searchParams.set('prompt', query);
                 const response = await fetch(query_url.toString(), {
                     method: 'POST',
                     headers: {
