@@ -432,6 +432,22 @@ async def fit_model_to_data(
         if fit_result is None:
             raise ValueError("Fit result is None. Model fitting failed.")
         output = fit_result.model_dump_json()
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.error(
+            "Validation/Decoding error. Failed to fit to data. Exception:\n%s",
+            str(exc),
+            exc_info=False,
+        )
+        error_response = Response(
+            content=json.dumps({
+                "error": "Failed to fit data due to invalid input or configuration.",
+                "exception": str(exc),
+                "exception_type": type(exc).__name__
+            }),
+            status_code=400,
+            headers={"Content-Type": "application/json"},
+        )
+        return error_response
     except Exception as exc:
         logger.error(
             "Exception encountered. Failed to fit to data. Exception:\n%s",

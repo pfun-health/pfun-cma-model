@@ -151,7 +151,7 @@ class TestGenerateScenarioCommand:
     def test_generate_scenario_default_query(self, runner):
         """Test generate_scenario with default query."""
         mock_response = {'scenario': 'test scenario'}
-        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response):
+        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response, new_callable=MagicMock):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
                 result = runner.invoke(cli, ['generate-scenario'])
                 # Should output JSON
@@ -161,7 +161,7 @@ class TestGenerateScenarioCommand:
         """Test generate_scenario with custom query."""
         mock_response = {'scenario': 'custom scenario'}
         custom_query = "A patient with diabetes."
-        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response):
+        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response, new_callable=MagicMock):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
                 result = runner.invoke(cli, ['generate-scenario', '--query', custom_query])
                 assert result.exit_code == 0
@@ -173,7 +173,7 @@ class TestGenerateScenarioCommand:
             'glucose': [100, 110, 105],
             'cortisol': [10, 12, 11]
         }
-        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response):
+        with patch('pfun_cma_model.llm.generate_scenario', return_value=mock_response, new_callable=MagicMock):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
                 result = runner.invoke(cli, ['generate-scenario'])
                 # Should produce JSON output
