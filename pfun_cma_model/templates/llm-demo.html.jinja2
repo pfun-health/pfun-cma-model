@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Demo</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
 <body>
     <h1>LLM Demo</h1>
@@ -14,27 +14,32 @@
 		placeholder="e.g., a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
 		value="a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
 		>
+        A patient with chronic stress that exacerbates the risk of glucose lows in the evening.
       </textarea>
         <br>
         <button type="submit">Translate</button>
     </form>
     <h2>Parameters:</h2>
-    <pre id="response-output"></pre>
+    <div class="container-lg container grid flex p-2">
+        <pre id="response-output"></pre>
+    </div>
 
     <script>
         document.getElementById('query-form').addEventListener('submit', async (event) => {
             event.preventDefault();
             const query = document.getElementById('query-input').value;
+            const query_url = new URL("/llm/generate-scenario")
             const responseOutput = document.getElementById('response-output');
             responseOutput.textContent = 'Loading...';
 
             try {
-                const response = await fetch('/llm/translate-query', {
+                query_url.searchParams.set('query', query);
+                const response = await fetch(query_url.toString(), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ query })
+                    body: 
                 });
 
                 if (!response.ok) {
