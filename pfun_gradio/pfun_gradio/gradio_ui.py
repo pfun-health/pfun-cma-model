@@ -4,7 +4,6 @@ Uses Gradio for the interface. Hits the /llm/generate-scenario endpoint
 to generate a scenario based on user input.
 """
 
-import asyncio
 import logging
 from pathlib import Path
 
@@ -31,47 +30,6 @@ def get_default_description():
     return "The patient is a 45-year-old male with type 2 diabetes and a history of hypoglycemia."
 
 
-async def async_generate_parameters(
-    description: str, llm_gen_scenario_endpoint: str
-) -> str:
-    """
-    Asynchronously generate parameters for a scenario description.
-    :param description: Description
-    :param llm_gen_scenario_endpoint: Description
-    """
-    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
-    async with httpx.AsyncClient(timeout=30) as client:
-        try:
-            response = await client.post(
-                llm_gen_scenario_endpoint, json={"description": description}, timeout=27
-            )
-            if response.status_code == 200:
-                # Successful response (JSON object)
-                response_jdict = response.json()
-                description_text = response_jdict.get("qualitative_description", "")
-                import pandas as pd
-
-                parameters = response_jdict.get("parameters", {})
-                if parameters:
-                    param_df = pd.DataFrame.from_dict(parameters, orient="index")
-                    param_df.index.name = "Parameter"
-                    param_df.reset_index(inplace=True)
-                    formatted_params_table = param_df.to_markdown(index=False)
-                else:
-                    formatted_params_table = "😞 No parameters generated.\n"
-                formatted_response = (
-                    "## Description:\n"
-                    f"{description_text}\n\n"
-                    "## Generated Parameters:\n"
-                    f"{formatted_params_table}\n"
-                )
-                return formatted_response
-            else:
-                return f"Error: {response.status_code} - {response.text}"
-        except Exception as e:
-            return f"Request failed: {e}"
-
-
 def generate_parameters(description: str, llm_gen_scenario_endpoint: str) -> str:
     """
     Synchronously generate parameters for a scenario description.
@@ -81,8 +39,10 @@ def generate_parameters(description: str, llm_gen_scenario_endpoint: str) -> str
     logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     with httpx.Client(timeout=30) as client:
         try:
-            response = client.post(
-                llm_gen_scenario_endpoint, json={"description": description}, timeout=27
+            response = client.stream(
+                method="POST",
+                url=llm_gen_scenario_endpoint,
+                json={"description": description}
             )
             if response.status_code == 200:
                 # Successful response (JSON object)
@@ -116,29 +76,19 @@ def setup_gradio_ui(
 ):
     """Set up the Gradio demo interface using gr.Interface."""
 
-    async def async_interface_fn(
-        description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
-    ):
-        try:
-            return await async_generate_parameters(
-                description, llm_gen_scenario_endpoint
-            )
-        except asyncio.TimeoutError:
-            return "Request timed out. Please try again later."
-
     def interface_fn(
         description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
     ):
         try:
             return generate_parameters(description, llm_gen_scenario_endpoint)
-        except asyncio.TimeoutError:
-            return "Request timed out. Please try again later."
+        except Exception as exc:
+            return {"error": str(exc)}
 
     placeholder_text = "E.g., 'The patient has type 1 diabetes and struggle with high blood sugar after meals.'"
     default_value = get_default_description()
 
     iface = gr.Interface(
-        fn=async_interface_fn,
+        fn=interface_fn,
         inputs=gr.Textbox(
             value=default_value,
             label="Input Scenario Description <h4>(for best results, use the third-person tense)</h4>",
@@ -183,6 +133,7 @@ def launch_demo(
     server_port = settings.server_port
     endpoint = f"{server_scheme}://{server_name}:{server_port}/llm/generate-scenario"
     demo = setup_gradio_ui(llm_gen_scenario_endpoint=endpoint)
+    kwargs.update({"mcp_server": True})  # launch with mcp server endpoint
     return demo.launch(server_name=server_name, server_port=server_port, **kwargs)
 
 

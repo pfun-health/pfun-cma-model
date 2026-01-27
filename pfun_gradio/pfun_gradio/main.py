@@ -70,6 +70,7 @@ def setup_middleware(app: FastAPI):
             "http://localhost:8001",
             f"{settings.server_scheme}://{settings.server_host}:{settings.server_port}",
             f"{settings.gradio_server_scheme}://{settings.gradio_server_host}:{settings.gradio_server_port}",
+            "172.18.0.1"
         ],
         allow_credentials=True,
         allow_methods=["*"],

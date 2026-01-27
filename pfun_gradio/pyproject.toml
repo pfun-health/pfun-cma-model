@@ -5,7 +5,7 @@ description = "A Gradio interface for pfun"
 readme = "README.md"
 requires-python = "==3.12.11"
 dependencies = [
-    "gradio>=6.2.0",
+    "gradio[mcp]>=6.2.0",
     "pfun-path-helper>=0.1.4",
     "pfun-common",
 ]
