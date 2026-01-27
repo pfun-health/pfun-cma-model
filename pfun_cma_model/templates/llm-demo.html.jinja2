@@ -19,11 +19,13 @@
 	<h1>LLM Demo</h1>
 	<h3>Input:</h3>
 	<p>Enter a plain English query to translate it into PFun CMA model parameters.</p>
-	<form id="query-form">
-	    <textarea id="query-input" rows="10" cols="150"
-			  placeholder="e.g., a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
-	    >A relatively healthy individual who likes to read.</textarea>
-            <button type="submit">Submit</button>
+	<form id="query-form" class="form">
+	  <div class="form-group">
+	    <textarea
+	      id="query-input" rows="5" cols="50"
+	      placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning.</textarea>
+	  </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
 	</form>
 	<hr />
 	<h3>Output:</h3>
