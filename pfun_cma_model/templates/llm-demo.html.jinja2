@@ -28,7 +28,7 @@
         document.getElementById('query-form').addEventListener('submit', async (event) => {
             event.preventDefault();
             const query = document.getElementById('query-input').value;
-            const query_url = new URL("/llm/generate-scenario")
+            const query_url = new URL(window.location.origin + "/llm/generate-scenario");
             const responseOutput = document.getElementById('response-output');
             responseOutput.textContent = 'Loading...';
 
@@ -41,7 +41,7 @@
                     },
                     body: null
                 });
-                
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.detail);
