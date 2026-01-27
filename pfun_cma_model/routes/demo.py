@@ -78,6 +78,14 @@ def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templ
     )
 
 
+@router.get("/llm")
+def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+    context = PFunDemoRoutesContext(request=request).model_dump()
+    return templates.TemplateResponse(
+        "llm-demo.html.jinja2", context=context
+    )
+
+
 @router.get("/data-stream")
 def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
