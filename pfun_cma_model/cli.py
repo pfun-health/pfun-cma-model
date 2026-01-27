@@ -160,7 +160,7 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 @click.option(
     "-N", "-n",
     type=click.INT,
-    default=100,
+    default=6,
     help="Length of solutions vector (in number of time points).",
 )
 @click.option(
@@ -185,7 +185,7 @@ def run_param_grid(ctx, n, m):
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     pfun_grid.run()
     pfun_grid.collection.to_parquet(
-        os.path.join(ctx.obj["output_dir"], "param_grid.parquet")
+        os.path.join(ctx.obj["output_dir"], f"param_grid_{n:02d}x{m:02d}.parquet")
     )
     click.secho("...done (saved to local database).")
 
