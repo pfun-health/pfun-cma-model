@@ -169,8 +169,22 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     default=3,
     help="Parameter grid width (in span of parameter values).",
 )
+@click.option(
+    "--params",
+    "-P",
+    type=click.STRING,
+    multiple=True,
+    callback=process_kwds,
+    default=[
+        "taug",
+        "taup",
+        "B",
+        "Cm"
+    ],
+    help="Parameters to include as part of the grid search."
+)
 @click.pass_context
-def run_param_grid(ctx, n, m):
+def run_param_grid(ctx, n, m, params):
     """Run a parameter grid search for the PFun CMA model."""
     click.secho(f"Output directory: {ctx.obj['output_dir']}")
     click.secho("Running parameter grid search for the PFun CMA model...")
@@ -179,12 +193,37 @@ def run_param_grid(ctx, n, m):
         os.makedirs(ctx.obj["output_dir"])
     # create the parameter grid
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
-    pfun_grid = PFunCMAParamsGrid(N=n, m=m, include_mealtimes=True)
+    pkeys_included = params
+    import logging
+    logging.debug(f"{pkeys_included}")
+    click.secho("Included parameter keys:", fg="yellow", bold=True)
+    if not pkeys_included:
+        click.secho("    + [all]", fg="yellow")
+    else:
+        for pkey in pkeys_included:
+            click.secho(f"    + {pkey}", fg="yellow")
+    pfun_grid = PFunCMAParamsGrid(
+        N=n,
+        m=m,
+        keys=pkeys_included,  # parameter keys to include
+        include_mealtimes=True
+    )
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     pfun_grid.run()
-    pfun_grid.collection.to_parquet(
+    # get the results as a dataframe
+    df_grid: pd.DataFrame = pfun_grid.collection
+    # save to duckdb database
+    import duckdb
+    with duckdb.connect(database='results/duckdb.db') as connection:
+        # create the table if it doesn't yet exist
+        connection.sql("CREATE TABLE IF NOT EXISTS cma_pgrid AS SELECT * FROM df_grid")
+        # update the table otherwise
+        connection.sql("INSERT INTO cma_pgrid SELECT * FROM df_grid")
+        connection.commit()
+    # save to parquet
+    df_grid.to_parquet(
         os.path.join(ctx.obj["output_dir"], f"param_grid_{n:02d}x{m:02d}.parquet")
     )
     click.secho("...done (saved to local database).")

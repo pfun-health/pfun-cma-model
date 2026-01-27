@@ -233,7 +233,15 @@ class CMAModelParams(BaseModel):
     def update(self, **kwargs):
         """Update the model parameters."""
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            if key in self.bounded_param_keys:
+                setattr(self, key, value)
+            elif hasattr(self, key):
+                setattr(self, key, value)
+            elif key.startswith("tM"):
+                tM_array = self.tM if len(self.tM) > 0 else []
+                tM_array = list(self.tM)
+                tM_array.append(float(value))
+                setattr(self, "tM", tM_array)  # append new values to tM
 
     @field_serializer("taug", "tM", check_fields=False)
     def serialize_ndarrays(self, value, *args):
