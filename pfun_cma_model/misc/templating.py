@@ -23,7 +23,8 @@ def https_url_for(context: dict, name: str, **path_params: Any) -> str:
     request = context["request"]
     # initially get the original url (possibly http, possibly https)
     http_url = request.url_for(name, **path_params)
-    url_pieces = urlparse.urlsplit(http_url)
+    url = str(http_url)  # ensure the url is a string
+    url_pieces = urlparse.urlsplit(url)
     # ensure the scheme is correct
     valid_pieces = urlparse.SplitResult(
         "https",
