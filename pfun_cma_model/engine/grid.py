@@ -68,7 +68,6 @@ def collate_results(
         collection_id: str = "cma_results"
 ):
     """Store results in database."""
-    connection = get_db_client()
     # create a collection with given ID as the name
     df_collection = pd.DataFrame.from_dict(
         dict(
@@ -76,10 +75,7 @@ def collate_results(
             documents=[result.get_soln_as_json() for result in results]
         )
     )
-    connection.sql(
-        f"CREATE TABLE IF NOT EXISTS {collection_id} as SELECT * FROM df_collection"
-    )
-    return connection
+    return df_collection
 
 
 class PFunCMAParamsGrid:
@@ -120,8 +116,8 @@ class PFunCMAParamsGrid:
         self.pgrid = ParameterGrid(pdict)
         # solutions vector (temporary storage)
         self.solns = []
-        # database client
-        self.client = None
+        # database
+        self.collection = None
 
     @property
     def Njobs(self):
@@ -168,5 +164,5 @@ class PFunCMAParamsGrid:
                     logging.error("failed to compute", exc_info=exc)
         # collate to a single database
         logging.info("...done searching parameter grid and collating results.")
-        self.client = collate_results(self.solns)
+        self.collection = collate_results(self.solns)
         return self

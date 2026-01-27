@@ -183,8 +183,11 @@ def run_param_grid(ctx, n, m):
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
-    grid_collated = pfun_grid.run()
-    click.secho("...done (saved to local database.")
+    pfun_grid.run()
+    pfun_grid.collection.to_parquet(
+        os.path.join(ctx.obj["output_dir"], "param_grid.parquet")
+    )
+    click.secho("...done (saved to local database).")
 
 
 @cli.command()
