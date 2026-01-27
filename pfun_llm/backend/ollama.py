@@ -38,7 +38,9 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-_OLLAMA_DEFAULT_MODEL: Literal["gemma3:4b"] = "gemma3:4b"
+OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud"]
+
+_OLLAMA_DEFAULT_MODEL: OllamaDefaultModel = "gpt-oss:120b-cloud"
 
 
 def _conv_str2msg(

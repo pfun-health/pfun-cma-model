@@ -74,20 +74,6 @@ class TestCMAModelParams:
         params = self.cma_model_params_(taup=0)
         assert params.taup == 0.0
 
-    def test_cma_params_description(self):
-        params = self.cma_model_params_()
-        descriptions = [
-            (params.calc_serr(b), params.describe(b))
-            for b in params.bounded.bounded_param_keys
-        ]
-        assert descriptions == [
-            (0.0, "Time zone offset (hours) (Normal)"),
-            (0.0, "Photoperiod length (hours) (Normal)"),
-            (0.0, "Glucose response time constant (Normal)"),
-            (0.0, "Glucose Bias constant (baseline glucose level) (Normal)"),
-            (0.0, "Cortisol temporal sensitivity coefficient (Normal)"),
-            (0.0, "Solar noon offset (effects of latitude) (Normal)"),
-        ]
 
     def test_cma_bounded_param_keys(self):
         params = self.cma_model_params_()

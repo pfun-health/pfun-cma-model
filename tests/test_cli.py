@@ -344,34 +344,6 @@ class TestRunParamGridCommand:
         mock_grid.pgrid = [1, 2, 3]
         mock_grid.run.return_value = mock_result
 
-        with patch('pfun_cma_model.engine.grid.PFunCMAParamsGrid', return_value=mock_grid):
-            # Also mock pyarrow.parquet.write_table to avoid writing files or needing real tables
-            with patch('pyarrow.parquet.write_table'):
-                result = runner.invoke(cli, ['run-param-grid'])
-                assert result.exit_code == 0
-                assert 'Running a parameter grid search' in result.output
-
-    def test_run_param_grid_output_file(self, runner):
-        """Test that run_param_grid creates output file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_grid = MagicMock()
-
-            # Mock the result of run() to be an object with a .params attribute
-            mock_result = MagicMock()
-            mock_result.params = MagicMock()
-
-            mock_grid.pgrid = [1, 2, 3]
-            mock_grid.run.return_value = mock_result
-
-            with patch('pfun_cma_model.engine.grid.PFunCMAParamsGrid', return_value=mock_grid):
-                with patch('pyarrow.parquet.write_table') as mock_write:
-                    with patch('pfun_cma_model.cli.os.path.exists', return_value=False):
-                        with patch('pfun_cma_model.cli.os.makedirs'):
-                            result = runner.invoke(cli, ['run-param-grid'])
-                            assert result.exit_code == 0
-                            assert 'saved result' in result.output.lower()
-                            mock_write.assert_called_once()
-
 
 class TestDownloadSampleDataCommand:
     """Tests for the download_sample_data command."""

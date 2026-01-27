@@ -110,8 +110,8 @@ class TestCMASleepWakeModel:
         taug_expected = 1.5
         taug1_expected = 1.0
         
-        taug = model.taug
-        taug1 = model1.taug
+        taug = model.bounded_params_as_dict["taug"]
+        taug1 = model1.bounded_params_as_dict["taug"]
         
         assert taug == taug_expected
         assert taug1 == taug1_expected
