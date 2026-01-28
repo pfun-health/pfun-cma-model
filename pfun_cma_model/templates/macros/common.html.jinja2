@@ -62,16 +62,14 @@
 
 <!-- other macros -->
 
+{% macro github_star_script() %}
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+{% endmacro %}
+
 {% macro github_star_embed() %}
-  <iframe
-    src="/github-button"
-    style="border:none;overflow:hidden;"
-    frameborder="0"
-    scrolling="no"
-    width="170"
-    height="30"
-    title="GitHub star button">
-</iframe>
+  <!-- Place this tag where you want the button to render. -->
+  <a class="github-button" href="https://github.com/pfun-health/pfun-cma-model" data-color-scheme="no-preference: light_high_contrast; light: light; dark: dark;" data-size="large" data-show-count="true" aria-label="Star pfun-health/pfun-cma-model on GitHub">Star</a>
 {% endmacro %}
 
 <!-- end macros -->

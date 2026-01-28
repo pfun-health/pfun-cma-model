@@ -25,6 +25,9 @@
   <!-- Google Tags script -->
   {{ google_tags.google_tags_head_script() }}
 
+  <!-- github button script -->
+  {{ common.github_star_script() }}
+
   {% endblock %}
 </head>
 
@@ -118,7 +121,7 @@
               </ul>
             </li>
           </ul>
-          <!-- insert github star repo iframe via macro -->
+          <!-- insert github star repo embed via macro -->
           {{ common.github_star_embed() }}
         </div>
       </div>

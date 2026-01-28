@@ -7,9 +7,11 @@ import json
 import logging
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
-
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
-from fastapi.responses import HTMLResponse
+from fastapi.responses import (
+    HTMLResponse,
+    RedirectResponse
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -171,18 +173,18 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # #
 # setup the security layer
 # #
-from guard import SecurityMiddleware
-from guard.models import SecurityConfig
-# Configure rate limiting
-config = SecurityConfig(
-    rate_limit=100,               # Max 100 requests
-    rate_limit_window=120,         # over X seconds
-    enable_rate_limiting=True,    # Enable rate limiting (true by default)
-    enable_redis=True,            # Use Redis for distributed setup (true by default)
-    redis_url=get_settings().redis_url
-)
-# Add middleware with rate limiting
-app.add_middleware(SecurityMiddleware, config=config)
+# from guard import SecurityMiddleware
+# from guard.models import SecurityConfig
+# # Configure rate limiting
+# config = SecurityConfig(
+#     rate_limit=5000,               # Max X requests
+#     rate_limit_window=60,         # over X seconds
+#     enable_rate_limiting=True,    # Enable rate limiting (true by default)
+#     enable_redis=True,            # Use Redis for distributed setup (true by default)
+#     redis_url=get_settings().redis_url
+# )
+# # Add middleware with rate limiting
+# app.add_middleware(SecurityMiddleware, config=config)
 
 # Add client request tracking middleware (added first, executes last)
 from pfun_cma_model.misc.middleware import track_client_request_middleware
@@ -282,36 +284,7 @@ def favicon():
     return Response(content=img, media_type="image/x-icon")
 
 
-@app.get("/github-button", include_in_schema=False)
-async def github_button():
-    """
-    Proxy endpoint that returns the button HTML.
-    """
-    target_url = "https://ghbtns.com/github-btn.html?user=pfun-health&repo=pfun-cma-model&type=star&count=true&size=large"
-    import httpx
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        try:
-            upstream = await client.get(target_url, follow_redirects=True)
-        except httpx.RequestError as exc:
-            raise HTTPException(status_code=502, detail=f"Upstream request failed: {exc}") from exc
-
-    if upstream.status_code != 200:
-        raise HTTPException(status_code=upstream.status_code, detail="Upstream returned error")
-
-    # Strip framing headers that would block the iframe
-    content = upstream.text
-
-    # Return as HTML, letting your own CORS middleware decide who can embed it
-    return HTMLResponse(
-        content=content,
-        headers={
-            'Cross-Origin-Embedder-Policy': 'credentialless'
-        }
-    )
-
-
 # -- CMA Model endpoints --
-
 
 def get_model_instance():
     """FastAPI dependency to get a singleton CMA model instance."""
