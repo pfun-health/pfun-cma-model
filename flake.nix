@@ -44,6 +44,12 @@
 
           # for various packages that might be installed
           zlib
+
+          # duckdb
+          duckdb
+
+          # data visualization
+          datasette
         ];
       in
       {
@@ -51,7 +57,7 @@
           name = "pfun-cma-model-dev";
 
           buildInputs = with pkgs; [
-            python
+            python  # note that the version is defined above
             uv
 
             # General purpose build tools
@@ -59,6 +65,9 @@
           ] ++ python_build_deps;
 
           shellHook = ''
+            echo "Installing dev dependencies..."
+            datasette install datasette-parquet
+
             echo "Welcome to the pfun-cma-model dev shell!"
             echo ""
             echo "This shell provides Python, uv."

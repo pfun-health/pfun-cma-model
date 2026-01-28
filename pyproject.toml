@@ -95,6 +95,9 @@ dev = [
     "mkdocs>=1.6.1",
     "openapi-generator-cli[jdk4py]>=7.18.0",
 ]
+datasette = [
+    "datasette-parquet>=0.6.1",
+]
 
 # setuptools configurations
 [tool.setuptools]
