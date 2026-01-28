@@ -1579,7 +1579,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.168"
+version = "0.4.171"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -1643,6 +1643,7 @@ numba = [
 
 [package.dev-dependencies]
 datasette = [
+    { name = "datasette" },
     { name = "datasette-parquet" },
 ]
 dev = [
@@ -1718,7 +1719,10 @@ requires-dist = [
 provides-extras = ["ui", "dev", "numba", "cext"]
 
 [package.metadata.requires-dev]
-datasette = [{ name = "datasette-parquet", specifier = ">=0.6.1" }]
+datasette = [
+    { name = "datasette", specifier = "<=1.0a23" },
+    { name = "datasette-parquet", specifier = ">=0.6.1" },
+]
 dev = [
     { name = "black", specifier = ">=25.12.0" },
     { name = "mkdocs", specifier = ">=1.6.1" },
@@ -1733,7 +1737,7 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.60"
+version = "0.1.63"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "matplotlib" },

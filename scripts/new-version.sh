@@ -19,7 +19,8 @@ bump_package_versions
 
 sync_build() {
 	# sync uv.lock and build the package
-	full_uv_sync && uv build
+	full_uv_sync && \
+		uv build --no-cache --refresh --wheel
 }
 
 sync_build

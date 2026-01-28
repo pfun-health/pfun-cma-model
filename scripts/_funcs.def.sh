@@ -9,7 +9,8 @@ full_uv_sync() {
     uv sync \
        --reinstall \
        --all-extras \
-       --group ollama
+       --group ollama \
+       --group datasette
 }
 
 full_uv_sync_gradio() {
