@@ -133,8 +133,7 @@ def launch_demo(
     server_port = settings.server_port
     endpoint = f"{server_scheme}://{server_name}:{server_port}/llm/generate-scenario"
     demo = setup_gradio_ui(llm_gen_scenario_endpoint=endpoint)
-    kwargs.update({"mcp_server": True})  # launch with mcp server endpoint
-    return demo.launch(server_name=server_name, server_port=server_port, **kwargs)
+    return demo.launch(server_name=server_name, server_port=server_port, mcp_server=True, **kwargs)
 
 
 if __name__ == "__main__":
