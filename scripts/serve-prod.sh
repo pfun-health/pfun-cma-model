@@ -14,7 +14,7 @@ else
 	full_uv_sync_gradio; serve_pfun_gradio
     else
 	if [ "$1" = 'full' ]; then
-	    nohup /usr/bin/env bash -c 'cd '"${REPO_ROOT}"'. ./.venv/bin/activate; scripts/serve-prod.sh cma & scripts/serve-prod.sh gradio' &
+	    nohup /usr/bin/env bash -c 'cd '"${REPO_ROOT}"'. ./.venv/bin/activate; scripts/serve-prod.sh cma' &
 	else
 	    echo 'no server selected (should be either gradio or cma)'
 	fi

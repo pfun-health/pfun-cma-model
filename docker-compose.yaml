@@ -31,37 +31,6 @@ services:
         "1"
       ]
 
-  pfun-gradio:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./pfun_gradio/Dockerfile
-    user: "nonroot:nonroot"
-    env_file: .env
-    environment:
-      - UVICORN_RELOAD=false
-      - USER=nonroot
-      - GROUP=nonroot
-    container_name: pfun-gradio
-    ports:
-      - "7860:7860"
-    command:
-      [
-        "uv",
-        "run",
-        "uvicorn",
-        "pfun_gradio.main:app",
-        "--proxy-headers",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "7860",
-        "--workers",
-        "1"
-      ]
-    networks:
-      - pfun-cma-network
-
 # Define networks at the root level
 networks:
   pfun-cma-network:

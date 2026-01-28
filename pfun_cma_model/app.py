@@ -21,6 +21,12 @@ config = SecurityConfig(
 # Add middleware with rate limiting
 app.add_middleware(SecurityMiddleware, config=config)
 
+# # #
+# Setup MCP
+# # #
+from fastapi_mcp import FastApiMCP
+mcp = FastApiMCP(app)
+mcp.mount()
 
 # # #
 # Export the socket-io session from api_core
