@@ -18,7 +18,7 @@ from pandas import DataFrame
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-
+from fastapi_mcp import FastApiMCP
 import pfun_cma_model
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_model_params import (
@@ -59,6 +59,11 @@ async def lifespan(app: FastAPI):
     global templates
     templates = get_templates()
 
+    # --- Startup task: mount MCP server ---
+    # # #
+    mcp = FastApiMCP(app)
+    mcp.mount()
+
     # --- Startup task: connect to Redis ---
     global redis_client
     try:
@@ -69,7 +74,10 @@ async def lifespan(app: FastAPI):
             password=get_settings().redis_password,
             decode_responses=True,
         )
-        await redis_client.ping()  # type: ignore
+        try:
+            await redis_client.ping()  # type: ignore
+        except exception:
+            logging.debug("failed to ping the redis client.", exc_info=2)
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
@@ -156,8 +164,25 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-
+# # #
 # --- Setup middleware ---
+
+# # #
+# #
+# setup the security layer
+# #
+from guard import SecurityMiddleware
+from guard.models import SecurityConfig
+# Configure rate limiting
+config = SecurityConfig(
+    rate_limit=100,               # Max 100 requests
+    rate_limit_window=120,         # over X seconds
+    enable_rate_limiting=True,    # Enable rate limiting (true by default)
+    enable_redis=True,            # Use Redis for distributed setup (true by default)
+    redis_url=get_settings().redis_url
+)
+# Add middleware with rate limiting
+app.add_middleware(SecurityMiddleware, config=config)
 
 # Add client request tracking middleware (added first, executes last)
 from pfun_cma_model.misc.middleware import track_client_request_middleware
