@@ -66,7 +66,10 @@
 
           shellHook = ''
             echo "Installing dev dependencies..."
+            echo "...datasette plugins..."
             datasette install datasette-parquet
+            datasette install datasette-plot
+            echo "...done installing dev dependencies."
 
             echo "Welcome to the pfun-cma-model dev shell!"
             echo ""
