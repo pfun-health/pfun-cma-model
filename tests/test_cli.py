@@ -19,6 +19,7 @@ test_base.setup_test_environment()
 
 import pytest
 import json
+import duckdb
 import os
 import tempfile
 from unittest.mock import patch, MagicMock, mock_open
@@ -156,9 +157,11 @@ class TestGenerateScenarioCommand:
         }
         with patch('pfun_cma_model.llm.generate_scenario', new_callable=MagicMock, return_value=mock_response):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
-                result = runner.invoke(cli, ['generate-scenario'])
-                # Should output JSON
-                assert result.exit_code == 0
+                with patch('duckdb.connect'), \
+                     patch('pandas.DataFrame.to_parquet'):
+                    result = runner.invoke(cli, ['generate-scenario'])
+                    # Should output JSON
+                    assert result.exit_code == 0
 
     def test_generate_scenario_custom_query(self, runner):
         """Test generate_scenario with custom query."""
@@ -169,8 +172,10 @@ class TestGenerateScenarioCommand:
         custom_query = "A patient with diabetes."
         with patch('pfun_cma_model.llm.generate_scenario', new_callable=MagicMock, return_value=mock_response):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
-                result = runner.invoke(cli, ['generate-scenario', '--query', custom_query])
-                assert result.exit_code == 0
+                with patch('duckdb.connect'), \
+                     patch('pandas.DataFrame.to_parquet'):
+                    result = runner.invoke(cli, ['generate-scenario', '--query', custom_query])
+                    assert result.exit_code == 0
 
     def test_generate_scenario_json_output(self, runner):
         """Test that generate_scenario outputs valid JSON."""
@@ -180,9 +185,11 @@ class TestGenerateScenarioCommand:
         }
         with patch('pfun_cma_model.llm.generate_scenario', new_callable=MagicMock, return_value=mock_response):
             with patch('pfun_cma_model.cli.asyncio.run', return_value=mock_response):
-                result = runner.invoke(cli, ['generate-scenario'])
-                # Should produce JSON output
-                assert result.exit_code == 0
+                with patch('duckdb.connect'), \
+                     patch('pandas.DataFrame.to_parquet'):
+                    result = runner.invoke(cli, ['generate-scenario'])
+                    # Should produce JSON output
+                    assert result.exit_code == 0
 
 
 class TestFitModelCommand:

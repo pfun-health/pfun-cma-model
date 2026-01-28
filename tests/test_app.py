@@ -16,7 +16,7 @@ from fastapi.testclient import TestClient
 from pfun_cma_model.app import app
 from pfun_cma_model.data import read_sample_data
 
-client = TestClient(app)
+client = TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 @pytest.fixture
