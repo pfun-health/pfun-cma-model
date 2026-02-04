@@ -50,19 +50,6 @@ def serialize_bounds(bounds: "Bounds") -> Dict[str, Any]:
     return bounds.__json__()
 
 
-class BoundsType:
-
-    def __get_pydantic_core_schema__(
-        self,
-        source: Type[Any],
-        handler: GetCoreSchemaHandler,
-    ) -> core_schema.CoreSchema:  # type: ignore
-        # This is a Pydantic v2 custom type, it should return a CoreSchema
-        # The type hint for GetCoreSchemaHandler.return_type is core_schema.CoreSchema
-        # The error "Return type "core_schema.CoreSchema" of "__get_pydantic_core_schema__" incompatible with return type "Any" in supertype "object"" is incorrect.
-        return _BOUNDS_SCHEMA
-
-
 class Bounds:
     """Bounds constraint on the variables.
 

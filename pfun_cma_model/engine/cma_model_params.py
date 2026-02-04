@@ -149,7 +149,7 @@ class CMAModelParams(BaseModel):
         eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=True)
 
     """
     Time vector (decimal hours). Optional.
@@ -182,7 +182,9 @@ class CMAModelParams(BaseModel):
     """
     Solar noon offset (latitude). Defaults to 0.0.
     """
-    tM: Any | Annotated[ndarray, NumpyArray] | float = array([7.0, 11.0, 17.5])
+    tM: Any | Annotated[ndarray, NumpyArray] | float = Field(
+        default_factory=lambda: array([7.0, 11.0, 17.5])
+    )
     """
     Meal times (hours). Defaults to (7.0, 11.0, 17.5).
     """
@@ -237,11 +239,6 @@ class CMAModelParams(BaseModel):
                 setattr(self, key, value)
             elif hasattr(self, key):
                 setattr(self, key, value)
-            elif key.startswith("tM"):
-                tM_array = self.tM if len(self.tM) > 0 else []
-                tM_array = list(self.tM)
-                tM_array.append(float(value))
-                setattr(self, "tM", tM_array)  # append new values to tM
 
     @field_serializer("taug", "tM", check_fields=False)
     def serialize_ndarrays(self, value, *args):

@@ -23,6 +23,7 @@ class TestCMASleepWakeModel:
     def test_update_with_invalid_parameters(self):
         from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
         from pfun_cma_model.engine.cma import CMASleepWakeModel
+        from pydantic import ValidationError
 
         # Create an instance of CMASleepWakeModel
         model = CMASleepWakeModel()
@@ -37,7 +38,7 @@ class TestCMASleepWakeModel:
                 toff="invalid",
             )
         except Exception as e:
-            assert isinstance(e, (BoundsTypeError, ValueError, TypeError))
+            assert isinstance(e, (BoundsTypeError, ValueError, TypeError, ValidationError))
 
     def test_integrate_G_with_NaN_values(self):
         from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
