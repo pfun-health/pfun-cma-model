@@ -85,3 +85,21 @@ class TestCMAModelParams:
             "Cm",
             "toff",
         )
+
+    def test_assignment_validation(self):
+        import pytest
+        from pydantic import ValidationError
+        params = self.cma_model_params_()
+
+        # Test valid assignment
+        params.N = 100
+        assert params.N == 100
+
+        # Test invalid assignment (string instead of int for N)
+        # Note: Pydantic might coerce string to int if possible, so use non-numeric string
+        with pytest.raises(ValidationError):
+            params.N = "invalid"
+
+        # Test invalid assignment for float field
+        with pytest.raises(ValidationError):
+            params.d = "invalid"

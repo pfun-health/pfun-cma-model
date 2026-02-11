@@ -168,6 +168,8 @@ class CMAFitResult(BaseModel):
 def estimate_mealtimes(
     data, ycol: str = "G", tm_freq: str = "2h", n_meals: int = 4, **kwds
 ):
+    if data is None or len(data) == 0:
+        raise ValueError("Input data cannot be None or empty.")
     n_meals = int(n_meals)
     df = data[["t", ycol]]
     if not isinstance(df.index, pd.TimedeltaIndex):
