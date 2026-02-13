@@ -16,7 +16,7 @@ from fastapi import (
     status,
 )
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from guard import SecurityConfig, SecurityMiddleware
 from guard.decorators import SecurityDecorator
@@ -43,29 +43,22 @@ logger = logging.getLogger(__name__)
 
 
 class MessageResponse(BaseModel):
-    message: str
-    details: dict[str, Any] | None = None
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "message": "Success",
                 "details": {"info": "Additional information"},
             }
         }
+    )
+
+    message: str
+    details: dict[str, Any] | None = None
 
 
 class IPInfoResponse(BaseModel):
-    ip: str
-    country: str | None = None
-    city: str | None = None
-    region: str | None = None
-    is_vpn: bool | None = None
-    is_cloud: bool | None = None
-    cloud_provider: str | None = None
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "ip": "8.8.8.8",
                 "country": "US",
@@ -76,18 +69,20 @@ class IPInfoResponse(BaseModel):
                 "cloud_provider": "Google",
             }
         }
+    )
+
+    ip: str
+    country: str | None = None
+    city: str | None = None
+    region: str | None = None
+    is_vpn: bool | None = None
+    is_cloud: bool | None = None
+    cloud_provider: str | None = None
 
 
 class StatsResponse(BaseModel):
-    total_requests: int
-    blocked_requests: int
-    banned_ips: list[str]
-    rate_limited_ips: dict[str, int]
-    suspicious_activities: list[dict[str, Any]]
-    active_rules: dict[str, Any]
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "total_requests": 1000,
                 "blocked_requests": 50,
@@ -99,21 +94,31 @@ class StatsResponse(BaseModel):
                 "active_rules": {"rate_limit": 10, "auto_ban_threshold": 5},
             }
         }
+    )
+
+    total_requests: int
+    blocked_requests: int
+    banned_ips: list[str]
+    rate_limited_ips: dict[str, int]
+    suspicious_activities: list[dict[str, Any]]
+    active_rules: dict[str, Any]
 
 
 class ErrorResponse(BaseModel):
-    detail: str
-    error_code: str | None = None
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "detail": "Access denied",
                 "error_code": "ACCESS_DENIED",
                 "timestamp": "2024-01-20T10:30:00Z",
             }
         }
+    )
+
+    detail: str
+    error_code: str | None = None
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
 
 
 class AuthResponse(BaseModel):
@@ -126,7 +131,8 @@ class AuthResponse(BaseModel):
 class TestPayload(BaseModel):
     input: str | None = Field(None, description="Test input for XSS detection")
     query: str | None = Field(None, description="Test query for SQL injection")
-    path: str | None = Field(None, description="Test path for traversal attacks")
+    path: str | None = Field(
+        None, description="Test path for traversal attacks")
     cmd: str | None = Field(None, description="Test command for injection")
     honeypot_field: str | None = Field(
         None, description="Hidden field for bot detection"
@@ -164,9 +170,11 @@ async def custom_response_modifier(response: Response) -> Response:
 
 security_config = SecurityConfig(
     # IP Configuration
-    whitelist=["127.0.0.1", "::1", "10.0.0.0/8", "100.115.68.73"],  # Localhost, tailscale
+    whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
+               "100.115.68.73"],  # Localhost, tailscale
     # Proxy Configuration
-    trusted_proxies=["127.0.0.1", "10.0.0.0/8", "168.235.67.32", "100.115.68.73"],  # tailscale
+    trusted_proxies=["127.0.0.1", "10.0.0.0/8",
+                     "168.235.67.32", "100.115.68.73"],  # tailscale
     trusted_proxy_depth=2,
     trust_x_forwarded_proto=True,
     # Geographical Filtering (requires ipinfo_token OR custom implementation)
@@ -203,10 +211,12 @@ security_config = SecurityConfig(
         "csp": {
             "default-src": ["'self'"],
             "script-src": ["'self'", "'strict-dynamic'", "'unsafe-inline'", "https://buttons.github.io"],
-            "style-src": ["'self'", "'unsafe-inline'", "https://buttons.github.io"],  # allow github button script
+            # allow github button script
+            "style-src": ["'self'", "'unsafe-inline'", "https://buttons.github.io"],
             "img-src": ["'self'", "data:", "https:"],
             "font-src": ["'self'", "https://fonts.gstatic.com"],
-            "connect-src": ["'self'", "wss://localhost:8001"],  # WebSocket support
+            # WebSocket support
+            "connect-src": ["'self'", "wss://localhost:8001"],
         },
         # HTTP Strict Transport Security
         "hsts": {
@@ -229,7 +239,8 @@ security_config = SecurityConfig(
     },
     # CORS Configuration (works alongside security headers)
     enable_cors=True,
-    cors_allow_origins=["http://localhost:8001", "https://cloud.tail38611b.ts.net"],
+    cors_allow_origins=["http://localhost:8001",
+                        "https://cloud.tail38611b.ts.net", "https://pfun.one"],
     cors_allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     cors_allow_headers=["*"],
     cors_allow_credentials=True,

@@ -1,5 +1,11 @@
 """PFun CMA Model API."""
 # import necessary modules and packages
+from pfun_cma_model.misc.middleware import track_client_request_middleware
+from pfun_cma_model.security import (
+    SecurityMiddleware,
+    SecurityConfig,
+    security_config
+)
 from contextlib import asynccontextmanager
 from datetime import datetime
 import importlib
@@ -167,30 +173,23 @@ else:
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# # #
+###
 # --- Setup middleware ---
+###
 
-# # #
-# #
+##
 # setup the security layer
-# #
-# from guard import SecurityMiddleware
-# from guard.models import SecurityConfig
-# # Configure rate limiting
-# config = SecurityConfig(
-#     rate_limit=5000,               # Max X requests
-#     rate_limit_window=60,         # over X seconds
-#     enable_rate_limiting=True,    # Enable rate limiting (true by default)
-#     enable_redis=True,            # Use Redis for distributed setup (true by default)
-#     redis_url=get_settings().redis_url
-# )
-# # Add middleware with rate limiting
-# app.add_middleware(SecurityMiddleware, config=config)
+##
+
+# Add middleware with rate limiting
+# extra line below for type hinting and clarity, since the config is defined in a separate module
+security_config: SecurityConfig = security_config
+app.add_middleware(SecurityMiddleware, config=security_config)
 
 # Add client request tracking middleware (added first, executes last)
-from pfun_cma_model.misc.middleware import track_client_request_middleware
 
-app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
+app.add_middleware(BaseHTTPMiddleware,
+                   dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -205,7 +204,8 @@ allow_all_origins = {
         "cloud.tail38611b.ts.net",
     },
 }
-allowed_hosts = allow_all_origins[debug_mode]  # type: ignore  # pyright: ignore[reportArgumentType]
+# type: ignore  # pyright: ignore[reportArgumentType]
+allowed_hosts = allow_all_origins[debug_mode]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_hosts,
@@ -409,7 +409,7 @@ PFunWebsocketNamespace = importlib.import_module(
 
 # Consolidated Socket.IO session instantiation
 socketio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
-pfun_sio_session = socketio_session # alias for backward compatibility
+pfun_sio_session = socketio_session  # alias for backward compatibility
 
 
 @app.get("/health/ws/run-at-time")
@@ -419,10 +419,11 @@ async def health_check_run_at_time():
 
     # Simple check if the socketio server is set
     if socketio_session.sio is not None:
-         return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
+        return {"status": "ok", "message": "'run-at-time' WebSocket is running."}
     else:
-         return Response(
-            content=json.dumps({"status": "error", "message": "'run-at-time' WebSocket is NOT running."}),
+        return Response(
+            content=json.dumps(
+                {"status": "error", "message": "'run-at-time' WebSocket is NOT running."}),
             status_code=503,
             headers={"Content-Type": "application/json"},
         )
@@ -433,7 +434,8 @@ async def health_check_run_at_time():
 
 @app.post("/model/fit")
 async def fit_model_to_data(
-    data: dict | str, config: Optional[CMAModelParams | str] = None  # type: ignore
+    # type: ignore
+    data: dict | str, config: Optional[CMAModelParams | str] = None
 ):
     from pandas import DataFrame
 
@@ -441,7 +443,8 @@ async def fit_model_to_data(
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
 
     if len(data) == 0:
-        logger.debug("Sample data will be loaded as no data was provided in query.")
+        logger.debug(
+            "Sample data will be loaded as no data was provided in query.")
         data = read_sample_data(convert2json=False)  # type: ignore
         logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
