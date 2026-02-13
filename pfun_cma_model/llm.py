@@ -47,7 +47,7 @@ async def _parse_generated_response(response: Any | str) -> str:
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
         txt_resp = getattr(response, "text", str(response))
-        return str(txt_resp).replace("'", '"')
+        return str(txt_resp).replace("'", '"').replace("â", "")
     return await _parse_generated_response(await response)
 
 

@@ -31,9 +31,7 @@ class OllamaMessages(BaseModel):
         serialized_messages = []
         for message in v:
             if isinstance(message, OllamaMessage):
-                serialized_messages.append(
-                    {"role": message.role, "content": message.content}
-                )
+                serialized_messages.append({"role": message.role, "content": message.content})
             else:
                 raise ValueError(
                     "Each message must be a OllamaMessage instance. "
@@ -42,33 +40,26 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud"]
+OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud", "meditron:70b"]
 
 _OLLAMA_DEFAULT_MODEL: OllamaDefaultModel = "gpt-oss:120b-cloud"
 
 
-def _conv_str2msg(
-    message_content: str | OllamaMessage, role: str = "user"
-) -> OllamaMessage:
+def _conv_str2msg(message_content: str | OllamaMessage, role: str = "user") -> OllamaMessage:
     """convert raw string to OllamaMessage."""
     if isinstance(message_content, OllamaMessage):
         return message_content
     return OllamaMessage(content=message_content, role=role)
 
 
-def _format_messages(
-        raw_messages: str | list,  # type: ignore
-        role: str = "user"
-) -> OllamaMessages:
+def _format_messages(raw_messages: str | list, role: str = "user") -> OllamaMessages:  # type: ignore
     """format raw messages (str|list), return OllamaMessages object."""
 
     if not isinstance(raw_messages, list):
         raw_messages: list = [
             raw_messages,
         ]
-    return OllamaMessages(
-        messages=[_conv_str2msg(msg_, role=role) for msg_ in raw_messages]
-    )
+    return OllamaMessages(messages=[_conv_str2msg(msg_, role=role) for msg_ in raw_messages])
 
 
 class OllamaGenerativeModel(BaseGenerativeModel):
@@ -80,17 +71,22 @@ class OllamaGenerativeModel(BaseGenerativeModel):
     def __new__(cls, *args, **kwargs):
         """Create a new instance of OllamaGenerativeModel."""
         obj = super().__new__(cls, *args, **kwargs)
-        obj._default_model = _OLLAMA_DEFAULT_MODEL
+        from pfun_common.settings import get_settings
+
+        settings = get_settings()
+        obj._default_model = kwargs.get("model", settings.ollama_model)
         return obj
+
+    def __init__(self, model: str | None = None, **kwargs):
+        super().__init__(model, **kwargs)
+        # Set the default model for this instance (use settings)
+        logging.debug(f"OllamaGenerativeModel initialized with model: {self._model}")
 
     async def stream_chat(self, messages, model=None):
         if model is None:
             model = self._model
         async for part in await self._client.chat(
-            model=model,
-            messages=messages,
-            stream=True,  # with streaming enabled
-            **self._extra_kwds
+            model=model, messages=messages, stream=True, **self._extra_kwds  # with streaming enabled
         ):
             yield part["message"]["content"]
 
@@ -98,13 +94,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         if model is None:
             model = self._model
         logging.debug("Extra arguments (called on ollama.chat): %s", self._extra_kwds)
-        response = await asyncio.ensure_future(
-            self._client.chat(
-                model=model,
-                messages=messages,
-                **self._extra_kwds
-            )
-        )
+        response = await asyncio.ensure_future(self._client.chat(model=model, messages=messages, **self._extra_kwds))
         return response
 
     async def call_genai_client(
@@ -135,7 +125,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
                 )
                 prog_response: ProgressResponse = ollama.pull(model=model)
                 logging.info("Pull response: %s", prog_response)
-                if prog_response.status.lower() == 'completed':
+                if prog_response.status.lower() == "completed":
                     logging.info("Model pulled successfully. Retrying the API call.")
                     return self.chat(model=model, messages=serialized_messages)
             # if we reach here, it means the error was not a 404 or the pull did not succeed, so we raise the error

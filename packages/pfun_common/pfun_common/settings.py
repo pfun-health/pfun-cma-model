@@ -10,6 +10,11 @@ from urllib.parse import urlparse
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from pfun_llm.backend.ollama import (
+    OllamaDefaultModel,
+    _OLLAMA_DEFAULT_MODEL,
+)
+
 
 def generate_default_secret_key() -> str:
     """Generate a default secret key based on the current timestamp.
@@ -43,6 +48,7 @@ class Settings(BaseSettings):
     google_api_key: str = ""
     ollama_api_key: str = ""
     ollama_host: str = "http://localhost:11434"
+    ollama_model: OllamaDefaultModel = _OLLAMA_DEFAULT_MODEL
     llm_backend: Literal["google", "perplexity", "ollama", "openai"] = "ollama"
     secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
@@ -113,9 +119,7 @@ class Settings(BaseSettings):
                 info.data.get("redis_db"),
             )
         except Exception as exc:
-            logging.warning(
-                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
-            )
+            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 
@@ -142,7 +146,7 @@ class Settings(BaseSettings):
         :rtype: str
         """
         return f"{self.gradio_server_scheme}://{self.gradio_server_host}:{self.gradio_server_port}/gradio/"
-    
+
     @property
     def redis_url(self) -> str:
         """
