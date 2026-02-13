@@ -170,8 +170,8 @@ async def custom_response_modifier(response: Response) -> Response:
 
 security_config = SecurityConfig(
     # IP Configuration
-    whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
-               "100.115.68.73"],  # Localhost, tailscale
+    # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
+    #            "100.115.68.73"],  # Localhost, tailscale
     # Proxy Configuration
     trusted_proxies=["127.0.0.1", "10.0.0.0/8",
                      "168.235.67.32", "100.115.68.73"],  # tailscale
@@ -208,16 +208,23 @@ security_config = SecurityConfig(
     security_headers={
         "enabled": True,
         # Content Security Policy
-        "csp": {
-            "default-src": ["'self'"],
-            "script-src": ["'self'", "'strict-dynamic'", "'unsafe-inline'", "https://buttons.github.io"],
-            # allow github button script
-            "style-src": ["'self'", "'unsafe-inline'", "https://buttons.github.io"],
-            "img-src": ["'self'", "data:", "https:"],
-            "font-src": ["'self'", "https://fonts.gstatic.com"],
-            # WebSocket support
-            "connect-src": ["'self'", "wss://localhost:8001"],
-        },
+        # "csp": {
+        #     "default-src": ["'self'", "https:"],
+        #     "script-src": [
+        #         "'self'",
+        #         "'unsafe-inline'",
+        #         "buttons.github.io",
+        #         "cdn.jsdelivr.net"
+        #     ],
+        #     # allow github button script
+        #     "style-src": ["'self'", "'unsafe-inline'", "buttons.github.io"],
+        #     "img-src": ["'self'", "data:", "https:"],
+        #     "font-src": ["'self'", "https://fonts.gstatic.com"],
+        #     # WebSocket support
+        #     "connect-src": ["'self'", "wss://localhost:8001"],
+        #     # require trusted types for
+        #     "require-trusted-types-for": ["'script'"],
+        # },
         # HTTP Strict Transport Security
         "hsts": {
             "max_age": 31536000,  # 1 year

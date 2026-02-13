@@ -4,7 +4,10 @@
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+  <!-- local "global" stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+  <!-- load styles for jquery toasts -->
+  <link rel="stylesheet" href="{{ url_for('static', path='css/jquery.toast.min.css') }}">
 {% endblock %}
 
 <body>
@@ -16,34 +19,69 @@
 
     <div id="content">
 	{% block content %}
-	<h1>LLM Demo</h1>
-	<h3>Input:</h3>
-	<p>Enter a plain English query to translate it into PFun CMA model parameters.</p>
-	<form id="query-form" class="form">
-	  <div class="form-group">
-	    <textarea
-	      id="query-input" rows="5" cols="50"
-	      placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning.</textarea>
-	  </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-	</form>
-	<hr />
-	<h3>Output:</h3>
-	<div class="container-lg container grid flex p-2">
-	    <div class="container d-flex flex p-2">
-		<pre id="response-output" class="text-wrap" style="width: 100em;"></pre>
-	    </div>
+
+	<h1 class="display-1">LLM Demo</h1>	
+	<div class="container-fluid grid d-flex">
+	    
+	    <div id="llm-app-content" class="container flex p-2">
+		
+		<h3 class="display-5">Input</h3>
+		<h5 class="subtitle text-secondary">Patient description, health-relevant information</h5>
+		    <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body">
+			<p class="text-primary">Please enter a plain-English query below.</p>
+			<form id="query-form" class="form">
+			    <div class="form-group">
+				<textarea
+				    id="query-input" rows="5" cols="50"
+				    placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning.</textarea>
+			    </div>
+			    <div class="button-group p-2 container rounded">
+				<button id="submit-btn" type="submit" class="btn btn-primary">Submit</button>
+			    </div>
+			</form>
+		    </div>
+		    
+		    <h3 class="display-5">Output</h3>
+		    <h5 class="subtitle text-secondary">PFun generated information</h5>
+		    <div id="output-container"
+			 class="container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body"
+		    >
+			<div id="loading-container" class="container-fluid flex p-3 text-bg-primary text-left" style="display: none;">
+			    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+			    Loading...
+			</div>
+			<pre id="response-output" class="text-wrap" style="width: 85em;"></pre>
+		    </div>
+
+	    </div><!-- /end accordion -->
 	</div>
 
+
+	<!-- source for jquery simple toasts extension -->
+	<script async defer type="text/javascript" src="{{ url_for( 'static', path='js/jquery.toast.min.js') }}"></script>
+
+	<!-- llm prompt interaction -->
 	<script>
-         document.getElementById('query-form').addEventListener('submit', async (event) => {
-             event.preventDefault();
+	 const onFormSubmit = async (event) => {
+	     try {
+		 event.preventDefault();
+	     } catch(err) {
+		 console.warn(err);
+	     }
+
+	     // show loading indicator
+	     $("#loading-container").show();
+
+	     // get the relevant elements
              const query = document.getElementById('query-input').value;
              const query_url = new URL(window.location.origin + "/llm/generate-scenario");
-             const responseOutput = document.getElementById('response-output');
-             responseOutput.textContent = 'Loading...';
+             const responseOutput = $("#response-output");
 
              try {
+		 if(query === '<<TEST_ERROR>>') {
+		     // test the error behavior (not a real prompt)
+		     throw new Error("<<TEST_ERROR>>");
+		 }
                  query_url.searchParams.set('prompt', query);
                  const response = await fetch(query_url.toString(), {
                      method: 'POST',
@@ -51,7 +89,11 @@
                          'Content-Type': 'application/json'
                      },
                      body: null
-                 });
+                 }).then((response) => {
+		     console.log(`raw response:\n${response}`);
+		     $("#loading-container").hide();
+		     return response;
+		 });
 
                  if (!response.ok) {
                      const error = await response.json();
@@ -61,22 +103,42 @@
 		 const data = await response.json();
                  const str_content = JSON.stringify(data, null, 2);
 		 if(!str_content.startsWith("Err")) {
-		     responseOutput.textContent = str_content;
+		     $(responseOutput).text(str_content);
 		 } else {
 		     // there was an error otherwise
 		     throw new Error(str_content);
 		 }
              } catch (error) {
                  console.error(`Error: ${error.message}`);
-		 responseOutput.textContent =
-		     "Whoops. The server is busy right now... try again in a moment."
-		     " The page will refresh automatically in a few seconds...";
+		 const error_msg =
+		     "Whoops! The server is busy right now."
+		     "\nRetrying your request in a moment... Please wait.";
+		 const errToast = $.toast({
+		     heading: 'Error',
+		     text: `${error_msg}`,
+		     showHideTransition: 'fade',
+		     icon: 'error',
+		     hideAfter: 20000,
+		     stack: true,
+		 });
 		 setTimeout(() => {
-		     // reload the window (try again momentarily)
-		     window.location.reload();
-		 }, 3000);
+		     errToast.update({
+			 heading: 'Trying again...',
+			 text: 'Attempting your request again... Please wait.',
+			 hideAfter: 6000,
+			 icon: 'info',
+			 bgColor: 'info',
+		     });
+		     console.log("Trying again in 3 seconds...");
+		     setTimeout(async () => {
+			 // try the request again.
+			 await onFormSubmit();
+		     }, 5000);
+		 }, 6500);
              }
-         });
+         };
+         document.getElementById('query-form').addEventListener(
+	     'submit', onFormSubmit);
 	</script>
 	{% endblock content %}
     </div>
