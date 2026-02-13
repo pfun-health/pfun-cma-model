@@ -230,8 +230,9 @@ class TestSecurityMiddlewareIntegration:
 
     def test_middleware_added_to_app(self):
         """Verify SecurityMiddleware is added to the app."""
-        middleware_names = [m.__class__.__name__ for m in app.user_middleware]
-        assert any("Security" in name for name in middleware_names)
+        #: ! Essential this checks m.cls, NOT m.__class__ (the latter is the same for all middleware instances)
+        middleware_names = [m.cls.__name__ for m in app.user_middleware]
+        assert any("security" in name.lower() for name in middleware_names)
 
     def test_app_has_security_config(self):
         """Verify app has security configuration."""
@@ -350,7 +351,7 @@ class TestSecurityHeadersValues:
         csp = security_config.security_headers.get("csp", {})
         assert "font-src" in csp
 
-
+app
 class TestConnectionSecurity:
     """Test connection-related security settings."""
 
