@@ -17,7 +17,7 @@ nohup.out
 
 # Ignore the .env file
 .env
-.envrc
+##.envrc
 /*.env
 /audio_output/
 *.pem
