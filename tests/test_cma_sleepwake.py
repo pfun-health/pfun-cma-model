@@ -115,3 +115,33 @@ class TestCMASleepWakeModel:
         
         assert taug == taug_expected
         assert taug1 == taug1_expected
+
+    def test_parse_mealtimes(self):
+        from pfun_cma_model.engine.cma import CMASleepWakeModel
+        import numpy as np
+
+        model = CMASleepWakeModel()
+
+        # Test string input
+        tM = model._parse_mealtimes("7.0, 11.0, 17.5")
+        assert np.array_equal(tM, np.array([7.0, 11.0, 17.5]))
+
+        # Test float input
+        tM = model._parse_mealtimes(7.0)
+        assert np.array_equal(tM, np.array([7.0]))
+
+        # Test list input
+        tM = model._parse_mealtimes([7.0, 11.0, 17.5])
+        assert np.array_equal(tM, np.array([7.0, 11.0, 17.5]))
+
+        # Test invalid type
+        try:
+            model._parse_mealtimes(None)
+        except TypeError:
+            pass
+
+        # Test invalid value
+        try:
+            model._parse_mealtimes("invalid")
+        except ValueError:
+            pass

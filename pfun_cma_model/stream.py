@@ -124,7 +124,7 @@ async def stream_run_at_time_func(
     txt_buffer.seek(0)
     async for t_Gt_pair in read_create_async_generator(txt_buffer):
         tx, Gty = t_Gt_pair.split(",")
-        yield json.dumps({"x": tx, "y": Gty})
+        yield json.dumps({"x": tx, "y": Gty}) + "\n"
 
 
 async def stream_full_model_run(
@@ -166,4 +166,4 @@ async def stream_full_model_run(
     async for line in read_create_async_generator(txt_buffer):
         parts = line.split(",")
         # Yield a JSON object with all values
-        yield json.dumps({"t": parts[0], "c": parts[1], "m": parts[2], "a": parts[3]})
+        yield json.dumps({"t": parts[0], "c": parts[1], "m": parts[2], "a": parts[3]}) + "\n"

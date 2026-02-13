@@ -10,7 +10,8 @@ from typing import Annotated, Mapping, Optional
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
 from fastapi.responses import (
     HTMLResponse,
-    RedirectResponse
+    RedirectResponse,
+    StreamingResponse
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -374,26 +375,26 @@ async def run_at_time_stream_route(
     """Streaming version of the run-at-time route."""
     from pfun_cma_model.stream import stream_run_at_time_func
 
-    try:
-        config_obj = config
-        if config_obj is None:
-            config_obj = CMAModelParams()  # type: ignore
-        config_dict: Mapping = config_obj.model_dump()  # type: ignore
-        async for row in stream_run_at_time_func(model, t0, t1, n, **config_dict):
-            yield row
-    except Exception as err:
-        logger.error("failed to run at time.", exc_info=True)
-        error_content = json.dumps(
-            {
-                "error": "failed to run at time. See error message on server log.",
-                "exception": str(err),
-                "status_code": 500,
-            }
-        )
-        for err_row in [
-            error_content,
-        ]:
-            yield err_row
+    async def iter_response():
+        try:
+            config_obj = config
+            if config_obj is None:
+                config_obj = CMAModelParams()  # type: ignore
+            config_dict: Mapping = config_obj.model_dump()  # type: ignore
+            async for row in stream_run_at_time_func(model, t0, t1, n, **config_dict):
+                yield row
+        except Exception as err:
+            # Log full exception details and stack trace on the server,
+            # but return only a generic error message to the client.
+            logger.error("failed to run at time.", exc_info=True)
+            yield json.dumps(
+                {
+                    "error": "failed to run at time. See error message on server log.",
+                    "status_code": 500,
+                }
+            ) + "\n"
+
+    return StreamingResponse(iter_response(), media_type="application/x-ndjson")
 
 
 # -- WebSocket Routes --

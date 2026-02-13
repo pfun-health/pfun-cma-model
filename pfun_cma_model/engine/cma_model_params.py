@@ -149,7 +149,7 @@ class CMAModelParams(BaseModel):
         eps (float, optional): Random noise scale ("epsilon"). Defaults to 1e-18.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=True)
 
     """
     Time vector (decimal hours). Optional.

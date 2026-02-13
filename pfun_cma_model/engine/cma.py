@@ -8,6 +8,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import (
     Annotated,
+    Any,
     Callable,
     Container,
     Dict,
@@ -363,6 +364,34 @@ class CMASleepWakeModel:
         self.params.bounded.update(**new_params)
         return self.params
 
+    def _parse_mealtimes(self, tM_raw: Any) -> ndarray:
+        """Parse mealtimes from raw input."""
+        # clean up tM (handle string inputs, etc.)
+        # ! caution with this (string injection is possible)
+        if isinstance(tM_raw, str):
+            # extract numbers from the string
+            tM = [
+                float(x)
+                for x in tM_raw.split(",")
+                if x.strip().replace(".", "", 1).isdigit()
+            ]
+        elif isinstance(tM_raw, (int, float)):
+            tM = [tM_raw]
+        else:
+            try:
+                tM = list(tM_raw)
+            except TypeError:
+                raise TypeError(
+                    f"Invalid type for tM: {type(tM_raw)}. Must be a list, tuple, or string of numeric values."
+                )
+        try:
+            tM = [
+                float(x) for x in tM if isinstance(x, (int, float))
+            ]  # type: ignore
+        except ValueError:
+            raise ValueError(f"Invalid value in tM: {tM}. All values must be numeric.")
+        return array(tM, dtype=float).flatten()
+
     # type: ignore
     def update(
         self, model_params: Optional[CMAModelParams | Dict] = None, inplace=True, **kwds
@@ -403,7 +432,9 @@ class CMASleepWakeModel:
             new_inst.update(inplace=True, **kwds)
             return new_inst
         #: ! handle case in which taug was given as a vector initially
-        if "taug" in kwds and isinstance(getattr(self._params, "taug", None), Container):
+        if "taug" in kwds and isinstance(
+            getattr(self._params, "taug", None), Container
+        ):
             taug_new = kwds.pop("taug")
             match isinstance(taug_new, Container):
                 case True:
@@ -412,9 +443,10 @@ class CMASleepWakeModel:
                         taug_new, (self.n_meals,)
                     )
                 case False:  # ! else, taug is a scale: <old_taug> *= new_taug
-                    self._params.taug = array(  # type: ignore
-                        self._params.taug, dtype=float
-                    ) * float(taug_new)
+                    self._params.taug = (
+                        array(self._params.taug, dtype=float)  # type: ignore
+                        * float(taug_new)
+                    )
         #: update all given params by updating the private dict directly
         self._params.update(**kwds)
         #: Important next line:
@@ -422,34 +454,7 @@ class CMASleepWakeModel:
         #: ! Ensures that only bounded params are updated
         self.params = self.update_bounded_params(self.params)  # type: ignore
         if "tM" in kwds:
-            # clean up tM (handle string inputs, etc.)
-            # ! caution with this (string injection is possible)
-            tM_raw = kwds["tM"]
-            if isinstance(tM_raw, str):
-                # extract numbers from the string
-                tM = [
-                    float(x)
-                    for x in tM_raw.split(",")
-                    if x.strip().replace(".", "", 1).isdigit()
-                ]
-            elif isinstance(tM_raw, (int, float)):
-                tM = [tM_raw]
-            else:
-                try:
-                    tM = list(tM_raw)
-                except TypeError:
-                    raise TypeError(
-                        f"Invalid type for tM: {type(tM_raw)}. Must be a list, tuple, or string of numeric values."
-                    )
-            try:
-                tM = [
-                    float(x) for x in tM if isinstance(x, (int, float))
-                ]  # type: ignore
-            except ValueError:
-                raise ValueError(
-                    f"Invalid value in tM: {tM}. All values must be numeric."
-                )
-            self.tM = array(tM, dtype=float).flatten()
+            self.tM = self._parse_mealtimes(kwds["tM"])
         if kwds.get("N") is not None:
             self.t = linspace(0, 24, num=int(kwds["N"]))
         if kwds.get("seed") is not None:
