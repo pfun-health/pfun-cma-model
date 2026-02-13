@@ -34,12 +34,12 @@ _STEP_DEFAULTS = (0.05, 0.01, 0.01, 0.01, 0.01, 0.01)
 _BOUNDED_PARAM_KEYS_DEFAULTS = ("d", "taup", "taug", "B", "Cm", "toff")
 _EPS = 0.1 + 1e-8
 _BOUNDED_PARAM_DESCRIPTIONS = (
-    "Time zone offset; hours[time]",
-    "Photoperiod duration; hours[time]",
-    "Glucose meal-response time constant; dimensionless[time]",
-    "Glucose baseline constant; dimensionless[Glucose]",
-    "Cortisol sensitivity coefficient; dimensionless[Cortisol]",
-    "Solar-noon offset; hours[time]",
+    "Time zone offset; scalar hours[time]; Estimated effects of photoperiod offset; correlates with peak light exposure time relative to solar noon",
+    "Photoperiod duration; scalar hours[time]; Estimated number of hours of light exposure (relative to darkness) in a 24-hour period; correlates with light exposure duration",
+    "Glucose meal-response time constant; dimensionless[time]; correlates with the rate of postprandial glucose metabolism; higher values indicate slower return to baseline glucose levels after meals, which can mitigate hypoglycemia risk by increasing the time until glucose levels drop dangerously low",
+    "Glucose baseline constant; dimensionless[Glucose]; correlates with basal glucose levels; correlates with A1C-- values higher than 0.05 indicate elevated baseline glucose levels, which can increase hyperglycemia risk",
+    "Cortisol sensitivity coefficient; dimensionless[Cortisol]; correlates with the influence of cortisol on glucose variability; higher values indicate greater cortisol sensitivity, which can increase glucose variability, thereby increasing hyperglycemia/hypoglycemia risk",
+    "Solar-noon offset; hours[time]; correlates with the timing of solar noon relative to the individual's circadian phase; can reflect chronotype and influence the alignment of circadian rhythms with the external light-dark cycle, which can impact glucose metabolism and overall metabolic health",
 )
 
 

@@ -24,7 +24,7 @@ def _import_genai_with_backend(llm_backend: LLMBackendChoice):
 
 def init_gen_model(**kwds):
     """Initializes the generative model based on the selected backend and provided keyword arguments.
-    
+
     :param kwds: Keyword arguments to pass to the generative model upon initialization (e.g. temperature, seed, etc.). These will be passed directly to the model's internal _extra_kwds dictionary, which is used to configure the model's behavior.
     """
     kwargs = dict(options={"temperature": 0, "seed": 23})
@@ -90,13 +90,16 @@ async def _call_llm_for_json(prompt: str) -> dict:
         raise Exception(f"Failed to parse LLM API response: {e}")
 
 
-async def generate_scenario(query: Optional[str] = None, include_sample_trace: bool = False) -> dict:
+async def generate_scenario(
+    query: Optional[str] = None, include_sample_trace: bool = False, include_recommendations: bool = True
+) -> dict:
     """
     Generates a realistic "pfun-scene" JSON object using the Gemini API.
 
     Args:
         query: An optional query to guide the scenario generation.
         include_sample_trace: Whether to include a sample trace in the generated scenario.
+        include_recommendations: Whether to include recommendations in the generated scenario.
 
     Returns:
         A dictionary containing the generated scenario.
@@ -133,10 +136,31 @@ async def generate_scenario(query: Optional[str] = None, include_sample_trace: b
 
     scenario_param_descriptions = scenario_params.generate_markdown_table(
         output_fmt="md",
-        included_params=["Cm", "B", "taug"], 
+        included_params=["Cm", "B", "taug"],
         # Only include the parameters that are relevant,
         # exclude tM because it isn't a scalar bounded parameter.
     )
+
+    # construct the prompt with recommendations (if included)
+    include_tips_prompt = (
+        "Ensure the recommendations include actionable tips to help the person mitigate their risk of hypoglycemia, such as stress management techniques, dietary adjustments, or sleep hygiene improvements. Important: the generated recommendations should be physiologically sound and appropriate for the scenario, and should not include generic advice that isn't relevant to the specific scenario; in most cases, the recommendations should map cleanly to specific parameter deviations and the qualitative description of the scenario."
+        if include_recommendations
+        else ""
+    )
+    recommendations_json_extra = (
+        f',\n    "recommendations": "A concise list of personalized recommendations for the person based on the generated scenario. {include_tips_prompt}"'
+        if include_recommendations
+        else ""
+    )
+    specific_recommendations_json_extra = ""
+    if include_recommendations:
+        specific_recommendations_json_extra = f"""\
+            ,
+            "recommendations": {{
+                "stress_management": "Employ deep-breathing exercises to manage stress.",
+                "dietary_adjustments": "Include high-quality proteins and fats in evening meals to stabilize glucose levels, thus avoiding hypoglycemic episodes. Positive clinical outcomes should result in significantly decreased Cm, ideally closer to the expected baseline ({basal_params.Cm:.2f}).",
+                "sleep_hygiene_improvements": "Aim to maintain a consistent sleep schedule and avoid screens before bedtime. Improved sleep quality can help regulate cortisol levels, thus decreasing overall glucose variability (positive outcomes are seen in a return to baseline Cm). Aim to get at least 7 hours of sleep per night; increased sleep duration can also help stabilize the global rate of postprandial glucose metabolism (taug, baseline expected value {basal_params.taug:.2f}); this helps mitigate hypoglycemia risk by increasing the time until glucose levels return to baseline (or drop dangerously low)."
+        }}"""
 
     prompt = f"""\
 You are a helpful assistant that generates realistic scenarios for a person with diabetes.
@@ -157,7 +181,7 @@ You will return a JSON object with the following structure:
             "value": value2, "description": "Description of param2"
         }},
         ...
-    }}
+    }}{recommendations_json_extra}
 }}
 ```
 Here are the baseline PFun CMA model parameters, displayed as a markdown-formatted table:
@@ -176,7 +200,7 @@ Assistant:
         "Cm": {{ "value": {scenario_params.Cm},  "stderr": {scenario_params.serr("Cm")}, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
         "B": {{ "value": {scenario_params.B}, "stderr": {scenario_params.serr("B")}, "description": "Low baseline glucose" }},
         "tM": {{ "value": [7, 11, 18], "description": "Consistent meal times throughout the day, keep up the great work! Consider eating a small snack after dinner to avoid hypoglycemia at night." }}
-    }}
+    }}{specific_recommendations_json_extra}
 }}
 ```
 

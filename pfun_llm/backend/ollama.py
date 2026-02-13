@@ -3,8 +3,12 @@
 import logging
 import asyncio
 from typing import Optional, Literal, Any
+import ollama
 from pydantic import BaseModel, Field, field_serializer
-from ollama import AsyncClient
+from ollama import (
+    AsyncClient,
+    ProgressResponse,
+)
 from pfun_common.settings import get_settings
 from pfun_llm.backend.base import BaseGenerativeModel
 
@@ -119,8 +123,23 @@ class OllamaGenerativeModel(BaseGenerativeModel):
             type(serialized_messages),
             repr(serialized_messages),
         )
-        # ensure the response is an awaitable (avoid making this method async, handle in context)
-        return self.chat(model=model, messages=serialized_messages)
+        try:
+            # ensure the response is an awaitable (avoid making this method async, handle in context)
+            return self.chat(model=model, messages=serialized_messages)
+        except ollama._types.ResponseError as exc:
+            logging.error("Ollama API error: %s", exc)
+            if exc.status_code == 404:
+                logging.warning(
+                    "Model not found: %s. Please check the model name and ensure it is available in your Ollama instance. Now attempting to pull the specified model.",
+                    model,
+                )
+                prog_response: ProgressResponse = ollama.pull(model=model)
+                logging.info("Pull response: %s", prog_response)
+                if prog_response.status.lower() == 'completed':
+                    logging.info("Model pulled successfully. Retrying the API call.")
+                    return self.chat(model=model, messages=serialized_messages)
+            # if we reach here, it means the error was not a 404 or the pull did not succeed, so we raise the error
+            raise RuntimeError(f"Ollama API error: {exc}") from exc
 
     @classmethod
     def setup_genai_client(cls) -> AsyncClient:
