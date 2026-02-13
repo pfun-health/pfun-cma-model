@@ -12,10 +12,9 @@ from typing import (
     Tuple,
 )
 
-import pfun_path_helper  # type: ignore
 from numpy import array, linspace, ndarray, nan
-from pydantic import BaseModel, ConfigDict, Field, field_serializer  # type: ignore
-from tabulate import tabulate  # type: ignore
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from tabulate import tabulate
 
 import pfun_cma_model.engine.bounds as bounds
 from pfun_cma_model.misc.types import NumpyArray
@@ -302,6 +301,10 @@ class CMAModelParams(BaseModel):
         mid = self.midbound[ix]
         serr = (x - mid) / (self.bounds.ub[ix] - self.bounds.lb[ix])
         return serr
+    
+    def serr(self, param_key: str):
+        """Alias for calc_serr."""
+        return self.calc_serr(param_key)
 
     def generate_qualitative_descriptor(self, param_key: str):
         """Generate a qualitative descriptor for a bounded parameter."""

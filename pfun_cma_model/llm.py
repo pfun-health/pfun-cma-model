@@ -4,75 +4,30 @@ import importlib
 import json
 import logging
 import re
-import importlib
 from typing import Optional, Any, Literal
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 
-"""
-TODO:
-=====
-
-# Algorithm overview
-
-## Generate Valid Parameters (real data -> ϑ_p)
-
-[[START]] --> Generate_Parameters_Corresponding_To_Real_Data(
-  github:pfun-health/pfun-data
-)
-|
-|------> Generate_DeltaTheta { EndocrineExpertModel } (
-Generate the tip (delta_descr), therapeutic potential (delta_theta))
- \\-----> Store_ContextVector( ChromaDB ; {
-  theta_original,delta_theta,description,delta_description }
-)
-\\--> [[END]]
-
-## Inference RAFT (User Query)
-
-    [[START]]
-    |--> "Tip for me (descr_i, context_i, Optional theta_fitt_i) ...?"
-    |
-     \\------> <chromadb>.vector_search( UserProvidedContext )
-    |-> "...Here's your tip (Final_description, ...<context_vector_indexing>)" [[END]]
-
-----
-
-# TODO Notes
-
-+ Enhance RAG with vector search: use chromadb (or duckdb, ...)
-
-+ Split this into multiple endpoints, likely will use Cloudflare Worker for load balancing
-+ Test with Ollama cloud LLMs (e.g., gpt-oss-20B)
-
-+ Develop an evaluation pipeline:
-    + { TrainingDataset[VariationalParameterSpace, QualitativeDescription] }
-     + ...then see how performance holds up with fewer parameters, quantization.
-     + ...eventually fine-tuning should happen naturally from this process.
-
-"""
-
-
-LLMBackendChoice = Literal["google", "perplexity", "ollama", "openai"]
+LLMBackendChoice = Literal[
+    "google", "perplexity", "ollama", "openai"
+]  # The allowed choices for LLM backend, corresponding to the implemented backends in pfun_llm.backend.
 
 
 def _import_genai_with_backend(llm_backend: LLMBackendChoice):
-    """dynamically import the currently selected LLM backend (using settings.llm_backend)."""
+    """Dynamically import the currently selected LLM backend (using settings.llm_backend)."""
     module_name = f"pfun_llm.backend.{llm_backend}"
     class_name = f"{llm_backend}".title() + "GenerativeModel"
     _module = importlib.import_module(module_name)
     return getattr(_module, class_name)
 
 
-# Dynamically import the LLM generative backend (settings.llm_backend)
 def init_gen_model(**kwds):
-    kwargs = dict(
-        options={
-            "temperature": 0,
-            "seed": 23
-        }
-    )
+    """Initializes the generative model based on the selected backend and provided keyword arguments.
+    
+    :param kwds: Keyword arguments to pass to the generative model upon initialization (e.g. temperature, seed, etc.). These will be passed directly to the model's internal _extra_kwds dictionary, which is used to configure the model's behavior.
+    """
+    kwargs = dict(options={"temperature": 0, "seed": 23})
     kwargs.update(kwds)
     GenerativeModel = _import_genai_with_backend(get_settings().llm_backend)
     model = GenerativeModel()
@@ -93,9 +48,6 @@ async def _parse_generated_response(response: Any | str) -> str:
         # parse text attribute if it exists
         txt_resp = getattr(response, "text", str(response))
         return str(txt_resp).replace("'", '"')
-    # TODO: this is clearly unsafe and will be resolved in a future update.
-    # TODO: stop spending time fixing this catastrophe :)
-    # use recursion after awaiting (bc we're cool like that...)
     return await _parse_generated_response(await response)
 
 
@@ -121,21 +73,14 @@ async def _call_llm_for_json(prompt: str) -> dict:
         resp_dict = json.loads(resp_text)
         resp_text = resp_dict["content"]
     except (json.JSONDecodeError, KeyError) as e:
-        logging.debug(
-            "Failed in initial pre-parsing, attempting without...", exc_info=True
-        )
+        logging.debug("Failed in initial pre-parsing, attempting without...", exc_info=True)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(
-            r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
         json_str = (
             json_match.group(1)
             if json_match
-            else resp_text.strip()
-            .replace("`", "")
-            .replace("json", "")
-            .replace("\\n", "")
-            .replace("    ", "")
+            else resp_text.strip().replace("`", "").replace("json", "").replace("\\n", "").replace("    ", "")
         )
         json_str = json_str.replace("\\n", "").replace("    ", "")
         return json.loads(json_str)
@@ -145,106 +90,13 @@ async def _call_llm_for_json(prompt: str) -> dict:
         raise Exception(f"Failed to parse LLM API response: {e}")
 
 
-async def translate_query_to_params(query: str) -> dict:
-    """
-    Translates a plain English query into PFun CMA model parameters using the Gemini API.
-
-    Args:
-        query: The plain English query.
-
-    Returns:
-        A dictionary containing the PFun CMA model parameters.
-    """
-    # Construct the prompt
-    params = CMAModelParams()
-    param_descriptions = params.generate_markdown_table(output_fmt="md")
-
-    prompt = f"""\
-You are a helpful assistant that translates plain English descriptions of a person's health into PFun CMA model parameters.
-
-The user will provide a description, and you will return a JSON object with the corresponding model parameters.
-
-Here are the PFun CMA model parameters and their descriptions:
-{param_descriptions}
-
-Here is an example:
-User: "a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
-Assistant:
-```json
-{{
-    "Cm": 1.5,
-    "B": -0.2
-}}
-```
-
-Now, please translate the following user query into PFun CMA model parameters.
-User: "{query}"
-Assistant:
-"""
-    return await _call_llm_for_json(prompt)
-
-
-def generate_causal_explanation(description: str, trace: str) -> dict:
-    """
-    Generates a causal explanation for a glucose trace given a patient description.
-
-    Args:
-        description: A narrative describing the person's health, lifestyle, and recent events.
-        trace: A JSON string representing the glucose trace data.
-
-    Returns:
-        A dictionary containing the causal explanation.
-    """
-
-    prompt = f"""\
-You are a helpful assistant that analyzes glucose data for a person with diabetes and provides a causal explanation for the observed patterns.
-
-You will be given a description of the person's health and lifestyle, and a JSON object representing their glucose trace over time.
-
-You will return a JSON object with a single key, "causal_explanation", which is a list of potential actions and their probabilities of being the cause for the observed glucose pattern. The probabilities should be realistic and proportionate to the actual likelihood of each action.
-
-Here is an example:
-Description: "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at  🦉. " + \
-"This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
-Trace: {{ ... (json data of glucose trace) ... }}
-Assistant:
-```json
-{{
-    "causal_explanation": [
-        {{"action": "Ate a large, high-carb meal late at night", "probability": 0.6}},
-        {{"action": "Experienced high stress", "probability": 0.3}},
-        {{"action": "Inconsistent sleep schedule", "probability": 0.1}}
-    ]
-}}
-```
-
-Now, please analyze the following description and glucose trace and provide a causal explanation.
-Description: "{description}"
-Trace: {trace}
-Assistant:
-"""
-
-    response = GenerativeModel().generate_content(prompt)
-
-    try:
-        json_str = (
-            _parse_generated_response(response)
-            .strip()
-            .replace("`", "")
-            .replace("json", "")
-        )  # type: ignore
-        explanation = json.loads(json_str)
-        return explanation
-    except (json.JSONDecodeError, KeyError, AttributeError) as e:
-        raise Exception(f"Failed to parse LLM API response: {e}") from e
-
-
-async def generate_scenario(query: Optional[str] = None) -> dict:
+async def generate_scenario(query: Optional[str] = None, include_sample_trace: bool = False) -> dict:
     """
     Generates a realistic "pfun-scene" JSON object using the Gemini API.
 
     Args:
         query: An optional query to guide the scenario generation.
+        include_sample_trace: Whether to include a sample trace in the generated scenario.
 
     Returns:
         A dictionary containing the generated scenario.
@@ -254,24 +106,36 @@ async def generate_scenario(query: Optional[str] = None) -> dict:
 
     # baseline cma model parameters
     basal_params = CMAModelParams()
-    basal_param_descriptions = basal_params.generate_markdown_table(
-        output_fmt="md")
+    basal_param_descriptions = basal_params.generate_markdown_table(output_fmt="md")
 
     # hypothetical scenario-conditioned parameters
+    scenario_params = CMAModelParams(Cm=1.5, B=0.001, taug=0.4, tM=[7, 11, 18])
     scenario_description = (
-        "This individual is experiencing a period of high stress ($C_m >> 0.0$) due to work deadlines, "
-        "which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. "
-        "Their diet lacks high-quality proteins & fats, so their endogenous glucose production is dangerously unreliable ($B << 0.05$). "
-        "Combined with the physiological effects of stress, they have an increased risk of experiencing episodes of nocturnal "
-        "hypoglycemia, i.e. dangerously low blood glucose levels."
+        "This individual is experiencing a period of high stress due to work deadlines, "
+        "which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings."
+        " \nTheir cortisol levels are elevated, which is causing increased glucose variability;"
+        " Their cortisol sensitivity (Cm={}) is {} from the expected {}."
+        " \nTheir diet lacks high-quality proteins & fats, so their endogenous glucose production is dangerously unreliable. "
+        "Thus, their baseline glucose (B={}) is {} compared to the expected {}; "
+        "Further, their rate of glucose metabolism (taug={}) is {} compared to the expected {}. "
+        " \nCombined with the physiological effects of stress, they have an increased risk of experiencing episodes of nocturnal hypoglycemia, i.e. dangerously low blood glucose levels."
+    ).format(
+        scenario_params.Cm,
+        scenario_params.generate_qualitative_descriptor("Cm"),
+        basal_params.Cm,
+        scenario_params.B,
+        scenario_params.generate_qualitative_descriptor("B"),
+        basal_params.B,
+        scenario_params.taug,
+        scenario_params.generate_qualitative_descriptor("taug"),
+        basal_params.taug,
     )
-    scenario_params = CMAModelParams(Cm=1.5, B=-0.2)
+
     scenario_param_descriptions = scenario_params.generate_markdown_table(
         output_fmt="md",
-        included_params=[
-            "Cm",
-            "B",
-        ],  # Only include the parameters that are different from the baseline
+        included_params=["Cm", "B", "taug"], 
+        # Only include the parameters that are relevant,
+        # exclude tM because it isn't a scalar bounded parameter.
     )
 
     prompt = f"""\
@@ -306,12 +170,12 @@ Think: "Corresponding to the scenario, here is a hypothetical scenario-condition
 Assistant:
 ```json
 {{
-    "forecasted_events": "Low blood glucose (),
+    "forecasted_events": "Low blood glucose (hypoglycemic episodes) in the evening",
     "qualitative_description": "{scenario_description}",
     "parameters": {{
-        "Cm": {{ "value": 1.5,  "stderr": 0.5, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
-        "B": {{ "value": -0.2, "stderr": 0.25, "description": "Low baseline glucose" }},
-        "tM": {{ "value: "7, 11, 18", "description": "Consistent meal times throughout the day, keep up the great work! Consider eating a small snack after dinner to avoid hypoglycemia at night." }}
+        "Cm": {{ "value": {scenario_params.Cm},  "stderr": {scenario_params.serr("Cm")}, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
+        "B": {{ "value": {scenario_params.B}, "stderr": {scenario_params.serr("B")}, "description": "Low baseline glucose" }},
+        "tM": {{ "value": [7, 11, 18], "description": "Consistent meal times throughout the day, keep up the great work! Consider eating a small snack after dinner to avoid hypoglycemia at night." }}
     }}
 }}
 ```
@@ -321,18 +185,3 @@ User: "{query if query else 'No query provided.'}"
 Assistant:
 """
     return await _call_llm_for_json(prompt)
-
-
-if __name__ == "__main__":
-    # Example usage
-    query = "a patient with chronic stress that exacerbates the risk of glucose lows in the evening"
-    params = translate_query_to_params(query)
-    print("Translated Parameters:", params)
-
-    description = "This individual is experiencing a period of high stress due to work deadlines, which has been disrupting their sleep patterns and leading to poor dietary choices, especially in the evenings. They often skip meals during the day and then have a large, carbohydrate-heavy dinner late at night 🦉. This, combined with the physiological effects of stress, has increased their risk of nocturnal hypoglycemia."
-    trace = '{"glucose_readings": [150, 140, 130, 120, 110, 100, 90, 80, 70, 60]}'
-    explanation = generate_causal_explanation(description, trace)
-    print("Causal Explanation:", explanation)
-
-    scenario = generate_scenario(query)
-    print("Generated Scenario:", scenario)

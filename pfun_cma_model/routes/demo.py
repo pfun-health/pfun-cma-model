@@ -8,8 +8,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
-from pfun_common.settings import Settings, get_settings
-from starlette.responses import HTMLResponse
 
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
 from pfun_cma_model.misc.templating import get_templates
@@ -22,7 +20,7 @@ class PFunDemoRoutesContext(BaseModel):
     """Defines the context to include for rendering demo routes (jinja2templates)."""
 
     model_config = ConfigDict(
-        extra='allow',
+        extra="allow",
         arbitrary_types_allowed=True,
     )
     #: Model configuration
@@ -37,23 +35,17 @@ class PFunDemoRoutesContext(BaseModel):
 @router.get("/llm")
 def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
-    return templates.TemplateResponse(
-        "llm-demo.html.jinja2", context=context
-    )
+    return templates.TemplateResponse("llm-demo.html.jinja2", context=context)
 
 
 @router.get("/data-stream")
 def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
-    return templates.TemplateResponse(
-        "data-stream-demo.html.jinja2", context=context
-    )
+    return templates.TemplateResponse("data-stream-demo.html.jinja2", context=context)
 
 
 @router.get("/run-at-time")
-async def demo_run_at_time(
-    request: Request, templates: Jinja2Templates = Depends(get_templates)
-):
+async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     # load default bounded parameters
     cma_params = CMAModelParams()
@@ -85,14 +77,10 @@ async def demo_run_at_time(
         "request": request,
         "params": params,
         "cdn": {
-            "chartjs": {
-                "url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"
-            },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            },
+            "chartjs": {"url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"},
+            "socketio": {"url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"},
         },
-        "year": datetime.now().year
+        "year": datetime.now().year,
     }
     logger.debug("Demo context: %s", str(context_dict))
     context = PFunDemoRoutesContext(**context_dict)
@@ -105,9 +93,7 @@ async def demo_run_at_time(
 
 
 @router.get("/canvas-wave")
-async def demo_canvas_wave(
-    request: Request, templates: Jinja2Templates = Depends(get_templates)
-):
+async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint for canvas wave demo (using websockets)."""
     # load default bounded parameters
     cma_params = CMAModelParams()
@@ -139,9 +125,7 @@ async def demo_canvas_wave(
         "request": request,
         "params": params,
         "cdn": {
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            },
+            "socketio": {"url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"},
         },
     }
     logger.debug("Demo context: %s", context_dict)
@@ -154,9 +138,7 @@ async def demo_canvas_wave(
 
 
 @router.get("/webgl-demo")
-async def demo_webgl(
-    request: Request, templates: Jinja2Templates = Depends(get_templates)
-):
+async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint for the WebGL-based real-time plot."""
     # load default bounded parameters
     cma_params = CMAModelParams()
@@ -190,23 +172,17 @@ async def demo_webgl(
             "webglplot": {
                 "url": f"https://cdn.jsdelivr.net/gh/danchitnis/webgl-plot@master/dist/webglplot.umd.min.js?dummy={rand0}"
             },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            },
+            "socketio": {"url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"},
         },
     }
     logger.debug("WebGL Demo context: %s", context_dict)
     context = PFunDemoRoutesContext(**context_dict).model_dump()
     logger.debug("(post-validation) WebGL Demo context: %s", context)
-    return templates.TemplateResponse(
-        "webgl-demo.html.jinja2", context=context, headers={"Content-Type": "text/html"}
-    )
+    return templates.TemplateResponse("webgl-demo.html.jinja2", context=context, headers={"Content-Type": "text/html"})
 
 
 @router.get("/full-model-run")
-async def demo_full_model_run(
-    request: Request, templates: Jinja2Templates = Depends(get_templates)
-):
+async def demo_full_model_run(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint to run the full model (c, m, a) at a specific time (using websockets)."""
     # load default bounded parameters
     cma_params = CMAModelParams()
@@ -238,12 +214,8 @@ async def demo_full_model_run(
         "request": request,
         "params": params,
         "cdn": {
-            "chartjs": {
-                "url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"
-            },
-            "socketio": {
-                "url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"
-            },
+            "chartjs": {"url": f"https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js?dummy={rand0}"},
+            "socketio": {"url": f"https://cdn.socket.io/4.7.5/socket.io.min.js?dummy={rand1}"},
         },
     }
     logger.debug("Demo context: %s", context_dict)
