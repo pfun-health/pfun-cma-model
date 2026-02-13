@@ -384,11 +384,12 @@ async def run_at_time_stream_route(
             async for row in stream_run_at_time_func(model, t0, t1, n, **config_dict):
                 yield row
         except Exception as err:
+            # Log full exception details and stack trace on the server,
+            # but return only a generic error message to the client.
             logger.error("failed to run at time.", exc_info=True)
             yield json.dumps(
                 {
                     "error": "failed to run at time. See error message on server log.",
-                    "exception": str(err),
                     "status_code": 500,
                 }
             ) + "\n"
