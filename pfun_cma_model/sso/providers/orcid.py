@@ -1,13 +1,10 @@
 """ORCiD SSO Oauth Helper class."""
 
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import ClassVar, Optional
 from fastapi_sso.sso.base import (
     DiscoveryDocument, OpenID, SSOBase, SSOLoginError
 )
-
-if TYPE_CHECKING:
-    import httpx  # pragma: no cover
-
+import httpx
 
 class OrcidSSO(SSOBase):
     """Class providing login via Orcid OAuth."""
