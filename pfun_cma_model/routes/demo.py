@@ -34,50 +34,6 @@ class PFunDemoRoutesContext(BaseModel):
     #: Current calendar year (YYYY)
 
 
-@router.get("/gradio")
-def demo_gradio(
-    request: Request,
-    templates: Jinja2Templates = Depends(get_templates),
-    settings: Settings = Depends(get_settings),
-):
-    """Demo UI endpoint to embed the Gradio interface via an iframe."""
-    gradio_url_path = "/gradio/gradio/" if not settings.debug else "/"
-    gradio_server_port = f":{settings.gradio_server_port}" if settings.debug else ""
-    gradio_url = (
-        settings.gradio_server_scheme
-        + "://"
-        + settings.gradio_server_host
-        + gradio_server_port
-        + gradio_url_path
-    )
-    logger.debug("Gradio URL: %s", gradio_url)
-    return HTMLResponse(
-        f"""
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>PFun CMA Model Gradio Demo</title>
-            </head>
-            <body>
-                <h1>Gradio Demo</h1>
-                <iframe src="{gradio_url}" width="100%" height="800px" style="border:none;"></iframe>
-            </body>
-        </html>
-        """,
-        status_code=200,
-    )
-
-
-@router.get("/dexcom")
-def demo_dexcom(request: Request, templates: Jinja2Templates = Depends(get_templates)):
-    context = PFunDemoRoutesContext(request=request).model_dump()
-    return templates.TemplateResponse(
-        "dexcom-demo.html.jinja2", context=context
-    )
-
-
 @router.get("/llm")
 def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     context = PFunDemoRoutesContext(request=request).model_dump()
