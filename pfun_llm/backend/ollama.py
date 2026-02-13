@@ -2,6 +2,7 @@
 
 import logging
 import asyncio
+import importlib
 from typing import Optional, Literal, Any
 import ollama
 from pydantic import BaseModel, Field, field_serializer
@@ -9,7 +10,6 @@ from ollama import (
     AsyncClient,
     ProgressResponse,
 )
-from pfun_common.settings import get_settings
 from pfun_llm.backend.base import BaseGenerativeModel
 
 
@@ -71,8 +71,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
     def __new__(cls, *args, **kwargs):
         """Create a new instance of OllamaGenerativeModel."""
         obj = super().__new__(cls, *args, **kwargs)
-        from pfun_common.settings import get_settings
-
+        get_settings = importlib.import_module("pfun_common.settings").get_settings  # type: ignore
         settings = get_settings()
         obj._default_model = kwargs.get("model", settings.ollama_model)
         return obj
@@ -138,6 +137,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         Returns:
             ollama.AsyncClient: The ollama API client.
         """
+        get_settings = importlib.import_module("pfun_common.settings").get_settings  # type: ignore
         settings = get_settings()
         client = AsyncClient(host=settings.ollama_host)
         logging.debug("Ollama API client setup successfully.")

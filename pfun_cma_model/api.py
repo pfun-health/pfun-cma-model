@@ -37,6 +37,7 @@ from pfun_cma_model.engine.cma_model_params import (
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
 from pfun_cma_model.routes import (
+    auth as auth_routes,
     dexcom as dexcom_routes,
     data as data_routes,
     params as params_routes,
@@ -233,6 +234,8 @@ app.add_middleware(
 )
 
 # --- Include Routers ---
+
+app.include_router(auth_routes.router, tags=["auth"])
 
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
