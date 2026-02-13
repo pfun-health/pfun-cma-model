@@ -96,7 +96,7 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         response = await asyncio.ensure_future(self._client.chat(model=model, messages=messages, **self._extra_kwds))
         return response
 
-    async def call_genai_client(
+    def call_genai_client(
         self,
         model: Optional[str] = None,
         contents: Optional[list | str | OllamaMessages | OllamaMessage] = None,

@@ -46,19 +46,19 @@ async def _parse_generated_response(response: Any | str) -> str:
     # explicitly test to see if the response needs awaited
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
-        txt_resp = getattr(response, "text", str(response))
+        response_as_dict = response.dict()
+        txt_resp = response_as_dict['message']['content']
         # Properly handle UTF-8 encoding: encode to bytes then decode as UTF-8
         txt_resp = str(txt_resp).replace("'", '"')
-        # strip surrounding formatting if it's wrapped in markdown code blocks
-        txt_resp = re.sub(r"^```[\w\s]*|```$", "", txt_resp.strip())
         try:
             # If it's a string with encoding issues, try to fix it
             if isinstance(txt_resp, str):
-                # Encode as latin-1 (single bytes) then decode as UTF-8 to fix double-encoding
-                txt_resp = txt_resp.encode("utf-8", errors="replace").decode("utf-8")
+                # Encode, then decode UTF-8 to fix double-encoding
+                txt_resp = txt_resp.encode("utf-8", errors="replace").decode("utf-8", errors="replace")
         except (UnicodeDecodeError, UnicodeEncodeError):
             # If that fails, just use the string as-is
-            pass
+            logging.debug("Exception occurred during unicode handling, using original text response", exc_info=True)
+            logging.debug("Failed to properly decode response text, using raw string.\nOriginal text: %s", txt_resp)
         return txt_resp
     return await _parse_generated_response(await response)
 
@@ -80,19 +80,17 @@ async def _call_llm_for_json(prompt: str) -> dict:
     response = model.generate_content(prompt)
     resp_text: str = await _parse_generated_response(response)
     logging.debug("LLM Response (raw text attribute):\n'%s'", resp_text)
-    try:
-        # attempt to load without parsing
-        resp_dict = json.loads(resp_text)
-        resp_text = resp_dict["content"]
-    except (json.JSONDecodeError, KeyError) as e:
-        logging.debug("Failed in initial pre-parsing, attempting without...", exc_info=True)
-
     # use regex to extract JSON from markdown code blocks (if present)
     json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
+    # Perform additional cleaning to handle cases where the model might return JSON without proper code blocks, or with extra text. This is a fallback in case the regex doesn't find a code block, or if the model returns something like "Here is the JSON: { ... }".
+    json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
+    json_str = json_str.strip()
+    json_end_idx = json_str.rfind("}")
+    if json_end_idx != -1:
+        json_str = json_str[:json_end_idx + 1]
+    logging.debug("Extracted JSON string from response:\n'%s'", json_match.group(1) if json_match else "No JSON code block found.")
     try:
-        # The response might contain markdown, so we need to extract the JSON from it
-        json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
-        # Ensure proper UTF-8 handling without aggressive escaping
+        # Load the JSON string into a Python dictionary
         return json.loads(json_str)
     except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
         logging.debug("Raw response text:\n%s", resp_text)

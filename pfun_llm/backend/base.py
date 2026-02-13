@@ -15,7 +15,7 @@ class BaseGenerativeModel:
 
     def __call__(
         self, model: Optional[str] = None, contents: Optional[list | str] = None
-    ):
+    ) -> None | Any:
         """Call the API with the specified model and contents."""
         if model is None:
             model = self._model
@@ -23,7 +23,7 @@ class BaseGenerativeModel:
             raise ValueError("Contents must be provided.")
         return self.call_genai_client(model=model, contents=contents)
 
-    def generate_content(self, prompt: str):
+    def generate_content(self, prompt: str) -> None | Any:
         """(convenience method) Generate content using the specified prompt."""
         return self(model=self._model, contents=prompt)
 
