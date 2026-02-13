@@ -49,7 +49,7 @@
           duckdb
 
           # data visualization
-          datasette
+          #datasette  # currently isn't working due to dependency on pip module (should work once we have uv install the Python dependencies, but we want to be able to run `uv sync` without errors first)
         ];
       in
       {
@@ -76,12 +76,9 @@
             echo "This shell provides Python, uv."
             echo "The project's Python dependencies are defined in pyproject.toml."
             echo ""
-            echo "To get started (as per your README.md):"
-            echo "1. Create a virtual environment: uv venv"
-            echo "2. Activate it: source .venv/bin/activate"
-            echo "3. Install dependencies: uv sync"
-            echo ""
-            echo "After that, you can run tests or run the app."
+            
+            . ./.venv/bin/activate
+            echo "Activated Python virtual environment from .venv/ directory."
           '';
         };
       }
