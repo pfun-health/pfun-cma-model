@@ -154,12 +154,12 @@ def generate_scenario(ctx, query):
 
     df_result = pd.DataFrame([response], index=[0])
     df_result.to_parquet(os.path.join(
-        ctx.obj["output_dir"], "cma_scenes.parquet"))
+        ctx.obj["output_dir"], "cma_recs.parquet"))
     # save to duckdb database
     import duckdb
     with duckdb.connect(database='results/duckdb.db') as connection:
         # create the table if it doesn't yet exist
-        table_id = "cma_scenes"
+        table_id = "cma_recs"
         connection.sql(
             f"CREATE TABLE IF NOT EXISTS {table_id} AS SELECT * FROM df_result")
         # update the table otherwise

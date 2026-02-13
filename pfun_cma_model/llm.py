@@ -74,18 +74,19 @@ async def _call_llm_for_json(prompt: str) -> dict:
         resp_text = resp_dict["content"]
     except (json.JSONDecodeError, KeyError) as e:
         logging.debug("Failed in initial pre-parsing, attempting without...", exc_info=True)
+
+    # use regex to extract JSON from markdown code blocks (if present)
+    json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
     try:
         # The response might contain markdown, so we need to extract the JSON from it
-        json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-        json_str = (
-            json_match.group(1)
-            if json_match
-            else resp_text.strip().replace("`", "").replace("json", "").replace("\\n", "").replace("    ", "")
-        )
-        json_str = json_str.replace("\\n", "").replace("    ", "")
+        json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
+        # Decode escaped sequences and handle unicode characters
+        json_str = json_str.encode().decode("unicode-escape")
+        # Remove excessive whitespace but preserve structure
+        json_str = json_str.replace("    ", " ")
         return json.loads(json_str)
-    except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
-        logging.debug("raw response text: %s", resp_text)
+    except (json.JSONDecodeError, KeyError, AttributeError, IndexError, UnicodeDecodeError) as e:
+        logging.debug("Raw response text: %s", resp_text)
         logging.error("Failed to parse LLM API Response. %s", e, exc_info=True)
         raise Exception(f"Failed to parse LLM API response: {e}")
 
