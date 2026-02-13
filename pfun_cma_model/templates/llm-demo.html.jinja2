@@ -33,10 +33,14 @@
 			    <div class="form-group">
 				<textarea
 				    id="query-input" rows="5" cols="50"
-				    placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning.</textarea>
+				    placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning. What can you tell me to improve?</textarea>
 			    </div>
 			    <div class="button-group p-2 container rounded">
-				<button id="submit-btn" type="submit" class="btn btn-primary">Submit</button>
+				<button id="submit-btn" type="submit" class="btn btn-primary btn-lg">Submit</button>
+				<div id="loading-container" class="container-fluid text-bg-secondary text-left" style="display: none;">
+				    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+				    Loading...
+				</div>
 			    </div>
 			</form>
 		    </div>
@@ -46,11 +50,17 @@
 		    <div id="output-container"
 			 class="container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body"
 		    >
-			<div id="loading-container" class="container-fluid flex p-3 text-bg-primary text-left" style="display: none;">
-			    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-			    Loading...
+			<div id="responses-container" class="grid flex container">
+			    <ul class="list-group">
+			    <div id="formatted-response-container" class="list-group-item">
+				<p class="h-5 text-center text-bg-primary fw-bolder">Recommendations</p>
+				<p id="formatted-response-output" class="text-wrap" style="width: 85em;"></p>
+			    </div>
+			    <div id="raw-response-container" class="list-group-item">
+				<p class="h-5 text-center text-bg-info fw-bolder">Raw output</p>
+				<pre id="response-output" class="text-wrap text-bg-body"></pre>
+			    </div>
 			</div>
-			<pre id="response-output" class="text-wrap" style="width: 85em;"></pre>
 		    </div>
 
 	    </div><!-- /end accordion -->
@@ -62,7 +72,12 @@
 
 	<!-- llm prompt interaction -->
 	<script>
+	 document.addEventListener("DOMContentLoaded", () => {
+	     localStorage.setItem('ntry_count', '0'); // number of times we've tried the endpoint before reloading
+	 });
+		 
 	 const onFormSubmit = async (event) => {
+	     
 	     try {
 		 event.preventDefault();
 	     } catch(err) {
@@ -83,6 +98,7 @@
 		     throw new Error("<<TEST_ERROR>>");
 		 }
                  query_url.searchParams.set('prompt', query);
+		 $("#submit-btn").addClass("disabled");
                  const response = await fetch(query_url.toString(), {
                      method: 'POST',
                      headers: {
@@ -109,6 +125,20 @@
 		     throw new Error(str_content);
 		 }
              } catch (error) {
+		 // ensure the user can't submit manually again during this time
+		 $("#submit-btn").addClass("disabled");
+		 // increment the count of retries
+		 let ntry_count = parseInt(localStorage.getItem("ntry_count"));
+		 ntry_count = ntry_count + 1;
+		 localStorage.setItem("ntry_count", `${ntry_count}`);
+		 if(ntry_count >= 4) {
+		     alert(
+			 "Your request has been tried too many times. After the page reloads, please try again." +
+			 "\nThe page should automatically refresh after you close this dialog."
+		     );
+		     // attempt to refresh the page automatically
+		     window.location.reload();
+		 }
                  console.error(`Error: ${error.message}`);
 		 const error_msg =
 		     "Whoops! The server is busy right now."
