@@ -276,21 +276,26 @@ async def generate_scenario(query: Optional[str] = None) -> dict:
 
     prompt = f"""\
 You are a helpful assistant that generates realistic scenarios for a person with diabetes.
-
-The user may provide a query to guide the generation, or you can create a scenario from scratch.
+The user will provide a query to guide the generation.
+If the query appears blank, then generate a realistic hypothetical scenario.
+All generations must be completely valid physiofunctional results.
 
 You will return a JSON object with the following structure:
 ```json
 {{
-    "qualitative_description": "A narrative describing the person's health, lifestyle, and recent events.",
+    "forecasted_events": "A concise list of predicted health events.",
+    "qualitative_description": "A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.",
     "parameters": {{
-        "param1": {{ "value": value1, "description": "Description of param1" }},
-        "param2": {{ "value": value2, "description": "Description of param2" }},
+        "param1": {{
+            "value": value1, "description": "Description of param1"
+        }},
+        "param2": {{
+            "value": value2, "description": "Description of param2"
+        }},
         ...
     }}
 }}
 ```
-
 Here are the baseline PFun CMA model parameters, displayed as a markdown-formatted table:
 {basal_param_descriptions}
 
@@ -301,6 +306,7 @@ Think: "Corresponding to the scenario, here is a hypothetical scenario-condition
 Assistant:
 ```json
 {{
+    "forecasted_events": "Low blood glucose (),
     "qualitative_description": "{scenario_description}",
     "parameters": {{
         "Cm": {{ "value": 1.5,  "stderr": 0.5, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
