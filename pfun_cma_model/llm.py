@@ -151,7 +151,7 @@ async def generate_scenario(
 
     # construct the prompt with recommendations (if included)
     include_tips_prompt = (
-        "Ensure the recommendations include actionable tips to help the person mitigate their risk of hypoglycemia, such as stress management techniques, dietary adjustments, or sleep hygiene improvements. Important: the generated recommendations should be physiologically sound and appropriate for the scenario, and should not include generic advice that isn't relevant to the specific scenario; in most cases, the recommendations should map cleanly to specific parameter deviations and the qualitative description of the scenario."
+        "Generate a JSON object whose keys correspond to recommendation types (e.g., stress_reduction, dietary), and whose values contain corresponding specific recommendations. Ensure the recommendations include actionable tips to help the person mitigate their risk of hypoglycemia, such as stress management techniques, dietary adjustments, or sleep hygiene improvements. Important: the generated recommendations should be physiologically sound and appropriate for the scenario, and should not include generic advice that isn't relevant to the specific scenario; in most cases, the recommendations should map cleanly to specific parameter deviations and the qualitative description of the scenario. Extremely important: ensure the recommendations are returned as a JSON dictionary object, NOT a bulleted or numbered list!"
         if include_recommendations
         else ""
     )

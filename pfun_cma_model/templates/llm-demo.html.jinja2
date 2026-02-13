@@ -27,7 +27,7 @@
 		
 		<h3 class="display-5">Input</h3>
 		<h5 class="subtitle text-secondary">Patient description, health-relevant information</h5>
-		    <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body">
+		    <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
 			<p class="text-primary">Please enter a plain-English query below.</p>
 			<form id="query-form" class="form">
 			    <div class="form-group">
@@ -54,7 +54,7 @@
 			    <ul class="list-group">
 			    <div id="formatted-response-container" class="list-group-item">
 				<p class="h-5 text-center text-bg-primary fw-bolder">Recommendations</p>
-				<p id="formatted-response-output" class="text-wrap" style="width: 85em;"></p>
+				<dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
 			    </div>
 			    <div id="raw-response-container" class="list-group-item">
 				<p class="h-5 text-center text-bg-info fw-bolder">Raw output</p>
@@ -91,6 +91,7 @@
              const query = document.getElementById('query-input').value;
              const query_url = new URL(window.location.origin + "/llm/generate-scenario");
              const responseOutput = $("#response-output");
+	     const fmtOutput = $("#formatted-response-output");
 
              try {
 		 if(query === '<<TEST_ERROR>>') {
@@ -106,7 +107,7 @@
                      },
                      body: null
                  }).then((response) => {
-		     console.log(`raw response:\n${response}`);
+		     console.log('raw response:\n', response);
 		     $("#loading-container").hide();
 		     return response;
 		 });
@@ -119,7 +120,18 @@
 		 const data = await response.json();
                  const str_content = JSON.stringify(data, null, 2);
 		 if(!str_content.startsWith("Err")) {
-		     $(responseOutput).text(str_content);
+		     console.debug('confirmed! this is a successful response');
+		     // update the response output (in the UI)
+		     let recs_data = data.recommendations;
+		     console.log("Recommendations data:", recs_data);
+		     $(Object.entries(recs_data)).each((ix, [key, value]) => { 
+			 $(fmtOutput).append(
+			     `<dt>${key}</dt><dd>${value}</dd>`
+			 );  // update the formatted response output
+		     });
+		     $(responseOutput).text(str_content); // update the raw response output text
+		     // re-enable the submit button
+		     $("#submit-btn").removeClass("disabled");
 		 } else {
 		     // there was an error otherwise
 		     throw new Error(str_content);
