@@ -40,7 +40,7 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud", "meditron:70b"]
+OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud", "deepseek-v3.2:cloud"]
 
 _OLLAMA_DEFAULT_MODEL: OllamaDefaultModel = "gpt-oss:120b-cloud"
 

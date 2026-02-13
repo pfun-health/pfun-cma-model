@@ -47,7 +47,19 @@ async def _parse_generated_response(response: Any | str) -> str:
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
         txt_resp = getattr(response, "text", str(response))
-        return str(txt_resp).replace("'", '"').replace("â", "")
+        # Properly handle UTF-8 encoding: encode to bytes then decode as UTF-8
+        txt_resp = str(txt_resp).replace("'", '"')
+        # strip surrounding formatting if it's wrapped in markdown code blocks
+        txt_resp = re.sub(r"^```[\w\s]*|```$", "", txt_resp.strip())
+        try:
+            # If it's a string with encoding issues, try to fix it
+            if isinstance(txt_resp, str):
+                # Encode as latin-1 (single bytes) then decode as UTF-8 to fix double-encoding
+                txt_resp = txt_resp.encode("utf-8", errors="replace").decode("utf-8")
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            # If that fails, just use the string as-is
+            pass
+        return txt_resp
     return await _parse_generated_response(await response)
 
 
@@ -80,13 +92,10 @@ async def _call_llm_for_json(prompt: str) -> dict:
     try:
         # The response might contain markdown, so we need to extract the JSON from it
         json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
-        # Decode escaped sequences and handle unicode characters
-        json_str = json_str.encode().decode("unicode-escape")
-        # Remove excessive whitespace but preserve structure
-        json_str = json_str.replace("    ", " ")
+        # Ensure proper UTF-8 handling without aggressive escaping
         return json.loads(json_str)
-    except (json.JSONDecodeError, KeyError, AttributeError, IndexError, UnicodeDecodeError) as e:
-        logging.debug("Raw response text: %s", resp_text)
+    except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
+        logging.debug("Raw response text:\n%s", resp_text)
         logging.error("Failed to parse LLM API Response. %s", e, exc_info=True)
         raise Exception(f"Failed to parse LLM API response: {e}")
 
