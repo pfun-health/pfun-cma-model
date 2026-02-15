@@ -86,7 +86,7 @@
         <div class="nav-header">Navigation</div>
         {% for page in pages %}
         <a href="#" class="nav-link {% if loop.first %}active{% endif %}" 
-           onclick="showFrame('frame-{{ loop.index0 }}', this)">
+           data-target-frame="frame-{{ loop.index0 }}">
             {{ page.name|default("Page " ~ loop.index) }}
         </a>
         {% endfor %}
@@ -107,19 +107,6 @@
         {% endif %}
     </main>
 
-    <script>
-        function showFrame(id, element) {
-            // Hide all frames
-            document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-            // Remove active class from all links
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
-            // Show selected
-            document.getElementById(id).classList.add('active');
-            element.classList.add('active');
-            
-            event.preventDefault();
-        }
-    </script>
+    <script src="{{ url_for('static', path='js/embed.js') }}"></script>
 </body>
 </html>

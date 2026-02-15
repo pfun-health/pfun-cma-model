@@ -208,23 +208,48 @@ security_config = SecurityConfig(
     security_headers={
         "enabled": True,
         # Content Security Policy
-        # "csp": {
-        #     "default-src": ["'self'", "https:"],
-        #     "script-src": [
-        #         "'self'",
-        #         "'unsafe-inline'",
-        #         "buttons.github.io",
-        #         "cdn.jsdelivr.net"
-        #     ],
-        #     # allow github button script
-        #     "style-src": ["'self'", "'unsafe-inline'", "buttons.github.io"],
-        #     "img-src": ["'self'", "data:", "https:"],
-        #     "font-src": ["'self'", "https://fonts.gstatic.com"],
-        #     # WebSocket support
-        #     "connect-src": ["'self'", "wss://localhost:8001"],
-        #     # require trusted types for
-        #     "require-trusted-types-for": ["'script'"],
-        # },
+        "csp": {
+            "default-src": ["'self'", "https:"],
+            "script-src": [
+                "'self'",
+                "'unsafe-eval'",
+                "https://cdn.jsdelivr.net",
+                "https://code.jquery.com",
+                "https://challenges.cloudflare.com",
+                "https://www.googletagmanager.com",
+                "https://buttons.github.io",
+                "https://api.github.com",
+                "https://www.google.com",
+                "https://unpkg.com",
+                "https://cdnjs.cloudflare.com",
+            ],
+            # allow github button script
+            "style-src": [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdn.jsdelivr.net",
+                "https://code.jquery.com",
+                "https://buttons.github.io",
+            ],
+            "img-src": ["'self'", "data:", "https:"],
+            "font-src": ["'self'", "https://fonts.gstatic.com"],
+            # WebSocket support
+            "connect-src": [
+                "'self'",
+                "https:",
+                "wss:",
+                "https://www.google-analytics.com",
+                "https://stats.g.doubleclick.net",
+            ],
+            "frame-src": [
+                "'self'",
+                "https:",
+                "https://buttons.github.io",
+                "https://docs.google.com",
+            ],
+            # require trusted types for
+            # "require-trusted-types-for": ["'script'"],
+        },
         # HTTP Strict Transport Security
         "hsts": {
             "max_age": 31536000,  # 1 year

@@ -39,14 +39,7 @@
         </div>
 
         <!-- WebSocket Configuration -->
-        <script>
-            const wsConfig = {
-                scheme: window.location.protocol === 'https:' ? 'wss' : 'ws',
-                host: window.location.hostname,
-                port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80)
-            };
-            const wsUrl = `${wsConfig.scheme}://${wsConfig.host}:${wsConfig.port}`;
-        </script>
+        <script src="{{ url_for('static', path='js/ws-config.js') }}"></script>
 
         <!-- Socket.IO CDN -->
         <script src="{{ cdn['socketio']['url'] }}" crossorigin="anonymous"></script>
@@ -54,18 +47,6 @@
         <script src="{{ url_for('static', path='canvas-wave-demo/canvas-wave-demo.js') }}"
             crossorigin="anonymous"></script>
 
-        <script>
-            // Script to update range slider outputs
-            document.querySelectorAll('input[type=range]').forEach(range => {
-                const output = document.getElementById(`rangeValue-${range.id}`);
-                if (output) {
-                    range.addEventListener('input', () => {
-                        output.textContent = range.value;
-
-                    });
-                }
-            });
-        </script>
         {% endblock %}
     </div>
 </body>

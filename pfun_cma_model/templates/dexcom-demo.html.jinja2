@@ -33,19 +33,19 @@
 
     <!-- Auth Modal -->
     <div id="auth-modal" class="modal hidden">
-        <div class="modal-overlay" onclick="closeAuthModal()"></div>
+        <div class="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Connect to Dexcom</h3>
-                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+                <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Connect your Dexcom account to view your continuous glucose monitoring data.</p>
                 <div class="auth-options">
-                    <button class="btn btn--primary" onclick="startDexcomAuth('sandbox')">
+                    <button class="btn btn--primary" data-env="sandbox">
                         Connect to Dexcom Sandbox
                     </button>
-                    <button class="btn btn--secondary" onclick="startDexcomAuth('production')">
+                    <button class="btn btn--secondary" data-env="production">
                         Connect to Dexcom Production
                     </button>
                 </div>
@@ -59,19 +59,20 @@
 
     <!-- Error Modal -->
     <div id="error-modal" class="modal hidden">
-        <div class="modal-overlay" onclick="closeErrorModal()"></div>
+        <div class="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Error</h3>
-                <button class="modal-close" onclick="closeErrorModal()">&times;</button>
+                <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="error-content"></div>
-                <button class="btn btn--primary" onclick="closeErrorModal()">OK</button>
+                <button class="btn btn--primary">OK</button>
             </div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', path='dexcom/init.js') }}"></script>
     <script type="text/babel" src="{{ url_for('static', path='dexcom/app.js') }}"></script>
 </body>
 

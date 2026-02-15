@@ -64,23 +64,5 @@
     </div>
   </div>
 </div>
-<script>
-  window.addEventListener("DOMContentLoaded", () => {
-    const resetBtn = document.getElementById("resetSimulationBtn");
-
-    resetBtn.addEventListener("click", (e) => {
-      $(document.getElementById("runForm")).trigger("reset");
-      demoApp.dom.ranges.forEach(range => {
-        const outputElement = document.getElementById(`rangeValue-${range.id}`);
-        if (outputElement) {
-          // Update the corresponding output element
-          outputElement.textContent = range.value;
-        }
-      });
-    });
-
-    $(resetBtn).trigger("click");
-
-  });
-</script>
+<script src="{{ url_for('static', path='js/demos-common.js') }}"></script>
 {% endmacro %}

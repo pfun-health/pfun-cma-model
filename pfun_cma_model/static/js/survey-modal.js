@@ -1,0 +1,86 @@
+// pfun_cma_model/static/js/survey-modal.js
+// setup google forms survey modal (only once per client)
+const setupSurveyModal = async () => {
+    const surveyFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSeQ8TujEgwzt0L1enhA3k_fR9eVqWLtehr8ilv9NBy5_bj39Q/viewform?embedded=true";
+    var surveyFrame = document.getElementById('surveyFrame');
+
+    // Set src after delay
+    setTimeout(async () => {
+        if (surveyFrame && (surveyFrame.src !== surveyFormURL)) {
+            surveyFrame.src = surveyFormURL;
+        }
+    }, 100); // delay setting src to allow modal to initialize
+
+    var modalEl = document.getElementById('surveyModal');
+    if (!modalEl) {
+        console.warn("Survey modal element not found!");
+        return;
+    }
+
+    var modal = new bootstrap.Modal(modalEl, {
+        backdrop: 'static',  // optional: prevent closing on backdrop click
+        keyboard: true
+    });
+
+    let localStorageKey = 'pfun_survey_completed';
+    if (localStorage.getItem(localStorageKey)) {
+        // no need to show the modal, already completed survey
+        console.log("...Survey already completed, not showing again.");
+        return true; // return cleanly
+    } else {
+        // Setup the modal (not yet completed survey)
+        console.log("Setting up survey modal (not yet completed)...");
+
+        // when survey modal is closed, set localStorage flag
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            // store the pfun_survey_completed key
+            localStorage.setItem(localStorageKey, 'true');
+        }, { once: true });
+
+        // show the modal
+        modal.show();
+
+        setTimeout(async () => {
+            // Monitor iframe for navigation/redirect after form submission
+            const surveyFrame = document.getElementById('surveyFrame');
+            if (surveyFrame) {
+                const originalSrc = surveyFrame.src;
+
+                // Watch for changes to iframe src (redirect after submission)
+                const observer = new MutationObserver(() => {
+                    if (surveyFrame.src !== originalSrc) {
+                        console.log('Iframe navigated, likely form submission detected');
+                        modal.hide();
+                    }
+                });
+
+                observer.observe(surveyFrame, { attributes: true, attributeFilter: ['src'] });
+
+                // Alternative: monitor iframe load events for redirect
+                surveyFrame.addEventListener('load', function () {
+                    try {
+                        const iframeDoc = surveyFrame.contentDocument || surveyFrame.contentWindow.document;
+                        // Check if we got redirected (URL changed or different domain)
+                        const currentUrl = iframeDoc.location.href;
+                        if (currentUrl !== originalSrc && !currentUrl.includes('docs.google.com')) {
+                            console.log('Form submission detected via redirect');
+                            modal.hide();
+                        }
+                    } catch (e) {
+                        console.warn('Unable to access iframe content (likely cross-origin), assuming navigation occurred.', e);
+                        // CORS error is expected, but that means we're in a different origin (possibly success page)
+                        console.log('[alternative] Iframe has navigated to different origin (likely form submitted)');
+                        modal.hide();
+                    }
+                });
+            }
+        }, 5000); // delay to ensure iframe is loaded
+    }
+};
+
+/*
+window.addEventListener('DOMContentLoaded', function () {
+    // Show survey modal on page load
+    // setupSurveyModal();
+});
+*/
