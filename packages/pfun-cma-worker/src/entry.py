@@ -43,6 +43,13 @@ class MyDurableObject(DurableObject):
     async def say_hello(self, name):
         return f"Hello, {name}!"
 
+    async def redirect(self, *args, **kwds):
+        """
+        @TODO: Implement this to redirect requests to the pfun API backend.
+        @TODO: Once this is the primary entrypoint, close all access from the backend outside of cloudflare.
+        """
+        pass
+
 
 """
 * This is the standard fetch handler for a Cloudflare Worker
