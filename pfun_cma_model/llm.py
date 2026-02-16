@@ -47,7 +47,7 @@ async def _parse_generated_response(response: Any | str) -> str:
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
         response_as_dict = response.dict()
-        txt_resp = response_as_dict['message']['content']
+        txt_resp = response_as_dict["message"]["content"]
         # Properly handle UTF-8 encoding: encode to bytes then decode as UTF-8
         txt_resp = str(txt_resp).replace("'", '"')
         try:
@@ -87,8 +87,10 @@ async def _call_llm_for_json(prompt: str) -> dict:
     json_str = json_str.strip()
     json_end_idx = json_str.rfind("}")
     if json_end_idx != -1:
-        json_str = json_str[:json_end_idx + 1]
-    logging.debug("Extracted JSON string from response:\n'%s'", json_match.group(1) if json_match else "No JSON code block found.")
+        json_str = json_str[: json_end_idx + 1]
+    logging.debug(
+        "Extracted JSON string from response:\n'%s'", json_match.group(1) if json_match else "No JSON code block found."
+    )
     try:
         # Load the JSON string into a Python dictionary
         return json.loads(json_str)

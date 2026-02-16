@@ -2,7 +2,6 @@
 PFun CMA Model - LLM API Routes
 """
 
-
 import asyncio
 import json
 
@@ -47,7 +46,6 @@ async def generate_scenario(
 
     # perform the generation with a retry mechanism in case of JSON parsing errors (which can happen if the model's response is not well-formed JSON)
     content = await attempt_scene_gen()
-
 
     return Response(
         content=content,

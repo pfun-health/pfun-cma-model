@@ -19,9 +19,8 @@ def cli(ctx):
     ctx.ensure_object(dict)
     ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
     import pfun_path_helper as pph  # type: ignore
-    ctx.obj["output_dir"] = os.path.abspath(
-        os.path.join(pph.get_lib_path("pfun_cma_model"), "../results")
-    )
+
+    ctx.obj["output_dir"] = os.path.abspath(os.path.join(pph.get_lib_path("pfun_cma_model"), "../results"))
 
 
 @cli.command(
@@ -31,9 +30,7 @@ def cli(ctx):
 )
 @click.option("--host", default="0.0.0.0", help="Host to run the application on.")
 @click.option("--port", default=8001, help="Port to run the application on.")
-@click.option(
-    "--reload", is_flag=True, default=False, help="Enable auto-reload for development."
-)
+@click.option("--reload", is_flag=True, default=False, help="Enable auto-reload for development.")
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def launch(ctx, host, port, reload, args):
@@ -42,6 +39,7 @@ def launch(ctx, host, port, reload, args):
     Any additional arguments (ARGS) are passed through to the application.
     """
     from pfun_cma_model.main import run_app
+
     run_app(host, port, reload=reload, debug=True, extra_args=list(args))
 
 
@@ -64,9 +62,7 @@ fit_result_global = None
 
 
 @cli.command()
-@click.option(
-    "--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False
-)
+@click.option("--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False)
 @click.option(
     "--output-dir",
     "--output",
@@ -102,8 +98,8 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     data = pd.read_csv(input_fpath)
     # fit the model
     from pfun_cma_model.engine.fit import fit_model as call_fit_model
-    fit_result = call_fit_model(
-        data, n=n, plot=plot, opts=opts, **model_config)
+
+    fit_result = call_fit_model(data, n=n, plot=plot, opts=opts, **model_config)
     fit_result_global = fit_result
     # write fitted model parameters (with the corresponding time-series solution) to disk
     output_fpath = os.path.join(output_dir, "fit_result.json")
@@ -113,13 +109,12 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     # plot the results (if '--plot' is indicated)
     if plot is True:
         from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
+
         fig, _ = CMAPlotSolnConfig().plot(df=fit_result.formatted_data)
         fig_output_fpath = os.path.join(output_dir, "fit_result.png")
         fig.savefig(fig_output_fpath)
         click.secho(f"...saved plot to: '{fig_output_fpath}'")
-        click.confirm(
-            "[enter] to exit...", default=True, abort=True, show_default=False
-        )
+        click.confirm("[enter] to exit...", default=True, abort=True, show_default=False)
         plt.close("all")
 
 
@@ -134,9 +129,8 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
 def generate_scenario(ctx, query):
     """Generate a realistic pfun scenario (using selected LLM backend)."""
     from pfun_cma_model.llm import generate_scenario as gen_scene
-    click.secho(
-        f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n"
-    )
+
+    click.secho(f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n")
     try:
         loop = asyncio.get_running_loop()
         response = loop.run_until_complete(gen_scene(query=query))
@@ -145,25 +139,26 @@ def generate_scenario(ctx, query):
 
     # pretty-print the output for CLI
     output_json_formatted = json.dumps(response, indent=4)
-    click.secho(
-        output_json_formatted.encode("utf8").decode("unicode_escape"), fg="green", bold=True)
+    click.secho(output_json_formatted.encode("utf8").decode("unicode_escape"), fg="green", bold=True)
 
     # # # ####################
     # Save result to database.
     # # # ####################
-    
+
     df_result = pd.DataFrame([response], index=[0])
-    df_result.to_parquet(os.path.join(
-        ctx.obj["output_dir"], "cma_recs.parquet"))
+    df_result.to_parquet(os.path.join(ctx.obj["output_dir"], "cma_recs.parquet"))
     # save the generated params, recommendations to the results duckdb database
     from pfun_cma_model.db import save2duckdb
+
     db_path = Path(__file__).parent.parent.joinpath("results", "duckdb.db")
-    save2duckdb(df_result, db_path=db_path, table_id='cma_recs')
-    click.secho('...successfully saved result to the database.', fg='green', bold=True)
+    save2duckdb(df_result, db_path=str(db_path), table_id="cma_recs")
+    click.secho("...successfully saved result to the database.", fg="green", bold=True)
+
 
 @cli.command()
 @click.option(
-    "-N", "-n",
+    "-N",
+    "-n",
     type=click.INT,
     default=6,
     help="Length of solutions vector (in number of time points).",
@@ -180,13 +175,8 @@ def generate_scenario(ctx, query):
     type=click.STRING,
     multiple=True,
     callback=process_kwds,
-    default=[
-        "taug",
-        "taup",
-        "B",
-        "Cm"
-    ],
-    help="Parameters to include as part of the grid search."
+    default=["taug", "taup", "B", "Cm"],
+    help="Parameters to include as part of the grid search.",
 )
 @click.pass_context
 def run_param_grid(ctx, n, m, params):
@@ -198,8 +188,10 @@ def run_param_grid(ctx, n, m, params):
         os.makedirs(ctx.obj["output_dir"])
     # create the parameter grid
     from pfun_cma_model.engine.grid import PFunCMAParamsGrid
+
     pkeys_included = params
     import logging
+
     logging.debug(f"{pkeys_included}")
     click.secho("Included parameter keys:", fg="yellow", bold=True)
     if not pkeys_included:
@@ -207,35 +199,28 @@ def run_param_grid(ctx, n, m, params):
     else:
         for pkey in pkeys_included:
             click.secho(f"    + {pkey}", fg="yellow")
-    pfun_grid = PFunCMAParamsGrid(
-        N=n,
-        m=m,
-        keys=pkeys_included,  # parameter keys to include
-        include_mealtimes=True
-    )
+    pfun_grid = PFunCMAParamsGrid(N=n, m=m, keys=pkeys_included, include_mealtimes=True)  # parameter keys to include
 
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
     pfun_grid.run()  # perform the operation in-place
-    
+
     # get the grid results as a dataframe
     df_grid: pd.DataFrame = pfun_grid.collection  # type: ignore
 
     # save to duckdb database
     from pfun_cma_model.db import save2duckdb
+
     db_fpath = "results/duckdb.db"
     table_id = "cma_pgrid"
     save2duckdb(df_grid, db_path=db_fpath, table_id=table_id)
     click.secho("...done (saved to 'results/duckdb.db').", fg="green", bold=True)
-    
+
     # save to parquet
-    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(
-        f"param_grid_{n:02d}x{m:02d}.parquet"
-    )
+    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(f"param_grid_{n:02d}x{m:02d}.parquet")
     df_grid.to_parquet(str(parquet_fpath))
     click.secho("...done (saved to '').", fg="green", bold=True)
-    
 
 
 @cli.command()
@@ -256,19 +241,17 @@ def download_sample_data(ctx, overwrite=False):
             bold=True,
         )
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data(overwrite=overwrite)
-    click.secho(
-        f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'",
-        fg="green",
-        bold=True
-    )
+    click.secho(f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'", fg="green", bold=True)
 
 
 @cli.command()
 def version():
     """Print the version of the pfun-cma-model package."""
     import pfun_cma_model
+
     click.secho(f"pfun-cma-model version: {pfun_cma_model.__version__}", bold=True)
 
 
@@ -276,6 +259,7 @@ def version():
 def run_doctests():
     """Run the doctests for the pfun-cma-model cli."""
     import doctest
+
     doctest.testmod()
 
 
