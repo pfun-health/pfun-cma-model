@@ -34,7 +34,29 @@ class PFunDemoRoutesContext(BaseModel):
 
 @router.get("/llm")
 def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_templates)):
-    context = PFunDemoRoutesContext(request=request).model_dump()
+    # formulate the render context
+    rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
+    context_dict = {
+        "request": request,
+        "params": params,
+        "cdn": {
+            "bootstrap-css": {
+                "hash": "'sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB'",
+                "url": f"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css?dummy={rand0}"
+            },
+            "inline-script": {
+                "hash": "sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM="
+                "url": None
+            },
+            "jquery-ui":
+                {
+                    "url": "https://code.jquery.com/ui/1.14.1/jquery-ui.js"
+                }
+        },
+        "year": datetime.now().year,
+    }
+    logger.debug("Demo context: %s", str(context_dict))
+    context = PFunDemoRoutesContext(**context_dict).model_dump()
     return templates.TemplateResponse("llm-demo.html.jinja2", context=context)
 
 
