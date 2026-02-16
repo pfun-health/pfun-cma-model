@@ -135,9 +135,11 @@ def generate_scenario(ctx, query):
         loop = asyncio.get_running_loop()
         response = loop.run_until_complete(gen_scene(query=query))
     except RuntimeError:
-        response = asyncio.run(gen_scene(query=query))
+        # get the pydantic-validated scenario
+        generated_scenario = asyncio.run(gen_scene(query=query))
 
     # pretty-print the output for CLI
+    response = generated_scenario.model_dump()
     output_json_formatted = json.dumps(response, indent=4)
     click.secho(output_json_formatted.encode("utf8").decode("unicode_escape"), fg="green", bold=True)
 

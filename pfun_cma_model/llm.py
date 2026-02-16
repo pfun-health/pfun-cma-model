@@ -262,4 +262,4 @@ Assistant:
     # query the LLM with the formatted prompt, generate a scenario
     generated_scenario = await _call_llm_for_json(prompt)
 
-    return PFunLLMGeneratedScenario(generated_scenario)
+    return PFunLLMGeneratedScenario(**generated_scenario)
