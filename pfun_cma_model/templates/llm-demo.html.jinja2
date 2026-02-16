@@ -30,14 +30,14 @@
 		    <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
 			<p class="text-primary">Please enter a plain-English query below.</p>
 			<form id="query-form" class="form">
-			    <div class="form-group">
+			    <div class="form-group row p-4 rounded">
 				<textarea
 				    id="query-input" rows="15" cols="30"
 				    placeholder="e.g., A relatively health individual with high glucose in the evenings.">A relatively healthy individual who likes to exercise early in the morning. What can you tell me to improve?</textarea>
 			    </div>
-			    <div class="button-group p-2 container rounded">
+			    <div class="button-group row p-4 mb-3 rounded">
 				<button id="submit-btn" type="submit" class="btn btn-primary btn-lg">Submit</button>
-				<div id="loading-container" class="container-fluid text-bg-secondary text-left" style="display: none;">
+				<div id="loading-container" class="container-fluid text-bg-secondary text-left d-none">
 				    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
 				    Loading...
 				</div>
@@ -45,7 +45,7 @@
 			</form>
 		    </div>
 		    
-		    <h3 class="display-5">Output</h3>
+		    <h3 id="output-title" class="display-5">Output</h3>
 		    <h5 class="subtitle text-secondary">PFun generated information</h5>
 		    <div id="output-container"
 			 class="container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body"
@@ -67,10 +67,10 @@
 	</div>
 
 	<!-- source for jquery simple toasts extension -->
-	<script async defer type="text/javascript" src="{{ url_for('static', path='js/jquery.toast.min.js') }}" crossorigin="anonymous"></script>
+	<script async type="text/javascript" src="{{ url_for('static', path='js/jquery.toast.min.js') }}" crossorigin="anonymous"></script>
 
 	<!-- llm prompt interaction -->
-	<script async type="text/javascript" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
+	<script async defer type="text/javascript" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
 	{% endblock content %}
     </div>
 </body>

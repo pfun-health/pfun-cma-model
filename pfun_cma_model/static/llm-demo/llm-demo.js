@@ -1,4 +1,10 @@
 
+const showLoadingContainer = async () => {
+    const loadingContainer = $("#loading-container");
+    $(loadingContainer).removeClass("d-none");
+    $(loadingContainer).show();
+};
+    
 const onFormSubmit = async (event) => {
 
     try {
@@ -8,7 +14,7 @@ const onFormSubmit = async (event) => {
     }
 
     // show loading indicator
-    $("#loading-container").show();
+    showLoadingContainer();
 
     // get the relevant elements
     const query = document.getElementById('query-input').value;
@@ -53,6 +59,12 @@ const onFormSubmit = async (event) => {
                 );  // update the formatted response output
             });
             $(responseOutput).text(str_content); // update the raw response output text
+	    // scroll the output area into view
+	    // Source - https://stackoverflow.com/a/20760191
+	    // Posted by Atharva, modified by community. See post 'Timeline' for change history
+	    // Retrieved 2026-02-16, License - CC BY-SA 4.0
+	    $("#output-title").get(0).scrollIntoView({behavior: 'smooth'});
+
             // re-enable the submit button
             $("#submit-btn").removeClass("disabled");
         } else {

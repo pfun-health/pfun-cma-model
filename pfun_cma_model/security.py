@@ -117,8 +117,7 @@ class ErrorResponse(BaseModel):
 
     detail: str
     error_code: str | None = None
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class AuthResponse(BaseModel):
@@ -131,8 +130,7 @@ class AuthResponse(BaseModel):
 class TestPayload(BaseModel):
     input: str | None = Field(None, description="Test input for XSS detection")
     query: str | None = Field(None, description="Test query for SQL injection")
-    path: str | None = Field(
-        None, description="Test path for traversal attacks")
+    path: str | None = Field(None, description="Test path for traversal attacks")
     cmd: str | None = Field(None, description="Test command for injection")
     honeypot_field: str | None = Field(
         None, description="Hidden field for bot detection"
@@ -173,8 +171,12 @@ security_config = SecurityConfig(
     # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
     #            "100.115.68.73"],  # Localhost, tailscale
     # Proxy Configuration
-    trusted_proxies=["127.0.0.1", "10.0.0.0/8",
-                     "168.235.67.32", "100.115.68.73"],  # tailscale
+    trusted_proxies=[
+        "127.0.0.1",
+        "10.0.0.0/8",
+        "168.235.67.32",
+        "100.115.68.73",
+    ],  # tailscale
     trusted_proxy_depth=2,
     trust_x_forwarded_proto=True,
     # Geographical Filtering (requires ipinfo_token OR custom implementation)
@@ -213,14 +215,31 @@ security_config = SecurityConfig(
             "script-src": [
                 "'self'",
                 "buttons.github.io",
-                "cdn.jsdelivr.net"
+                "cdn.jsdelivr.net",
+                "code.jquery.com",
+                "https://www.googletagmanager.com/gtm.js?id=GTM-NRHCDHD8",
+                "'sha256-k1Ro88UMqVxp8nnjIuKc9cc3fa0fpR3RvGneepaKUTU='",
+                "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='",
+                "'sha256-1jaaODSv58Wmh81mqxA9zy5j99zeo3PLat5wKQplemE='",
+                "'sha256-5ltlQRX7kwLdCPBtTiaRoP1nfpVtU3RWinabSOxIKy8='",
             ],
             # allow github button script
-            "style-src": ["'self'"],
+            "style-src": [
+                "'self'",
+                "https://cdn.jsdelivr.net",
+                "https://code.jquery.com",
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
+                "'sha256-us29Hziqlsx//QRFkxrVzQvfaIvMULlFZ6TCSNoKcP0='",
+                "'sha256-biLFinpqYMtWHmXfkA1BPeCY0/fNt46SAZ+BBk5YUog='",
+            ],
             "img-src": ["'self'", "data:", "https:"],
             "font-src": ["'self'", "https://fonts.gstatic.com"],
             # WebSocket support
-            "connect-src": ["'self'", "wss://localhost:8001"],
+            "connect-src": [
+                "'self'",
+                "wss://localhost:8001",
+                "https://api.github.com/repos/pfun-health/pfun-cma-model",
+            ],
             # require trusted types for
             "require-trusted-types-for": ["'script'"],
         },
@@ -245,8 +264,11 @@ security_config = SecurityConfig(
     },
     # CORS Configuration (works alongside security headers)
     enable_cors=True,
-    cors_allow_origins=["http://localhost:8001",
-                        "https://cloud.tail38611b.ts.net", "https://pfun.one"],
+    cors_allow_origins=[
+        "http://localhost:8001",
+        "https://cloud.tail38611b.ts.net",
+        "https://pfun.one",
+    ],
     cors_allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     cors_allow_headers=["*"],
     cors_allow_credentials=True,

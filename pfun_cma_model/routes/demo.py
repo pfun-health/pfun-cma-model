@@ -38,7 +38,6 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
         "request": request,
-        "params": params,
         "cdn": {
             "bootstrap-css": {
                 "hash": "'sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB'",
