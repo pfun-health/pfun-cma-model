@@ -5,9 +5,9 @@ import json
 import logging
 import re
 from typing import Optional, Any, Literal
+from pydantic import BaseModel
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
-
 
 LLMBackendChoice = Literal[
     "google", "perplexity", "ollama", "openai"
@@ -54,11 +54,19 @@ async def _parse_generated_response(response: Any | str) -> str:
             # If it's a string with encoding issues, try to fix it
             if isinstance(txt_resp, str):
                 # Encode, then decode UTF-8 to fix double-encoding
-                txt_resp = txt_resp.encode("utf-8", errors="replace").decode("utf-8", errors="replace")
+                txt_resp = txt_resp.encode("utf-8", errors="replace").decode(
+                    "utf-8", errors="replace"
+                )
         except (UnicodeDecodeError, UnicodeEncodeError):
             # If that fails, just use the string as-is
-            logging.debug("Exception occurred during unicode handling, using original text response", exc_info=True)
-            logging.debug("Failed to properly decode response text, using raw string.\nOriginal text: %s", txt_resp)
+            logging.debug(
+                "Exception occurred during unicode handling, using original text response",
+                exc_info=True,
+            )
+            logging.debug(
+                "Failed to properly decode response text, using raw string.\nOriginal text: %s",
+                txt_resp,
+            )
         return txt_resp
     return await _parse_generated_response(await response)
 
@@ -82,14 +90,21 @@ async def _call_llm_for_json(prompt: str) -> dict:
     logging.debug("LLM Response (raw text attribute):\n'%s'", resp_text)
     # use regex to extract JSON from markdown code blocks (if present)
     json_match = re.search(r"```json\s*([\s\S]*?)\s*```", resp_text, re.DOTALL)
-    # Perform additional cleaning to handle cases where the model might return JSON without proper code blocks, or with extra text. This is a fallback in case the regex doesn't find a code block, or if the model returns something like "Here is the JSON: { ... }".
-    json_str = json_match.group(1) if json_match else resp_text.strip().replace("`", "").replace("json", "")
+    # Perform additional cleaning to handle cases where the model might return JSON without proper code blocks,
+    # or with extra text. This is a fallback in case the regex doesn't find a code block,
+    # or if the model returns something like "Here is the JSON: { ... }".
+    json_str = (
+        json_match.group(1)
+        if json_match
+        else resp_text.strip().replace("`", "").replace("json", "")
+    )
     json_str = json_str.strip()
     json_end_idx = json_str.rfind("}")
     if json_end_idx != -1:
         json_str = json_str[: json_end_idx + 1]
     logging.debug(
-        "Extracted JSON string from response:\n'%s'", json_match.group(1) if json_match else "No JSON code block found."
+        "Extracted JSON string from response:\n'%s'",
+        json_match.group(1) if json_match else "No JSON code block found.",
     )
     try:
         # Load the JSON string into a Python dictionary
@@ -100,11 +115,37 @@ async def _call_llm_for_json(prompt: str) -> dict:
         raise Exception(f"Failed to parse LLM API response: {e}")
 
 
-async def generate_scenario(
-    query: Optional[str] = None, include_sample_trace: bool = False, include_recommendations: bool = True
-) -> dict:
+class DescribedParameter(BaseModel):
+    value: float | int | Any
+    description: str
+    stderr: float
+
+
+class PFunLLMGeneratedScenario(BaseModel):
     """
-    Generates a realistic "pfun-scene" JSON object using the Gemini API.
+    Defines the expected schema for an LLM-Generated scenario.
+    """
+
+    forecasted_events: str
+    #: A concise list of predicted health events.
+
+    qualitative_description: str
+    #: A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.
+
+    parameters: dict[str, DescribedParameter]
+    #: A mapping of pfun model parameter names with corresponding value, description, and stderr.
+
+    recommendations: dict[str, str]
+    #: A mapping of pfun llm generated recommendations, indexed by recommendation-type.
+
+
+async def generate_scenario(
+    query: Optional[str] = None,
+    include_sample_trace: bool = False,
+    include_recommendations: bool = True,
+) -> dict | PFunLLMGeneratedScenario:
+    """
+    Generates a realistic "pfun-scene" JSON object using the selected llm backend (see pfun_common.settings).
 
     Args:
         query: An optional query to guide the scenario generation.
@@ -185,10 +226,10 @@ You will return a JSON object with the following structure:
     "qualitative_description": "A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.",
     "parameters": {{
         "param1": {{
-            "value": value1, "description": "Description of param1"
+            "value": value1, "stderr": <float>, "description": "Description of param1"
         }},
         "param2": {{
-            "value": value2, "description": "Description of param2"
+            "value": value2, "stderr": <float>, "description": "Description of param2"
         }},
         ...
     }}{recommendations_json_extra}
@@ -218,4 +259,7 @@ Now, please generate a scenario based on the following user query. If the query 
 User: "{query if query else 'No query provided.'}"
 Assistant:
 """
-    return await _call_llm_for_json(prompt)
+    # query the LLM with the formatted prompt, generate a scenario
+    generated_scenario = await _call_llm_for_json(prompt)
+
+    return PFunLLMGeneratedScenario(generated_scenario)

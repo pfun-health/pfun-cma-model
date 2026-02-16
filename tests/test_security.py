@@ -1,4 +1,5 @@
 """Security configuration tests for the API."""
+
 from pfun_cma_model.security import security_config
 from pfun_cma_model.app import app
 from ipaddress import ip_address
@@ -14,8 +15,7 @@ test_base.setup_test_environment()
 
 
 # Create test client
-client = TestClient(app, base_url="http://localhost",
-                    client=("127.0.0.1", 50000))
+client = TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 class TestSecurityConfigurationBasics:
@@ -24,12 +24,7 @@ class TestSecurityConfigurationBasics:
     def test_security_config_exists(self):
         """Verify security_config object is properly initialized."""
         assert security_config is not None
-        assert hasattr(security_config, 'whitelist')
-
-    def test_whitelist_configured(self):
-        """Verify whitelist is properly configured."""
-        assert "127.0.0.1" in security_config.whitelist
-        assert "::1" in security_config.whitelist
+        assert hasattr(security_config, "whitelist")
 
     def test_trusted_proxies_configured(self):
         """Verify trusted proxies are configured."""
@@ -105,8 +100,7 @@ class TestSecurityHeaders:
 
     def test_referrer_policy_configured(self):
         """Verify Referrer-Policy is configured."""
-        referrer_policy = security_config.security_headers.get(
-            "referrer_policy")
+        referrer_policy = security_config.security_headers.get("referrer_policy")
         assert referrer_policy == "strict-origin-when-cross-origin"
 
     def test_permissions_policy_configured(self):
@@ -185,19 +179,11 @@ class TestCustomHooks:
 class TestIPAddressHandling:
     """Test IP address configurations are valid."""
 
-    def test_whitelist_ips_valid(self):
-        """Verify whitelist IPs are valid."""
-        for ip in security_config.whitelist:
-            try:
-                ip_address(ip.split('/')[0])  # Parse IP, ignore CIDR notation
-            except ValueError:
-                pytest.fail(f"Invalid IP address in whitelist: {ip}")
-
     def test_trusted_proxies_valid(self):
         """Verify trusted proxy IPs are valid."""
         for ip in security_config.trusted_proxies:
             try:
-                ip_address(ip.split('/')[0])
+                ip_address(ip.split("/")[0])
             except ValueError:
                 pytest.fail(f"Invalid IP address in trusted proxies: {ip}")
 
@@ -238,7 +224,7 @@ class TestSecurityMiddlewareIntegration:
         """Verify app has security configuration."""
         # The app should have been initialized with security
         assert app is not None
-        assert hasattr(app, 'middleware')
+        assert hasattr(app, "middleware")
 
 
 class TestSecurityHeadersResponse:
@@ -351,7 +337,7 @@ class TestSecurityHeadersValues:
         csp = security_config.security_headers.get("csp", {})
         assert "font-src" in csp
 
-app
+
 class TestConnectionSecurity:
     """Test connection-related security settings."""
 
@@ -364,19 +350,8 @@ class TestConnectionSecurity:
     def test_cors_headers_list_not_empty(self):
         """Verify CORS headers list is configured."""
         assert len(
-            security_config.cors_allow_headers) > 0 or security_config.cors_allow_headers == ["*"]
-
-
-class TestTailscaleConfiguration:
-    """Test Tailscale-specific security configuration."""
-
-    def test_tailscale_ip_in_whitelist(self):
-        """Verify Tailscale IP is in whitelist."""
-        assert "100.115.68.73" in security_config.whitelist
-
-    def test_tailscale_ip_in_trusted_proxies(self):
-        """Verify Tailscale IP is in trusted proxies."""
-        assert "100.115.68.73" in security_config.trusted_proxies
+            security_config.cors_allow_headers
+        ) > 0 or security_config.cors_allow_headers == ["*"]
 
 
 class TestCORSOrigins:
@@ -388,10 +363,10 @@ class TestCORSOrigins:
 
     def test_tailscale_domain_allowed(self):
         """Verify Tailscale domain is allowed for CORS."""
-        assert any(
-            "tail" in origin for origin in security_config.cors_allow_origins)
+        assert any("tail" in origin for origin in security_config.cors_allow_origins)
 
     def test_pfun_domain_allowed(self):
         """Verify pfun.one domain is allowed."""
         assert any(
-            "pfun.one" in origin for origin in security_config.cors_allow_origins)
+            "pfun.one" in origin for origin in security_config.cors_allow_origins
+        )

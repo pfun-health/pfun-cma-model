@@ -4,21 +4,27 @@ PFun CMA Model - LLM API Routes
 
 import asyncio
 import json
-
-from fastapi import APIRouter, Response
-
+import pandas as pd
+from fastapi import APIRouter, Response, BackgroundTasks
 from pfun_cma_model.llm import generate_scenario as gen_scene
+from pfun_cma_model.db import save2duckdb
 
 router = APIRouter()
 
 DEFAULT_HEALTHY_PROMPT = """
-This person is mostly healthy. They occasionally eat a late dinner (after 8pm) and sometimes skip breakfast. They have a moderate amount of stress in their life, but they manage it well. They get around 6-7 hours of sleep per night, but their sleep quality is not great. They do some light exercise a few times a week, but they are not very consistent with it.
+This person is mostly healthy. They occasionally eat a late dinner (after 8pm) and sometimes skip breakfast.
+They have a moderate amount of stress in their life, but they manage it well.
+They get around 6-7 hours of sleep per night, but their sleep quality is not great.
+They do some light exercise a few times a week, but they are not very consistent with it.
 """
 
 
 @router.post("/generate-scenario")
 async def generate_scenario(
-    prompt: str = DEFAULT_HEALTHY_PROMPT, include_sample_trace: bool = False, include_recommendations: bool = True
+    background_tasks: BackgroundTasks,
+    prompt: str = DEFAULT_HEALTHY_PROMPT,
+    include_sample_trace: bool = False,
+    include_recommendations: bool = True,
 ) -> Response:
     """Use LLM endpoint to generate a realistic scenario (with hypothetical parameters).
 
@@ -31,9 +37,18 @@ async def generate_scenario(
     prompt = prompt.strip()
 
     async def attempt_scene_gen():
-        response_data = await gen_scene(
-            query=prompt, include_sample_trace=include_sample_trace, include_recommendations=include_recommendations
+        """
+        Try to generate a scenario asynchronously, try again if the first attempt fails.
+        """
+        generated_scenario = await gen_scene(
+            query=prompt,
+            include_sample_trace=include_sample_trace,
+            include_recommendations=include_recommendations,
         )
+        # convert to a JSON-seralizable dictionary
+        response_data = generated_scenario.model_dump()
+
+        # attempt to convert dict to JSON-serialized string
         try:
             content = json.dumps(response_data)
         except json.JSONDecodeError as exc:
@@ -41,10 +56,16 @@ async def generate_scenario(
             await asyncio.sleep(1)
             return await attempt_scene_gen()
         else:
-            # if it works, return the content
-            return content
+            # if it succeeds, store the original dict in duckdb (background task)
+            df_result = pd.DataFrame([response_data], index=[0])
+            table_id = "cma_recs"
+            background_tasks.add_task(save2duckdb, df_result=df_result, table_id=table_id)
 
-    # perform the generation with a retry mechanism in case of JSON parsing errors (which can happen if the model's response is not well-formed JSON)
+        # return the content as a JSON serialized string
+        return content
+
+    # Perform the generation with a retry mechanism in case of JSON parsing errors.
+    # ...this can happen if the model's response is not well-formed JSON.
     content = await attempt_scene_gen()
 
     return Response(
