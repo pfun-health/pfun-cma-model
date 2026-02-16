@@ -170,8 +170,8 @@ async def custom_response_modifier(response: Response) -> Response:
 
 security_config = SecurityConfig(
     # IP Configuration
-    # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
-    #            "100.115.68.73"],  # Localhost, tailscale
+    whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
+               "100.115.68.73"],  # Localhost, tailscale
     # Proxy Configuration
     trusted_proxies=["127.0.0.1", "10.0.0.0/8",
                      "168.235.67.32", "100.115.68.73"],  # tailscale
