@@ -1,7 +1,7 @@
 import asyncio
 import json
 import os
-
+from pathlib import Path
 import click
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -151,21 +151,15 @@ def generate_scenario(ctx, query):
     # # # ####################
     # Save result to database.
     # # # ####################
-
+    
     df_result = pd.DataFrame([response], index=[0])
     df_result.to_parquet(os.path.join(
         ctx.obj["output_dir"], "cma_recs.parquet"))
-    # save to duckdb database
-    import duckdb
-    with duckdb.connect(database='results/duckdb.db') as connection:
-        # create the table if it doesn't yet exist
-        table_id = "cma_recs"
-        connection.sql(
-            f"CREATE TABLE IF NOT EXISTS {table_id} AS SELECT * FROM df_result")
-        # update the table otherwise
-        connection.sql(f"INSERT INTO {table_id} SELECT * FROM df_result")
-        connection.commit()
-
+    # save the generated params, recommendations to the results duckdb database
+    from pfun_cma_model.db import save2duckdb
+    db_path = Path(__file__).parent.parent.joinpath("results", "duckdb.db")
+    save2duckdb(df_result, db_path=db_path, table_id='cma_recs')
+    click.secho('...successfully saved result to the database.', fg='green', bold=True)
 
 @cli.command()
 @click.option(
@@ -219,28 +213,29 @@ def run_param_grid(ctx, n, m, params):
         keys=pkeys_included,  # parameter keys to include
         include_mealtimes=True
     )
+
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
     click.secho(f"Running a parameter grid search of size: {Nparam:02d}...")
-    pfun_grid.run()
-    # get the results as a dataframe
+    pfun_grid.run()  # perform the operation in-place
+    
+    # get the grid results as a dataframe
     df_grid: pd.DataFrame = pfun_grid.collection  # type: ignore
+
     # save to duckdb database
-    import duckdb
-    with duckdb.connect(database='results/duckdb.db') as connection:
-        # create the table if it doesn't yet exist
-        table_id = "cma_pgrid"
-        connection.sql(
-            f"CREATE TABLE IF NOT EXISTS {table_id} AS SELECT * FROM df_grid")
-        # update the table otherwise
-        connection.sql(f"INSERT INTO {table_id} SELECT * FROM df_grid")
-        connection.commit()
+    from pfun_cma_model.db import save2duckdb
+    db_fpath = "results/duckdb.db"
+    table_id = "cma_pgrid"
+    save2duckdb(df_grid, db_path=db_fpath, table_id=table_id)
+    click.secho("...done (saved to 'results/duckdb.db').", fg="green", bold=True)
+    
     # save to parquet
-    df_grid.to_parquet(
-        os.path.join(ctx.obj["output_dir"],
-                     f"param_grid_{n:02d}x{m:02d}.parquet")
+    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(
+        f"param_grid_{n:02d}x{m:02d}.parquet"
     )
-    click.secho("...done (saved to local database).")
+    df_grid.to_parquet(str(parquet_fpath))
+    click.secho("...done (saved to '').", fg="green", bold=True)
+    
 
 
 @cli.command()
@@ -264,14 +259,17 @@ def download_sample_data(ctx, overwrite=False):
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data(overwrite=overwrite)
     click.secho(
-        f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'")
+        f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'",
+        fg="green",
+        bold=True
+    )
 
 
 @cli.command()
 def version():
     """Print the version of the pfun-cma-model package."""
     import pfun_cma_model
-    click.secho(f"pfun-cma-model version: {pfun_cma_model.__version__}")
+    click.secho(f"pfun-cma-model version: {pfun_cma_model.__version__}", bold=True)
 
 
 @cli.command()

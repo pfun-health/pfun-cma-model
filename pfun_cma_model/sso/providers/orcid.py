@@ -1,10 +1,9 @@
 """ORCiD SSO Oauth Helper class."""
 
 from typing import ClassVar, Optional
-from fastapi_sso.sso.base import (
-    DiscoveryDocument, OpenID, SSOBase, SSOLoginError
-)
+from fastapi_sso.sso.base import DiscoveryDocument, OpenID, SSOBase, SSOLoginError
 import httpx
+
 
 class OrcidSSO(SSOBase):
     """Class providing login via Orcid OAuth."""
@@ -12,9 +11,7 @@ class OrcidSSO(SSOBase):
     provider = "orcid"
     scope: ClassVar = ["openid"]
 
-    async def openid_from_response(
-        self, response: dict, session: Optional["httpx.AsyncClient"] = None
-    ) -> OpenID:
+    async def openid_from_response(self, response: dict, session: Optional["httpx.AsyncClient"] = None) -> OpenID:
         """Return OpenID user information, as provided by ORCiD."""
         info = response.get("user")
         if not info:
@@ -27,9 +24,7 @@ class OrcidSSO(SSOBase):
             provider=self.provider,
         )
 
-    async def openid_from_token(
-        self, id_token: dict, session: Optional[httpx.AsyncClient] = None
-    ) -> OpenID:
+    async def openid_from_token(self, id_token: dict, session: Optional[httpx.AsyncClient] = None) -> OpenID:
         """Converts an ID token from the provider's token endpoint to an OpenID object.
 
         Args:
