@@ -217,7 +217,7 @@ security_config = SecurityConfig(
                 "buttons.github.io",
                 "cdn.jsdelivr.net",
                 "code.jquery.com",
-                "https://www.googletagmanager.com/gtm.js?id=GTM-NRHCDHD8",
+                "www.googletagmanager.com",
                 "'sha256-k1Ro88UMqVxp8nnjIuKc9cc3fa0fpR3RvGneepaKUTU='",
                 "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='",
                 "'sha256-1jaaODSv58Wmh81mqxA9zy5j99zeo3PLat5wKQplemE='",
