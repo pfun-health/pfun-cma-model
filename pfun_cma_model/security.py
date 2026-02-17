@@ -239,6 +239,7 @@ security_config = SecurityConfig(
                 "'self'",
                 "wss://localhost:8001",
                 "https://api.github.com/repos/pfun-health/pfun-cma-model",
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js.map",
             ],
             # require trusted types for
             "require-trusted-types-for": ["'script'"],
