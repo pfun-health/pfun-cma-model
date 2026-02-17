@@ -4,8 +4,6 @@
 
 {# <!-- macro imports --> #}
 {% import 'macros/common.html.jinja2' as common %}
-{% import 'macros/survey_modal.html.jinja2' as survey_modal %}
-{% import 'macros/google_tags.html.jinja2' as google_tags %}
 
 <head>
   {% block head %}
@@ -23,9 +21,6 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css"
 	crossorigin="anonymous" />
 
-  <!-- Google Tags script -->
-  {{ google_tags.google_tags_head_script() }}
-
   <!-- github button script -->
   {{ common.github_star_script() }}
 
@@ -34,13 +29,7 @@
 
 <body>
   {% block body %}
-  <!-- Google Tags body script -->
-  {{ google_tags.google_tags_body() }}
 
-  <!-- insert survey modal html via macro -->
-  <div class="container-fluid">
-  {{ survey_modal.survey_modal_html() }}
-  </div>
 
   <header>
     {% block navheader %}
@@ -139,7 +128,6 @@
   <!-- Scripts (inserted via macro) -->
   {{ common.jquery_script() }}
   {{ common.bootstrap_script() }}
-  {{ survey_modal.survey_modal_script() }}
   {% endblock body %}
 </body>
 
