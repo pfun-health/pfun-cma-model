@@ -6,6 +6,8 @@
 export REPO_ROOT=$(dirname "$0")
 source "${REPO_ROOT}/_funcs.def.sh"
 
+echo -e "Timestamp:$(timedatectl)\n"
+
 # Start server full uv sync and serve pfun-cma-model, pfun-gradio
 if [ "$1" = 'cma' ]; then
     full_uv_sync; serve_pfun_cma_model
