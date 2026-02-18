@@ -53,11 +53,11 @@
 	       <div id="responses-container" class="grid flex container">
 		 <ul class="list-group">
 		   <div id="formatted-response-container" class="list-group-item">
-		     <p class="h-5 text-center text-bg-primary fw-bolder">Recommendations</p>
+		     <p class="h-5 text-center text-bg-primary fw-bolder rounded">Recommendations</p>
 		     <dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
 		   </div>
 		   <div id="raw-response-container" class="list-group-item">
-		     <p class="h-5 text-center text-bg-info fw-bolder">Raw output</p>
+		     <p class="h-5 text-center text-bg-info fw-bolder rounded">Raw output</p>
 		     <pre id="response-output" class="text-wrap text-bg-body"></pre>
 		   </div>
 	       </div>
@@ -65,9 +65,6 @@
 
 	</div><!-- /end accordion -->
       </div>
-
-      <!-- source for jquery simple toasts extension -->
-      <script async defer type="text/javascript" src="{{ url_for('static', path='js/jquery.toast.min.js') }}" crossorigin="anonymous"></script>
 
       <!-- llm prompt interaction -->
       <script type="text/javascript" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
