@@ -235,6 +235,7 @@ def setup_security_config() -> SecurityConfig:
                     "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
                     "'sha256-us29Hziqlsx//QRFkxrVzQvfaIvMULlFZ6TCSNoKcP0='",
                     "'sha256-biLFinpqYMtWHmXfkA1BPeCY0/fNt46SAZ+BBk5YUog='",
+                    "'sha256-4cUp5Ux03IE6rWs2UU4QWaYmO4rCpmieM4AGGVdgTG8='",
                 ],
                 "img-src": ["'self'", "data:", "https:"],
                 "font-src": ["'self'", "https://fonts.gstatic.com"],

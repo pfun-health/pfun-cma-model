@@ -4,6 +4,30 @@ const showLoadingContainer = async () => {
     $(loadingContainer).removeClass("d-none");
     $(loadingContainer).show();
 };
+
+const showAlerts = async () => {
+    const error_msg = "Whoops! The server is busy right now."
+    "\nRetrying your request... Please wait.";
+    const errToast = $.toast({
+	heading: 'Error',
+	text: `${error_msg}`,
+	showHideTransition: 'fade',
+	icon: 'error',
+	hideAfter: 6000,
+	stack: true,
+    });
+    setTimeout(() => {
+	errToast.update({
+	    heading: 'Trying again...',
+	    text: 'Attempting your request again... Please wait.',
+	    hideAfter: 6000,
+	});
+	setTimeout(async () => {
+	    // try the request again.
+	    await onFormSubmit();
+	}, 5000);
+    }, 6500);
+};
     
 const onFormSubmit = async (event) => {
 
@@ -88,38 +112,23 @@ const onFormSubmit = async (event) => {
             // attempt to refresh the page automatically
             window.location.reload();
         }
-        console.error(`Error: ${error.message}`);
-        const error_msg =
-        "Whoops! The server is busy right now."
-        "\nRetrying your request in a moment... Please wait.";
-	$.getScript("/static/js/jquery.toast.min.js", () => {
-            const errToast = $.toast({
-		heading: 'Error',
-		text: `${error_msg}`,
-		showHideTransition: 'fade',
-		icon: 'error',
-		hideAfter: 20000,
-		stack: true,
-            });
-            setTimeout(() => {
-		errToast.update({
-                    heading: 'Trying again...',
-                    text: 'Attempting your request again... Please wait.',
-                    hideAfter: 6000,
-                    icon: 'info',
-                    bgColor: 'info',
-		});
-		console.log("Trying again in 3 seconds...");
-		setTimeout(async () => {
-                    // try the request again.
-                    await onFormSubmit();
-		}, 5000);
-            }, 6500);
-	});
+        console.warn(`Error: ${error.message}`);
+	// show the alerts as toasts
+	await showAlerts();
     }
+};
+
+const setupJqToast = async () => {
+    const jqToast = await import("/static/js/jquery.toast.min.js").then(
+	(Module) => { return Module.default; });
+    jqToast(jQuery, window, document);
+    console.debug('...finished setup for jquery toast, try: $.toast(...)');
 };
 
 document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem('ntry_count', '0'); // number of times we've tried the endpoint before reloading
+    // setup form submission handler
     document.getElementById('query-form').addEventListener('submit', onFormSubmit);
+    // import, configure the jqToast module
+    setupJqToast();
 });

@@ -28,15 +28,13 @@
 	  <h3 class="display-5">Input</h3>
 	  <h5 class="subtitle text-secondary">Patient description, health-relevant information</h5>
 	  <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
-	    <p class="text-primary">Please enter a plain-English query below.
-	    <span class="text-secondary small">Include a complete, accurate description to get relevant health recommendations.
-	    </span>
-	    </p>
+	    <h5 class="text-primary">Please enter a plain-English query below.</h5>
+	    <p class="small text-secondary">Enter a prompt below to generate recommendations for a specific individual.<br />Otherwise, the demo will generate a random scenario if the input is left blank.</p>
 	    <form id="query-form" class="form">
 	      <div class="form-group row p-4 rounded">
 		<textarea
 		  id="query-input" rows="15" cols="30"
-		  placeholder="A relatively healthy individual who exercises most mornings before sunrise."></textarea>
+		  placeholder="Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?"></textarea>
 	      </div>
 	      <div class="button-group row p-4 mb-3 rounded">
 		<button id="submit-btn" type="submit" class="btn btn-primary btn-lg">Submit</button>
@@ -68,9 +66,8 @@
 
 	</div><!-- /end accordion -->
       </div>
-
       <!-- llm prompt interaction -->
-      <script type="text/javascript" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
+      <script type="module" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
     {% endblock content %}
   </div>
 </body>
