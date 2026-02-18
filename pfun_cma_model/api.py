@@ -1,10 +1,11 @@
 """PFun CMA Model API."""
+
 # import necessary modules and packages
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
     SecurityMiddleware,
     SecurityConfig,
-    security_config
+    setup_security_config,
 )
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -14,11 +15,7 @@ import logging
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
-from fastapi.responses import (
-    HTMLResponse,
-    RedirectResponse,
-    StreamingResponse
-)
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -184,13 +181,11 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Add middleware with rate limiting
 # extra line below for type hinting and clarity, since the config is defined in a separate module
-security_config: SecurityConfig = security_config
-app.add_middleware(SecurityMiddleware, config=security_config)
+app.add_middleware(SecurityMiddleware, config=setup_security_config())
 
 # Add client request tracking middleware (added first, executes last)
 
-app.add_middleware(BaseHTTPMiddleware,
-                   dispatch=track_client_request_middleware)
+app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
@@ -259,8 +254,7 @@ def health_check():
 def pitch_document(request: Request):
     """PFun pitch document."""
     return templates.TemplateResponse(
-        "pitch-doc.html.jinja2",
-        context={"request": request}
+        "pitch-doc.html.jinja2", context={"request": request}
     )
 
 
@@ -289,6 +283,7 @@ def favicon():
 
 
 # -- CMA Model endpoints --
+
 
 def get_model_instance():
     """FastAPI dependency to get a singleton CMA model instance."""
@@ -426,7 +421,11 @@ async def health_check_run_at_time():
     else:
         return Response(
             content=json.dumps(
-                {"status": "error", "message": "'run-at-time' WebSocket is NOT running."}),
+                {
+                    "status": "error",
+                    "message": "'run-at-time' WebSocket is NOT running.",
+                }
+            ),
             status_code=503,
             headers={"Content-Type": "application/json"},
         )
@@ -438,7 +437,8 @@ async def health_check_run_at_time():
 @app.post("/model/fit")
 async def fit_model_to_data(
     # type: ignore
-    data: dict | str, config: Optional[CMAModelParams | str] = None
+    data: dict | str,
+    config: Optional[CMAModelParams | str] = None,
 ):
     from pandas import DataFrame
 
@@ -446,8 +446,7 @@ async def fit_model_to_data(
     from pfun_cma_model.engine.fit import fit_model as cma_fit_model
 
     if len(data) == 0:
-        logger.debug(
-            "Sample data will be loaded as no data was provided in query.")
+        logger.debug("Sample data will be loaded as no data was provided in query.")
         data = read_sample_data(convert2json=False)  # type: ignore
         logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
@@ -473,11 +472,13 @@ async def fit_model_to_data(
             exc_info=False,
         )
         error_response = Response(
-            content=json.dumps({
-                "error": "Failed to fit data due to invalid input or configuration.",
-                "exception": str(exc),
-                "exception_type": type(exc).__name__
-            }),
+            content=json.dumps(
+                {
+                    "error": "Failed to fit data due to invalid input or configuration.",
+                    "exception": str(exc),
+                    "exception_type": type(exc).__name__,
+                }
+            ),
             status_code=400,
             headers={"Content-Type": "application/json"},
         )
@@ -489,11 +490,13 @@ async def fit_model_to_data(
             exc_info=False,
         )
         error_response = Response(
-            content=json.dumps({
-                "error": "failed to fit data. See error message on server log.",
-                "exception": str(exc),
-                "exception_type": type(exc).__name__
-            }),
+            content=json.dumps(
+                {
+                    "error": "failed to fit data. See error message on server log.",
+                    "exception": str(exc),
+                    "exception_type": type(exc).__name__,
+                }
+            ),
             status_code=500,
             headers={"Content-Type": "application/json"},
         )

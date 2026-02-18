@@ -166,134 +166,139 @@ async def custom_response_modifier(response: Response) -> Response:
 
 # ==================== Security Configuration ====================
 
-security_config = SecurityConfig(
-    # IP Configuration
-    # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
-    #            "100.115.68.73"],  # Localhost, tailscale
-    # Proxy Configuration
-    trusted_proxies=[
-        "127.0.0.1",
-        "10.0.0.0/8",
-        "168.235.67.32",
-        "100.115.68.73",
-    ],  # tailscale
-    trusted_proxy_depth=2,
-    trust_x_forwarded_proto=True,
-    # Geographical Filtering (requires ipinfo_token OR custom implementation)
-    # geo_ip_handler=IPInfoManager("your_token_here"),  # Replace with actual token
-    # blocked_countries=["XX"],  # Example: block country code XX
-    # whitelist_countries=[],  # Allow all countries by default
-    # Cloud Provider Blocking
-    block_cloud_providers={"AWS", "GCP", "Azure"},
-    # User Agent Filtering
-    blocked_user_agents=["badbot", "evil-crawler", "sqlmap"],
-    # Rate Limiting
-    enable_rate_limiting=True,
-    rate_limit=30,  # 30 requests
-    rate_limit_window=60,  # per 60 seconds
-    # Auto-banning
-    enable_ip_banning=True,
-    auto_ban_threshold=5,
-    auto_ban_duration=300,  # 5 minutes
-    # Penetration Detection
-    enable_penetration_detection=True,
-    # Redis Configuration
-    enable_redis=True,
-    redis_url=get_settings().redis_url,
-    redis_prefix="fastapi_guard:",
-    # HTTPS Enforcement
-    enforce_https=False,  # Set to True in production
-    # Custom Hooks
-    custom_request_check=custom_request_check,
-    custom_response_modifier=custom_response_modifier,
-    # Security Headers Configuration
-    security_headers={
-        "enabled": True,
-        # Content Security Policy
-        "csp": {
-            "default-src": ["'self'", "https:"],
-            "script-src": [
-                "'self'",
-                "buttons.github.io",
-                "cdn.jsdelivr.net",
-                "code.jquery.com",
-                "www.googletagmanager.com",
-                "'sha256-k1Ro88UMqVxp8nnjIuKc9cc3fa0fpR3RvGneepaKUTU='",
-                "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='",
-                "'sha256-1jaaODSv58Wmh81mqxA9zy5j99zeo3PLat5wKQplemE='",
-                "'sha256-5ltlQRX7kwLdCPBtTiaRoP1nfpVtU3RWinabSOxIKy8='",
-            ],
-            # allow github button script
-            "style-src": [
-                "'self'",
-                "https://cdn.jsdelivr.net",
-                "https://code.jquery.com",
-                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
-                "'sha256-us29Hziqlsx//QRFkxrVzQvfaIvMULlFZ6TCSNoKcP0='",
-                "'sha256-biLFinpqYMtWHmXfkA1BPeCY0/fNt46SAZ+BBk5YUog='",
-            ],
-            "img-src": ["'self'", "data:", "https:"],
-            "font-src": ["'self'", "https://fonts.gstatic.com"],
-            # WebSocket support
-            "connect-src": [
-                "'self'",
-                "wss://localhost:8001",
-                "https://api.github.com/repos/pfun-health/pfun-cma-model",
-                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js.map",
-                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css.map",
-            ],
-            # require trusted types for
-            "require-trusted-types-for": ["'script'"],
+
+def setup_security_config() -> SecurityConfig:
+    """Produce a security configuration"""
+    return SecurityConfig(
+        # IP Configuration
+        # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
+        #            "100.115.68.73"],  # Localhost, tailscale
+        # Proxy Configuration
+        trusted_proxies=[
+            "127.0.0.1",
+            "10.0.0.0/8",
+            "168.235.67.32",
+            "100.115.68.73",
+        ],  # tailscale
+        trusted_proxy_depth=2,
+        trust_x_forwarded_proto=True,
+        # Geographical Filtering (requires ipinfo_token OR custom implementation)
+        # geo_ip_handler=IPInfoManager("your_token_here"),  # Replace with actual token
+        # blocked_countries=["XX"],  # Example: block country code XX
+        # whitelist_countries=[],  # Allow all countries by default
+        # Cloud Provider Blocking
+        block_cloud_providers={"AWS", "GCP", "Azure"},
+        # User Agent Filtering
+        blocked_user_agents=["badbot", "evil-crawler", "sqlmap"],
+        # Rate Limiting
+        enable_rate_limiting=True,
+        rate_limit=30,  # 30 requests
+        rate_limit_window=60,  # per 60 seconds
+        # Auto-banning
+        enable_ip_banning=True,
+        auto_ban_threshold=5,
+        auto_ban_duration=300 * 12,  # (300 seconds = 5 minutes) x 12 = 1hr
+        # Penetration Detection
+        enable_penetration_detection=True,
+        # Redis Configuration
+        enable_redis=True,
+        redis_url=get_settings().redis_url,
+        redis_prefix="fastapi_guard:",
+        # HTTPS Enforcement
+        enforce_https=get_settings().debug,  # Set to True in production
+        # Custom Hooks
+        custom_request_check=custom_request_check,
+        custom_response_modifier=custom_response_modifier,
+        # Security Headers Configuration
+        security_headers={
+            "enabled": True,
+            # Content Security Policy
+            "csp": {
+                "default-src": ["'self'", "https:"],
+                "script-src": [
+                    "'self'",
+                    "buttons.github.io",
+                    "cdn.jsdelivr.net",
+                    "code.jquery.com",
+                    "www.googletagmanager.com",
+                    "'sha256-k1Ro88UMqVxp8nnjIuKc9cc3fa0fpR3RvGneepaKUTU='",
+                    "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='",
+                    "'sha256-1jaaODSv58Wmh81mqxA9zy5j99zeo3PLat5wKQplemE='",
+                    "'sha256-5ltlQRX7kwLdCPBtTiaRoP1nfpVtU3RWinabSOxIKy8='",
+                ],
+                # allow github button script
+                "style-src": [
+                    "'self'",
+                    "https://cdn.jsdelivr.net",
+                    "https://code.jquery.com",
+                    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
+                    "'sha256-us29Hziqlsx//QRFkxrVzQvfaIvMULlFZ6TCSNoKcP0='",
+                    "'sha256-biLFinpqYMtWHmXfkA1BPeCY0/fNt46SAZ+BBk5YUog='",
+                ],
+                "img-src": ["'self'", "data:", "https:"],
+                "font-src": ["'self'", "https://fonts.gstatic.com"],
+                # WebSocket support
+                "connect-src": [
+                    "'self'",
+                    "wss://localhost:8001",
+                    "https://api.github.com/repos/pfun-health/pfun-cma-model",
+                    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js.map",
+                    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css.map",
+                ],
+                # require trusted types for
+                "require-trusted-types-for": ["'script'"],
+            },
+            # HTTP Strict Transport Security
+            "hsts": {
+                "max_age": 31536000,  # 1 year
+                "include_subdomains": True,
+                "preload": False,  # Set to True for production
+            },
+            # Custom security headers
+            "frame_options": "SAMEORIGIN",
+            "referrer_policy": "strict-origin-when-cross-origin",
+            "permissions_policy": (
+                "accelerometer=(), camera=(), geolocation=(), "
+                "gyroscope=(), magnetometer=(), microphone=(), "
+                "payment=(), usb=()"
+            ),
+            "custom": {
+                "X-App-Name": "pfun-cma-model",
+                "X-Security-Contact": "admin@pfun.me",
+            },
         },
-        # HTTP Strict Transport Security
-        "hsts": {
-            "max_age": 31536000,  # 1 year
-            "include_subdomains": True,
-            "preload": False,  # Set to True for production
-        },
-        # Custom security headers
-        "frame_options": "SAMEORIGIN",
-        "referrer_policy": "strict-origin-when-cross-origin",
-        "permissions_policy": (
-            "accelerometer=(), camera=(), geolocation=(), "
-            "gyroscope=(), magnetometer=(), microphone=(), "
-            "payment=(), usb=()"
-        ),
-        "custom": {
-            "X-App-Name": "pfun-cma-model",
-            "X-Security-Contact": "admin@pfun.me",
-        },
-    },
-    # CORS Configuration (works alongside security headers)
-    enable_cors=True,
-    cors_allow_origins=[
-        "http://localhost:8001",
-        "https://cloud.tail38611b.ts.net",
-        "https://pfun.one",
-    ],
-    cors_allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    cors_allow_headers=["*"],
-    cors_allow_credentials=True,
-    cors_expose_headers=["X-Total-Count"],
-    cors_max_age=3600,
-    # Logging Configuration
-    # Console output is always enabled. File logging is optional.
-    log_request_level="INFO",  # Or None to disable request logging
-    log_suspicious_level="WARNING",
-    custom_log_file="security.log",  # Or remove/set to None for console-only output
-    # Excluded Paths
-    exclude_paths=[
-        "/docs",
-        "/redoc",
-        "/openapi.json",
-        "/favicon.ico",
-        "/static",
-        "/health",
-    ],
-    # Advanced Configuration
-    passive_mode=False,  # Set to True for log-only mode
-    # Agent Configuration (optional)
-    # enable_agent=True,  # Set to True to enable telemetry
-    # agent_api_key="api-test-key",
-    # agent_project_id="test-project",
-)
+        # CORS Configuration (works alongside security headers)
+        enable_cors=True,
+        cors_allow_origins=[
+            "http://localhost:8001",
+            "https://cloud.tail38611b.ts.net",
+            "https://pfun.one",
+            "https://pfun.app",
+            "https://pfun.run",
+        ],
+        cors_allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        cors_allow_headers=["*"],
+        cors_allow_credentials=True,
+        cors_expose_headers=["X-Total-Count"],
+        cors_max_age=3600,
+        # Logging Configuration
+        # Console output is always enabled. File logging is optional.
+        log_request_level="INFO",  # Or None to disable request logging
+        log_suspicious_level="WARNING",
+        custom_log_file="security.log",  # Or remove/set to None for console-only output
+        # Excluded Paths
+        exclude_paths=[
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/favicon.ico",
+            "/static",
+            "/health",
+        ],
+        # Advanced Configuration
+        passive_mode=False,  # Set to True for log-only mode
+        # Agent Configuration (optional)
+        # enable_agent=True,  # Set to True to enable telemetry
+        # agent_api_key="api-test-key",
+        # agent_project_id="test-project",
+    )
