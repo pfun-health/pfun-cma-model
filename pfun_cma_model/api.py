@@ -20,11 +20,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi_admin.app import app as admin_app
+from fastapi_admin.providers.login import UsernamePasswordProvider
 from pandas import DataFrame
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi_mcp import FastApiMCP
 import pfun_cma_model
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_model_params import (
@@ -33,6 +34,7 @@ from pfun_cma_model.engine.cma_model_params import (
 )
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
+from pfun_cma_model.admin.models import Admin
 from pfun_cma_model.routes import (
     auth as auth_routes,
     dexcom as dexcom_routes,
@@ -66,11 +68,6 @@ async def lifespan(app: FastAPI):
     global templates
     templates = get_templates()
 
-    # --- Startup task: mount MCP server ---
-    # # #
-    mcp = FastApiMCP(app)
-    mcp.mount()
-
     # --- Startup task: connect to Redis ---
     global redis_client
     try:
@@ -89,9 +86,21 @@ async def lifespan(app: FastAPI):
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
 
+    # --- Startup task: Mount the admin interface ---
+    login_provider = UsernamePasswordProvider(
+        admin_model=Admin,
+        enable_captcha=True,
+        login_logo_url="/static/images/pfun-cross-logo.png"
+    )
+    await admin_app.configure(
+        logo_url="/static/images/pfun-cross-logo.png",
+        template_folders=["templates"],
+        providers=[login_provider],
+        redis=redis_client
+    )
+
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
