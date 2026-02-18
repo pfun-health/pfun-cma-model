@@ -9,7 +9,14 @@ from pydantic import BaseModel, Field, ConfigDict
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
+from pfun_cma_model.engine.cma_model_params import (
+    _BOUNDED_PARAM_DESCRIPTIONS,
+    _BOUNDED_PARAM_KEYS_DEFAULTS,
+    _LB_DEFAULTS,
+    _MID_DEFAULTS,
+    _UB_DEFAULTS,
+    CMAModelParams,
+)
 from pfun_cma_model.misc.templating import get_templates
 
 router = APIRouter()
@@ -30,6 +37,27 @@ class PFunDemoRoutesContext(BaseModel):
 
     year: int = Field(default_factory=lambda: datetime.now().year)
     #: Current calendar year (YYYY)
+
+
+def get_demo_params_context():
+    """Helper to generate the parameters context for demo templates."""
+    # load default bounded parameters
+    cma_params = CMAModelParams()
+    default_config = dict(cma_params.bounded_params_dict)
+    # formatted parameters to appear in the rendered template
+    params = {}
+    for ix, pk in enumerate(default_config):
+        if pk in default_config:
+            params[pk] = {
+                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
+                "value": default_config[pk],
+                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
+                "min": _LB_DEFAULTS[ix],
+                "max": _UB_DEFAULTS[ix],
+                "step": (_UB_DEFAULTS[ix] + _LB_DEFAULTS[ix]) * 0.0125,
+                "default": _MID_DEFAULTS[ix],
+            }
+    return params
 
 
 @router.get("/llm")
@@ -62,30 +90,7 @@ def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_
 @router.get("/run-at-time")
 async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS,
-        _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS,
-        _MID_DEFAULTS,
-        _UB_DEFAULTS,
-    )
-
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "step": (_UB_DEFAULTS[ix] + _LB_DEFAULTS[ix]) * 0.0125,
-                "default": _MID_DEFAULTS[ix],
-            }
+    params = get_demo_params_context()
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
@@ -110,30 +115,7 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
 @router.get("/canvas-wave")
 async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint for canvas wave demo (using websockets)."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS,
-        _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS,
-        _MID_DEFAULTS,
-        _UB_DEFAULTS,
-    )
-
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "step": (_UB_DEFAULTS[ix] + _LB_DEFAULTS[ix]) * 0.0125,
-                "default": _MID_DEFAULTS[ix],
-            }
+    params = get_demo_params_context()
     # formulate the render context
     rand1 = os.urandom(16).hex()
     context_dict = {
@@ -155,29 +137,7 @@ async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depend
 @router.get("/webgl-demo")
 async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint for the WebGL-based real-time plot."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS,
-        _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS,
-        _MID_DEFAULTS,
-        _UB_DEFAULTS,
-    )
-
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "default": _MID_DEFAULTS[ix],
-            }
+    params = get_demo_params_context()
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
@@ -199,30 +159,7 @@ async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_
 @router.get("/full-model-run")
 async def demo_full_model_run(request: Request, templates: Jinja2Templates = Depends(get_templates)):
     """Demo UI endpoint to run the full model (c, m, a) at a specific time (using websockets)."""
-    # load default bounded parameters
-    cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS,
-        _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS,
-        _MID_DEFAULTS,
-        _UB_DEFAULTS,
-    )
-
-    default_config = dict(cma_params.bounded_params_dict)
-    # formatted parameters to appear in the rendered template
-    params = {}
-    for ix, pk in enumerate(default_config):
-        if pk in default_config:
-            params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
-                "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "step": (_UB_DEFAULTS[ix] + _LB_DEFAULTS[ix]) * 0.0125,
-                "default": _MID_DEFAULTS[ix],
-            }
+    params = get_demo_params_context()
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {

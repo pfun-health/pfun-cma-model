@@ -133,7 +133,7 @@ def generate_scenario(ctx, query):
     click.secho(f"Generating a scenario from prompt:\n\t'{query[:20]}...'\n")
     try:
         loop = asyncio.get_running_loop()
-        response = loop.run_until_complete(gen_scene(query=query))
+        generated_scenario = loop.run_until_complete(gen_scene(query=query))
     except RuntimeError:
         # get the pydantic-validated scenario
         generated_scenario = asyncio.run(gen_scene(query=query))

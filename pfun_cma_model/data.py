@@ -14,7 +14,6 @@ __all__ = [
 
 def get_db_path() -> Path:
     """Return the database directory path."""
-    from pfun_cma_model.misc.pathdefs import PFunDataPaths
     data_dirpath = Path(PFunDataPaths().pfun_data_dirpath)
     return data_dirpath / "pfun_cma_model.db"
 
@@ -33,8 +32,6 @@ def read_sample_data(convert2json: bool) -> pd.DataFrame | str:
         >>> print(df.head())
 
     """
-    from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
     df = PFunDataPaths().read_sample_data()
     if convert2json is False:
         return df

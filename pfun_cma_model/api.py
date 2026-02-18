@@ -44,6 +44,10 @@ from pfun_cma_model.routes import (
     demo as demo_routes,
     llm as llm_routes,
 )
+from pfun_cma_model.stream import run_at_time_func, stream_run_at_time_func
+from pfun_cma_model.data import read_sample_data
+from pfun_cma_model.engine.fit import fit_model as cma_fit_model
+from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 # Global variables and constants
 debug_mode: bool = get_settings().debug
@@ -93,8 +97,6 @@ async def lifespan(app: FastAPI):
         redis_client = None
 
     # --- Startup task: download sample data if not present ---
-    from pfun_cma_model.misc.pathdefs import PFunDataPaths
-
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -343,13 +345,6 @@ async def run_at_time_route(
         else:
             config_obj = config
         config_dict: Mapping = config_obj.model_dump()  # type: ignore
-
-        # Import local function to avoid circular dependency if I moved it to stream.py
-        # But wait, stream.py imports cma which is fine.
-        # Ideally I should import it from stream.py or a new ops.py
-        # For now, I'll use the one I moved to stream.py
-        from pfun_cma_model.stream import run_at_time_func
-
         output = await run_at_time_func(model, t0, t1, n, **config_dict)
         return output
     except Exception as err:
@@ -376,7 +371,6 @@ async def run_at_time_stream_route(
     model: CMASleepWakeModel = Depends(get_model_instance),
 ):
     """Streaming version of the run-at-time route."""
-    from pfun_cma_model.stream import stream_run_at_time_func
 
     async def iter_response():
         try:
@@ -438,28 +432,42 @@ async def health_check_run_at_time():
 @app.post("/model/fit")
 async def fit_model_to_data(
     # type: ignore
-    data: dict | str, config: Optional[CMAModelParams | str] = None
+    data: dict | str = Body(...), config: Optional[CMAModelParams | str] = None
 ):
-    from pandas import DataFrame
-
-    from pfun_cma_model.data import read_sample_data
-    from pfun_cma_model.engine.fit import fit_model as cma_fit_model
-
-    if len(data) == 0:
+    if not data or len(data) == 0:
         logger.debug(
             "Sample data will be loaded as no data was provided in query.")
         data = read_sample_data(convert2json=False)  # type: ignore
         logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
+
     if isinstance(data, str):
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError as exc:
+            return Response(
+                content=json.dumps({"error": "Invalid JSON string provided for data.", "details": str(exc)}),
+                status_code=400,
+                headers={"Content-Type": "application/json"}
+            )
+
     if isinstance(config, str):
         logger.debug("Config received as string, parsing JSON.")
-        # @note: config expected as JSON string
-        config_dict = json.loads(config)
-        # @note: config -> CMAModelParams object
-        config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
+        try:
+            # @note: config expected as JSON string
+            config_dict = json.loads(config)
+            # @note: config -> CMAModelParams object
+            config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
+        except (json.JSONDecodeError, ValueError) as exc:
+             return Response(
+                content=json.dumps({"error": "Invalid JSON string or parameters provided for config.", "details": str(exc)}),
+                status_code=400,
+                headers={"Content-Type": "application/json"}
+            )
+
     try:
         df = DataFrame(data)
+        if config is None:
+             config = CMAModelParams()
         fit_result = cma_fit_model(df, **config.model_dump())  # type: ignore
         logger.debug("Model fitted successfully.")
         logger.debug("Fit result: %s", fit_result)
