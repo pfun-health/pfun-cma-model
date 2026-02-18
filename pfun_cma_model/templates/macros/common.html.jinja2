@@ -37,4 +37,9 @@
   <a class="github-button" href="https://github.com/pfun-health/pfun-cma-model" data-color-scheme="no-preference: light_high_contrast; light: light; dark: dark;" data-size="large" data-show-count="true" aria-label="Star pfun-health/pfun-cma-model on GitHub">GitHub:pfun-heath/pfun-cma-model</a>
 {% endmacro %}
 
+{% macro trusted_types_script() %}
+  <!-- enables using the trusted types package in non-experimental firefox -->
+  <script src="/static/js/trustedtypes.api_only.build.js" crossorigin="anonymous"></script>
+{% endmacro %}
+
 <!-- end macros -->

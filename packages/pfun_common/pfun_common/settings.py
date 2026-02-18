@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     google_cloud_location: str = "us-central1"
     orcid_client_id: str = ""
     orcid_client_secret: str = ""
+    database_url: str = "sqlite://./results/admin.sqlite3"
 
     model_config = SettingsConfigDict(
         case_sensitive=False,

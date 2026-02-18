@@ -205,7 +205,7 @@ def setup_security_config() -> SecurityConfig:
         redis_url=get_settings().redis_url,
         redis_prefix="fastapi_guard:",
         # HTTPS Enforcement
-        enforce_https=get_settings().debug,  # Set to True in production
+        enforce_https=not get_settings().debug,  # Set to True in production
         # Custom Hooks
         custom_request_check=custom_request_check,
         custom_response_modifier=custom_response_modifier,
@@ -221,6 +221,7 @@ def setup_security_config() -> SecurityConfig:
                     "cdn.jsdelivr.net",
                     "code.jquery.com",
                     "www.googletagmanager.com",
+                    "w3c.github.io",  # includes a compiled trustedtypes module
                     "'sha256-k1Ro88UMqVxp8nnjIuKc9cc3fa0fpR3RvGneepaKUTU='",
                     "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='",
                     "'sha256-1jaaODSv58Wmh81mqxA9zy5j99zeo3PLat5wKQplemE='",

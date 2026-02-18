@@ -86,10 +86,9 @@ async def lifespan(app: FastAPI):
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
 
-    # --- Startup task: Mount the admin interface ---
+    # --- Startup task: Configure the admin interface ---
     login_provider = UsernamePasswordProvider(
         admin_model=Admin,
-        enable_captcha=True,
         login_logo_url="/static/images/pfun-cross-logo.png"
     )
     await admin_app.configure(
@@ -236,6 +235,11 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=get_settings().secret_key,
 )
+
+
+# Mount the admin_app (/admin)
+app.mount("/admin", admin_app)
+
 
 # --- Include Routers ---
 

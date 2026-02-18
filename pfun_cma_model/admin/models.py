@@ -1,5 +1,5 @@
 import datetime
-from tortoise import Model, fields
+from tortoise import fields
 from fastapi_admin.models import AbstractAdmin
 
 
