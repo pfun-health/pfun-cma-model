@@ -28,7 +28,9 @@ const onFormSubmit = async (event) => {
             throw new Error("<<TEST_ERROR>>");
         }
         query_url.searchParams.set('prompt', query);
-        $("#submit-btn").addClass("disabled");
+        $("#submit-btn").addClass("disabled"); // disable the submit button temporarily
+	$(fmtOutput).html(''); // clear the existing recommendations
+	$(responseOutput).html(''); // clear old response data
         const response = await fetch(query_url.toString(), {
             method: 'POST',
             headers: {
