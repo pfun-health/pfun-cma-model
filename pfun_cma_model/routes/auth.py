@@ -7,7 +7,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Security, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from jose import JWTError, jwt
 
 # SSO imports
@@ -17,6 +17,7 @@ from fastapi_sso.sso.base import OpenID
 
 fastapi_sso.sso.__dict__.update(pfun_providers.__dict__)
 from pfun_cma_model.sso.providers.orcid import OrcidSSO
+from pfun_common.settings import get_settings
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
@@ -25,11 +26,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("JWT_EXPIRATION_MINUTES", "1440")
 )  # 24 hours default
 
-ORCID_CLIENT_ID = os.getenv("ORCID_CLIENT_ID", "")
-ORCID_CLIENT_SECRET = os.getenv("ORCID_CLIENT_SECRET", "")
-ORCID_REDIRECT_URI = os.getenv(
-    "ORCID_REDIRECT_URI", "http://localhost:8001/auth/orcid/callback"
-)
+
+class OrcidCredentials:
+    """
+    Credentials for Orcid.org provider backend.
+
+    ref: https://github.com/ORCID/ORCID-Source/tree/development/orcid-api-web
+    """
+    def __init__(self):
+        self.ORCID_CLIENT_ID = Field(default_factory=lambda: get_settings().orcid_client_id)
+        self.ORCID_CLIENT_SECRET = Field(default_factory=lambda: get_settings().orcid_client_secret)
+        self.ORCID_REDIRECT_URI = Field(default_factory=lambda: os.getenv(
+            "ORCID_REDIRECT_URI", "http://localhost:8001/auth/orcid/callback"
+        ))
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -198,16 +208,17 @@ async def get_orcid_provider() -> OrcidSSO:
     Raises:
         RuntimeError: If OrcID credentials are not configured
     """
-    if not ORCID_CLIENT_ID or not ORCID_CLIENT_SECRET:
+    creds = OrcidCredentials()
+    if not creds.ORCID_CLIENT_ID or not creds.ORCID_CLIENT_SECRET:
         raise RuntimeError(
             "OrcID credentials not configured. "
             "Set ORCID_CLIENT_ID and ORCID_CLIENT_SECRET environment variables."
         )
 
     return OrcidSSO(
-        client_id=ORCID_CLIENT_ID,
-        client_secret=ORCID_CLIENT_SECRET,
-        redirect_uri=ORCID_REDIRECT_URI,
+        client_id=creds.ORCID_CLIENT_ID,
+        client_secret=creds.ORCID_CLIENT_SECRET,
+        redirect_uri=creds.ORCID_REDIRECT_URI,
     )
 
 
