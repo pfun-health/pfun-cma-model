@@ -28,7 +28,9 @@ const onFormSubmit = async (event) => {
             throw new Error("<<TEST_ERROR>>");
         }
         query_url.searchParams.set('prompt', query);
-        $("#submit-btn").addClass("disabled");
+        $("#submit-btn").addClass("disabled"); // disable the submit button temporarily
+	$(fmtOutput).html(''); // clear the existing recommendations
+	$(responseOutput).html(''); // clear old response data
         const response = await fetch(query_url.toString(), {
             method: 'POST',
             headers: {
@@ -90,28 +92,30 @@ const onFormSubmit = async (event) => {
         const error_msg =
         "Whoops! The server is busy right now."
         "\nRetrying your request in a moment... Please wait.";
-        const errToast = $.toast({
-            heading: 'Error',
-            text: `${error_msg}`,
-            showHideTransition: 'fade',
-            icon: 'error',
-            hideAfter: 20000,
-            stack: true,
-        });
-        setTimeout(() => {
-            errToast.update({
-                heading: 'Trying again...',
-                text: 'Attempting your request again... Please wait.',
-                hideAfter: 6000,
-                icon: 'info',
-                bgColor: 'info',
+	$.getScript("/static/js/jquery.toast.min.js", () => {
+            const errToast = $.toast({
+		heading: 'Error',
+		text: `${error_msg}`,
+		showHideTransition: 'fade',
+		icon: 'error',
+		hideAfter: 20000,
+		stack: true,
             });
-            console.log("Trying again in 3 seconds...");
-            setTimeout(async () => {
-                // try the request again.
-                await onFormSubmit();
-            }, 5000);
-        }, 6500);
+            setTimeout(() => {
+		errToast.update({
+                    heading: 'Trying again...',
+                    text: 'Attempting your request again... Please wait.',
+                    hideAfter: 6000,
+                    icon: 'info',
+                    bgColor: 'info',
+		});
+		console.log("Trying again in 3 seconds...");
+		setTimeout(async () => {
+                    // try the request again.
+                    await onFormSubmit();
+		}, 5000);
+            }, 6500);
+	});
     }
 };
 

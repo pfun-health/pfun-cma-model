@@ -6,7 +6,10 @@ import httpx
 
 
 class OrcidSSO(SSOBase):
-    """Class providing login via Orcid OAuth."""
+    """Class providing login via Orcid OAuth.
+
+    ref: https://github.com/ORCID/ORCID-Source/tree/development/orcid-api-web
+    """
 
     provider = "orcid"
     scope: ClassVar = ["openid"]
@@ -39,7 +42,7 @@ class OrcidSSO(SSOBase):
     async def get_discovery_document(self) -> DiscoveryDocument:
         """Get document containing handy urls."""
         return {
-            "authorization_endpoint": "https://www.Orcid.com/oauth2/authorize?response_type=code",
-            "token_endpoint": "https://api.Orcid.com/oauth2/token",
-            "userinfo_endpoint": "https://api.Orcid.com/1/user/-/profile.json",
+            "authorization_endpoint": "https://orcid.org/oauth/authorize?response_type=code",
+            "token_endpoint": "https://orcid.org/oauth/token",
+            "userinfo_endpoint": "https://orcid.org/1/user/-/profile.json",
         }
