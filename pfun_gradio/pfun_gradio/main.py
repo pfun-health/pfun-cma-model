@@ -31,12 +31,7 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 def _mount_gradio_app(app: FastAPI, settings: Settings) -> FastAPI:
     """Mount the gradio demo instance to the FastAPI app."""
-    logger.info(
-        "llm_gen_scenario_endpoint: %s", str(settings.llm_gen_scenario_endpoint)
-    )
-    demo_blocks_iface = setup_gradio_ui(
-        llm_gen_scenario_endpoint=settings.llm_gen_scenario_endpoint
-    )
+    demo_blocks_iface = setup_gradio_ui()
     app = gr.mount_gradio_app(app, demo_blocks_iface, path="/gradio")
     return app
 

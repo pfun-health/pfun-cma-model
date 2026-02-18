@@ -5,10 +5,11 @@ to generate a scenario based on user input.
 """
 
 import logging
+import importlib
 from pathlib import Path
+import asyncio
 
 import gradio as gr
-import httpx
 import pfun_path_helper as pph  # type: ignore
 
 pph.append_path(Path(__file__).parent.parent)
@@ -17,7 +18,7 @@ try:
     from pfun_common.settings import Settings, get_settings
 except (ImportError, ModuleNotFoundError):
     from pfun_common.pfun_common.settings import Settings, get_settings
-
+gen_scene = importlib.import_module('.llm', package='pfun_cma_model').generate_scenario
 
 # Initially, Get the logger (globally accessible)
 # Will be overridden by setup_logging()
@@ -30,59 +31,29 @@ def get_default_description():
     return "The patient is a 45-year-old male with type 2 diabetes and a history of hypoglycemia."
 
 
-def generate_parameters(description: str, llm_gen_scenario_endpoint: str) -> str:
-    """
-    Synchronously generate parameters for a scenario description.
-    :param description: Description
-    :param llm_gen_scenario_endpoint: Description
-    """
-    logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
-    with httpx.Client(timeout=30) as client:
-        try:
-            response = client.stream(
-                method="POST",
-                url=llm_gen_scenario_endpoint,
-                json={"description": description}
-            )
-            if response.status_code == 200:
-                # Successful response (JSON object)
-                response_jdict = response.json()
-                description_text = response_jdict.get("qualitative_description", "")
-                import pandas as pd
-
-                parameters = response_jdict.get("parameters", {})
-                if parameters:
-                    param_df = pd.DataFrame.from_dict(parameters, orient="index")
-                    param_df.index.name = "Parameter"
-                    param_df.reset_index(inplace=True)
-                    formatted_params_table = param_df.to_markdown(index=False)
-                else:
-                    formatted_params_table = "😞 No parameters generated.\n"
-                formatted_response = (
-                    "## Description:\n"
-                    f"{description_text}\n\n"
-                    "## Generated Parameters:\n"
-                    f"{formatted_params_table}\n"
-                )
-                return formatted_response
-            else:
-                return f"Error: {response.status_code} - {response.text}"
-        except Exception as e:
-            return f"Request failed: {e}"
+async def generate_fn(description: str):
+    return await gen_scene(description, include_recommendations=True)
 
 
-def setup_gradio_ui(
-    llm_gen_scenario_endpoint: str,
-):
+async def wait_gen_fn(description: str):
+    try:
+        return await asyncio.wait_for(generate_fn(description), timeout=25)
+    except asyncio.TimeoutError as exc:
+        return "Timed out waiting for response. Please try again."
+
+    
+def _run_asyncio(coro):
+    loop = asyncio.get_event_loop()
+    result = asyncio.get_event_loop().run_until_complete(coro)
+    return result
+
+
+def interface_fn(description: str):
+    return _run_asyncio(wait_gen_fn(description))
+
+
+def setup_gradio_ui() -> gr.Interface:
     """Set up the Gradio demo interface using gr.Interface."""
-
-    def interface_fn(
-        description: str, llm_gen_scenario_endpoint=llm_gen_scenario_endpoint
-    ):
-        try:
-            return generate_parameters(description, llm_gen_scenario_endpoint)
-        except Exception as exc:
-            return {"error": str(exc)}
 
     placeholder_text = "E.g., 'The patient has type 1 diabetes and struggle with high blood sugar after meals.'"
     default_value = get_default_description()
@@ -118,8 +89,7 @@ def setup_gradio_ui(
             ],
         ],
         cache_examples=False,
-        concurrency_limit=10,
-        time_limit=30,
+        concurrency_limit='default',
     )
     return iface
 
@@ -131,9 +101,10 @@ def launch_demo(
     server_scheme = settings.server_scheme
     server_name = settings.server_host
     server_port = settings.server_port
-    endpoint = f"{server_scheme}://{server_name}:{server_port}/llm/generate-scenario"
-    demo = setup_gradio_ui(llm_gen_scenario_endpoint=endpoint)
-    return demo.launch(server_name=server_name, server_port=server_port, mcp_server=True, **kwargs)
+    demo = setup_gradio_ui()
+    return demo.launch(
+        server_name=server_name, server_port=server_port, mcp_server=True, **kwargs
+    )
 
 
 if __name__ == "__main__":

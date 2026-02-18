@@ -13,7 +13,7 @@ if [ "$1" = 'cma' ]; then
     full_uv_sync; serve_pfun_cma_model
 else
     if [ "$1" = 'gradio' ]; then
-	full_uv_sync_gradio; serve_pfun_gradio
+		full_uv_sync_gradio; serve_pfun_gradio
     else
 	if [ "$1" = 'full' ]; then
 	    nohup /usr/bin/env bash -c 'cd '"${REPO_ROOT}"'. ./.venv/bin/activate; scripts/serve-prod.sh cma' &
