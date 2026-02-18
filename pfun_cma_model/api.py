@@ -4,7 +4,6 @@
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
     SecurityMiddleware,
-    SecurityConfig,
     setup_security_config,
 )
 from contextlib import asynccontextmanager
@@ -15,14 +14,11 @@ import logging
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi_admin.app import app as admin_app
-from fastapi_admin.providers.login import UsernamePasswordProvider
-from pandas import DataFrame
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -34,7 +30,6 @@ from pfun_cma_model.engine.cma_model_params import (
 )
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
-from pfun_cma_model.admin.models import Admin
 from pfun_cma_model.routes import (
     auth as auth_routes,
     dexcom as dexcom_routes,
@@ -80,23 +75,11 @@ async def lifespan(app: FastAPI):
         )
         try:
             await redis_client.ping()  # type: ignore
-        except exception:
+        except Exception:
             logging.debug("failed to ping the redis client.", exc_info=2)
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
-
-    # --- Startup task: Configure the admin interface ---
-    login_provider = UsernamePasswordProvider(
-        admin_model=Admin,
-        login_logo_url="/static/images/pfun-cross-logo.png"
-    )
-    await admin_app.configure(
-        logo_url="/static/images/pfun-cross-logo.png",
-        template_folders=["templates"],
-        providers=[login_provider],
-        redis=redis_client
-    )
 
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
@@ -235,11 +218,6 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=get_settings().secret_key,
 )
-
-
-# Mount the admin_app (/admin)
-app.mount("/admin", admin_app)
-
 
 # --- Include Routers ---
 
