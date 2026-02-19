@@ -8,6 +8,8 @@
 		"python-envs.workspaceSearchPaths": [
 			"./**/.venv"
 		],
-		"editor.wordWrapColumn": 120
+		"editor.wordWrapColumn": 120,
+		"editor.formatOnSave": true,
+		"editor.formatOnSaveMode": "file"
 	}
 }

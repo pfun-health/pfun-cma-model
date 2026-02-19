@@ -1,11 +1,17 @@
 """pfun_cma_model/app.py : pfun-cma-model fastapi app definition."""
+
 from pfun_common.settings import get_settings
-import pfun_cma_model.api as api_core
+from pfun_cma_model.api import app
 
-# Export the FastAPI app from api_core
-app = api_core.app
 
-# # #
-# Export the socket-io session from api_core
-# # #
-socketio_session = api_core.socketio_session
+###
+# --- Setup Admin (sqladmin) ---
+###
+
+from pfun_cma_model.admin.core import engine
+from pfun_cma_model.admin.views import *
+from sqladmin import Admin
+
+admin = Admin(app, engine)
+
+admin.add_view(UserAdmin)

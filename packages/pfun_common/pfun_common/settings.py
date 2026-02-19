@@ -35,9 +35,6 @@ class Settings(BaseSettings):
     server_scheme: str = "http"
     server_host: str = "localhost"
     server_port: str | int = "8001"
-    gradio_server_scheme: str = "http"
-    gradio_server_host: str = "localhost"
-    gradio_server_port: str | int = "7860"
     redis_user: str = "default"
     redis_password: str = ""
     redis_host: str = "localhost"
@@ -53,9 +50,6 @@ class Settings(BaseSettings):
     secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
-    orcid_client_id: str = ""
-    orcid_client_secret: str = ""
-    database_url: str = "sqlite://./results/admin.sqlite3"
 
     model_config = SettingsConfigDict(
         case_sensitive=False,
@@ -138,17 +132,6 @@ class Settings(BaseSettings):
         :rtype: str
         """
         return f"{self.server_scheme}://{self.server_host}:{self.server_port}/llm/generate-scenario"
-
-    @property
-    def gradio_demo_endpoint(self) -> str:
-        """
-        Gradio demo endpoint URL.
-
-        :param self: Description
-        :return: Description
-        :rtype: str
-        """
-        return f"{self.gradio_server_scheme}://{self.gradio_server_host}:{self.gradio_server_port}/gradio/"
 
     @property
     def redis_url(self) -> str:

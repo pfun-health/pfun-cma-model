@@ -162,25 +162,6 @@ STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 ###
-# --- Setup sqladmin ---
-###
-
-from pfun_cma_model.admin import (
-    engine,
-    User
-)
-from sqladmin import Admin, ModelView
-
-admin = Admin(app, engine)
-
-
-class UserAdmin(ModelView, model=User):
-    column_list = [User.id, User.name]
-
-
-admin.add_view(UserAdmin)
-
-###
 # --- Setup middleware ---
 ###
 
