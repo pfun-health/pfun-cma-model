@@ -22,16 +22,14 @@ from fastapi.templating import Jinja2Templates
 from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-import pfun_cma_model
+from pfun_cma_model import __version__ as pfun_cma_model_pkg_version
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 from pfun_cma_model.engine.cma_model_params import (
-    _BOUNDED_PARAM_KEYS_DEFAULTS,
     CMAModelParams,
 )
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
 from pfun_cma_model.routes import (
-    auth as auth_routes,
     dexcom as dexcom_routes,
     data as data_routes,
     params as params_routes,
@@ -83,6 +81,7 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: download sample data if not present ---
     from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
@@ -140,8 +139,8 @@ def set_app_version(app: FastAPI = app) -> FastAPI:
     fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime(
         "%Y%m%d%H%M%S"
     )
-    app.version = str(pfun_cma_model.__version__) + f"-dev.{fmod_time}"
-    logging.debug("pfun-cma-model version: %s", pfun_cma_model.__version__)
+    app.version = str(pfun_cma_model_pkg_version) + f"-dev.{fmod_time}"
+    logging.debug("pfun-cma-model version: %s", pfun_cma_model_pkg_version)
     logging.debug("FastAPI app version set to: %s", app.version)
     return app
 
@@ -220,8 +219,6 @@ app.add_middleware(
 )
 
 # --- Include Routers ---
-
-app.include_router(auth_routes.router, tags=["auth"])
 
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 

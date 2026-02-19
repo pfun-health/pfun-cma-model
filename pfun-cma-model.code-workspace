@@ -5,8 +5,9 @@
 		}
 	],
 	"settings": {
-		"postman.settings.dotenv-detection-notification-visibility": false,
-		"python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+		"python-envs.workspaceSearchPaths": [
+			"./**/.venv"
+		],
 		"editor.wordWrapColumn": 120
 	}
 }
