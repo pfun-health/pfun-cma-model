@@ -38,12 +38,10 @@ dependencies = [
     "pfun-common",
     "numba>=0.63.1",
     "itsdangerous>=2.2.0",
-    "fastapi-sso>=0.19.0",
     "python-jose[cryptography]>=3.5.0",
     "duckdb>=1.4.4",
     "httpx>=0.28.1",
     "fastapi-guard>=4.2.2",
-    "fastapi-user-auth>=0.7.3",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",

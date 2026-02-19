@@ -74,7 +74,7 @@ async def lifespan(app: FastAPI):
         try:
             await redis_client.ping()  # type: ignore
         except Exception:
-            logging.debug("failed to ping the redis client.", exc_info=2)
+            logging.debug("failed to ping the redis client.", exc_info=True)
     except Exception as exc:
         logging.warning("Failed to setup redis client: %s", str(exc))
         redis_client = None
@@ -241,7 +241,7 @@ def health_check():
 @app.get("/pitch")
 def pitch_document(request: Request):
     """PFun pitch document."""
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(  # type: ignore
         "pitch-doc.html.jinja2", context={"request": request}
     )
 
@@ -439,15 +439,16 @@ async def fit_model_to_data(
         logger.debug("...Sample data retrieved:\n'%s'\n\n", data[:100])
     if isinstance(data, str):
         data = json.loads(data)
+    cma_config: CMAModelParams  # declare variable for type hinting
     if isinstance(config, str):
         logger.debug("Config received as string, parsing JSON.")
         # @note: config expected as JSON string
         config_dict = json.loads(config)
         # @note: config -> CMAModelParams object
-        config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
+        cma_config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
     try:
         df = DataFrame(data)
-        fit_result = cma_fit_model(df, **config.model_dump())  # type: ignore
+        fit_result = cma_fit_model(df, **cma_config.model_dump())  # type: ignore
         logger.debug("Model fitted successfully.")
         logger.debug("Fit result: %s", fit_result)
         if fit_result is None:

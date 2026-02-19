@@ -32,16 +32,19 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 ### Project Goals
 
-**For development #todo notes, check the `TODO.md`:**
+**For detailed development information, check the `TODO.md`:**
 + [**TODO.md**](./TODO.md "TODO.md")
 
-#### Short-term dev goals
+#### Short-term dev goals (~30 days)
 
-+ Currently I'm stil shopping around (`open-telemetry`?)
-+ **I don't currently have enough *Compute* to support `open-telemetry` with `prometheus`+`grafana`.**
-  + **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`**)
++ Decided to attempt to use `pfun-django` as the admin/user-auth backend.
+  + Other options exist, but ultimately it'd be way more straightforward (and not too much overhead, IMHO).
 
 #### Mid-term goals (60~90 days)
+
++ Currently I'm stil shopping around for telemetry options (`open-telemetry`)
++ **I don't currently have enough *Compute* to support `open-telemetry` with `prometheus`+`grafana`.**
+  + **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`**)
 
 + **Evaluation pipeline**
   + *Quantify, evaluate performace on training, test datasets.*
