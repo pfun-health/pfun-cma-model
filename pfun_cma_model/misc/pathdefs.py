@@ -17,13 +17,15 @@ from pfun_common.utils import setup_logging
 # Initialize logging based on settings
 setup_logging(logger=logger, debug_mode=get_settings().debug)
 
-__all__ = ["PFunDataPaths", "PFunAPIRoutes"]
+__all__ = ["PFunDataPaths", ]
 
 
 @dataclass
 class PFunDataPaths:
     """Paths for data files used in the pfun_cma_model package."""
 
+    _local_pfun_share_path: os.PathLike = Path(
+        os.path.expanduser("~/.local/share/pfun-cma-model"))
     _pfun_data_dirpath: os.PathLike = Path(
         os.path.abspath(pph.get_lib_path("pfun_common")))
     _sample_data_fpath: os.PathLike = Path(
@@ -62,6 +64,18 @@ class PFunDataPaths:
                     f"Failed to download sample data: {response.status_code}"
                 )
 
+    def ensure_local_share_path_exists(self):
+        """Create the pfun-cma-model local share path if it doesn't already exist.
+        """
+        pth = Path(self._local_pfun_share_path)
+        if not pth.exists():
+            return pth.mkdir()
+        logger.debug("pfun-cma-model local share path already exists (%s).", str(pth))
+
+    @property
+    def admin_db_fpath(self) -> str:
+        return 'sqlite:///' + str(Path(self._local_pfun_share_path).joinpath('admin.db').absolute())
+
     @property
     def sample_data_fpath(self) -> Path:
         return Path(self._sample_data_fpath)
@@ -80,19 +94,3 @@ class PFunDataPaths:
             fpath = self.sample_data_fpath
         df = pd.read_csv(fpath)
         return df
-
-
-@dataclass
-class PFunAPIRoutes:
-    FRONTEND_ROUTES = ("/run", "/run-at-time", "/params/schema", "/params/default")
-
-    PUBLIC_ROUTES = (
-        "/",
-        "/model/run",
-        "/model/fit",
-        "/model/run-at-time",
-        "/params/schema",
-        "/params/default",
-    )
-
-    PRIVATE_ROUTES = ...
