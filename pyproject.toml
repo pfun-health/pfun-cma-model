@@ -42,6 +42,7 @@ dependencies = [
     "duckdb>=1.4.4",
     "httpx>=0.28.1",
     "fastapi-guard>=4.2.2",
+    "sqladmin[full]>=0.23.0",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
