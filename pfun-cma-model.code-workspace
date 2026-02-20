@@ -10,6 +10,16 @@
 		],
 		"editor.wordWrapColumn": 120,
 		"editor.formatOnSave": true,
-		"editor.formatOnSaveMode": "file"
+		"editor.formatOnSaveMode": "file",
+		"sqltools.connections": [
+			{
+				"previewLimit": 50,
+				"driver": "SQLite",
+				"name": "admin",
+				"group": "pfun-cma-model",
+				"database": "/home/robbiec/.local/share/pfun-cma-model/admin.db"
+			}
+		],
+		"sqltools.useNodeRuntime": true
 	}
 }

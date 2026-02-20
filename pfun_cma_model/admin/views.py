@@ -9,6 +9,7 @@ from fastapi import Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import func, select
 from wtforms.fields import PasswordField
+from wtforms.validators import InputRequired, EqualTo
 from pfun_cma_model.admin.models import *
 from pfun_cma_model.admin.core import Base, engine, Session, pwd_context
 
@@ -21,9 +22,12 @@ __all__ = ["UserAdmin", "ReportView"]
 class UserAdmin(ModelView, model=User):
     """Admin view for User model."""
 
-    # Save configuration
+    # Save as redirect behavior
     save_as = (
         True  # Enable "Save As" functionality to create new records from existing ones
+    )
+    save_as_continue = (
+        False  # After "Save As", return to list view instead of edit view
     )
 
     # Columns configuration
@@ -63,6 +67,14 @@ class UserAdmin(ModelView, model=User):
     # Form configuration
     form_create_rules = ["name", "email", "is_admin", "age", "bio", "hashed_password"]
     form_edit_rules = ["name"]
+    form_args = dict(
+        hashed_password=dict(
+            validators=[
+                InputRequired(),
+                EqualTo("confirm", message="Passwords must match"),
+            ]
+        )
+    )
     form_overrides = dict(hashed_password=PasswordField)
 
     # Permission settings
@@ -83,9 +95,7 @@ class UserAdmin(ModelView, model=User):
 
     # --- Permissions ---
     def is_accessible(self, request: Request) -> bool:
-        # Implement your authentication logic here
-        # For example, check if the user is logged in and has admin privileges
-        # TODO: Implement real authentication logic
+        """Check if the current user is authenticated and has access to the admin interface."""
         token = request.session.get("token")
         if not token:
             return False

@@ -1,6 +1,8 @@
 """PFun CMA Model API."""
 
 # import necessary modules and packages
+from sqladmin.authentication import login_required
+
 from pfun_cma_model.admin.models import init_models
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
@@ -235,6 +237,8 @@ app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
 
 app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
 
+
+@login_required
 @app.get("/docs")
 def custom_docs_redirect():
     """Redirect the default /docs endpoint to the custom documentation page."""
