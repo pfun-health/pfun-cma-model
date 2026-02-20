@@ -9,9 +9,7 @@ from pfun_cma_model.api import app
 ###
 
 from pfun_cma_model.admin.core import engine
-from pfun_cma_model.admin.views import *
 from sqladmin import Admin
 
+# Configure the admin interface with the SQLAlchemy engine and register views
 admin = Admin(app, engine)
-
-admin.add_view(UserAdmin)

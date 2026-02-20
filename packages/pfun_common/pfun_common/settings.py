@@ -17,11 +17,7 @@ from pfun_llm.backend.ollama import (
 
 
 def generate_default_secret_key() -> str:
-    """Generate a default secret key based on the current timestamp.
-
-    Note: This is not secure and should only be used for development purposes.
-    In production, set the SECRET_KEY environment variable to a secure value.
-    """
+    """Generate a default secret key. Combines a timestamp and random token for uniqueness."""
     timestamp = datetime.now().isoformat().encode("utf-8")
     timestamp_nonce = b64encode(timestamp).decode("utf-8")
     rand_token = token_urlsafe(16)  # 16 bytes of randomness
@@ -116,7 +112,9 @@ class Settings(BaseSettings):
                 info.data.get("redis_db"),
             )
         except Exception as exc:
-            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
+            logging.warning(
+                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
+            )
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 

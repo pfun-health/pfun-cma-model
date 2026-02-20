@@ -74,7 +74,7 @@ class PFunDataPaths:
 
     @property
     def admin_db_fpath(self) -> str:
-        return 'sqlite:///' + str(Path(self._local_pfun_share_path).joinpath('admin.db').absolute())
+        return 'sqlite+aiosqlite:///' + str(Path(self._local_pfun_share_path).joinpath('admin.db').absolute())
 
     @property
     def sample_data_fpath(self) -> Path:

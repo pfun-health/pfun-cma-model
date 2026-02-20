@@ -20,9 +20,9 @@ class User(Base):
         Integer, ForeignKey("sites.id"), nullable=True, default=None
     )
     age: Mapped[int] = mapped_column(Integer, nullable=False)
-    salary: Mapped[float] = mapped_column(Float, nullable=False)
-    description: Mapped[str] = mapped_column(String, nullable=True)
+    bio: Mapped[str] = mapped_column(String, nullable=True)
     site: Mapped[Optional["Site"]] = relationship(back_populates="users")
+    hashed_password: Mapped[str] = mapped_column(String)
 
 
 class Site(Base):

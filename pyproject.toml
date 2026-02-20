@@ -43,6 +43,9 @@ dependencies = [
     "httpx>=0.28.1",
     "fastapi-guard>=4.2.2",
     "sqladmin[full]>=0.23.0",
+    "alembic>=1.18.4",
+    "sqlalchemy[asyncio]>=2.0.46",
+    "aiosqlite>=0.22.1",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",

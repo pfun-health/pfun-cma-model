@@ -17,8 +17,25 @@ __all__ = ["UserAdmin"]
 class UserAdmin(ModelView, model=User):
     """Admin view for User model."""
 
-    # Columns to display in list view
-    column_list = ["id", "name", "email", "is_admin", "age"]
+    # Save configuration
+    save_as = (
+        True  # Enable "Save As" functionality to create new records from existing ones
+    )
+
+    # Columns configuration
+    column_list = ["__all__"]
+    # Columns to display to the user with custom labels
+    column_labels = {
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "is_admin": "Is Admin",
+        "site_id": "Site",
+        "age": "Age",
+        "bio": "Biography",
+        "hashed_password": "Password",
+    }
+    # Filters for list view
     column_filters = [
         BooleanFilter(User.is_admin),
         AllUniqueStringValuesFilter(User.name),
@@ -32,6 +49,10 @@ class UserAdmin(ModelView, model=User):
         ),  # Numeric operations: Equals, Greater than, Less than
     ]
 
+    # Form fields for create/edit views
+    form_create_rules = ["name", "hashed_password"]
+    form_edit_rules = ["name"]
+
     # Permission settings
     can_create = True
     can_edit = True
@@ -44,20 +65,14 @@ class UserAdmin(ModelView, model=User):
     icon = "fa-solid fa-user"
     identity = "user"
 
-    # Form settings
-    form_columns = [User.name]
-    form_args = dict(name=dict(label="Full name"))
-    form_widget_args = dict(email=dict(readonly=True))
-    form_overrides = dict(email=wtforms.EmailField)
-    form_include_pk = True
-    form_ajax_refs = {
-        "address": {
-            "fields": ("zip_code", "street"),
-            "order_by": ("id",),
-        }
-    }
-    form_create_rules = ["name", "password"]
-    form_edit_rules = ["name"]
+    # --- Custom Events ---
+
+    async def on_model_change(
+        self, data: dict, model: User, is_created: bool, request: Request
+    ) -> None:
+        if is_created:
+            # Hash the password before saving into DB !
+            data["hashed_password"] = data["hashed_password"] + "_hashed"
 
     # --- Custom Actions ---
 
@@ -83,3 +98,8 @@ class UserAdmin(ModelView, model=User):
             return RedirectResponse(
                 request.url_for("admin:list", identity=self.identity)
             )
+
+
+from pfun_cma_model.app import admin
+
+admin.add_view(UserAdmin)

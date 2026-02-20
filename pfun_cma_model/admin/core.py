@@ -1,5 +1,5 @@
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 
@@ -8,11 +8,12 @@ def setup_admin_backend():
     Base = declarative_base()
     pfun_dpaths = PFunDataPaths()
     pfun_dpaths.ensure_local_share_path_exists()
-    engine = create_engine(
+    engine = create_async_engine(
         pfun_dpaths.admin_db_fpath,
         connect_args={"check_same_thread": False},
     )
-    return Base, engine
+    Session = sessionmaker(bind=engine, class_=AsyncSession)
+    return Base, engine, Session
 
 
-Base, engine = setup_admin_backend()
+Base, engine, Session = setup_admin_backend()

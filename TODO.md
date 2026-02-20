@@ -5,6 +5,27 @@ TODO for `pfun-cma-model`
 Goals
 =====
 
+## Short-term Goals
+
++ _Complete initial implementation of admin interface:_
+  + ~~Define models (User, Site)~~
+  + ~~Implement views (CRUD for User, Site)~~
+  + Integrate password hashing in User model
+  + Test admin interface functionality
+  + _Setup database migrations with Alembic:_
+    + Configure Alembic for SQLite
+    + Create initial migration for User and Site models
+    + Test migration process (upgrade/downgrade)
++ _Configure production hosting (domain, routes, etc.):_
+  + **Security, separation of concerns (frontend, backend, ...), load-balancing.**
+  + _Domain configuration:_
+    + **Landing page frontend** at: `pfun.one`, `pfun.me`.
+    + **Demo frontend** at: `pfun.app`.
+    + **Backend API** at: `api.pfun.run`.
+  + _Routing and load-balancing:_
+    + Cloudflare Workers for routing and load-balancing between API instances.
+    + CDN for frontend assets (Still shopping around for best option here, but Cloudflare also offers CDN services).
+
 ## Overall Goal: Complete Evaluation Pipeline
 
 ### Curate Dataset(s)
