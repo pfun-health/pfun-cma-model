@@ -1,8 +1,6 @@
 """PFun CMA Model API."""
 
 # import necessary modules and packages
-from sqladmin.authentication import login_required
-
 from pfun_cma_model.admin.models import init_models
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
@@ -38,6 +36,7 @@ from pfun_cma_model.routes import (
     params as params_routes,
     demo as demo_routes,
     llm as llm_routes,
+    sso as sso_routes,
 )
 
 # Global variables and constants
@@ -239,6 +238,7 @@ admin = Admin(
     session_maker=Session,
     authentication_backend=authentication_backend,
     title="PFun CMA Admin",
+    favicon_url="/static/icons/pfun-cutielogo-icon.ico",
 )
 
 # Import admin views to register them with the admin interface
@@ -257,6 +257,8 @@ app.include_router(params_routes.router, prefix="/params", tags=["params"])
 app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
 
 app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
+
+app.include_router(sso_routes.router, prefix="/sso", tags=["sso"])
 
 
 @app.get("/health")
