@@ -1,5 +1,6 @@
 from typing import Optional
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
+import asyncio
+from sqlalchemy import Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .core import Base, engine
 
@@ -33,4 +34,8 @@ class Site(Base):
     users: Mapped[list["User"]] = relationship(back_populates="site")
 
 
-Base.metadata.create_all(engine)  # Create tables
+async def init_models():
+    """Initialize the database models (create tables)."""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)  # Drop existing tables
+        await conn.run_sync(Base.metadata.create_all)  # Create tables

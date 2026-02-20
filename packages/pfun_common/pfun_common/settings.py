@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
+    google_cloud_client_id: str = ""
+    google_cloud_client_secret: str = ""
 
     model_config = SettingsConfigDict(
         case_sensitive=False,

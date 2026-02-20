@@ -12,7 +12,7 @@ def setup_admin_backend():
         pfun_dpaths.admin_db_fpath,
         connect_args={"check_same_thread": False},
     )
-    Session = sessionmaker(bind=engine, class_=AsyncSession)
+    Session = sessionmaker(bind=engine, class_=AsyncSession)  # type: ignore
     return Base, engine, Session
 
 

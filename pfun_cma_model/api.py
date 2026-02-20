@@ -1,6 +1,7 @@
 """PFun CMA Model API."""
 
 # import necessary modules and packages
+from pfun_cma_model.admin.models import init_models
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
     SecurityMiddleware,
@@ -85,6 +86,9 @@ async def lifespan(app: FastAPI):
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data()
 
+    # --- Startup task: initialize Admin database models ---
+    await init_models()
+
     # ---
     # --- Shutdown tasks will be handled after this point ---
     # ---
@@ -134,6 +138,7 @@ app.description = (
 )
 
 
+# Set the application version based on the package version and file modification time
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
     fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime(

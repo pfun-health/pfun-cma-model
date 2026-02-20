@@ -1,16 +1,20 @@
-from sqladmin import ModelView, action
+from sqladmin import BaseView, ModelView, action, expose
 from sqladmin.filters import (
     BooleanFilter,
     AllUniqueStringValuesFilter,
     ForeignKeyFilter,
     OperationColumnFilter,
 )
-import wtforms
 from fastapi import Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import func, select
+from wtforms.fields import PasswordField
 from pfun_cma_model.admin.models import *
+from pfun_cma_model.admin.core import Base, engine, Session
 
-__all__ = ["UserAdmin"]
+__all__ = ["UserAdmin", "ReportView"]
+
+"""pfun_cma_model/admin/views.py : Admin views for pfun-cma-model."""
 
 
 # Define User Admin View
@@ -23,7 +27,14 @@ class UserAdmin(ModelView, model=User):
     )
 
     # Columns configuration
-    column_list = ["__all__"]
+    column_list = [
+        User.id,
+        User.name,
+        User.email,
+        User.is_admin,
+        User.site_id,
+        User.age,
+    ]
     # Columns to display to the user with custom labels
     column_labels = {
         "id": "ID",
@@ -49,9 +60,10 @@ class UserAdmin(ModelView, model=User):
         ),  # Numeric operations: Equals, Greater than, Less than
     ]
 
-    # Form fields for create/edit views
-    form_create_rules = ["name", "hashed_password"]
+    # Form configuration
+    form_create_rules = ["name", "email", "is_admin", "age", "bio", "hashed_password"]
     form_edit_rules = ["name"]
+    form_overrides = dict(hashed_password=PasswordField)
 
     # Permission settings
     can_create = True
@@ -65,6 +77,20 @@ class UserAdmin(ModelView, model=User):
     icon = "fa-solid fa-user"
     identity = "user"
 
+    # --- Permissions ---
+    def is_accessible(self, request: Request) -> bool:
+        # Implement your authentication logic here
+        # For example, check if the user is logged in and has admin privileges
+        # TODO: Implement real authentication logic
+        token = request.session.get("token")
+        if not token:
+            return False
+        return True
+
+    def is_visible(self, request: Request) -> bool:
+        # Optionally control visibility of the view in the admin sidebar
+        return self.is_accessible(request)
+
     # --- Custom Events ---
 
     async def on_model_change(
@@ -75,31 +101,27 @@ class UserAdmin(ModelView, model=User):
             data["hashed_password"] = data["hashed_password"] + "_hashed"
 
     # --- Custom Actions ---
-
-    @action(
-        name="approve_users",
-        label="Approve",
-        confirmation_message="Are you sure?",
-        add_in_detail=True,
-        add_in_list=True,
-    )
-    async def approve_users(self, request: Request):
-        """Custom action to approve selected users."""
-        pks: list[str] = request.query_params.get("pks", "").split(",")
-        if pks:
-            for pk in pks:
-                model: User = await self.get_object_for_edit(pk)  # type: ignore
-                ...  # TODO: Implement approval logic, e.g. model.is_approved = True
-
-        referer = request.headers.get("Referer")
-        if referer:
-            return RedirectResponse(referer)
-        else:
-            return RedirectResponse(
-                request.url_for("admin:list", identity=self.identity)
-            )
+    # ...
 
 
-from pfun_cma_model.app import admin
+class ReportView(BaseView):
+    """Custom admin view for displaying reports."""
 
-admin.add_view(UserAdmin)
+    name = "Report Page"
+    icon = "fa-solid fa-chart-line"
+
+    @expose("/report", methods=["GET"])
+    async def report_page(self, request):
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        async with Session(expire_on_commit=False) as session:  # type: ignore
+            stmt = select(func.count(User.id))
+            result = await session.execute(stmt)
+            users_count = result.scalar_one()
+
+        return await self.templates.TemplateResponse(
+            request,
+            "report.html",
+            context={"users_count": users_count},
+        )
