@@ -235,6 +235,19 @@ app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
 
 app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
 
+@app.get("/docs")
+def custom_docs_redirect():
+    """Redirect the default /docs endpoint to the custom documentation page."""
+    return Response(
+        content=json.dumps(
+            {
+                "message": "The API documentation has been moved to /docs/index.html. Please visit that URL for the API docs."
+            }
+        ),
+        status_code=302,
+        headers={"Location": "/docs/index.html", "Content-Type": "application/json"},
+    )
+
 
 @app.get("/health")
 def health_check():

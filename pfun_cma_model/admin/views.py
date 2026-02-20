@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import func, select
 from wtforms.fields import PasswordField
 from pfun_cma_model.admin.models import *
-from pfun_cma_model.admin.core import Base, engine, Session
+from pfun_cma_model.admin.core import Base, engine, Session, pwd_context
 
 __all__ = ["UserAdmin", "ReportView"]
 
@@ -77,6 +77,10 @@ class UserAdmin(ModelView, model=User):
     icon = "fa-solid fa-user"
     identity = "user"
 
+    @staticmethod
+    def get_category(user: User):
+        return "admin" if user.is_admin else "user"
+
     # --- Permissions ---
     def is_accessible(self, request: Request) -> bool:
         # Implement your authentication logic here
@@ -98,7 +102,18 @@ class UserAdmin(ModelView, model=User):
     ) -> None:
         if is_created:
             # Hash the password before saving into DB !
-            data["hashed_password"] = data["hashed_password"] + "_hashed"
+            category = self.get_category(model)
+            data["hashed_password"] = pwd_context.hash(
+                data["hashed_password"], category=category
+            )
+        else:
+            # If password is being updated, hash it before saving
+            if "hashed_password" in data:
+                category = self.get_category(model)
+                data["hashed_password"] = pwd_context.hash(
+                    data["hashed_password"], category=category
+                )
+        return
 
     # --- Custom Actions ---
     # ...

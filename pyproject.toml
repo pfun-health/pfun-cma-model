@@ -1,6 +1,6 @@
 [project]
 name = "pfun-cma-model"
-urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
+urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
 version = "0.4.188"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
@@ -47,6 +47,7 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0.46",
     "aiosqlite>=0.22.1",
     "fastapi-sso>=0.20.0",
+    "passlib>=1.7.4",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",

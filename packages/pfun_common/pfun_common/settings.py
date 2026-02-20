@@ -123,15 +123,13 @@ class Settings(BaseSettings):
         return v
 
     @property
-    def llm_gen_scenario_endpoint(self) -> str:
+    def server_url(self) -> str:
         """
-        LLM generate-scenario endpoint URL.
-
-        :param self: Description
-        :return: Description
+        Construct the server URL based on the scheme, host, and port.
+        :return: Server URL
         :rtype: str
         """
-        return f"{self.server_scheme}://{self.server_host}:{self.server_port}/llm/generate-scenario"
+        return f"{self.server_scheme}://{self.server_host}:{self.server_port}"
 
     @property
     def redis_url(self) -> str:

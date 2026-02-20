@@ -1,14 +1,18 @@
-import logging
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from sqlalchemy import select
 from passlib.context import CryptContext
 import secrets
 import os
-from pfun_common.settings import get_settings
-from pfun_cma_model.admin.core import Session, pwd_context
+from pfun_cma_model.admin.core import Session
 from pfun_cma_model.admin.models import User
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
+# Initialize password context for hashing and verifying passwords
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context.load_path(
+    os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
+)
 
 
 class AdminAuth(AuthenticationBackend):
@@ -18,39 +22,28 @@ class AdminAuth(AuthenticationBackend):
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
-        category = "admin" if form.get("is_admin") else "user"
         if not username or not password:
             return False
 
         # Validate username/password credentials
         async with Session() as db_session:  # type: ignore
             result = await db_session.execute(
-                select(User).where((User.name == username) | (User.email == username))
+                select(User).where(User.username == username)
             )
             user = result.scalars().first()
-            if not user:
-                logging.warning(
-                    f"Login attempt with non-existent username/email: {username}"
-                )
-                return False  # User not found
 
             # Verify user exists and password is correct
-            ok, new_hash = pwd_context.verify_and_update(
-                str(password), user.hashed_password, category=category
-            )
-            if not user or not ok:
+            if not user or not pwd_context.verify_and_update(
+                str(password), user.hashed_password
+            ):
                 return False  # Invalid credentials
-            else:
-                # If the hash needs to be updated (e.g. if the hashing algorithm has changed), update it in the database
-                if new_hash:
-                    user.hashed_password = new_hash
-                    await db_session.commit()
 
-        # Successful login, update session with user info and token
         # Update session
         # Generate a secure random token and store it in the session
         session_token = secrets.token_hex(16)
+
         request.session.update({"token": session_token, "user_id": user.id})
+
         return True
 
     async def logout(self, request: Request) -> bool:
@@ -72,6 +65,3 @@ class AdminAuth(AuthenticationBackend):
             if not user:
                 return False
         return True
-
-
-authentication_backend = AdminAuth(secret_key=get_settings().secret_key)
