@@ -181,7 +181,6 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.add_middleware(SecurityMiddleware, config=setup_security_config())
 
 # Add client request tracking middleware (added first, executes last)
-
 app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 
 # Add CORS middleware to allow cross-origin requests
@@ -225,8 +224,30 @@ app.add_middleware(
     secret_key=get_settings().secret_key,
 )
 
-# --- Include Routers ---
+###
+# --- Setup Admin (sqladmin) ---
+###
+from pfun_cma_model.admin.core import Session, engine
+from pfun_cma_model.admin.auth import authentication_backend
+from sqladmin import Admin
+from pfun_cma_model.admin.views import UserAdmin, ReportView
 
+# Configure the admin interface with the SQLAlchemy engine and register views
+admin = Admin(
+    app,
+    engine,
+    session_maker=Session,
+    authentication_backend=authentication_backend,
+    title="PFun CMA Admin",
+)
+
+# Import admin views to register them with the admin interface
+admin.add_view(UserAdmin)
+admin.add_view(ReportView)
+
+###
+# --- Include Routers ---
+###
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
 app.include_router(data_routes.router, prefix="/data", tags=["data"])
@@ -236,21 +257,6 @@ app.include_router(params_routes.router, prefix="/params", tags=["params"])
 app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
 
 app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
-
-
-@login_required
-@app.get("/docs")
-def custom_docs_redirect():
-    """Redirect the default /docs endpoint to the custom documentation page."""
-    return Response(
-        content=json.dumps(
-            {
-                "message": "The API documentation has been moved to /docs/index.html. Please visit that URL for the API docs."
-            }
-        ),
-        status_code=302,
-        headers={"Location": "/docs/index.html", "Content-Type": "application/json"},
-    )
 
 
 @app.get("/health")

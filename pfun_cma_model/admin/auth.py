@@ -1,14 +1,29 @@
 import logging
+from typing_extensions import Annotated
+from fastapi import Security
+from fastapi.security import APIKeyCookie
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from sqlalchemy import select
-from passlib.context import CryptContext
 import secrets
-import os
 from pfun_common.settings import get_settings
 from pfun_cma_model.admin.core import Session, pwd_context
 from pfun_cma_model.admin.models import User
-from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
+
+async def get_current_user(
+    request: Request, token: Annotated[str, Security(APIKeyCookie(name="token"))]
+):
+    """Helper function to retrieve the current user from the session."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return None
+
+    # Query DB here to ensure the user hasn't been deleted
+    async with Session() as db_session:  # type: ignore
+        result = await db_session.execute(select(User).where(User.id == user_id))
+        user = result.scalars().first()
+        return user
 
 
 class AdminAuth(AuthenticationBackend):
