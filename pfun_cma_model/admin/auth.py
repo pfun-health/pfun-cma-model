@@ -1,18 +1,32 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from typing_extensions import Annotated
-from fastapi import Security
+from fastapi import Security, Depends
 from fastapi.security import APIKeyCookie
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from sqlalchemy import select
 import secrets
+import jwt
+from jwt.exceptions import InvalidTokenError
 from pfun_common.settings import get_settings
 from pfun_cma_model.admin.core import Session, pwd_context
 from pfun_cma_model.admin.models import User
 
 
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
 async def get_current_user(
-    request: Request, token: Annotated[str, Security(APIKeyCookie(name="token"))]
+    request: Request, token: Depends(Annotated[str, Security(APIKeyCookie(name="token"))])
 ):
     """Helper function to retrieve the current user from the session."""
     user_id = request.session.get("user_id")
