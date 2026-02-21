@@ -376,7 +376,7 @@ def fit_model(
         logger.warning(
             "Two values were provided for 't' parameter... Using: '%s'", str(t)
         )
-    cma = CMASleepWakeModel(t=t, N=t.size, tM=tM, **kwds)
+    cma = CMASleepWakeModel(N=t.size, tM=tM, **kwds)
     if curve_fit_kwds.get("verbose"):
         logging.debug("taup0=%f", cma.taup)
 

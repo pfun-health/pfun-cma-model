@@ -1,9 +1,9 @@
 import asyncio
+from typing import Literal
 import json
 import os
 from pathlib import Path
 import click
-import matplotlib.pyplot as plt
 import pandas as pd
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
@@ -20,7 +20,9 @@ def cli(ctx):
     ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
     import pfun_path_helper as pph  # type: ignore
 
-    ctx.obj["output_dir"] = os.path.abspath(os.path.join(pph.get_lib_path("pfun_cma_model"), "../results"))
+    ctx.obj["output_dir"] = os.path.abspath(
+        os.path.join(pph.get_lib_path("pfun_cma_model"), "../results")
+    )
 
 
 @cli.command(
@@ -30,7 +32,9 @@ def cli(ctx):
 )
 @click.option("--host", default="0.0.0.0", help="Host to run the application on.")
 @click.option("--port", default=8001, help="Port to run the application on.")
-@click.option("--reload", is_flag=True, default=False, help="Enable auto-reload for development.")
+@click.option(
+    "--reload", is_flag=True, default=False, help="Enable auto-reload for development."
+)
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def launch(ctx, host, port, reload, args):
@@ -60,15 +64,27 @@ def process_kwds(ctx, param, value):
 
 fit_result_global = None
 
+OutputFigureFormatType = Literal["png", "svg"]
+
 
 @cli.command()
-@click.option("--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False)
+@click.option(
+    "--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False
+)
 @click.option(
     "--output-dir",
     "--output",
     "-o",
     type=click.Path(exists=True),
     default=None,
+    required=False,
+)
+@click.option(
+    "--output-ftype",
+    "--ftype",
+    "-T",
+    type=click.Choice(OutputFigureFormatType.__args__),
+    default="png",
     required=False,
 )
 @click.option(
@@ -87,11 +103,20 @@ fit_result_global = None
 )
 @click.option("--model-config", "--config", prompt=True, default="{}", type=str)
 @click.pass_context
-def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
+def fit_model(ctx, input_fpath, output_dir, output_ftype, n, plot, opts, model_config):
     global fit_result_global
     model_config = json.loads(model_config)
     if input_fpath is None:
         input_fpath = ctx.obj["sample_data_fpath"]
+        from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
+        pfun_data_paths = PFunDataPaths()
+        pfun_data_paths.download_sample_data(overwrite=True)
+        click.secho(
+            f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'",
+            fg="green",
+            bold=True,
+        )
     if output_dir is None:
         output_dir = ctx.obj["output_dir"]
     # read the input dataset
@@ -108,13 +133,21 @@ def fit_model(ctx, input_fpath, output_dir, n, plot, opts, model_config):
     click.secho(f"...wrote fitted model params to: '{output_fpath}'")
     # plot the results (if '--plot' is indicated)
     if plot is True:
-        from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig
-
-        fig, _ = CMAPlotSolnConfig().plot(df=fit_result.formatted_data)
-        fig_output_fpath = os.path.join(output_dir, "fit_result.png")
-        fig.savefig(fig_output_fpath)
+        click.secho("Plotting...", bold=True)
+        import matplotlib
+        matplotlib.use(output_ftype)
+        click.secho(f"Set matplotlib backend: {output_ftype}", bold=True)
+        import matplotlib.pyplot as plt
+        from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig, CMAPlotDataConfig
+        click.secho("Formatted data (from fit_result):", bold=True)
+        click.secho(fit_result.formatted_data.head().to_string())
+        fig, _ = CMAPlotDataConfig().plot(df=fit_result.formatted_data, plot_cols=["G", ])
+        fig_output_fpath = os.path.join(output_dir, f"fit_result.{output_ftype}")
+        fig.savefig(fig_output_fpath, format=output_ftype)
         click.secho(f"...saved plot to: '{fig_output_fpath}'")
-        click.confirm("[enter] to exit...", default=True, abort=True, show_default=False)
+        click.confirm(
+            "[enter] to exit...", default=True, abort=True, show_default=False
+        )
         plt.close("all")
 
 
@@ -144,7 +177,11 @@ def generate_scenario(ctx, query):
     else:
         response = generated_scenario.model_dump()  # type: ignore
     output_json_formatted = json.dumps(response, indent=4)
-    click.secho(output_json_formatted.encode("utf8").decode("unicode_escape"), fg="green", bold=True)
+    click.secho(
+        output_json_formatted.encode("utf8").decode("unicode_escape"),
+        fg="green",
+        bold=True,
+    )
 
     # # # ####################
     # Save result to database.
@@ -204,7 +241,9 @@ def run_param_grid(ctx, n, m, params):
     else:
         for pkey in pkeys_included:
             click.secho(f"    + {pkey}", fg="yellow")
-    pfun_grid = PFunCMAParamsGrid(N=n, m=m, keys=pkeys_included, include_mealtimes=True)  # parameter keys to include
+    pfun_grid = PFunCMAParamsGrid(
+        N=n, m=m, keys=pkeys_included, include_mealtimes=True
+    )  # parameter keys to include
 
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
@@ -223,7 +262,9 @@ def run_param_grid(ctx, n, m, params):
     click.secho("...done (saved to 'results/duckdb.db').", fg="green", bold=True)
 
     # save to parquet
-    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(f"param_grid_{n:02d}x{m:02d}.parquet")
+    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(
+        f"param_grid_{n:02d}x{m:02d}.parquet"
+    )
     df_grid.to_parquet(str(parquet_fpath))
     click.secho("...done (saved to '').", fg="green", bold=True)
 
@@ -249,7 +290,11 @@ def download_sample_data(ctx, overwrite=False):
 
     pfun_data_paths = PFunDataPaths()
     pfun_data_paths.download_sample_data(overwrite=overwrite)
-    click.secho(f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'", fg="green", bold=True)
+    click.secho(
+        f"...sample data downloaded to: '{pfun_data_paths.sample_data_fpath}'",
+        fg="green",
+        bold=True,
+    )
 
 
 @cli.command()
