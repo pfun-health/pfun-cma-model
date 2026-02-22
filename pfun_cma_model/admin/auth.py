@@ -88,7 +88,7 @@ class AdminAuth(AuthenticationBackend):
             token, key=get_settings().secret_key, algorithms=[ALGORITHM]
         )
         usn = decoded_token.get("usn")
-        if not ( usn in (user.name, user.email) ):
+        if not (usn in (user.name, user.email)):
             return False
         user_category = "admin" if user.is_admin else "user"
         if not (decoded_token.get("category") == user_category):
