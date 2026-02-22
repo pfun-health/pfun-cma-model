@@ -10,34 +10,13 @@ import secrets
 import jwt
 from jwt.exceptions import InvalidTokenError
 from pfun_common.settings import get_settings
-from pfun_cma_model.admin.core import Session, pwd_context
+from pfun_cma_model.admin.core import (
+    Session,
+    pwd_context,
+    authenticate_user,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 from pfun_cma_model.admin.models import User
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-async def get_current_user(
-    request: Request, token: Depends(Annotated[str, Security(APIKeyCookie(name="token"))])
-):
-    """Helper function to retrieve the current user from the session."""
-    user_id = request.session.get("user_id")
-    if not user_id:
-        return None
-
-    # Query DB here to ensure the user hasn't been deleted
-    async with Session() as db_session:  # type: ignore
-        result = await db_session.execute(select(User).where(User.id == user_id))
-        user = result.scalars().first()
-        return user
 
 
 class AdminAuth(AuthenticationBackend):
@@ -77,9 +56,13 @@ class AdminAuth(AuthenticationBackend):
 
         # Successful login, update session with user info and token
         # Update session
-        # Generate a secure random token and store it in the session
-        session_token = secrets.token_hex(16)
-        request.session.update({"token": session_token, "user_id": user.id})
+        # create an access token, store in session
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        session_token = create_access_token(
+            data={"usn": username, "category": category},
+            expires_delta=access_token_expires,
+        )
+        request.session.update({"token": session_token, "uid": user.id})
         return True
 
     async def logout(self, request: Request) -> bool:
@@ -92,14 +75,26 @@ class AdminAuth(AuthenticationBackend):
         if not token:
             return False
 
-        # Query DB here to ensure the user hasn't been deleted
+        # Grab the matching user from the session
         async with Session() as db_session:  # type: ignore
             result = await db_session.execute(
-                select(User).where(User.id == request.session.get("user_id"))
+                select(User).where(User.id == request.session.get("uid"))
             )
             user = result.scalars().first()
             if not user:
                 return False
+
+        # Verify the decoded token contains expected username(or email), plus user category
+        decoded_token = jwt.decode(
+            token, key=get_settings().secret_key, algorithms=[ALGORITHM]
+        )
+        usn = decoded_token.get("usn")
+        if not ( usn in (user.name, user.email) ):
+            return False
+        user_category = "admin" if user.is_admin else "user"
+        if not (decoded_token.get("category") == user_category):
+            return False
+
         return True
 
 

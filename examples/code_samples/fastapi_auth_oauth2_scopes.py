@@ -84,8 +84,8 @@ def get_user(db, username: str):
         return UserInDB(**user_dict)
 
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(db, username: str, password: str):
+    user = get_user(db, username)
     if not user:
         verify_password(password, DUMMY_HASH)
         return False
@@ -103,49 +103,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-
-async def get_current_user(
-    security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
-):
-    if security_scopes.scopes:
-        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
-    else:
-        authenticate_value = "Bearer"
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": authenticate_value},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        scope: str = payload.get("scope", "")
-        token_scopes = scope.split(" ")
-        token_data = TokenData(scopes=token_scopes, username=username)
-    except (InvalidTokenError, ValidationError):
-        raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    for scope in security_scopes.scopes:
-        if scope not in token_data.scopes:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not enough permissions",
-                headers={"WWW-Authenticate": authenticate_value},
-            )
-    return user
-
-
-async def get_current_active_user(
-    current_user: Annotated[User, Security(get_current_user, scopes=["me"])],
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
 
 
 @app.post("/token")
