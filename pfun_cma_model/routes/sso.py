@@ -4,7 +4,8 @@ import datetime
 from fastapi_sso import OpenID
 import jwt
 from contextlib import asynccontextmanager
-from pfun_cma_model.admin.sso import setup_google_sso, get_logged_user
+from pfun_cma_model.admin.sso import setup_google_sso
+from pfun_cma_model.admin.core import get_logged_user
 from pfun_common.settings import get_settings
 
 
@@ -12,8 +13,10 @@ from pfun_common.settings import get_settings
 async def lifespan(router: APIRouter):
     """Lifespan function to setup the Google SSO backend when the application starts."""
     global sso
+    settings = get_settings()
+    server_url = f"{settings.server_scheme}://{settings.server_host}:{settings.server_port}"
     sso = setup_google_sso(
-        redirect_host=get_settings().server_url, redirect_path="/auth/callback"
+        redirect_host=server_url, redirect_path="/auth/callback"
     )
     yield  # This allows the application to run until it is shutdown
 

@@ -13,7 +13,6 @@ from pfun_common.settings import get_settings
 from pfun_cma_model.admin.core import (
     Session,
     pwd_context,
-    authenticate_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 from pfun_cma_model.admin.models import User

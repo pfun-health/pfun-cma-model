@@ -1,9 +1,12 @@
 import os
+from typing import Any
+from datetime import timedelta
 from passlib.context import CryptContext
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from fastapi import Security, HTTPException
 from fastapi.security import APIKeyCookie
+from fastapi_sso.sso.base import OpenID
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
@@ -46,7 +49,7 @@ pwd_context = setup_pwd_context()
 # --- Auth core methods: ---
 
 
-def get_user(db, username: str) -> None | User:
+async def get_user(db, username: str) -> None | Any:
     """retrieve the user from the database."""
     user = None
     async with Session() as db_session:  # type: ignore
