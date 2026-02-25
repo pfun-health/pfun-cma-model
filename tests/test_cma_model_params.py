@@ -103,3 +103,16 @@ class TestCMAModelParams:
         # Test invalid assignment for float field
         with pytest.raises(ValidationError):
             params.d = "invalid"
+
+    def test_mutable_defaults(self):
+        """Verify that mutable default values are not shared across instances."""
+        params1 = self.cma_model_params_()
+        params2 = self.cma_model_params_()
+
+        # Check if they are different objects
+        assert params1.tM is not params2.tM
+
+        # Modify params1.tM and verify params2.tM is unchanged
+        original_value = params2.tM[0]
+        params1.tM[0] = 99.9
+        assert params2.tM[0] == original_value

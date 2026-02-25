@@ -51,7 +51,7 @@ async def generate_scenario(
         # attempt to convert dict to JSON-serialized string
         try:
             content = json.dumps(response_data)
-        except json.JSONDecodeError as exc:
+        except (TypeError, ValueError) as exc:
             # try once more (after resting a moment)
             await asyncio.sleep(1)
             return await attempt_scene_gen()

@@ -59,3 +59,27 @@ def test_get_sample_dataset_route_invalid_nrows(mock_read_sample_data, sample_df
     response = client.get("/data/sample/download?nrows=-5")
     assert response.status_code == 400
     assert "nrows" in response.text
+
+
+def test_run_at_time_double_encoding():
+    """Verify that /model/run-at-time returns a JSON object, not a JSON string."""
+    response = client.post(
+        "/model/run-at-time",
+        params={"t0": 0, "t1": 24, "n": 10},
+        json={}
+    )
+    assert response.status_code == 200
+    content = response.content.decode('utf-8')
+    assert content.startswith('{')
+    assert not (content.startswith('"') and content.endswith('"'))
+
+
+def test_fit_model_data_body():
+    """Verify that /model/fit accepts data as JSON body."""
+    data = [{"t": 0, "G": 5.0}, {"t": 1, "G": 5.0}]
+    response = client.post("/model/fit", json={"data": data})
+    # Accept 400 or 500 as long as it's not 422 (validation error) or the specific UnboundLocalError
+    assert response.status_code in [400, 500]
+    assert "error" in response.json()
+    error_msg = response.json().get("error", "") + response.json().get("exception", "")
+    assert "failed to fit data" in error_msg.lower() or "no raw time column" in error_msg.lower()

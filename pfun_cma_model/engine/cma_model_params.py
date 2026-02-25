@@ -181,7 +181,9 @@ class CMAModelParams(BaseModel):
     """
     Solar noon offset (latitude). Defaults to 0.0.
     """
-    tM: Any | Annotated[ndarray, NumpyArray] | float = array([7.0, 11.0, 17.5])
+    tM: Any | Annotated[ndarray, NumpyArray] | float = Field(
+        default_factory=lambda: array([7.0, 11.0, 17.5])
+    )
     """
     Meal times (hours). Defaults to (7.0, 11.0, 17.5).
     """

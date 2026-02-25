@@ -364,7 +364,7 @@ async def run_at_time_route(
         from pfun_cma_model.stream import run_at_time_func
 
         output = await run_at_time_func(model, t0, t1, n, **config_dict)
-        return output
+        return Response(content=output, media_type="application/json")
     except Exception as err:
         logger.error("failed to run at time.", exc_info=True)
         error_response = Response(
@@ -455,7 +455,7 @@ async def health_check_run_at_time():
 @app.post("/model/fit")
 async def fit_model_to_data(
     # type: ignore
-    data: dict | str,
+    data: Annotated[list | dict | str, Body()],
     config: Optional[CMAModelParams | str] = None,
 ):
     from pandas import DataFrame
@@ -470,12 +470,23 @@ async def fit_model_to_data(
     if isinstance(data, str):
         data = json.loads(data)
     cma_config: CMAModelParams  # declare variable for type hinting
-    if isinstance(config, str):
+    if config is None:
+        cma_config = CMAModelParams()
+    elif isinstance(config, CMAModelParams):
+        cma_config = config
+    elif isinstance(config, str):
         logger.debug("Config received as string, parsing JSON.")
         # @note: config expected as JSON string
         config_dict = json.loads(config)
         # @note: config -> CMAModelParams object
         cma_config: CMAModelParams = CMAModelParams(**config_dict)  # type: ignore
+    else:
+        # Fallback for unexpected types (e.g., dict)
+        if isinstance(config, dict):
+            cma_config = CMAModelParams(**config)
+        else:
+            logger.warning("Unexpected config type: %s. Using defaults.", type(config))
+            cma_config = CMAModelParams()
     try:
         df = DataFrame(data)
         fit_result = cma_fit_model(df, **cma_config.model_dump())  # type: ignore

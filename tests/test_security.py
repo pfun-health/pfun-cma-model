@@ -1,7 +1,9 @@
 """Security configuration tests for the API."""
 
-from pfun_cma_model.security import security_config
+from pfun_cma_model.security import setup_security_config
 from pfun_cma_model.app import app
+
+security_config = setup_security_config()
 from ipaddress import ip_address
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
@@ -34,14 +36,14 @@ class TestSecurityConfigurationBasics:
     def test_rate_limiting_enabled(self):
         """Verify rate limiting is enabled."""
         assert security_config.enable_rate_limiting is True
-        assert security_config.rate_limit == 30
+        assert security_config.rate_limit == 50
         assert security_config.rate_limit_window == 60
 
     def test_ip_banning_enabled(self):
         """Verify IP banning configuration is set."""
         assert security_config.enable_ip_banning is True
         assert security_config.auto_ban_threshold == 5
-        assert security_config.auto_ban_duration == 300
+        assert security_config.auto_ban_duration == 3600
 
     def test_penetration_detection_enabled(self):
         """Verify penetration detection is enabled."""

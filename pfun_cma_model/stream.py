@@ -25,11 +25,10 @@ async def async_generate_parameters(
     logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with AsyncClient(timeout=30) as client:
         try:
-            response = await client.stream(
-                method="POST",
+            response = await client.post(
                 url=llm_gen_scenario_endpoint,
-                json={"description": description},
-                timeout=30
+                params={"prompt": description},
+                timeout=30,
             )
             if response.status_code == 200:
                 # Successful response (JSON object)
