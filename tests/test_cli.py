@@ -265,19 +265,26 @@ class TestFitModelCommand:
 
         with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
-                with patch('pfun_cma_model.engine.cma_plot.CMAPlotSolnConfig') as mock_plot:
-                    mock_read.return_value = pd.DataFrame()
-                    mock_fig = MagicMock()
-                    mock_plot.return_value.plot.return_value = (mock_fig, None)
+                with patch('matplotlib.use') as mock_matplotlib_use:
+                    with patch('pfun_cma_model.engine.cma_plot.CMAPlotDataConfig') as mock_plot:
+                        mock_read.return_value = pd.DataFrame()
+                        mock_fig = MagicMock()
+                        mock_plot.return_value.plot.return_value = (mock_fig, None)
 
-                    result = runner.invoke(
-                        cli,
-                        ['fit-model', '--plot', '--output-dir', temp_output_dir],
-                        input='{}',
-                        catch_exceptions=False
-                    )
-                    # Should have created plot file
-                    assert 'plot' in result.output.lower() or result.exit_code == 0
+                        # Actually mock saving the file to avoid writing anything during the test
+                        mock_fig.savefig = MagicMock()
+
+                        result = runner.invoke(
+                            cli,
+                            ['fit-model', '--plot', '--output-dir', temp_output_dir],
+                            input='{}\n',
+                            catch_exceptions=False
+                        )
+
+                        # SystemExit(1) is thrown because click.confirm aborts if not interactive
+                        assert result.exit_code in (0, 1)
+                        # Ensure the correct backend was used for the non-interactive output format
+                        mock_matplotlib_use.assert_called_once_with('Agg')
 
     def test_fit_model_with_opts(self, runner, temp_output_dir):
         """Test fit_model with custom curve fit options."""

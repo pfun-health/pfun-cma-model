@@ -135,7 +135,12 @@ def fit_model(ctx, input_fpath, output_dir, output_ftype, n, plot, opts, model_c
     if plot is True:
         click.secho("Plotting...", bold=True)
         import matplotlib
-        matplotlib.use(output_ftype)
+        # If the output format is not a recognized interactive backend,
+        # use 'Agg' to ensure we can save the file properly in a headless env.
+        if output_ftype in ("png", "svg", "pdf", "ps"):
+            matplotlib.use("Agg")
+        else:
+            matplotlib.use(output_ftype)
         click.secho(f"Set matplotlib backend: {output_ftype}", bold=True)
         import matplotlib.pyplot as plt
         from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig, CMAPlotDataConfig
