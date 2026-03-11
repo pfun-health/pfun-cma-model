@@ -208,7 +208,7 @@ class TestFitModelCommand:
         """Test fit_model with default input data."""
         mock_fit_result = MagicMock()
         mock_fit_result.model_dump_json.return_value = '{}'
-        mock_fit_result.formatted_data = pd.DataFrame()
+        mock_fit_result.formatted_data = pd.DataFrame({'t': [0, 1, 2], 'G': [100, 105, 110]})
 
         with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:
@@ -261,7 +261,7 @@ class TestFitModelCommand:
         """Test fit_model with --plot flag."""
         mock_fit_result = MagicMock()
         mock_fit_result.model_dump_json.return_value = '{}'
-        mock_fit_result.formatted_data = pd.DataFrame()
+        mock_fit_result.formatted_data = pd.DataFrame({'t': [0, 1, 2], 'G': [100, 105, 110]})
 
         with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:

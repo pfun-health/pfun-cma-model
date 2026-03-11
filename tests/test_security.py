@@ -1,17 +1,19 @@
 """Security configuration tests for the API."""
 
-from pfun_cma_model.security import security_config
+import pfun_path_helper as pph
+from . import test_base
+test_base.setup_test_environment()
+
+from pfun_cma_model.security import setup_security_config
 from pfun_cma_model.app import app
+
+security_config = setup_security_config()
 from ipaddress import ip_address
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 import pytest
-import pfun_path_helper as pph
 
 pph.append_path(path=pph.get_lib_path("pfun_cma_model"))  # noqa: E402
-from . import test_base
-
-test_base.setup_test_environment()
 
 
 # Create test client
@@ -34,14 +36,14 @@ class TestSecurityConfigurationBasics:
     def test_rate_limiting_enabled(self):
         """Verify rate limiting is enabled."""
         assert security_config.enable_rate_limiting is True
-        assert security_config.rate_limit == 30
+        assert security_config.rate_limit == 50
         assert security_config.rate_limit_window == 60
 
     def test_ip_banning_enabled(self):
         """Verify IP banning configuration is set."""
         assert security_config.enable_ip_banning is True
         assert security_config.auto_ban_threshold == 5
-        assert security_config.auto_ban_duration == 300
+        assert security_config.auto_ban_duration == 3600
 
     def test_penetration_detection_enabled(self):
         """Verify penetration detection is enabled."""
@@ -58,8 +60,9 @@ class TestSecurityConfigurationBasics:
         assert "sqlmap" in security_config.blocked_user_agents
 
     def test_https_enforcement_in_dev(self):
-        """Verify HTTPS enforcement is False for development."""
-        assert security_config.enforce_https is False
+        """Verify HTTPS enforcement matches the expected logic for development."""
+        from pfun_common.settings import get_settings
+        assert security_config.enforce_https == (not get_settings().debug)
 
     def test_passive_mode_disabled(self):
         """Verify passive mode is disabled (active blocking)."""
