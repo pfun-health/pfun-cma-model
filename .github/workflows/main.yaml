@@ -24,4 +24,4 @@ jobs:
         with:
           junit-paths: "**/*.xml"
           org-slug: pfun-digital-health
-          token: ${{ secrets.TRUNK_API_TOKEN }}
+          trunk-token: ${{ secrets.TRUNK_API_TOKEN }}
