@@ -1,0 +1,107 @@
+import os
+from typing import Any
+from datetime import timedelta
+from passlib.context import CryptContext
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from fastapi import Security, HTTPException
+from fastapi.security import APIKeyCookie
+from fastapi_sso.sso.base import OpenID
+from pfun_common.settings import get_settings
+from pfun_cma_model.misc.pathdefs import PFunDataPaths
+
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def setup_admin_backend():
+    """Setup the admin database and sqlalchemy engine."""
+    Base = declarative_base()
+    pfun_dpaths = PFunDataPaths()
+    pfun_dpaths.ensure_local_share_path_exists()
+    engine = create_async_engine(
+        pfun_dpaths.admin_db_fpath,
+        connect_args={"check_same_thread": False},
+    )
+    Session = sessionmaker(bind=engine, class_=AsyncSession)  # type: ignore
+    return Base, engine, Session
+
+
+# Initialize the admin backend (database, engine, session maker)
+Base, engine, Session = setup_admin_backend()
+
+
+def setup_pwd_context() -> CryptContext:
+    """Setup the password context for hashing and verifying passwords."""
+
+    # Initialize password context for hashing and verifying passwords
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    pwd_context.load_path(
+        os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
+    )
+    return pwd_context
+
+
+# Initialize the password context for hashing and verifying passwords
+pwd_context = setup_pwd_context()
+
+
+# --- Auth core methods: ---
+
+
+async def get_user(db, username: str) -> None | Any:
+    """retrieve the user from the database."""
+    user = None
+    async with Session() as db_session:  # type: ignore
+        result = await db_session.execute(
+            select(User).where((User.name == username) | (User.email == username))
+        )
+        user = result.scalars().first()
+    return user
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, get_settings().secret_key, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def verify_password(plain_password, hashed_password):
+    return password_hash.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return password_hash.hash(password)
+
+
+def authenticate_user(db, username: str, password: str):
+    user = get_user(db, username)
+    if not user:
+        verify_password(
+            password, "notavalidpasswordatall"
+        )  # to update the state of the crypt context
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+
+async def get_logged_user(cookie: str = Security(APIKeyCookie(name="token"))) -> OpenID:
+    """Get user's JWT stored in cookie 'token', parse it and return the user's OpenID.
+
+    This function can be used as a dependency in your admin views to get the **currently logged-in user.**
+    """
+    try:
+        claims = jwt.decode(
+            cookie, key=get_settings().secret_key, algorithms=[ALGORITHM]
+        )
+        return OpenID(**claims["pld"])
+    except Exception as error:
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication credentials"
+        ) from error

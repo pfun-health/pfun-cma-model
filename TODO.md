@@ -2,29 +2,55 @@
 
 TODO for `pfun-cma-model`
 
-Goals
-=====
+## Goals
 
-## Overall Goal: Complete Evaluation Pipeline
+### Short-term Goals
 
-### Curate Dataset(s)
++ _Complete initial implementation of admin interface:_
+  + ~~Define models (User, Site)~~
+  + ~~Implement views (CRUD for User, Site)~~
+  + Integrate password hashing in User model
+  + Test admin interface functionality
+  + _Setup database migrations with Alembic:_
+    + ~~Configure Alembic for Async SQLite~~
+    + ~~Create initial migration for User and Site models~~
+    + ~~Test migration process (upgrade/downgrade)~~
++ _Configure production hosting (domain, routes, etc.):_
+  + **Security, separation of concerns (frontend, backend, ...), load-balancing.**
+  + _Domain configuration:_
+    + **Landing page frontend** at: `pfun.one`, `pfun.me`.
+    + **Demo frontend** at: `pfun.app`.
+    + **Backend API** at: `api.pfun.run`.
+  + _Routing and load-balancing:_
+    + Cloudflare Workers for routing and load-balancing between API instances.
+    + CDN for frontend assets (Still shopping around for best option here, but Cloudflare also offers CDN services).
+
+### Overall Goal: Complete Evaluation Pipeline
+
+#### Curate Dataset(s)
+
++ _PFun recommendations synthetic dataset:_
+  + Currently doing aggregating from live data (`results/duckdb.db`).
+    + This is useful for initial testing, but we want a more comprehensive dataset for training and evaluation.
+  + Generate synthetic dataset of health recommendations and outcomes.
+  + Include various scenarios, conditions, and outcomes to test model performance.
+  + Use this dataset for training, counterfactuals, and twin studies.
 
 + _Create a huggingface IterableDataset:_
   + Design as a parametric data factory (generate n_days of data, potentially with specified trends).
   + <https://huggingface.co/docs/datasets/v4.4.2/en/package_reference/main_classes#datasets.IterableDataset>
   + <https://huggingface.co/docs/datasets/en/create_dataset>
 
-### Model Development
+#### Model acceleration & training methods
 
++ _RAFT (retrieval-augmented fine-tuning):_
+  + Low-effort, relatively-performant variant of RAG.
+  + <a href="https://arxiv.org/abs/2403.10131" target="_blank">RAFT: Adapting Language Model to Domain Specific RAG</a>
 + _LoRA training (likely better for use-case than finetuning):_
   + <https://huggingface.co/docs/trl/lora_without_regret#takeaways>
   + <https://huggingface.co/docs/trl/lora_without_regret.md>
 
-+ _RAFT (consider starting here for the near-term):_
-  + Low-effort, relatively-performant variant of RAG.
-
-DevOps:
-=======
+## DevOps
 
 + _Setup orchestration, task scheduling:_
   + _Compare options:_
@@ -34,8 +60,7 @@ DevOps:
 + _Finish integrating telemetry (need metrics to debug properly):_
   + NOTE: `fastapi-guard` includes telemetry routes
 
-Demos:
-======
+## Demos
 
 + _Datasets for training, counterfactuals, twin studies_
   + Consider MIMO (multi-input, multi-output) embedding approach for flexibility.
@@ -51,13 +76,16 @@ Demos:
   + _Evaluate, compare overall performance (order-of-magnitude)_:
     + `(vector-search + RAG) <--> (multi-stage RAG)`
     + `(Non-FT modeling approach) <--> (Fine-tuned LLM)`
++ ~~_Continue implementing gemini demo:_~~
+  + ~~<https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python>~~
 
-Infra:
-======
+## Infra
 
-+ Gcp Fabric (terraform)
-+ Use OpenRLHF (or similar for GCP native) for LLM safeguard experiments.
-+ Continue implementing gemini demo:
-  + <https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python>
++ _Options for infra configuration_:
+  + Gcp Fabric (terraform)
+  + Digital Ocean droplet (serverless)
+  + Cloudflare Worker: load-balancing between api instances
++ _ML operations_:
+  + Use OpenRLHF for LLM safeguard experiments
 
 <img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" alt="openrlhf-arch.png" />  

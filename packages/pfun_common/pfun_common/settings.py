@@ -17,11 +17,7 @@ from pfun_llm.backend.ollama import (
 
 
 def generate_default_secret_key() -> str:
-    """Generate a default secret key based on the current timestamp.
-
-    Note: This is not secure and should only be used for development purposes.
-    In production, set the SECRET_KEY environment variable to a secure value.
-    """
+    """Generate a default secret key. Combines a timestamp and random token for uniqueness."""
     timestamp = datetime.now().isoformat().encode("utf-8")
     timestamp_nonce = b64encode(timestamp).decode("utf-8")
     rand_token = token_urlsafe(16)  # 16 bytes of randomness
@@ -35,9 +31,6 @@ class Settings(BaseSettings):
     server_scheme: str = "http"
     server_host: str = "localhost"
     server_port: str | int = "8001"
-    gradio_server_scheme: str = "http"
-    gradio_server_host: str = "localhost"
-    gradio_server_port: str | int = "7860"
     redis_user: str = "default"
     redis_password: str = ""
     redis_host: str = "localhost"
@@ -53,9 +46,8 @@ class Settings(BaseSettings):
     secret_key: str = Field(default_factory=generate_default_secret_key)
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
-    orcid_client_id: str = ""
-    orcid_client_secret: str = ""
-    database_url: str = "sqlite://./results/admin.sqlite3"
+    google_cloud_client_id: str = ""
+    google_cloud_client_secret: str = ""
 
     model_config = SettingsConfigDict(
         case_sensitive=False,
@@ -122,33 +114,22 @@ class Settings(BaseSettings):
                 info.data.get("redis_db"),
             )
         except Exception as exc:
-            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
+            logging.warning(
+                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
+            )
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 
         return v
 
     @property
-    def llm_gen_scenario_endpoint(self) -> str:
+    def server_url(self) -> str:
         """
-        LLM generate-scenario endpoint URL.
-
-        :param self: Description
-        :return: Description
+        Construct the server URL based on the scheme, host, and port.
+        :return: Server URL
         :rtype: str
         """
-        return f"{self.server_scheme}://{self.server_host}:{self.server_port}/llm/generate-scenario"
-
-    @property
-    def gradio_demo_endpoint(self) -> str:
-        """
-        Gradio demo endpoint URL.
-
-        :param self: Description
-        :return: Description
-        :rtype: str
-        """
-        return f"{self.gradio_server_scheme}://{self.gradio_server_host}:{self.gradio_server_port}/gradio/"
+        return f"{self.server_scheme}://{self.server_host}:{self.server_port}"
 
     @property
     def redis_url(self) -> str:

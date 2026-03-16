@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
-urls = { homepage = "https://github.com/rocapp/pfun-cma-model" }
-version = "0.4.187"
+urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
+version = "0.4.188"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -42,6 +42,12 @@ dependencies = [
     "duckdb>=1.4.4",
     "httpx>=0.28.1",
     "fastapi-guard>=4.2.2",
+    "sqladmin[full]>=0.23.0",
+    "alembic>=1.18.4",
+    "sqlalchemy[asyncio]>=2.0.46",
+    "aiosqlite>=0.22.1",
+    "fastapi-sso>=0.20.0",
+    "passlib>=1.7.4",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -102,7 +108,7 @@ datasette = [
 # hatch configurations
 [tool.hatch.metadata]
 allow-direct-references = true
-#: enables setting dependencies directly from github (like pfun-health/fastapi-admin)
+#: enables setting dependencies directly from github
 
 # setuptools configurations
 [tool.setuptools]

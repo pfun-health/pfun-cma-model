@@ -2,8 +2,8 @@ import logging
 from base64 import b64encode
 from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Annotated, Iterable, Literal, Tuple
-
+from typing import Annotated, Iterable, Literal, Tuple, Optional
+import matplotlib
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -98,6 +98,7 @@ class CMAPlotConfig:
     )
 
     def __post_init__(self, **subplot_kwds):
+        self._axes = None
         pass
 
     def __call__(self, **subplot_kwds):
@@ -105,13 +106,17 @@ class CMAPlotConfig:
         return self
 
     @property
+    def axes(self):
+        return self._axes
+
+    @axes.setter
+    def axes(self, value):
+        self._axes = value
+
+    @property
     def axs(self):
         """alias for axes"""
         return self.axes
-
-    @axs.setter
-    def axs(self, value):
-        self.axes = value
 
     @classmethod
     def get_label(cls, col: Iterable[str] | str):
@@ -183,8 +188,11 @@ class CMAPlotConfig:
         return df
 
     @staticmethod
-    def prune_plot_cols(df, plot_cols):
-        # prune plot_cols to available columns
+    def prune_plot_cols(df, plot_cols: Optional[list[str]] = None):
+        # prune plot_cols to specified (and available)
+        # return all columns if no plot_cols are specified
+        if plot_cols is None:
+            return df.columns
         plot_cols = [c for c in plot_cols if c in df.columns]
         return plot_cols
 
@@ -220,7 +228,9 @@ class CMAPlotConfig:
     def plot(self, df, plot_cols=None, separate2subplots=False):
         """plot the given data"""
         #: plot meal times, meal sizes
-        self.axs = self.plot_meals(df, self.axs)
+        if self.axs is None:
+            self.fig, self.axes = self.setup_figure_axes(**self.subplot_kwds)
+        self.axes = self.plot_meals(df, self.axs)
         #: determine the secondary plot type
         secondary_plot_funcs = {
             True: self.plot_separate_subplots,
@@ -228,34 +238,56 @@ class CMAPlotConfig:
         }
         secondary_plot_func = secondary_plot_funcs[separate2subplots]
         #: plot the other traces
-        self.axs = secondary_plot_func(df, plot_cols, self.axs)
+        self.axes = secondary_plot_func(df, plot_cols, self.axes)
         return self.fig, self.axs
 
-    @classmethod
-    def format_save_figure(cls, fig, axs, as_blob=False):
+    def format_save_figure(
+        self,
+        output_fpath: str,
+        as_blob: bool = False,
+        format: Literal["png", "svg"] = "png",
+    ):
         """format, then save the figure (as a blob for the web, or as a file)"""
+        matplotlib.use(str(format))
         #: set global properties for all axes...
         axs = cls.set_global_axis_properties(axs)
         #: return the figure and axes (not to be a blob)
         if as_blob is False:
+            fig.savefig(output_fpath, format=format)
             return fig, axs
         #: otherwise, save it as a blob for the web
-        return cls.save_figure_as_blob(fig)
+        return cls.save_figure_as_blob(fig, format=format)
 
     @classmethod
-    def plot_meals(cls, df, axs):
+    def plot_meals(cls, df, axs, glucose_column: Literal["G", "G_soln"] = "G"):
         """plot meal times, meal sizes."""
+        if glucose_column not in df.columns:
+            gcol_alt = [
+                gcol
+                for gcol in df.columns
+                if gcol in ("G", "G_soln") and gcol != glucose_column
+            ][0]
+            logging.warning(
+                "Given glucose column name '%s' was not found in df.columns. Trying '%s' instead...",
+                glucose_column,
+                gcol_alt,
+            )
+            glucose_column = gcol_alt
         ax = axs[0]
-        ax = df.plot.area(y="G_soln", color="k", ax=ax, label="Estimated Meal Size")
-        ax.vlines(
-            x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
-            ymin=ax.get_ylim()[0],
-            ymax=df.G_soln.max(),
-            color="r",
-            lw=3,
-            linestyle="--",
-            label="estimated mealtimes",
+        ax = df.plot.area(
+            y=glucose_column, color="k", ax=ax, label="Estimated Meal Size"
         )
+        if 'is_meal' in df.columns:
+            # Plot specific mealtime estimates (if included)
+            ax.vlines(
+                x=df.loc[df.is_meal.astype(float).fillna(0.0) > 0].index,
+                ymin=ax.get_ylim()[0],
+                ymax=df.G_soln.max(),
+                color="r",
+                lw=3,
+                linestyle="--",
+                label="estimated mealtimes",
+            )
         ax.legend()
         return axs
 
@@ -289,13 +321,13 @@ class CMAPlotConfig:
         return axs
 
     @classmethod
-    def save_figure_as_blob(cls, fig):
+    def save_figure_as_blob(cls, fig, format: Literal["png", "svg"] = "png"):
         """save the figure as a blob for the web."""
         bio = BytesIO()
-        fig.savefig(bio, format="png")
+        fig.savefig(bio, format=format)
         bio.seek(0)
         bytes_value = bio.getvalue()
-        img_src = "data:image/png;base64,"
+        img_src = f"data:image/{format};base64,"
         img_src = img_src + b64encode(bytes_value).decode("utf-8")
         plt.close()
         return img_src

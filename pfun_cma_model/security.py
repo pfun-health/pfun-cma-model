@@ -192,7 +192,7 @@ def setup_security_config() -> SecurityConfig:
         blocked_user_agents=["badbot", "evil-crawler", "sqlmap"],
         # Rate Limiting
         enable_rate_limiting=True,
-        rate_limit=30,  # 30 requests
+        rate_limit=50,  # nr requests allowed
         rate_limit_window=60,  # per 60 seconds
         # Auto-banning
         enable_ip_banning=True,
@@ -248,7 +248,7 @@ def setup_security_config() -> SecurityConfig:
                     "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css.map",
                 ],
                 # require trusted types for
-                "require-trusted-types-for": ["'script'"],
+                # #"require-trusted-types-for": ["'script'"],
             },
             # HTTP Strict Transport Security
             "hsts": {
