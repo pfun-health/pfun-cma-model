@@ -49,9 +49,9 @@ def runner():
 def sample_data_df():
     """Provides sample data as a DataFrame."""
     return pd.DataFrame({
-        'timestamp': pd.date_range('2025-01-01', periods=100, freq='15min'),
-        'glucose': [100 + i*0.5 for i in range(100)],
-        'cortisol': [10 + i*0.1 for i in range(100)]
+        't': pd.date_range('2025-01-01', periods=100, freq='15min'),
+        'G': [100 + i*0.5 for i in range(100)],
+        'C': [10 + i*0.1 for i in range(100)]
     })
 
 
@@ -257,11 +257,11 @@ class TestFitModelCommand:
                 if mock_fit.called:
                     assert mock_fit.call_args[1]['n'] == 500
 
-    def test_fit_model_with_plot(self, runner, temp_output_dir):
+    def test_fit_model_with_plot(self, runner, temp_output_dir, sample_data_df):
         """Test fit_model with --plot flag."""
         mock_fit_result = MagicMock()
         mock_fit_result.model_dump_json.return_value = '{}'
-        mock_fit_result.formatted_data = pd.DataFrame()
+        mock_fit_result.formatted_data = sample_data_df
 
         with patch('pfun_cma_model.engine.fit.fit_model', return_value=mock_fit_result):
             with patch('pfun_cma_model.cli.pd.read_csv') as mock_read:

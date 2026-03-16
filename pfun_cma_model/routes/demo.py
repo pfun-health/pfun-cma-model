@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 
-from pfun_cma_model.engine.cma_model_params import CMAModelParams
+from pfun_cma_model.engine.cma_model_params import CMAModelParams, _DEFAULTS
 from pfun_cma_model.misc.templating import get_templates
 
 router = APIRouter()
@@ -34,6 +34,7 @@ class PFunDemoRoutesContext(BaseModel):
 
 @router.get("/llm")
 def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+    """Demo UI endpoint for LLM interactions."""
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()
     context_dict = {
@@ -44,7 +45,7 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
                 "url": f"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css?dummy={rand0}",
             },
             "inline-script": {"hash": "sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM=", "url": None},
-            "jquery-ui": {"url": "https://code.jquery.com/ui/1.14.1/jquery-ui.js"},
+            "jquery-ui": {"url": f"https://code.jquery.com/ui/1.14.1/jquery-ui.js?dummy={rand1}"},
         },
         "year": datetime.now().year,
     }
@@ -55,6 +56,7 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
 
 @router.get("/data-stream")
 def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+    """Demo UI endpoint for data stream interactions."""
     context = PFunDemoRoutesContext(request=request).model_dump()
     return templates.TemplateResponse("data-stream-demo.html.jinja2", context=context)
 
@@ -64,13 +66,6 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     # load default bounded parameters
     cma_params = CMAModelParams()
-    from pfun_cma_model.engine.cma_model_params import (
-        _BOUNDED_PARAM_DESCRIPTIONS,
-        _BOUNDED_PARAM_KEYS_DEFAULTS,
-        _LB_DEFAULTS,
-        _MID_DEFAULTS,
-        _UB_DEFAULTS,
-    )
 
     default_config = dict(cma_params.bounded_params_dict)
     # formatted parameters to appear in the rendered template
@@ -78,13 +73,13 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
     for ix, pk in enumerate(default_config):
         if pk in default_config:
             params[pk] = {
-                "name": _BOUNDED_PARAM_KEYS_DEFAULTS[ix],
+                "name": _DEFAULTS.keys[ix],
                 "value": default_config[pk],
-                "description": _BOUNDED_PARAM_DESCRIPTIONS[ix],
-                "min": _LB_DEFAULTS[ix],
-                "max": _UB_DEFAULTS[ix],
-                "step": (_UB_DEFAULTS[ix] + _LB_DEFAULTS[ix]) * 0.0125,
-                "default": _MID_DEFAULTS[ix],
+                "description": _DEFAULTS.descriptions[ix],
+                "min": _DEFAULTS.lbs[ix],
+                "max": _DEFAULTS.ubs[ix],
+                "step": _DEFAULTS.steps[ix],
+                "default": _DEFAULTS.mids[ix],
             }
     # formulate the render context
     rand0, rand1 = os.urandom(16).hex(), os.urandom(16).hex()

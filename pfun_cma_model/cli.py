@@ -20,9 +20,7 @@ def cli(ctx):
     ctx.obj["sample_data_fpath"] = PFunDataPaths().sample_data_fpath
     import pfun_path_helper as pph  # type: ignore
 
-    ctx.obj["output_dir"] = os.path.abspath(
-        os.path.join(pph.get_lib_path("pfun_cma_model"), "../results")
-    )
+    ctx.obj["output_dir"] = os.path.abspath(os.path.join(pph.get_lib_path("pfun_cma_model"), "../results"))
 
 
 @cli.command(
@@ -32,9 +30,7 @@ def cli(ctx):
 )
 @click.option("--host", default="0.0.0.0", help="Host to run the application on.")
 @click.option("--port", default=8001, help="Port to run the application on.")
-@click.option(
-    "--reload", is_flag=True, default=False, help="Enable auto-reload for development."
-)
+@click.option("--reload", is_flag=True, default=False, help="Enable auto-reload for development.")
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def launch(ctx, host, port, reload, args):
@@ -68,9 +64,7 @@ OutputFigureFormatType = Literal["png", "svg"]
 
 
 @cli.command()
-@click.option(
-    "--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False
-)
+@click.option("--input-fpath", "-i", type=click.Path(exists=True), default=None, required=False)
 @click.option(
     "--output-dir",
     "--output",
@@ -134,20 +128,31 @@ def fit_model(ctx, input_fpath, output_dir, output_ftype, n, plot, opts, model_c
     # plot the results (if '--plot' is indicated)
     if plot is True:
         click.secho("Plotting...", bold=True)
+        # set the matplotlib backend based on the output figure type
         import matplotlib
-        matplotlib.use(output_ftype)
+
+        matplotlib.use(
+            {
+                "png": "Agg",
+                "svg": "svg",
+            }[output_ftype]
+        )
         click.secho(f"Set matplotlib backend: {output_ftype}", bold=True)
         import matplotlib.pyplot as plt
         from pfun_cma_model.engine.cma_plot import CMAPlotSolnConfig, CMAPlotDataConfig
+
         click.secho("Formatted data (from fit_result):", bold=True)
         click.secho(fit_result.formatted_data.head().to_string())
-        fig, _ = CMAPlotDataConfig().plot(df=fit_result.formatted_data, plot_cols=["G", ])
+        fig, _ = CMAPlotDataConfig().plot(
+            df=fit_result.formatted_data,
+            plot_cols=[
+                "G",
+            ],
+        )
         fig_output_fpath = os.path.join(output_dir, f"fit_result.{output_ftype}")
         fig.savefig(fig_output_fpath, format=output_ftype)
         click.secho(f"...saved plot to: '{fig_output_fpath}'")
-        click.confirm(
-            "[enter] to exit...", default=True, abort=True, show_default=False
-        )
+        click.confirm("[enter] to exit...", default=True, abort=True, show_default=False)
         plt.close("all")
 
 
@@ -241,9 +246,7 @@ def run_param_grid(ctx, n, m, params):
     else:
         for pkey in pkeys_included:
             click.secho(f"    + {pkey}", fg="yellow")
-    pfun_grid = PFunCMAParamsGrid(
-        N=n, m=m, keys=pkeys_included, include_mealtimes=True
-    )  # parameter keys to include
+    pfun_grid = PFunCMAParamsGrid(N=n, m=m, keys=pkeys_included, include_mealtimes=True)  # parameter keys to include
 
     # run the grid search
     Nparam = len(pfun_grid.pgrid)
@@ -262,9 +265,7 @@ def run_param_grid(ctx, n, m, params):
     click.secho("...done (saved to 'results/duckdb.db').", fg="green", bold=True)
 
     # save to parquet
-    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(
-        f"param_grid_{n:02d}x{m:02d}.parquet"
-    )
+    parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(f"param_grid_{n:02d}x{m:02d}.parquet")
     df_grid.to_parquet(str(parquet_fpath))
     click.secho("...done (saved to '').", fg="green", bold=True)
 
@@ -314,4 +315,4 @@ def run_doctests():
 
 
 if __name__ == "__main__":
-    cli()
+    cli()  # type: ignore

@@ -11,7 +11,7 @@ __all__ = ["Bounds", "BoundsTypeError"]
 class BoundsTypeError(TypeError):
     """Custom exception for bounds type errors."""
 
-    pass
+    pass  # type: ignore
 
 
 #: Aliases for numpy bool types (necessary for type checking).
@@ -22,15 +22,9 @@ Bool_ = np.bool_
 
 _BOUNDS_SCHEMA = core_schema.typed_dict_schema(
     {
-        "lb": core_schema.typed_dict_field(
-            core_schema.list_schema(core_schema.float_schema())
-        ),
-        "ub": core_schema.typed_dict_field(
-            core_schema.list_schema(core_schema.float_schema())
-        ),
-        "keep_feasible": core_schema.typed_dict_field(
-            core_schema.list_schema(core_schema.bool_schema())
-        ),
+        "lb": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
+        "ub": core_schema.typed_dict_field(core_schema.list_schema(core_schema.float_schema())),
+        "keep_feasible": core_schema.typed_dict_field(core_schema.list_schema(core_schema.bool_schema())),
     }
 )
 
@@ -54,12 +48,13 @@ class BoundsType:
 
     def __get_pydantic_core_schema__(
         self,
-        source: Type[Any],
-        handler: GetCoreSchemaHandler,
+        source: Type[Any],  # type: ignore
+        handler: GetCoreSchemaHandler,  # type: ignore
     ) -> core_schema.CoreSchema:  # type: ignore
         # This is a Pydantic v2 custom type, it should return a CoreSchema
         # The type hint for GetCoreSchemaHandler.return_type is core_schema.CoreSchema
-        # The error "Return type "core_schema.CoreSchema" of "__get_pydantic_core_schema__" incompatible with return type "Any" in supertype "object"" is incorrect.
+        # The error "Return type "core_schema.CoreSchema" of "__get_pydantic_core_schema__" incompatible with return
+        #   type "Any" in supertype "object"" is incorrect.
         return _BOUNDS_SCHEMA
 
 
@@ -135,6 +130,7 @@ class Bounds:
 
     @property
     def lb(self):
+        """get the lower bounds."""
         return self.array[:, 0]
 
     @lb.setter
@@ -143,6 +139,7 @@ class Bounds:
 
     @property
     def ub(self):
+        """get the upper bounds."""
         return self.array[:, 1]
 
     @ub.setter
@@ -151,6 +148,7 @@ class Bounds:
 
     @property
     def keep_feasible(self):
+        """get the keep_feasible flags."""
         return self.array[:, 2]
 
     @keep_feasible.setter
@@ -193,33 +191,39 @@ class Bounds:
         *args,
         lb: float | Sequence[float] = -np.inf,
         ub: float | Sequence[float] = np.inf,
-        keep_feasible: np.bool_ = True_,
+        keep_feasible: np.bool_ | Sequence[np.bool_ | bool] = True_,
     ):
         if len(args) > 0:
             #: handle Bounds positional argument
             if isinstance(args[0], Bounds):
                 lb, ub, keep_feasible = args[0].lb, args[0].ub, args[0].keep_feasible
                 if len(args) > 1:
-                    raise ValueError(
-                        "Too many positional arguments. Expected either one (a Bounds) instance, or 0."
-                    )
+                    raise ValueError("Too many positional arguments. Expected either one (a Bounds) instance, or 0.")
             else:
                 #: handle alternative positional arguments
                 lb, ub, keep_feasible = args
-        lb: np.ndarray = np.asarray(lb, dtype=float)
-        ub: np.ndarray = np.asarray(ub, dtype=float)
-        keep_feasible: np.ndarray = np.asarray(keep_feasible, dtype=np.bool_)
 
         # throw error with extra verbiage if unexpected input format
         try:
             self._array = self._assemble_array(lb, ub, keep_feasible)
         except Exception as handled_exception:
-            logging.error(
-                "Unable to handle values passed to Bounds() constructor!", exc_info=True)
+            logging.error("Unable to handle values passed to Bounds() constructor!", exc_info=True)
             raise handled_exception
 
         # check that collated arrays are broadcastable
         self._input_validation()
+
+        # cache CMABoundedParams class for use in update_values method
+        self._cma_bounded_params_class = None
+
+    @property
+    def cma_bounded_params_class(self):
+        """Lazily import and cache the CMABoundedParams class to avoid circular imports."""
+        if self._cma_bounded_params_class is None:
+            from pfun_cma_model.engine.cma_model_params import CMABoundedParams  # type: ignore
+
+            self._cma_bounded_params_class = CMABoundedParams
+        return self._cma_bounded_params_class
 
     def __repr__(self):
         start = f"{type(self).__name__}({self.lb!r}, {self.ub!r}"
@@ -229,14 +233,12 @@ class Bounds:
             end = ")"
         return start + end
 
-    def update_values(
-        self, arr: np.ndarray | Dict
-    ) -> np.ndarray | Dict[str, float | int]:
+    def update_values(self, arr: np.ndarray | Dict) -> np.ndarray | Dict[str, float | int]:
         """
         Update the values of the input array so that they stay within the specified limits.
         Delegates bounds logic to CMABoundedParams for consistency and maintainability.
         """
-        from pfun_cma_model.engine.cma_model_params import CMABoundedParams
+        CMABoundedParams = self.cma_bounded_params_class
 
         # If arr is a dict, use keys for mapping
         keys = None
