@@ -98,6 +98,7 @@ class UserAdmin(ModelView, model=User):
         """Check if the current user is authenticated and has access to the admin interface."""
         token = request.session.get("token")
         if not token:
+            logging.debug("No authentication token found in session. Session data: %s", str(request.session))
             return False
         return True
 

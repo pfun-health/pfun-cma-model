@@ -89,6 +89,8 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: initialize Admin database models ---
     await init_models()
+    
+    # --- Startup task: configure admin_app login provider ---
 
     # ---
     # --- Shutdown tasks will be handled after this point ---
@@ -121,7 +123,7 @@ app = FastAPI(
             }
             if not debug_mode
             else {
-                "url": "http://localhost:8001",
+                "url": f"{get_settings().server_scheme}://{get_settings().server_host}:{get_settings().server_port}",
                 "description": "Local development server.",
             }
         ),
@@ -238,6 +240,7 @@ admin = Admin(
     session_maker=Session,
     authentication_backend=authentication_backend,
     title="PFun CMA Admin",
+    logo_url="/static/icons/pfun-cutielogo-icon.png",
     favicon_url="/static/icons/pfun-cutielogo-icon.ico",
 )
 

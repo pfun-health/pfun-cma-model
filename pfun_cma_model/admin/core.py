@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Any
 from datetime import timedelta, datetime, timezone
@@ -77,19 +78,20 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 def verify_password(plain_password, hashed_password):
-    return password_hash.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    return password_hash.hash(password)
+    return pwd_context.hash(password)
 
 
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
+async def authenticate_user(db, username: str, password: str):
+    user = await get_user(db, username)
     if not user:
         verify_password(password, "notavalidpasswordatall")  # to update the state of the crypt context
         return False
     if not verify_password(password, user.hashed_password):
+        logging.debug("Failed login attempt for username/email: %s", username)
         return False
     return user
 

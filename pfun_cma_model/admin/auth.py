@@ -68,6 +68,7 @@ class AdminAuth(AuthenticationBackend):
         # Check if the session contains our token
         token = request.session.get("token")
         if not token:
+            logging.debug("No authentication token found in session. Session data: %s", str(request.session))
             return False
 
         # Grab the matching user from the session
@@ -75,6 +76,7 @@ class AdminAuth(AuthenticationBackend):
             result = await db_session.execute(select(User).where(User.id == request.session.get("uid")))
             user = result.scalars().first()
             if not user:
+                logging.debug("User not found in session. Session data: %s", str(request.session))
                 return False
 
         # Verify the decoded token contains expected username(or email), plus user category
@@ -85,9 +87,11 @@ class AdminAuth(AuthenticationBackend):
         )
         usn = decoded_token.get("usn")
         if not (usn in (user.name, user.email)):
+            logging.debug("Username/email in token does not match user in session. Token usn: %s, User name: %s, User email: %s", usn, user.name, user.email)
             return False
         user_category = "admin" if user.is_admin else "user"
         if not (decoded_token.get("category") == user_category):
+            logging.debug("User category mismatch in token. Expected: %s, Found: %s", user_category, decoded_token.get("category"))
             return False
 
         return True
