@@ -180,7 +180,7 @@ def setup_security_config() -> SecurityConfig:
         # blocked_countries=["XX"],  # Example: block country code XX
         # whitelist_countries=[],  # Allow all countries by default
         # Cloud Provider Blocking
-        block_cloud_providers={"AWS", "GCP", "Azure"},
+        #block_cloud_providers={"AWS", "GCP", "Azure"},
         # User Agent Filtering
         blocked_user_agents=["badbot", "evil-crawler", "sqlmap"],
         # Rate Limiting

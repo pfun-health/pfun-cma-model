@@ -100,7 +100,7 @@ async def authenticate_user(db, username: str, password: str):
     return user
 
 
-async def get_logged_user(cookie: str = Security(APIKeyCookie(name="token"))) -> OpenID:
+async def get_logged_user(cookie: str | bytes = Security(APIKeyCookie(name="token"))) -> OpenID:
     """Get user's JWT stored in cookie 'token', parse it and return the user's OpenID.
 
     This function can be used as a dependency in your admin views to get the **currently logged-in user.**

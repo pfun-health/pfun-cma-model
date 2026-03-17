@@ -250,6 +250,7 @@ admin = Admin(
     title="PFun CMA Admin",
     logo_url="/static/icons/pfun-cutielogo-icon.png",
     favicon_url="/static/icons/pfun-cutielogo-icon.ico",
+    templates_dir=str(Path(__file__).parent / "templates" / "sqladmin"),
 )
 
 # Import admin views to register them with the admin interface
