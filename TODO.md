@@ -7,9 +7,10 @@ TODO for `pfun-cma-model`
 ### Short-term Goals
 
 + _Complete initial implementation of admin interface:_
+  + **Integrate `FastAPI-SSO` with `SQLAlchemy-Admin` database.**
   + ~~Define models (User, Site)~~
   + ~~Implement views (CRUD for User, Site)~~
-  + Integrate password hashing in User model [](pfun_cma_model/admin/models.py)
+  + Integrate password hashing in [User model](pfun_cma_model/admin/models.py)
   + Test admin interface functionality
   + _Setup database migrations with Alembic:_
     + ~~Configure Alembic for Async SQLite~~
