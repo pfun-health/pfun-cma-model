@@ -6,6 +6,7 @@ import asyncio
 import json
 import pandas as pd
 from fastapi import APIRouter, Response, BackgroundTasks
+from pfun_common.settings import get_settings
 from pfun_cma_model.llm import generate_scenario as gen_scene
 from pfun_cma_model.db import save2duckdb
 
@@ -59,7 +60,8 @@ async def generate_scenario(
             # if it succeeds, store the original dict in duckdb (background task)
             df_result = pd.DataFrame([response_data], index=[0])
             table_id = "cma_recs"
-            background_tasks.add_task(save2duckdb, df_result=df_result, table_id=table_id)
+            db_path = "results/duckdb-local.db" if get_settings().debug else "results/duckdb-remote.db"
+            background_tasks.add_task(save2duckdb, df_result=df_result, db_path=db_path, table_id=table_id)
 
         # return the content as a JSON serialized string
         return content

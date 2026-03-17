@@ -15,7 +15,7 @@ from fastapi.security import APIKeyCookie
 from fastapi_sso.sso.base import OpenID
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
-from pfun_cma_model.admin.models import User
+
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -56,6 +56,8 @@ pwd_context = setup_pwd_context()
 
 async def get_user(db, username: str) -> None | Any:
     """retrieve the user from the database."""
+    from pfun_cma_model.admin.models import User
+
     user = None
     async with Session() as db_session:  # type: ignore
         result = await db_session.execute(select(User).where((User.name == username) | (User.email == username)))
