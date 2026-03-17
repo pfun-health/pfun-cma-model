@@ -15,7 +15,7 @@ import logging
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -89,7 +89,7 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: initialize Admin database models ---
     await init_models()
-    
+
     # --- Startup task: configure admin_app login provider ---
 
     # ---
@@ -112,12 +112,13 @@ async def lifespan(app: FastAPI):
 
 # --- Instantiate FastAPI app ---
 
+
 def generate_server_info() -> list[dict[str, str]]:
     """Generate server info for relevant environment(s)."""
     server_info = [
         {
-        "url": f"{get_settings().production_server_url}",
-        "description": "production server.",
+            "url": f"{get_settings().production_server_url}",
+            "description": "production server.",
         },
         {
             "url": f"{get_settings().server_scheme}://{get_settings().server_host}:{get_settings().server_port}",
@@ -126,10 +127,10 @@ def generate_server_info() -> list[dict[str, str]]:
         {
             "url": f"https://{get_settings().ssl_server_host}",
             "description": "(SSL-ready) development server.",
-        }
+        },
     ]
     return server_info
-        
+
 
 app = FastAPI(
     app_name="PFun CMA Model Backend",
@@ -254,6 +255,14 @@ admin = Admin(
 # Import admin views to register them with the admin interface
 admin.add_view(UserAdmin)
 admin.add_view(ReportView)
+
+async def login_google(request: Request) -> Response:
+    """Redirect the user to the Google login page."""
+    
+    return RedirectResponse(url="/sso/auth/login")
+
+# Register the Google login route with the admin interface
+admin.app.router.add_route("/auth/google", login_google)
 
 ###
 # --- Include Routers ---

@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 import datetime
 from fastapi_sso import OpenID
 import jwt
@@ -42,9 +42,12 @@ async def protected_endpoint(request: Request, user=Depends(get_logged_user)):
     """This endpoint will say hello to the logged user.
     If the user is not logged, it will return a 401 error from `get_logged_user`."""
     logging.debug("Accessing protected endpoint. User: %s", user.email if user else "None")
-    return {
-        "message": f"You are very welcome, {user.email}!",
-    }
+    response = HTMLResponse(
+        content=
+        f"<head><title>Protected Endpoint</title><meta charset='UTF-8'><meta http-equiv='Refresh' content='0;url=/admin/' /></head>"
+        f"<body><h1>Hello, {user.email}!</h1><p>You have successfully accessed the protected endpoint.</p></body>"
+    )
+    return response
 
 
 @router.get("/auth/login")
