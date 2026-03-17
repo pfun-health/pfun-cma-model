@@ -197,7 +197,7 @@ def generate_scenario(ctx, query):
     # save the generated params, recommendations to the results duckdb database
     from pfun_cma_model.db import save2duckdb
 
-    db_path = Path(__file__).parent.parent.joinpath("results", "duckdb.db")
+    db_path = Path(__file__).parent.parent.joinpath("results", "duckdb-local.db")
     save2duckdb(df_result, db_path=str(db_path), table_id="cma_recs")
     click.secho("...successfully saved result to the database.", fg="green", bold=True)
 
@@ -259,10 +259,10 @@ def run_param_grid(ctx, n, m, params):
     # save to duckdb database
     from pfun_cma_model.db import save2duckdb
 
-    db_fpath = "results/duckdb.db"
+    db_fpath = str(get_db_path())
     table_id = "cma_pgrid"
     save2duckdb(df_grid, db_path=db_fpath, table_id=table_id)
-    click.secho("...done (saved to 'results/duckdb.db').", fg="green", bold=True)
+    click.secho(f"...done (saved to '{db_fpath}').", fg="green", bold=True)
 
     # save to parquet
     parquet_fpath = Path(ctx.obj["output_dir"]).joinpath(f"param_grid_{n:02d}x{m:02d}.parquet")

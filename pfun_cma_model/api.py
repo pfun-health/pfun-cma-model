@@ -104,7 +104,7 @@ async def lifespan(app: FastAPI):
     pfun_data_paths.remove_sample_data()
     # --- Shutdown task: disconnect from Redis ---
     if redis_client is not None:
-        await redis_client.close()
+        await redis_client.aclose()
         logging.info("Redis client connection closed.")
 
 

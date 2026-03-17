@@ -27,7 +27,7 @@ from pfun_cma_model.misc.types import NumpyArray
 
 # import custom ndarray schema
 
-__all__ = ["CMAModelParams", "CMABoundedParams", "QualsMap"]
+__all__ = ["BoundedParamDefaults", "CMAModelParams", "CMABoundedParams", "QualsMap"]
 
 # import custom bounds types
 
@@ -36,6 +36,19 @@ Bounds = bounds.Bounds  # necessary for typing (linter)
 
 class BoundedParamDefaults(NamedTuple):
     """Default values for bounded parameters."""
+
+    def get_param(self, key: str) -> dict[str, Any]:
+        """Get the default values for a bounded parameter by key."""
+        if key not in self.keys:
+            raise KeyError(f"'{key}' is not a bounded parameter.")
+        ix = list(self.keys).index(key)
+        return dict(
+            name=self.keys[ix],
+            description=self.descriptions[ix],
+            min=self.lbs[ix],
+            max=self.ubs[ix],
+            step=self.steps[ix],
+        )
 
     @property
     def lbs(self):
@@ -181,14 +194,19 @@ class BoundedCMAModelParam(CMAModelParam):
 
     lb: int | float = Field(default=nan)
     ub: int | float = Field(default=nan)
+    default: int | float = Field(default=nan, alias="mid")
     step: int | float = Field(default=nan)
+    description: str = Field(default="")
 
     @property
-    def bounds(self):
+    def bounds(self) -> Bounds:
+        """Get the Bounds object for this parameter."""
         return Bounds(lb=[self.lb], ub=[self.ub], keep_feasible=[True])
 
 
 class CMABoundedParams(Namespace):
+    """Defines a collection of bounded CMA model parameters, with associated metadata and methods for accessing them."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # set default values for bounded parameters
@@ -272,7 +290,7 @@ class CMAModelParams(BaseModel):
     """
     Solar noon offset (latitude). Defaults to 0.0.
     """
-    tM: Annotated[ndarray, NumpyArray] | Sequence[float] = array([7.0, 11.0, 17.5])
+    tM: Annotated[NumpyArray, ndarray] | Sequence[float] = array([7.0, 11.0, 17.5])
     """
     Meal times (hours). Defaults to (7.0, 11.0, 17.5).
     """
@@ -337,11 +355,11 @@ class CMAModelParams(BaseModel):
         return value
 
     @property
-    def t(self) -> ndarray:
+    def t(self) -> NumpyArray:
         """Time vector (decimal hours). Generated using new_tvector, using N."""
         return self.new_tvector(0, 24, self.N)  # type: ignore
 
-    def new_tvector(self, t0: int | float, t1: int | float, n: int) -> ndarray:
+    def new_tvector(self, t0: int | float, t1: int | float, n: int) -> NumpyArray:
         """Create a new linear time vector, given initial (t0), final (t1), and number of timepoints (n)"""
         return linspace(t0, t1, num=int(n))
 

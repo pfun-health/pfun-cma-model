@@ -6,12 +6,11 @@ import json
 import numpy as np
 import pandas as pd
 import gzip
+from pathlib import Path
 from sklearn.model_selection import ParameterGrid
+from pfun_cma_model.misc.pathdefs import PFunDataPaths
 from pfun_cma_model.engine.cma import CMASleepWakeModel
-from pfun_cma_model.engine.cma_model_params import (
-    CMAModelParams,
-    BoundedCMAModelParam
-)
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
 
 
 @dataclass
@@ -26,9 +25,7 @@ class PFunCMAParamsGridResult:
     soln: pd.DataFrame
 
     def __post_init__(self):
-        self.param_dict = dict(
-            zip(self.param_keys, self.param_values)
-        )
+        self.param_dict = dict(zip(self.param_keys, self.param_values))
         self.params_json = json.dumps(self.param_dict)
         self.params = CMAModelParams(**self.param_dict)
         self.params_md = self.params.generate_markdown_table("md")
@@ -36,7 +33,7 @@ class PFunCMAParamsGridResult:
     def get_markdown_document(self):
         params_md = self.params_md
         soln_md = self.soln.to_markdown()
-        return 
+        return f"## Parameters\n\n{params_md}\n\n## Solution\n\n{soln_md}"
 
     def get_soln_as_json(self) -> str:
         return self.soln.to_json()
@@ -53,26 +50,28 @@ def compute_psample(params, N) -> pd.DataFrame:
     return out
 
 
+def get_cma_grid_db_path() -> Path:
+    """Return the PFunCMAGrid database directory path."""
+
+    data_dirpath = Path(PFunDataPaths().pfun_data_dirpath)
+    return data_dirpath / "cma_grid.db"
+
+
 def get_db_client():
-    """get the database client"""
-    from pfun_cma_model.data import get_db_path
+    """Get a database client for the CMA grid results database."""
     import duckdb
-    connection = duckdb.connect(
-        database = get_db_path()
-    )
+
+    database_fpath = get_cma_grid_db_path()
+    connection = duckdb.connect(database=database_fpath)
     return connection
 
 
-def collate_results(
-        results: list[PFunCMAParamsGridResult],
-        collection_id: str = "cma_results"
-):
+def collate_results(results: list[PFunCMAParamsGridResult], collection_id: str = "cma_results"):
     """Store results in database."""
     # create a collection with given ID as the name
     df_collection = pd.DataFrame.from_dict(
         dict(
-            ids=[result.params_json for result in results],
-            documents=[result.get_soln_as_json() for result in results]
+            ids=[result.params_json for result in results], documents=[result.get_soln_as_json() for result in results]
         )
     )
     return df_collection
@@ -106,12 +105,7 @@ class PFunCMAParamsGrid:
         # create m-length parameter ranges
         pdict = {k: np.linspace(l, u, num=self.m) for k, l, u in plist}
         if self.include_mealtimes is True:
-            pdict.update(
-                {
-                    k: list(range(l, u, self.m))
-                    for k, l, u in zip(self.tmK, self.tmL, self.tmU)
-                }
-            )
+            pdict.update({k: list(range(l, u, self.m)) for k, l, u in zip(self.tmK, self.tmL, self.tmU)})
         # defines the parameter grid to search
         self.pgrid = ParameterGrid(pdict)
         # solutions vector (temporary storage)
@@ -125,15 +119,13 @@ class PFunCMAParamsGrid:
 
     @Njobs.setter
     def Njobs(self, val):
-        """Safely set the number of jobs (without exceeding 'os.cpu_count()').
-        """
+        """Safely set the number of jobs (without exceeding 'os.cpu_count()')."""
         _ncpus = os.cpu_count()
         if val < 1:
             self._Njobs = _ncpus
         elif val > _ncpus:
             logging.warning(
-                "specified Njobs=%d is higher than measured cores %d. "
-                "Setting to %d.",
+                "specified Njobs=%d is higher than measured cores %d. " "Setting to %d.",
                 val,
                 _ncpus,
                 _ncpus,
@@ -148,10 +140,7 @@ class PFunCMAParamsGrid:
 
         # distribute tasks in parallel
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.Njobs) as pool:  # type: ignore
-            future_to_params = {
-                pool.submit(compute_psample, params, N=self.N): params
-                for params in self.pgrid
-            }
+            future_to_params = {pool.submit(compute_psample, params, N=self.N): params for params in self.pgrid}
             for future in concurrent.futures.as_completed(future_to_params):
                 params = future_to_params[future]
                 try:

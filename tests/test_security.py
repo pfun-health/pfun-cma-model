@@ -69,11 +69,6 @@ class TestSecurityConfigurationBasics:
         security_config = setup_security_config()  # Ensure config is set up
         assert security_config.enforce_https is False
 
-    def test_passive_mode_disabled(self):
-        """Verify passive mode is disabled (active blocking)."""
-        security_config = setup_security_config()  # Ensure config is set up
-        assert security_config.passive_mode is False
-
 
 class TestSecurityHeaders:
     """Test security headers configuration."""

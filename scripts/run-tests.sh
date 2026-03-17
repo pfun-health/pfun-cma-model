@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
-# scripts/run-tests.sh:
-# Run CLI tests and limit output to first 80 lines
+# Run pytest with options to show the 5 slowest tests and use line-based tracebacks for easier readability in CI logs.
 
-uv run \
-    pytest -v --tb=short 2>&1 | head -80
+pytest \
+	--durations=5 \
+	--tb=line \
+	tests \
+	"${@}"

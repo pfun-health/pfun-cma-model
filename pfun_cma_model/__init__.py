@@ -1,11 +1,13 @@
 import logging
 
-from .data import *
-from .engine.cma import *
-from .engine.cma_model_params import *
-from .engine.cma_plot import *
-from .engine.fit import *
-from .misc.pathdefs import *
+# get the version via python standard library
+import importlib.metadata
+from .data import format_data, read_sample_data
+from .engine.cma import CMASleepWakeModel
+from .engine.cma_model_params import CMAModelParams
+from .engine.cma_plot import CMAPlotConfig
+from .engine.fit import fit_model
+from .misc.pathdefs import PFunDataPaths
 
 __all__ = [
     "PFunDataPaths",
@@ -19,14 +21,11 @@ __all__ = [
 
 # top-level convenience imports
 
-# get the version via python standard library
-import importlib.metadata
-
 
 def get_version():
     """Get the version of the pfun-cma-model package."""
     version_ = importlib.metadata.version("pfun-cma-model")
-    logging.debug(f"pfun-cma-model version: {version_}")
+    logging.debug("pfun-cma-model version: %s", version_)
     return version_
 
 
@@ -34,6 +33,4 @@ try:
     __version__ = get_version()
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
-    logging.warning(
-        f"pfun-cma-model package version not found. Using default version {__version__}."
-    )
+    logging.warning("pfun-cma-model package version not found. Using default version %s.", __version__)

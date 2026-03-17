@@ -88,9 +88,7 @@ class StatsResponse(BaseModel):
                 "blocked_requests": 50,
                 "banned_ips": ["192.168.1.100", "10.0.0.50"],
                 "rate_limited_ips": {"192.168.1.200": 5},
-                "suspicious_activities": [
-                    {"ip": "192.168.1.100", "reason": "SQL injection attempt"}
-                ],
+                "suspicious_activities": [{"ip": "192.168.1.100", "reason": "SQL injection attempt"}],
                 "active_rules": {"rate_limit": 10, "auto_ban_threshold": 5},
             }
         }
@@ -132,9 +130,7 @@ class TestPayload(BaseModel):
     query: str | None = Field(None, description="Test query for SQL injection")
     path: str | None = Field(None, description="Test path for traversal attacks")
     cmd: str | None = Field(None, description="Test command for injection")
-    honeypot_field: str | None = Field(
-        None, description="Hidden field for bot detection"
-    )
+    honeypot_field: str | None = Field(None, description="Hidden field for bot detection")
 
 
 # ==================== Custom Hooks ====================
@@ -171,15 +167,15 @@ def setup_security_config() -> SecurityConfig:
     """Produce a security configuration"""
     return SecurityConfig(
         # IP Configuration
-        # whitelist=["127.0.0.1", "::1", "10.0.0.0/8",
-        #            "100.115.68.73"],  # Localhost, tailscale
+        whitelist=["127.0.0.1", "::1", "10.0.0.0/8", "192.168.4.0/22"],  # Local network
         # Proxy Configuration
         trusted_proxies=[
             "127.0.0.1",
             "10.0.0.0/8",
             "168.235.67.32",
             "100.115.68.73",
-        ],  # tailscale
+            "192.168.4.0/22",
+        ],  # tailscale, local network
         trusted_proxy_depth=2,
         trust_x_forwarded_proto=True,
         # Geographical Filtering (requires ipinfo_token OR custom implementation)
@@ -298,7 +294,7 @@ def setup_security_config() -> SecurityConfig:
             "/health",
         ],
         # Advanced Configuration
-        passive_mode=False,  # Set to True for log-only mode
+        passive_mode=get_settings().guard_passive_mode,  # Set to True for log-only mode
         # Agent Configuration (optional)
         # enable_agent=True,  # Set to True to enable telemetry
         # agent_api_key="api-test-key",

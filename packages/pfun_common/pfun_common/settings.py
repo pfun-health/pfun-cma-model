@@ -25,18 +25,41 @@ def generate_default_secret_key() -> str:
 
 
 class Settings(BaseSettings):
-    """Application settings"""
+    """Settings for the pfun-cma-model application. Values can be overridden via environment variables or a .env file."""
 
     debug: bool = False
+    #: Whether to enable debug mode (e.g. more verbose logging, auto-reload). Can also be set via the DEBUG environment variable.
+
+    guard_passive_mode: bool = False
+    #: Whether to enable passive mode for the security guard (i.e. log-only mode without blocking). Can also be set via the GUARD_PASSIVE_MODE environment variable.
+
     server_scheme: str = "http"
+    #: The URL scheme for the server (e.g. "http" or "https"). Can also be set via the SERVER_SCHEME environment variable.
+
     server_host: str = "localhost"
+    #: The host for the server to bind to (e.g. "localhost" or "127.0.0.1").
+
     server_port: str | int = "8001"
+    #: The port for the server to listen on. Can also be set via the SERVER_PORT environment variable.
+
     redis_user: str = "default"
+    #: The username for Redis authentication. Can also be set via the REDIS_USER environment variable.
+
     redis_password: str = ""
+    #: The password for Redis authentication. Can also be set via the REDIS_PASSWORD environment variable.
+
     redis_host: str = "localhost"
+    #: The host for the Redis server. Can also be set via the REDIS_HOST environment variable.
+
     redis_port: str | int = "6379"
+    #: The port for the Redis server. Can also be set via the REDIS_PORT environment variable.
+
     redis_db: str | int | bool = "0"
+    #: The database number for Redis. Can also be set via the REDIS_DB environment variable.
+
     redis_connection_string: str = ""
+    #: A connection string for Redis. Can also be set via the REDIS_CONNECTION_STRING environment variable.
+
     perplexity_api_key: str = ""
     google_api_key: str = ""
     ollama_api_key: str = ""
@@ -114,9 +137,7 @@ class Settings(BaseSettings):
                 info.data.get("redis_db"),
             )
         except Exception as exc:
-            logging.warning(
-                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
-            )
+            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 

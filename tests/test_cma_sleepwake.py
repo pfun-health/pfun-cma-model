@@ -10,7 +10,6 @@ class TestCMASleepWakeModel:
 
     # Test that the calculate_Gt method of the CMASleepWakeModel class returns the expected output.
     def test_calculate_Gt(self):
-        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
         from pfun_cma_model.engine.cma import CMASleepWakeModel
 
         model = CMASleepWakeModel()
@@ -21,7 +20,7 @@ class TestCMASleepWakeModel:
     # Test that the CMASleepWakeModel class correctly handles updating the model with invalid parameter values.
 
     def test_update_with_invalid_parameters(self):
-        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+        from pfun_cma_model.engine.bounds import BoundsTypeError
         from pfun_cma_model.engine.cma import CMASleepWakeModel
 
         # Create an instance of CMASleepWakeModel
@@ -40,7 +39,7 @@ class TestCMASleepWakeModel:
             assert isinstance(e, (BoundsTypeError, ValueError, TypeError))
 
     def test_integrate_G_with_NaN_values(self):
-        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+
         from pfun_cma_model.engine.cma import CMASleepWakeModel
 
         # Create an instance of CMASleepWakeModel
@@ -56,7 +55,6 @@ class TestCMASleepWakeModel:
         assert np.logical_not(np.isnan(result))
 
     def test_update_bounds(self):
-        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
         from pfun_cma_model.engine.cma import CMASleepWakeModel
 
         # Create an instance of CMASleepWakeModel
@@ -73,16 +71,13 @@ class TestCMASleepWakeModel:
         model.update_bounds(keys, lb, ub, keep_feasible)
 
         # Verify that the bounds are updated correctly
-        expected_bounds = Bounds(
-            lb=lb, ub=ub, keep_feasible=list(keep_feasible)
-        )  # type: ignore
-        assert np.all(
-            model.bounds[model.param_key_index(keys, only_bounded=True)]
-            == expected_bounds
-        )
+        from pfun_cma_model.engine.bounds import Bounds
+
+        expected_bounds = Bounds(lb=lb, ub=ub, keep_feasible=list(keep_feasible))  # type: ignore
+        assert np.all(model.bounds[model.param_key_index(keys, only_bounded=True)] == expected_bounds)
 
     def test_cma_bounded_params_as_dict(self):
-        from pfun_cma_model.engine.bounds import Bounds, BoundsTypeError
+
         from pfun_cma_model.engine.cma import CMASleepWakeModel
 
         model = CMASleepWakeModel()
@@ -109,10 +104,10 @@ class TestCMASleepWakeModel:
 
         taug_expected = 1.5
         taug1_expected = 1.0
-        
+
         taug = model.bounded_params_as_dict["taug"]
         taug1 = model1.bounded_params_as_dict["taug"]
-        
+
         assert taug == taug_expected
         assert taug1 == taug1_expected
 
