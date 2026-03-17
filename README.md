@@ -2,25 +2,26 @@
 
 ## Links (Demos, Homepage)
 
-+ [**PFun Homepage**](https://pfun.one/)
-+ [**Live `Canvas Wave` Web Demo**](https://pfun.one/demo/canvas-wave)
+- [**PFun Homepage**](https://pfun.one/)
+- [**Live `Canvas Wave` Web Demo**](https://pfun.one/demo/canvas-wave)
 
 ## Overview
 
-### Description
+### API Description
 
 The `pfun-cma-model` API provides a comprehensive framework for analyzing and modeling the interplay between circadian rhythm, glucose metabolism, and hormonal dynamics. It enables researchers and practitioners to understand how physiological processes influence glucose levels over time.
 
-#### What does the `pfun-cma-model` API do???????
+#### In simple terms, what exactly does it do?!?
 
-+ _"It makes it easy to understand how glucose works... in clear english, and in medical-ese."_
+A few pithy one-liners:
 
-+ _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
+- _"It makes it easy to understand how glucose works... in clear english, and in medical-ese."_
+- _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
 
 #### Background
 
-+ **About the project:** <a href="https://cloud.tail38611b.ts.net/pitch">PFun Glucose ~ App pitch summary</a>
-+ **Preliminary research summary (includes citations):** <a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>
+- **About the project:** <a href="https://cloud.tail38611b.ts.net/pitch">PFun Glucose ~ App pitch summary</a>
+- **Preliminary research summary (includes citations):** <a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>
 
 ### About this repository
 
@@ -33,28 +34,29 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 ### Project Goals
 
 **For detailed development information, check the `TODO.md`:**
-+ [**TODO.md**](./TODO.md "TODO.md")
+
+- [**TODO.md**](./TODO.md "TODO.md")
 
 #### Short-term dev goals (~30 days)
 
-+ Decided to attempt to use `pfun-django` as the admin/user-auth backend.
-  + Other options exist, but ultimately it'd be way more straightforward (and not too much overhead, IMHO).
+- Decided to attempt to use `pfun-django` as the admin/user-auth backend.
+  - Other options exist, but ultimately it'd be way more straightforward (and not too much overhead, IMHO).
 
 #### Mid-term goals (60~90 days)
 
-+ Currently I'm stil shopping around for telemetry options (`open-telemetry`)
-+ **I don't currently have enough *Compute* to support `open-telemetry` with `prometheus`+`grafana`.**
-  + **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`**)
+- Currently I'm stil shopping around for telemetry options (`open-telemetry`)
+- **I don't currently have enough _Compute_ to support `open-telemetry` with `prometheus`+`grafana`.**
+  - **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`\*\*)
 
-+ **Evaluation pipeline**
-  + *Quantify, evaluate performace on training, test datasets.*
+- **Evaluation pipeline**
+  - _Quantify, evaluate performace on training, test datasets._
 
 #### Future directions (ongoing methods)
 
-+ Compare LLMs via actor-critic framework.
-+ Measure relative perplexity, NLP performance metrics.
-  + KS Test to quantify the hypothesis space;
-    + Predicted: neural dynamics of the learning layer (LLM orchestration layer) can be measured & understood as in silico "twin" populations of corticostriatal interneurons.
+- Compare LLMs via actor-critic framework.
+- Measure relative perplexity, NLP performance metrics.
+  - KS Test to quantify the hypothesis space;
+    - Predicted: neural dynamics of the learning layer (LLM orchestration layer) can be measured & understood as in silico "twin" populations of corticostriatal interneurons.
 
 ## CMA Model Description
 
@@ -149,7 +151,7 @@ In summary, your data suggests a well-regulated glucose metabolism with a tenden
 
 ## Development notes
 
-+ Using `uv` for super fast dependency management, intuitive CLI, and ezpz publishing to pypi.
+- Using `uv` for super fast dependency management, intuitive CLI, and ezpz publishing to pypi.
 
 ### Quick start
 

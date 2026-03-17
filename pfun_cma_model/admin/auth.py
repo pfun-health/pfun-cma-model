@@ -13,7 +13,9 @@ from pfun_common.settings import get_settings
 from pfun_cma_model.admin.core import (
     Session,
     pwd_context,
+    create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    ALGORITHM,
 )
 from pfun_cma_model.admin.models import User
 
@@ -31,20 +33,14 @@ class AdminAuth(AuthenticationBackend):
 
         # Validate username/password credentials
         async with Session() as db_session:  # type: ignore
-            result = await db_session.execute(
-                select(User).where((User.name == username) | (User.email == username))
-            )
+            result = await db_session.execute(select(User).where((User.name == username) | (User.email == username)))
             user = result.scalars().first()
             if not user:
-                logging.warning(
-                    f"Login attempt with non-existent username/email: {username}"
-                )
+                logging.warning(f"Login attempt with non-existent username/email: {username}")
                 return False  # User not found
 
             # Verify user exists and password is correct
-            ok, new_hash = pwd_context.verify_and_update(
-                str(password), user.hashed_password, category=category
-            )
+            ok, new_hash = pwd_context.verify_and_update(str(password), user.hashed_password, category=category)
             if not user or not ok:
                 return False  # Invalid credentials
             else:
@@ -76,16 +72,16 @@ class AdminAuth(AuthenticationBackend):
 
         # Grab the matching user from the session
         async with Session() as db_session:  # type: ignore
-            result = await db_session.execute(
-                select(User).where(User.id == request.session.get("uid"))
-            )
+            result = await db_session.execute(select(User).where(User.id == request.session.get("uid")))
             user = result.scalars().first()
             if not user:
                 return False
 
         # Verify the decoded token contains expected username(or email), plus user category
         decoded_token = jwt.decode(
-            token, key=get_settings().secret_key, algorithms=[ALGORITHM]
+            token,
+            key=get_settings().secret_key,
+            algorithms=[ALGORITHM],
         )
         usn = decoded_token.get("usn")
         if not (usn in (user.name, user.email)):

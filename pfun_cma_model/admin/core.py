@@ -1,20 +1,27 @@
 import os
 from typing import Any
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
+from sqlalchemy import select
+import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+    AsyncEngine,
+)
 from fastapi import Security, HTTPException
 from fastapi.security import APIKeyCookie
 from fastapi_sso.sso.base import OpenID
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
+from pfun_cma_model.admin.models import User
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-def setup_admin_backend():
+def setup_admin_backend() -> tuple[Any, AsyncEngine, Any]:
     """Setup the admin database and sqlalchemy engine."""
     Base = declarative_base()
     pfun_dpaths = PFunDataPaths()
@@ -35,11 +42,9 @@ def setup_pwd_context() -> CryptContext:
     """Setup the password context for hashing and verifying passwords."""
 
     # Initialize password context for hashing and verifying passwords
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    pwd_context.load_path(
-        os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
-    )
-    return pwd_context
+    local_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    local_pwd_context.load_path(os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini"))
+    return local_pwd_context
 
 
 # Initialize the password context for hashing and verifying passwords
@@ -53,9 +58,7 @@ async def get_user(db, username: str) -> None | Any:
     """retrieve the user from the database."""
     user = None
     async with Session() as db_session:  # type: ignore
-        result = await db_session.execute(
-            select(User).where((User.name == username) | (User.email == username))
-        )
+        result = await db_session.execute(select(User).where((User.name == username) | (User.email == username)))
         user = result.scalars().first()
     return user
 
@@ -82,9 +85,7 @@ def get_password_hash(password):
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
     if not user:
-        verify_password(
-            password, "notavalidpasswordatall"
-        )  # to update the state of the crypt context
+        verify_password(password, "notavalidpasswordatall")  # to update the state of the crypt context
         return False
     if not verify_password(password, user.hashed_password):
         return False
@@ -97,11 +98,7 @@ async def get_logged_user(cookie: str = Security(APIKeyCookie(name="token"))) ->
     This function can be used as a dependency in your admin views to get the **currently logged-in user.**
     """
     try:
-        claims = jwt.decode(
-            cookie, key=get_settings().secret_key, algorithms=[ALGORITHM]
-        )
+        claims = jwt.decode(cookie, key=get_settings().secret_key, algorithms=[ALGORITHM])
         return OpenID(**claims["pld"])
     except Exception as error:
-        raise HTTPException(
-            status_code=401, detail="Invalid authentication credentials"
-        ) from error
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials") from error

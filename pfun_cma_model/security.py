@@ -140,9 +140,7 @@ async def custom_request_check(request: Request) -> Response | None:
     """Custom request validation hook."""
     # Example: Block requests with specific query parameters
     if "debug" in request.query_params and request.query_params["debug"] == "true":
-        logger.warning(
-            f"Blocked debug request from {request.client.host if request.client else 'unknown'}"  # noqa: E501
-        )
+        logger.warning("Blocked debug request from %s", request.client.host if request.client else "unknown")
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"detail": "Debug mode not allowed"},
@@ -166,16 +164,15 @@ async def custom_response_modifier(response: Response) -> Response:
 def setup_security_config() -> SecurityConfig:
     """Produce a security configuration"""
     return SecurityConfig(
-        # IP Configuration
-        whitelist=["127.0.0.1", "::1", "10.0.0.0/8", "192.168.4.0/22"],  # Local network
         # Proxy Configuration
         trusted_proxies=[
-            "127.0.0.1",
-            "10.0.0.0/8",
-            "168.235.67.32",
-            "100.115.68.73",
-            "192.168.4.0/22",
-        ],  # tailscale, local network
+            "127.0.0.1",  # loopback (for local testing)
+            "10.0.0.0/8",  # private network
+            "168.235.67.32",  # custom proxy IP
+            "100.115.68.73",  # tscale proxy
+            "192.168.4.0/22",  # private network
+            "172.20.0.0/16",  # docker private network
+        ],
         trusted_proxy_depth=2,
         trust_x_forwarded_proto=True,
         # Geographical Filtering (requires ipinfo_token OR custom implementation)

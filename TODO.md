@@ -9,7 +9,7 @@ TODO for `pfun-cma-model`
 + _Complete initial implementation of admin interface:_
   + ~~Define models (User, Site)~~
   + ~~Implement views (CRUD for User, Site)~~
-  + Integrate password hashing in User model
+  + Integrate password hashing in User model [](pfun_cma_model/admin/models.py)
   + Test admin interface functionality
   + _Setup database migrations with Alembic:_
     + ~~Configure Alembic for Async SQLite~~
@@ -18,7 +18,7 @@ TODO for `pfun-cma-model`
 + _Configure production hosting (domain, routes, etc.):_
   + **Security, separation of concerns (frontend, backend, ...), load-balancing.**
   + _Domain configuration:_
-    + **Landing page frontend** at: `pfun.one`, `pfun.me`.
+    + **Landing page frontend** at: `pfun.me`~~, `pfun.one`~~
     + **Demo frontend** at: `pfun.app`.
     + **Backend API** at: `api.pfun.run`.
   + _Routing and load-balancing:_
