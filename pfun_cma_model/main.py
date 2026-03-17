@@ -8,19 +8,21 @@ from pfun_cma_model.app import app
 def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
     """Run the FastAPI application."""
     import uvicorn
+
     debug_mode: bool = kwargs.get("debug", get_settings().debug)
     logger = setup_logging(debug=debug_mode)
     # remove unwanted kwargs
-    valid_kwargs: Mapping[str, Any] = getattr(
-        uvicorn.run, "__kwdefaults__", {}
-    )  # ensure a mapping
+    valid_kwargs: Mapping[str, Any] = getattr(uvicorn.run, "__kwdefaults__", {})
+    # allow extra_args for passing additional arguments to uvicorn.run() without causing errors
+    valid_kwargs["extra_args"] = None
     for key in list(kwargs.keys()):
         if key in ["extra_args"]:  # handle extra arguments
             logger.debug("(passed to extra_args), %s", str(kwargs.get(key)))
+            extra_args = kwargs.pop(key, None)
+            if extra_args:  # if any extra arguments, add them to kwargs
+                kwargs.update(extra_args)
         if key not in valid_kwargs:
-            logger.warning(
-                f"Unrecognized keyword argument '{key}' for uvicorn.run(). Ignoring it."
-            )
+            logger.warning("Unrecognized keyword argument '%s' for uvicorn.run(). Ignoring it.", key)
             del kwargs[key]
     logger.debug(f"Running FastAPI app on {host}:{port} with kwargs: {kwargs}")
     # must pass the app parameter as a module path to enable hot-reloading
@@ -31,9 +33,7 @@ def run_app(host: str = "0.0.0.0", port: int = 8001, **kwargs: Any):
         logging.debug("Running with hot-reloading enabled.")
         # remove reload from kwargs to avoid passing it twice
         reload = kwargs.pop("reload", False)
-        uvicorn.run(
-            "pfun_cma_model.app:app", host=host, port=port, reload=reload, **kwargs
-        )
+        uvicorn.run("pfun_cma_model.app:app", host=host, port=port, reload=reload, **kwargs)
     else:
         # without hot-reloading
         logging.debug("Running without hot-reloading.")

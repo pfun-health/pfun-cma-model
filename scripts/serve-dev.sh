@@ -7,4 +7,4 @@ source "$(dirname "$0")/_funcs.def.sh"
 
 # Start the development server with full uv sync and serve pfun-cma-model
 full_uv_sync && \
-	serve_pfun_cma_model_dev
+	serve_pfun_cma_model_dev "$@"

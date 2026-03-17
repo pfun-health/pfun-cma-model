@@ -3,72 +3,71 @@
 {% block title %}LLM Generate Scenario Demo{% endblock %}
 
 {% block head %}
-  {{ super() }}
-  <!-- local "global" stylesheet -->
+{{ super() }}
+<!-- local "global" stylesheet -->
 <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 <!-- load styles for jquery toasts -->
 <link rel="stylesheet" href="{{ url_for('static', path='css/jquery.toast.min.css') }}">
 {% endblock %}
 
 <body>
-  <header>
-    {% block navheader %}
-      {{ super() }}
-    {% endblock %}
-  </header>
+	<header>
+		{% block navheader %}
+		{{ super() }}
+		{% endblock %}
+	</header>
 
-  <div id="content">
-    {% block content %}
+	<div id="content">
+		{% block content %}
 
-      <h1 class="display-1">LLM Demo</h1>	
-      <div class="container-fluid grid d-flex">
-	
-	<div id="llm-app-content" class="container flex p-2">
-	  
-	  <h3 class="display-5">Input</h3>
-	  <h5 class="subtitle text-secondary">Patient description, health-relevant information</h5>
-	  <div id="input-container" class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
-	    <h5 class="text-primary">Please enter a plain-English query below.</h5>
-	    <p class="small text-secondary">Enter a prompt below to generate recommendations for a specific individual.<br />Otherwise, the demo will generate a random scenario if the input is left blank.</p>
-	    <form id="query-form" class="form">
-	      <div class="form-group row p-4 rounded">
-		<textarea
-		  id="query-input" rows="15" cols="30"
-		  placeholder="Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?"></textarea>
-	      </div>
-	      <div class="button-group row p-4 mb-3 rounded">
-		<button id="submit-btn" type="submit" class="btn btn-primary btn-lg">Submit</button>
-		<div id="loading-container" class="container-fluid text-bg-secondary text-left d-none">
-		  <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-		  Loading...
+		<h1 class="display-1">PFun Health Tips Demo</h1>
+		<h4 class="subtitle text-secondary"><span class="badge bg-primary">PFun Health Tips</span> Generate personalized
+			health tips</h4>
+		<div class="container-fluid grid d-flex">
+
+			<div id="llm-app-content" class="container flex p-2">
+				<div id="input-container"
+					class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
+					<h5 class="text-primary">Please enter a query to generate personalized health tips.<br />The demo will generate a random health scenario if the input is left blank.</h5>
+					<form id="query-form" class="form">
+						<div class="form-group row p-4 rounded">
+							<textarea id="query-input" rows="15" cols="30"
+								placeholder="Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?"></textarea>
+						</div>
+						<div class="button-group row p-4 mb-3 rounded">
+							<button id="submit-btn" type="submit" class="btn btn-primary btn-lg">Submit</button>
+							<div id="loading-container" class="container-fluid text-bg-secondary text-left d-none">
+								<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+								Loading...
+							</div>
+						</div>
+					</form>
+				</div>
+
+				<h3 id="output-title" class="display-5">Output</h3>
+				<h5 class="subtitle text-secondary">PFun generated information</h5>
+				<div id="output-container"
+					class="container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body">
+					<div id="responses-container" class="grid flex container">
+						<ul class="list-group">
+							<div id="formatted-response-container" class="list-group-item">
+								<p class="h-5 text-center text-bg-primary fw-bolder rounded">Recommendations</p>
+								<dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
+							</div>
+							<div id="raw-response-container" class="list-group-item">
+								<p class="h-5 text-center text-bg-info fw-bolder rounded">Raw output</p>
+								<pre id="response-output" class="text-wrap text-bg-body"></pre>
+							</div>
+					</div>
+				</div>
+
+			</div><!-- /end accordion -->
 		</div>
-	      </div>
-	    </form>
-	  </div>
-	  
-	  <h3 id="output-title" class="display-5">Output</h3>
-	  <h5 class="subtitle text-secondary">PFun generated information</h5>
-	  <div id="output-container"
-	       class="container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body"
-	       >
-	       <div id="responses-container" class="grid flex container">
-		 <ul class="list-group">
-		   <div id="formatted-response-container" class="list-group-item">
-		     <p class="h-5 text-center text-bg-primary fw-bolder rounded">Recommendations</p>
-		     <dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
-		   </div>
-		   <div id="raw-response-container" class="list-group-item">
-		     <p class="h-5 text-center text-bg-info fw-bolder rounded">Raw output</p>
-		     <pre id="response-output" class="text-wrap text-bg-body"></pre>
-		   </div>
-	       </div>
-	  </div>
-
-	</div><!-- /end accordion -->
-      </div>
-      <!-- llm prompt interaction -->
-      <script type="module" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}" crossorigin="anonymous"></script>
-    {% endblock content %}
-  </div>
+		<!-- llm prompt interaction -->
+		<script type="module" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}"
+			crossorigin="anonymous"></script>
+		{% endblock content %}
+	</div>
 </body>
+
 </html>

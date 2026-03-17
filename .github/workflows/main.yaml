@@ -15,13 +15,4 @@ jobs:
         uses: astral-sh/setup-uv@v7
       
       - name: Run Tests
-        run: ./scripts/uv-full-sync.sh && uv run pytest --junit-xml=junit.xml -o junit_family=xunit1
-
-      - name: Upload Test Results to Trunk.io
-        if: ${{ !cancelled() }} # Upload the results even if the tests fail
-        continue-on-error: true # don't fail this job if the upload fails
-        uses: trunk-io/analytics-uploader@main
-        with:
-          junit-paths: "**/*.xml"
-          org-slug: pfun-digital-health
-          token: ${{ secrets.TRUNK_API_TOKEN }}
+        run: ./scripts/uv-full-sync.sh && ./scripts/run-tests.sh

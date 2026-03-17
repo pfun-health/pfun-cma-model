@@ -8,6 +8,31 @@ import pandas as pd
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 
+def process_kwds(ctx, param, value):
+    """Process the keyword arguments passed to the CLI commands
+
+    Used by CLI commands: fit_model, run_param_grid.
+    """
+    if param.name not in ["opts"]:
+        click.secho(
+            f"Unexpected parameter '{param.name}' in process_kwds callback. Expected 'opts' or 'extra_args'.",
+            fg="yellow",
+            bold=False,
+        )
+        return value
+    value = list(value)
+    # NOTE: Intentionally not using enumerate (to avoid mutability issues with tuples)
+    for i in range(len(value)):  # pylint: disable=consider-using-enumerate
+        value[i] = list(value[i])
+        if value[i][1].isnumeric():
+            try:
+                new = int(value[i][1])
+            except ValueError:
+                new = float(value[i][1])
+            value[i][1] = new
+    return value
+
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -23,39 +48,45 @@ def cli(ctx):
     ctx.obj["output_dir"] = os.path.abspath(os.path.join(pph.get_lib_path("pfun_cma_model"), "../results"))
 
 
-@cli.command(
-    context_settings=dict(
-        ignore_unknown_options=True,
-    )
-)
+def process_extra_args(ctx, param, value):
+    """Process the extra arguments passed to the 'launch' CLI command."""
+    if param.name != "extra_args":
+        click.secho(
+            f"Unexpected parameter '{param.name}' in process_extra_args callback. Expected 'extra_args'.",
+            fg="yellow",
+            bold=False,
+        )
+        return value
+    keys = []
+    for arg in value:
+        if arg.startswith("--"):
+            keys.append(arg.lstrip("-").replace("-", "_"))
+    values = []
+    for i in range(len(value)):
+        if value[i].startswith("--"):
+            if i + 1 < len(value) and not value[i + 1].startswith("--"):
+                values.append(value[i + 1])
+            else:
+                values.append("true")  # handle flags without values
+    kwds = dict(zip(keys, values))
+    return kwds
+
+@cli.command(context_settings=dict(ignore_unknown_options=True))
 @click.option("--host", default="0.0.0.0", help="Host to run the application on.")
 @click.option("--port", default=8001, help="Port to run the application on.")
 @click.option("--reload", is_flag=True, default=False, help="Enable auto-reload for development.")
-@click.argument("args", nargs=-1, type=click.UNPROCESSED)
+@click.argument("extra_args", required=False, type=click.UNPROCESSED, callback=process_extra_args, nargs=-1)
 @click.pass_context
-def launch(ctx, host, port, reload, args):
+def launch(ctx, host, port, reload, extra_args):
     """Launch the application.
 
-    Any additional arguments (ARGS) are passed through to the application.
+    Additional arguments to pass to the application (e.g. '--ssl-certfile
+        certs/example.crt --ssl-keyfile certs/example.key').
+    These will be passed through to the underlying server (i.e., uvicorn) when launching the app.
     """
     from pfun_cma_model.main import run_app
 
-    run_app(host, port, reload=reload, debug=True, extra_args=list(args))
-
-
-def process_kwds(ctx, param, value):
-    if param.name != "opts":
-        return value
-    value = list(value)
-    for i in range(len(value)):
-        value[i] = list(value[i])
-        if value[i][1].isnumeric():
-            try:
-                new = int(value[i][1])
-            except ValueError:
-                new = float(value[i][1])
-            value[i][1] = new
-    return value
+    run_app(host, port, reload=reload, debug=True, extra_args=extra_args)
 
 
 fit_result_global = None
