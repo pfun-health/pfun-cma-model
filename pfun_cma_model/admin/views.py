@@ -1,5 +1,6 @@
 import logging
 import os
+from jose import jwt
 from sqladmin import BaseView, ModelView, action, expose
 from sqladmin.filters import (
     BooleanFilter,
@@ -12,8 +13,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import func, select
 from wtforms.fields import PasswordField
 from wtforms.validators import InputRequired, EqualTo
+from packages.pfun_common.pfun_common.settings import get_settings
 from pfun_cma_model.admin.models import *
-from pfun_cma_model.admin.core import Base, engine, Session, pwd_context
+from pfun_cma_model.admin.core import ALGORITHM, Base, engine, Session, pwd_context
+from jose.exceptions import JWTError, ExpiredSignatureError
 
 __all__ = ["UserAdmin", "ReportView"]
 
@@ -98,9 +101,20 @@ class UserAdmin(ModelView, model=User):
     # --- Permissions ---
     def is_accessible(self, request: Request) -> bool:
         """Check if the current user is authenticated and has access to the admin interface."""
+        # Check if the user is authenticated by verifying the JWT token in the session
         token = request.session.get("token")
         if not token:
             logging.warning("No authentication token found in session. Session data: %s", str(request.session))
+            return False
+        try:
+            claims = jwt.decode(token, key=get_settings().secret_key, algorithms=[ALGORITHM])
+            logging.debug("Decoded JWT claims: %s", claims)
+            # Optionally, you can also check for specific claims like user category or permissions here
+        except ExpiredSignatureError:
+            logging.warning("Authentication token has expired. Session data: %s", str(request.session))
+            return False
+        except JWTError as error:
+            logging.warning("Invalid authentication token. Session data: %s. Error: %s", str(request.session), str(error))
             return False
         return True
 

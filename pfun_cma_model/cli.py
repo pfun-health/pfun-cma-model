@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import click
 import pandas as pd
+from pfun_common.settings import get_settings
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 
@@ -72,8 +73,8 @@ def process_extra_args(ctx, param, value):
     return kwds
 
 @cli.command(context_settings=dict(ignore_unknown_options=True))
-@click.option("--host", default="0.0.0.0", help="Host to run the application on.")
-@click.option("--port", default=8001, help="Port to run the application on.")
+@click.option("--host", default=get_settings().server_host, help="Host to run the application on.")
+@click.option("--port", default=get_settings().server_port, help="Port to run the application on.")
 @click.option("--reload", is_flag=True, default=False, help="Enable auto-reload for development.")
 @click.argument("extra_args", required=False, type=click.UNPROCESSED, callback=process_extra_args, nargs=-1)
 @click.pass_context
@@ -265,7 +266,7 @@ def run_param_grid(ctx, n, m, params):
     if not os.path.exists(ctx.obj["output_dir"]):
         os.makedirs(ctx.obj["output_dir"])
     # create the parameter grid
-    from pfun_cma_model.engine.grid import PFunCMAParamsGrid
+    from pfun_cma_model.engine.grid import PFunCMAParamsGrid, get_cma_grid_db_path
 
     pkeys_included = params
     import logging
@@ -290,7 +291,7 @@ def run_param_grid(ctx, n, m, params):
     # save to duckdb database
     from pfun_cma_model.db import save2duckdb
 
-    db_fpath = str(get_db_path())
+    db_fpath = str(get_cma_grid_db_path())
     table_id = "cma_pgrid"
     save2duckdb(df_grid, db_path=db_fpath, table_id=table_id)
     click.secho(f"...done (saved to '{db_fpath}').", fg="green", bold=True)

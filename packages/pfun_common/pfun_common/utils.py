@@ -18,7 +18,7 @@ def setup_logging(**kwargs) -> logging.Logger:
     """Setup the logger according to settings."""
     from pfun_common.settings import get_settings  # type: ignore
     debug_mode: bool = kwargs.get("debug", get_settings().debug)
-    logger = logging.getLogger(name=kwargs.get("name", None))
+    logger = logging.getLogger(name=kwargs.get("name", __name__))
     logger.setLevel(level=logging.DEBUG if debug_mode else logging.INFO)
     return logger
 

@@ -1,7 +1,7 @@
 import logging
 
 # initialize logger
-logger = logging.getLogger("pfun_cma_model")
+logger = logging.getLogger("pfun_cma_model.misc.pathdefs")
 logger.setLevel(level=logging.INFO)
 import os
 from dataclasses import dataclass

@@ -56,7 +56,7 @@ pwd_context = setup_pwd_context()
 
 
 async def get_user(db, username: str) -> None | Any:
-    """retrieve the user from the database."""
+    """Retrieve the user from the database."""
     from pfun_cma_model.admin.models import User
 
     user = None
@@ -67,25 +67,29 @@ async def get_user(db, username: str) -> None | Any:
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """Create a JWT access token with the provided data and expiration time."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, get_settings().secret_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def verify_password(plain_password, hashed_password):
+    """Verify the provided plain password against the hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
+    """Hash the password using the password context."""
     return pwd_context.hash(password)
 
 
 async def authenticate_user(db, username: str, password: str):
+    """Authenticate the user by verifying the provided username and password against the database."""
     user = await get_user(db, username)
     if not user:
         verify_password(password, "notavalidpasswordatall")  # to update the state of the crypt context
@@ -100,6 +104,9 @@ async def get_logged_user(cookie: str = Security(APIKeyCookie(name="token"))) ->
     """Get user's JWT stored in cookie 'token', parse it and return the user's OpenID.
 
     This function can be used as a dependency in your admin views to get the **currently logged-in user.**
+    
+    NOTE: Used by fastapi-sso to get the logged-in user from the JWT token stored in the cookie.
+        The JWT token is created in the `login` method of the `AdminAuth` class in `auth.py`.
     """
     try:
         claims = jwt.decode(cookie, key=get_settings().secret_key, algorithms=[ALGORITHM])

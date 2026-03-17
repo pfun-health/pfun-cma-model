@@ -44,7 +44,7 @@ debug_mode: bool = get_settings().debug
 
 # --- Setup app Lifespan events ---
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.DEBUG if debug_mode is True else logging.INFO)
 #: globally accessible logger (with appropriate logging level)
 
@@ -112,22 +112,29 @@ async def lifespan(app: FastAPI):
 
 # --- Instantiate FastAPI app ---
 
+def generate_server_info() -> list[dict[str, str]]:
+    """Generate server info for relevant environment(s)."""
+    server_info = [
+        {
+        "url": f"{get_settings().production_server_url}",
+        "description": "production server.",
+        },
+        {
+            "url": f"{get_settings().server_scheme}://{get_settings().server_host}:{get_settings().server_port}",
+            "description": "(sans-SSL) development server.",
+        },
+        {
+            "url": f"https://{get_settings().ssl_server_host}",
+            "description": "(SSL-ready) development server.",
+        }
+    ]
+    return server_info
+        
+
 app = FastAPI(
     app_name="PFun CMA Model Backend",
     lifespan=lifespan,
-    servers=[
-        (
-            {
-                "url": "https://cloud.tail38611b.ts.net",
-                "description": "tailscale-funnel for pfun demos.",
-            }
-            if not debug_mode
-            else {
-                "url": f"{get_settings().server_scheme}://{get_settings().server_host}:{get_settings().server_port}",
-                "description": "Local development server.",
-            }
-        ),
-    ],
+    servers=generate_server_info(),
 )
 
 # --- Application Configuration ---

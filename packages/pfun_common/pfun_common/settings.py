@@ -41,6 +41,12 @@ class Settings(BaseSettings):
 
     server_port: str | int = "8001"
     #: The port for the server to listen on. Can also be set via the SERVER_PORT environment variable.
+    
+    production_server_url: str = "https://cloud.tail38611b.ts.net"
+    #: The public URL for the production server (e.g. for constructing redirect URIs). Can also be set via the PRODUCTION_SERVER_URL environment variable.
+    
+    ssl_server_host: str = "cloud.tail38611b.ts.net"
+    #: The host for the SSL server (e.g. for constructing redirect URIs). Can also be set via the SSL_SERVER_HOST environment variable.
 
     redis_user: str = "default"
     #: The username for Redis authentication. Can also be set via the REDIS_USER environment variable.
@@ -78,6 +84,13 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="allow",
     )
+    
+    @field_validator("server_port", "redis_port", mode="before")
+    @classmethod
+    def convert_port_to_int(cls, v: str | int) -> int:
+        if isinstance(v, str):
+            return int(v)
+        return v
 
     @field_validator("redis_connection_string", mode="after")
     @classmethod

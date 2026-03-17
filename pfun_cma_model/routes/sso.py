@@ -1,3 +1,8 @@
+"""This module defines the routes related to Single Sign-On (SSO) authentication, e.g. using Google SSO.
+"""
+import logging
+
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import datetime
@@ -5,29 +10,38 @@ from fastapi_sso import OpenID
 import jwt
 from contextlib import asynccontextmanager
 from pfun_cma_model.admin.sso import setup_google_sso
-from pfun_cma_model.admin.core import get_logged_user
+from pfun_cma_model.admin.core import (
+    get_logged_user, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+)
 from pfun_common.settings import get_settings
 
+logger.setLevel(level=logging.DEBUG if get_settings().debug is True else logging.INFO)
+
+# This module defines the routes related to Single Sign-On (SSO) authentication, e.g. using Google SSO.
+
+# Global SSO backend instance, initialized in the lifespan function below
+sso = None
 
 @asynccontextmanager
 async def lifespan(router: APIRouter):
     """Lifespan function to setup the Google SSO backend when the application starts."""
     global sso
-    settings = get_settings()
-    server_url = f"{settings.server_scheme}://{settings.server_host}:{settings.server_port}"
     sso = setup_google_sso(
-        redirect_host=server_url, redirect_path="/auth/callback"
+        redirect_host=get_settings().ssl_server_host,
+        redirect_path="/sso/auth/callback"
     )
     yield  # This allows the application to run until it is shutdown
 
 
+#: The APIRouter for SSO routes, with a lifespan function to setup the SSO backend when the application starts.
 router = APIRouter(lifespan=lifespan)
 
 
 @router.get("/protected")
-async def protected_endpoint(user: OpenID = Depends(get_logged_user)):
+async def protected_endpoint(request: Request, user=Depends(get_logged_user)):
     """This endpoint will say hello to the logged user.
     If the user is not logged, it will return a 401 error from `get_logged_user`."""
+    logging.debug("Accessing protected endpoint. User: %s", user.email if user else "None")
     return {
         "message": f"You are very welcome, {user.email}!",
     }
@@ -36,14 +50,17 @@ async def protected_endpoint(user: OpenID = Depends(get_logged_user)):
 @router.get("/auth/login")
 async def login():
     """Redirect the user to the Google login page."""
+    global sso
+    if sso is None:
+        raise HTTPException(status_code=500, detail="SSO backend not initialized")
     async with sso:
         return await sso.get_login_redirect()
 
 
 @router.get("/auth/logout")
-async def logout():
+async def logout(request: Request):
     """Forget the user's session."""
-    response = RedirectResponse(url="/protected")
+    response = RedirectResponse(url=request.base_url)  # Redirect to home page after logout
     response.delete_cookie(key="token")
     return response
 
@@ -59,15 +76,17 @@ async def login_callback(request: Request):
 
     # Create a JWT with the user's OpenID
     expiration = datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(
-        days=1
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
     token = jwt.encode(
         {"pld": openid.model_dump(), "exp": expiration, "sub": openid.id},
         key=get_settings().secret_key,
-        algorithm="HS256",
+        algorithm=ALGORITHM,
     )
-    response = RedirectResponse(url="/protected")
+    request.session.update({"token": token})  # Store the token in the session for future authentication
+    response = RedirectResponse(url=get_settings().production_server_url + "/sso/protected")  # Redirect to protected endpoint after login
     response.set_cookie(
         key="token", value=token, expires=expiration
     )  # This cookie will make sure /protected knows the user
+    logging.debug("Login successful for user: %s. Redirecting to protected endpoint.", openid.email)
     return response

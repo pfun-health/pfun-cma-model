@@ -265,8 +265,9 @@ def setup_security_config() -> SecurityConfig:
         # CORS Configuration (works alongside security headers)
         enable_cors=True,
         cors_allow_origins=[
-            "http://localhost:8001",
-            "https://cloud.tail38611b.ts.net",
+            "https://localhost:8001",
+            get_settings().production_server_url,
+            f"https://{get_settings().ssl_server_host}",
             "https://pfun.one",
             "https://pfun.app",
             "https://pfun.run",

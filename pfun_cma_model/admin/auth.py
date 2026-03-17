@@ -1,7 +1,9 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Optional
+from fastapi_sso import OpenID
 from typing_extensions import Annotated
-from fastapi import Security, Depends
+from fastapi import HTTPException, Security, Depends
 from fastapi.security import APIKeyCookie
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
@@ -23,12 +25,26 @@ from pfun_cma_model.admin.models import User
 class AdminAuth(AuthenticationBackend):
     """Custom authentication backend for sqladmin using username/password credentials."""
 
-    async def login(self, request: Request) -> bool:
+    async def login(
+        self,
+        request: Request,
+        cookie: Optional[str] = Security(APIKeyCookie(name="token", auto_error=False)),
+    ) -> bool:
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
         category = "admin" if form.get("is_admin") else "user"
         if not username or not password:
+            # Check instead for SSO-based authentication (e.g. Google SSO) by looking for the JWT token in the session
+            if cookie is None:
+                logging.warning("No authentication token found in session. Session data: %s", str(request.session))
+                return False
+            try:
+                claims = jwt.decode(cookie, key=get_settings().secret_key, algorithms=[ALGORITHM])
+                return OpenID(**claims["pld"])
+            except Exception as error:
+                logging.error("Error occurred while decoding JWT token: %s", error)
+                raise HTTPException(status_code=401, detail="Invalid authentication credentials") from logging.error
             return False
 
         # Validate username/password credentials
@@ -76,7 +92,7 @@ class AdminAuth(AuthenticationBackend):
             result = await db_session.execute(select(User).where(User.id == request.session.get("uid")))
             user = result.scalars().first()
             if not user:
-                logging.debug("User not found in session. Session data: %s", str(request.session))
+                logging.warning("User not found in session. Session data: %s", str(request.session))
                 return False
 
         # Verify the decoded token contains expected username(or email), plus user category
@@ -87,11 +103,11 @@ class AdminAuth(AuthenticationBackend):
         )
         usn = decoded_token.get("usn")
         if not (usn in (user.name, user.email)):
-            logging.debug("Username/email in token does not match user in session. Token usn: %s, User name: %s, User email: %s", usn, user.name, user.email)
+            logging.warning("Username/email in token does not match user in session. Token usn: %s, User name: %s, User email: %s", usn, user.name, user.email)
             return False
         user_category = "admin" if user.is_admin else "user"
         if not (decoded_token.get("category") == user_category):
-            logging.debug("User category mismatch in token. Expected: %s, Found: %s", user_category, decoded_token.get("category"))
+            logging.warning("User category mismatch in token. Expected: %s, Found: %s", user_category, decoded_token.get("category"))
             return False
 
         return True
