@@ -1,32 +1,13 @@
 {% extends "sqladmin/base.html" %}
+{% from "../macros/common.html" import google_login_button_html %}
+
 {% block body %}
 <div class="d-flex align-items-center justify-content-center vh-100">
   <form class="Fcol-lg-6 col-md-6 card card-md" action="{{ url_for('admin:login') }}" method="POST" autocomplete="off">
     <div class="card-body">
       <h2 class="card-title text-center mb-4">Login to {{ admin.title }}</h2>
       <div class="mb-3">
-        <label class="form-label">Username</label>
-        {% if error %}
-        <input name="username" type="text" class="form-control is-invalid" placeholder="Enter username"
-          autocomplete="off">
-        <div class="invalid-feedback">{{ error }}</div>
-        {% else %}
-        <input name="username" type="text" class="form-control" placeholder="Enter username" autocomplete="off">
-        {% endif %}
-      </div>
-      <div class="mb-2">
-        <label class="form-label">
-          Password
-        </label>
-        <div class="input-group input-group-flat">
-          {% if error %}
-          <input name="password" type="password" class="form-control is-invalid" placeholder="Password"
-            autocomplete="off">
-          <div class="invalid-feedback">{{ error }}</div>
-          {% else %}
-          <input name="password" type="password" class="form-control" placeholder="Password" autocomplete="off">
-          {% endif %}
-        </div>
+        {{ google_login_button_html(google_client_id, google_login_uri) }}
       </div>
       <div class="form-footer">
         <div class="btn-group flex-wrap" data-toggle="buttons">

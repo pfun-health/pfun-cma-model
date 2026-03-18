@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Any
 from datetime import timedelta, datetime, timezone
+from dataclasses import dataclass
 from sqlalchemy import select
 import jwt
 from passlib.context import CryptContext
@@ -18,8 +19,14 @@ from pfun_common.settings import get_settings
 from pfun_cma_model.misc.pathdefs import PFunDataPaths
 
 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+@dataclass
+class CryptContextDefaults:
+    """Default settings for the password hashing context."""
+
+    schemes = ["bcrypt"]
+    deprecated = "auto"
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def setup_admin_backend() -> tuple[Any, AsyncEngine, Any]:
@@ -44,7 +51,9 @@ def setup_pwd_context() -> CryptContext:
 
     # Initialize password context for hashing and verifying passwords
     local_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    local_pwd_context.load_path(os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini"))
+    local_pwd_context.load_path(
+        os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
+    )
     return local_pwd_context
 
 
@@ -61,7 +70,9 @@ async def get_user(db, username: str) -> None | Any:
 
     user = None
     async with Session() as db_session:  # type: ignore
-        result = await db_session.execute(select(User).where((User.name == username) | (User.email == username)))
+        result = await db_session.execute(
+            select(User).where((User.name == username) | (User.email == username))
+        )
         user = result.scalars().first()
     return user
 
@@ -72,9 +83,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=CryptContextDefaults.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, get_settings().secret_key, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, get_settings().secret_key, algorithm=CryptContextDefaults.ALGORITHM
+    )
     return encoded_jwt
 
 
@@ -92,7 +107,9 @@ async def authenticate_user(db, username: str, password: str):
     """Authenticate the user by verifying the provided username and password against the database."""
     user = await get_user(db, username)
     if not user:
-        verify_password(password, "notavalidpasswordatall")  # to update the state of the crypt context
+        verify_password(
+            password, "notavalidpasswordatall"
+        )  # to update the state of the crypt context
         return False
     if not verify_password(password, user.hashed_password):
         logging.debug("Failed login attempt for username/email: %s", username)
@@ -100,16 +117,22 @@ async def authenticate_user(db, username: str, password: str):
     return user
 
 
-async def get_logged_user(cookie: str | bytes = Security(APIKeyCookie(name="token"))) -> OpenID:
+async def get_logged_user(
+    cookie: str | bytes = Security(APIKeyCookie(name="token")),
+) -> OpenID:
     """Get user's JWT stored in cookie 'token', parse it and return the user's OpenID.
 
     This function can be used as a dependency in your admin views to get the **currently logged-in user.**
-    
-    NOTE: Used by fastapi-sso to get the logged-in user from the JWT token stored in the cookie.
+
+    NOTE: (for authorization) Used by fastapi-sso to get the logged-in user from the JWT token stored in the cookie.
         The JWT token is created in the `login` method of the `AdminAuth` class in `auth.py`.
     """
     try:
-        claims = jwt.decode(cookie, key=get_settings().secret_key, algorithms=[ALGORITHM])
+        claims = jwt.decode(
+            cookie, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
+        )
         return OpenID(**claims["pld"])
     except Exception as error:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials") from error
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication credentials"
+        ) from error
