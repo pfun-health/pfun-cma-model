@@ -15,7 +15,7 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 A few pithy one-liners:
 
-- _"Implements circadian phase analysis to readily compress weeks', months', or years'-worth of data into a compact, useful JSON record array that plays well with ECMAScript."
+- "It includes a well-validated (on ~30million rows of CGM data) implementation of phase portrait analysis of CG data; compress weeks', months', or years'-worth of data into a compact, useful JSON record array that plays well with ECMAScript.\_"
 - _"It provides a way to understand neuroendocrine dynamics qualitatively & quantitatively."_
 - _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
 
