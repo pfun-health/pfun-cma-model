@@ -28,7 +28,10 @@
     ports = [
       "8001:8001/tcp"
     ];
-    cmd = [ "uv" "run" "uvicorn" "pfun_cma_model.app:app" "--proxy-headers" "--host" "0.0.0.0" "--port" "8001" "--workers" "1" ];
+    cmd = [ "uv" "run" "uvicorn" "pfun_cma_model.app:app" "--proxy-headers" "--host" "0.0.0.0" "--port" "8001" "--workers" "2" ];
+    dependsOn = [
+      "pfun-cma-model-redis"
+    ];
     user = "nonroot:nonroot";
     log-driver = "journald";
     extraOptions = [
@@ -53,109 +56,38 @@
       "podman-compose-pfun-cma-model-root.target"
     ];
   };
-  virtualisation.oci-containers.containers."pfun-gradio" = {
-    image = "localhost/compose2nix/pfun-gradio";
+  virtualisation.oci-containers.containers."pfun-cma-model-redis" = {
+    image = "redis:7-alpine";
     environmentFiles = [
       "/home/robbiec/Git/pfun-cma-model/.env"
     ];
-    ports = [
-      "7860:7860/tcp"
+    volumes = [
+      "pfun-cma-model_redis-data:/data:rw"
     ];
-    cmd = [ "uv" "run" "uvicorn" "pfun_gradio.main:app" "--proxy-headers" "--host" "0.0.0.0" "--port" "7860" "--workers" "1" ];
-    user = "nonroot:nonroot";
+    cmd = [ "redis-server" "--save" "60" "1" "--loglevel" "warning" "--maxmemory" "128mb" "--maxmemory-policy" "allkeys-lru" ];
     log-driver = "journald";
     extraOptions = [
-      "--network-alias=pfun-gradio"
+      "--cpus=0.5"
+      "--health-cmd=[\"redis-cli\", \"ping\"]"
+      "--health-interval=10s"
+      "--health-retries=3"
+      "--health-timeout=5s"
+      "--memory=268435456b"
+      "--network-alias=redis"
       "--network=pfun-cma-model_pfun-cma-network"
     ];
   };
-  systemd.services."podman-pfun-gradio" = {
+  systemd.services."podman-pfun-cma-model-redis" = {
     serviceConfig = {
       Restart = lib.mkOverride 90 "always";
     };
     after = [
       "podman-network-pfun-cma-model_pfun-cma-network.service"
+      "podman-volume-pfun-cma-model_redis-data.service"
     ];
     requires = [
       "podman-network-pfun-cma-model_pfun-cma-network.service"
-    ];
-    partOf = [
-      "podman-compose-pfun-cma-model-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-pfun-cma-model-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."ts-pfun" = {
-    image = "pfun-health/tailscale-sidecar:latest";
-    environmentFiles = [
-      "/home/robbiec/Git/pfun-cma-model/.env"
-    ];
-    volumes = [
-      "/dev/net/tun:/dev/net/tun:rw"
-      "pfun-cma-model_ts-nginx-certs:/certs:rw"
-      "pfun-cma-model_ts-nginx-state:/var/lib/tailscale:rw"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--cap-add=net_admin"
-      "--cap-add=sys_module"
-      "--hostname=pfun"
-      "--network-alias=ts-nginx"
-      "--network=pfun-cma-model_default"
-    ];
-  };
-  systemd.services."podman-ts-pfun" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 90 "always";
-    };
-    after = [
-      "podman-network-pfun-cma-model_default.service"
-      "podman-volume-pfun-cma-model_ts-nginx-certs.service"
-      "podman-volume-pfun-cma-model_ts-nginx-state.service"
-    ];
-    requires = [
-      "podman-network-pfun-cma-model_default.service"
-      "podman-volume-pfun-cma-model_ts-nginx-certs.service"
-      "podman-volume-pfun-cma-model_ts-nginx-state.service"
-    ];
-    partOf = [
-      "podman-compose-pfun-cma-model-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-pfun-cma-model-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."ts-pfun-nginx" = {
-    image = "nginx:1.29-trixie";
-    environmentFiles = [
-      "/home/robbiec/Git/pfun-cma-model/.env"
-    ];
-    volumes = [
-      "/home/robbiec/Git/pfun-cma-model/nginx/html/index.html:/etc/nginx/html/index.html:ro"
-      "/home/robbiec/Git/pfun-cma-model/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
-      "pfun-cma-model_ts-nginx-certs:/certs:rw"
-    ];
-    dependsOn = [
-      "pfun-cma-model"
-      "pfun-gradio"
-      "ts-pfun"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--entrypoint=[\"sh\", \"-c\", \"envsubst < /etc/nginx/nginx.conf && nginx -g 'daemon off;'\"]"
-      "--network=container:ts-pfun"
-    ];
-  };
-  systemd.services."podman-ts-pfun-nginx" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 90 "always";
-    };
-    after = [
-      "podman-volume-pfun-cma-model_ts-nginx-certs.service"
-    ];
-    requires = [
-      "podman-volume-pfun-cma-model_ts-nginx-certs.service"
+      "podman-volume-pfun-cma-model_redis-data.service"
     ];
     partOf = [
       "podman-compose-pfun-cma-model-root.target"
@@ -166,19 +98,6 @@
   };
 
   # Networks
-  systemd.services."podman-network-pfun-cma-model_default" = {
-    path = [ pkgs.podman ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStop = "podman network rm -f pfun-cma-model_default";
-    };
-    script = ''
-      podman network inspect pfun-cma-model_default || podman network create pfun-cma-model_default
-    '';
-    partOf = [ "podman-compose-pfun-cma-model-root.target" ];
-    wantedBy = [ "podman-compose-pfun-cma-model-root.target" ];
-  };
   systemd.services."podman-network-pfun-cma-model_pfun-cma-network" = {
     path = [ pkgs.podman ];
     serviceConfig = {
@@ -187,33 +106,21 @@
       ExecStop = "podman network rm -f pfun-cma-model_pfun-cma-network";
     };
     script = ''
-      podman network inspect pfun-cma-model_pfun-cma-network || podman network create pfun-cma-model_pfun-cma-network --driver=bridge
+      podman network inspect pfun-cma-model_pfun-cma-network || podman network create pfun-cma-model_pfun-cma-network --driver=bridge --subnet=172.20.0.0/16 --gateway=172.20.0.1
     '';
     partOf = [ "podman-compose-pfun-cma-model-root.target" ];
     wantedBy = [ "podman-compose-pfun-cma-model-root.target" ];
   };
 
   # Volumes
-  systemd.services."podman-volume-pfun-cma-model_ts-nginx-certs" = {
+  systemd.services."podman-volume-pfun-cma-model_redis-data" = {
     path = [ pkgs.podman ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
     };
     script = ''
-      podman volume inspect pfun-cma-model_ts-nginx-certs || podman volume create pfun-cma-model_ts-nginx-certs
-    '';
-    partOf = [ "podman-compose-pfun-cma-model-root.target" ];
-    wantedBy = [ "podman-compose-pfun-cma-model-root.target" ];
-  };
-  systemd.services."podman-volume-pfun-cma-model_ts-nginx-state" = {
-    path = [ pkgs.podman ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-    script = ''
-      podman volume inspect pfun-cma-model_ts-nginx-state || podman volume create pfun-cma-model_ts-nginx-state
+      podman volume inspect pfun-cma-model_redis-data || podman volume create pfun-cma-model_redis-data
     '';
     partOf = [ "podman-compose-pfun-cma-model-root.target" ];
     wantedBy = [ "podman-compose-pfun-cma-model-root.target" ];
@@ -229,17 +136,6 @@
     script = ''
       cd /home/robbiec/Git/pfun-cma-model
       podman build -t compose2nix/pfun-cma-model .
-    '';
-  };
-  systemd.services."podman-build-pfun-gradio" = {
-    path = [ pkgs.podman pkgs.git ];
-    serviceConfig = {
-      Type = "oneshot";
-      TimeoutSec = 300;
-    };
-    script = ''
-      cd /home/robbiec/Git/pfun-cma-model
-      podman build -t compose2nix/pfun-gradio -f ./pfun_gradio/Dockerfile .
     '';
   };
 

@@ -8,25 +8,26 @@ const showLoadingContainer = async () => {
 const showAlerts = async () => {
     const error_msg = "Whoops! The server is busy right now."
     "\nRetrying your request... Please wait.";
+    const timeTillHide = 4500; // time in ms until the toast should hide
     const errToast = $.toast({
 	heading: 'Error',
 	text: `${error_msg}`,
 	showHideTransition: 'fade',
 	icon: 'error',
-	hideAfter: 6000,
+	hideAfter: timeTillHide,
 	stack: true,
     });
     setTimeout(() => {
 	errToast.update({
 	    heading: 'Trying again...',
 	    text: 'Attempting your request again... Please wait.',
-	    hideAfter: 6000,
+	    hideAfter: timeTillHide,
 	});
 	setTimeout(async () => {
 	    // try the request again.
 	    await onFormSubmit();
-	}, 5000);
-    }, 6500);
+	}, timeTillHide + 500); // add a little buffer time after the toast hides to try the request again
+    }, timeTillHide + 1230);``
 };
     
 const onFormSubmit = async (event) => {

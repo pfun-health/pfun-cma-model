@@ -22,6 +22,7 @@ from guard import SecurityConfig, SecurityMiddleware
 from guard.decorators import SecurityDecorator
 from guard.handlers.behavior_handler import BehaviorRule
 from pfun_common.settings import get_settings
+from pfun_common.utils import setup_logging
 
 # TODO: Uncomment this when IPInfoManager is implemented
 # from guard.handlers.ipinfo_handler import IPInfoManager
@@ -34,6 +35,8 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+setup_logging(debug=get_settings().debug)
+
 
 # Note: FastAPI Guard automatically sets up its own logging via the middleware
 # with console output always enabled and optional file logging based on config
@@ -279,9 +282,9 @@ def setup_security_config() -> SecurityConfig:
         cors_max_age=3600,
         # Logging Configuration
         # Console output is always enabled. File logging is optional.
-        log_request_level="INFO",  # Or None to disable request logging
+        log_request_level="WARNING",  # Or None to disable request logging
         log_suspicious_level="WARNING",
-        custom_log_file="security.log",  # Or remove/set to None for console-only output
+        custom_log_file="logs/security.log",  # Or remove/set to None for console-only output
         # Excluded Paths
         exclude_paths=[
             "/docs",

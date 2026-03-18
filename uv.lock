@@ -1674,6 +1674,7 @@ dev = [
     { name = "httpx" },
     { name = "mkdocs" },
     { name = "openapi-generator-cli", extra = ["jdk4py"] },
+    { name = "pyperformance" },
 ]
 google = [
     { name = "google" },
@@ -1756,6 +1757,7 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.18.0" },
+    { name = "pyperformance", specifier = ">=1.14.0" },
 ]
 google = [
     { name = "google", specifier = "==3.0.0" },
@@ -2033,6 +2035,31 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/33/c1/1d9de9aeaa1b89b0186e5fe23294ff6517fce1bc69149185577cd31016b2/pyparsing-3.3.1.tar.gz", hash = "sha256:47fad0f17ac1e2cad3de3b458570fbc9b03560aa029ed5e16ee5554da9a2251c", size = 1550512, upload-time = "2025-12-23T03:14:04.391Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/40/2614036cdd416452f5bf98ec037f38a1afb17f327cb8e6b652d4729e0af8/pyparsing-3.3.1-py3-none-any.whl", hash = "sha256:023b5e7e5520ad96642e2c6db4cb683d3970bd640cdf7115049a6e9c3682df82", size = 121793, upload-time = "2025-12-23T03:14:02.103Z" },
+]
+
+[[package]]
+name = "pyperf"
+version = "2.10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "psutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/16/91/39ca77aa58f13e8c65d747ac7e06584b55acabfa98987fb8d546bc24860d/pyperf-2.10.0.tar.gz", hash = "sha256:dd93ccfda79214725293e95f1fa6e00cb4a64adcf1326039486d4e1f91caaa62", size = 227609, upload-time = "2026-02-07T11:35:14.693Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/26/f7bd5e37c254c2671f4dfff316d123eba13663bdfee941a01b09ab02d72d/pyperf-2.10.0-py3-none-any.whl", hash = "sha256:79196bc4a11e3c926dd4c6b14c80136c6b37f884fe913cbc57037f37636e9841", size = 144430, upload-time = "2026-02-07T11:35:12.636Z" },
+]
+
+[[package]]
+name = "pyperformance"
+version = "1.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "pyperf" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/bc/ebc48f2af24abe0d13681ac7ccb21c3f0ed0128361522f5904d4f21953e9/pyperformance-1.14.0.tar.gz", hash = "sha256:91f74393997b604375ad5b79bf569a24076d70181c076a53abad5383a238a8aa", size = 8796350, upload-time = "2026-02-07T12:11:26.084Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/39/fc/793a5bf51635d90151c7a4c5ca8aad3fb5eef910321f7bad307314c4a857/pyperformance-1.14.0-py3-none-any.whl", hash = "sha256:94068ac2935b6952ccb5e8a302eb9cebc26e82454494bef6e53822738adf0049", size = 9060908, upload-time = "2026-02-07T12:11:22.948Z" },
 ]
 
 [[package]]

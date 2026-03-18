@@ -1,6 +1,9 @@
 services:
 
   pfun-cma-model:
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     build:
       context: .
@@ -28,8 +31,31 @@ services:
         "--port",
         "8001",
         "--workers",
-        "1"
+        "2"
       ]
+
+  redis:
+    env_file: .env
+    image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - pfun-cma-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+volumes:
+  redis-data:
 
 # Define networks at the root level
 networks:
