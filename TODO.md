@@ -90,3 +90,30 @@ TODO for `pfun-cma-model`
   + Use OpenRLHF for LLM safeguard experiments
 
 <img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" alt="openrlhf-arch.png" />  
+
+---
+
+## Notes
+
+### (_First Draft_) Project goals
+
+#### Short-term dev goals (~30 days)
+
+- Decided to attempt to use `pfun-django` as the admin/user-auth backend.
+  - Other options exist, but ultimately it'd be way more straightforward (and not too much overhead, IMHO).
+
+#### Mid-term goals (60~90 days)
+
+- Currently I'm stil shopping around for telemetry options (`open-telemetry`)
+- **I don't currently have enough _Compute_ to support `open-telemetry` with `prometheus`+`grafana`.**
+  - **possible to pull off via `Cloudflare Workers` (**see `github/pfun-health/d1-worker`\*\*)
+
+- **Evaluation pipeline**
+  - _Quantify, evaluate performace on training, test datasets._
+
+#### Future directions (ongoing methods)
+
+- Compare LLMs via actor-critic framework.
+- Measure relative perplexity, NLP performance metrics.
+  - KS Test to quantify the hypothesis space;
+    - Predicted: neural dynamics of the learning layer (LLM orchestration layer) can be measured & understood as in silico "twin" populations of corticostriatal interneurons.
