@@ -18,8 +18,7 @@ from pfun_cma_model.admin.core import (
     get_logged_user,
     pwd_context,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    ALGORITHM,
+    CryptContextDefaults,
 )
 from pfun_cma_model.admin.models import User
 
@@ -51,7 +50,7 @@ class AdminAuth(AuthenticationBackend):
                 return False
             try:
                 decoded_token = jwt.decode(
-                    cookie, key=get_settings().secret_key, algorithms=[ALGORITHM]
+                    cookie, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
                 )
                 logging.debug("Decoded JWT token for SSO login: %s", decoded_token)
                 if "pld" not in decoded_token:
@@ -118,7 +117,7 @@ class AdminAuth(AuthenticationBackend):
         # Successful login, update session with user info and token
         # Update session
         # create an access token, store in session
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=CryptContextDefaults.ACCESS_TOKEN_EXPIRE_MINUTES)
         session_token = create_access_token(
             data={"usn": username, "category": category},
             expires_delta=access_token_expires,
@@ -158,7 +157,7 @@ class AdminAuth(AuthenticationBackend):
         decoded_token = jwt.decode(
             token,
             key=get_settings().secret_key,
-            algorithms=[ALGORITHM],
+            algorithms=[CryptContextDefaults.ALGORITHM],
         )
         usn = decoded_token.get("usn")
         if not (usn in (user.name, user.email)):
