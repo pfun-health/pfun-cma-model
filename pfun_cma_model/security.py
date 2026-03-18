@@ -266,7 +266,6 @@ def setup_security_config() -> SecurityConfig:
         enable_cors=True,
         cors_allow_origins=[
             "https://localhost:8001",
-            "http://localhost:8001",
             get_settings().production_server_url,
             f"https://{get_settings().ssl_server_host}",
             "https://pfun.one",
