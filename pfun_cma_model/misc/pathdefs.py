@@ -113,7 +113,7 @@ class PFunDataPaths:
         """Create the pfun-cma-model local share path if it doesn't already exist."""
         pth = Path(self._local_pfun_share_path)
         if not pth.exists():
-            return pth.mkdir()
+            return pth.mkdir(parents=True, exist_ok=True)
         logger.debug("pfun-cma-model local share path already exists (%s).", str(pth))
 
     @property
