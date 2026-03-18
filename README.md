@@ -15,9 +15,9 @@ The `pfun-cma-model` API provides a comprehensive framework for analyzing and mo
 
 A few pithy one-liners:
 
-- "It includes a well-validated (on ~30million rows of CGM data) implementation of phase portrait analysis of CG data; compress weeks', months', or years'-worth of data into a compact, useful JSON record array that plays well with ECMAScript.\_"
-- _"It provides a way to understand neuroendocrine dynamics qualitatively & quantitatively."_
-- _"It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values."_
+- **Phase-based dimensionality reduction:** "Included is a well-validated (on ~30million rows of CGM data) phase portrait analysis technique that can compress weeks', months', or even many-years'-worth of glucose time-series data into a minimum-length phase vector (`>= 1024b in memory`)."
+- **Interpretable, Quantifiable:** _It provides a way to quickly translate between qualitative ("mood", e.g.) & biophysical neuroendocrine dynamics ("cortisol levels", e.g.)._
+- _It provides a high-speed interface for understanding how the circadian rhythm maps to glucose values._
 
 #### Background
 
