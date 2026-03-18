@@ -103,13 +103,15 @@ class TestLaunchCommand:
 
     def test_launch_default_options(self, runner):
         """Test launch command with default options."""
+        from pfun_common.settings import get_settings
+
         with patch('pfun_cma_model.main.run_app') as mock_run_app:
             result = runner.invoke(cli, ['launch'])
             # Should call run_app with defaults
             mock_run_app.assert_called_once()
             args, kwargs = mock_run_app.call_args
-            assert args[0] == '0.0.0.0'  # host
-            assert args[1] == 8001  # port
+            assert args[0] == get_settings().server_host  # host
+            assert args[1] == get_settings().server_port  # port
             assert kwargs.get('reload') is False
             assert kwargs.get('debug') is True
 
