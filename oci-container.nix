@@ -96,6 +96,32 @@
       "podman-compose-pfun-cma-model-root.target"
     ];
   };
+  virtualisation.oci-containers.containers."pfun-qt-gui" = {
+    image = "localhost/pfun-qt-gui:latest";
+    environmentFiles = [
+      "/home/robbiec/Git/pfun-cma-model/.env"
+    ];
+    volumes = [
+      "/home/robbiec/Git/pfun-cma-model/packages/pfun_qt_gui:/app:rw"
+      "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    ];
+    user = "nonroot:nonroot";
+    log-driver = "journald";
+    extraOptions = [
+      "--network=host"
+    ];
+  };
+  systemd.services."podman-pfun-qt-gui" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 90 "always";
+    };
+    partOf = [
+      "podman-compose-pfun-cma-model-root.target"
+    ];
+    wantedBy = [
+      "podman-compose-pfun-cma-model-root.target"
+    ];
+  };
 
   # Networks
   systemd.services."podman-network-pfun-cma-model_pfun-cma-network" = {
@@ -136,6 +162,17 @@
     script = ''
       cd /home/robbiec/Git/pfun-cma-model
       podman build -t compose2nix/pfun-cma-model .
+    '';
+  };
+  systemd.services."podman-build-pfun-qt-gui" = {
+    path = [ pkgs.podman pkgs.git ];
+    serviceConfig = {
+      Type = "oneshot";
+      TimeoutSec = 300;
+    };
+    script = ''
+      cd /home/robbiec/Git/pfun-cma-model/packages/pfun_qt_gui
+      podman build -t pfun-qt-gui:latest .
     '';
   };
 
