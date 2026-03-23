@@ -165,6 +165,14 @@ docker compose up -d \
 
 ```
 
+#### (Nix) `devenv shell`
+
+##
+
+    # Enter the devenv shell environment (see flake.nix)
+    devenv shell
+    ...
+
 #### (Cloud Run) Create a new Version & Publish to Google Cloud Platform
 
 ```bash
@@ -175,50 +183,15 @@ docker compose up -d \
 
 ### (local) `uv` Python Dev environment
 
-#### Create a dedicated virtual environment
-
-```bash
-
-uv venv
-
-```
-
-#### Install fastapi with the correct version
-
-```bash
-
-# install fastapi cli for 'uvx'
-uv add fastapi --extra standard
-
-# run the dev server with:
-uv run fastapi dev
-...
-
-```
-
-#### To add a development dependency
-
-```bash
-
-# e.g., 'uv add --dev types-requests'
-$ uv add --dev ...
-
-```
-
-#### Updating the environment
-
-```bash
-
-uv sync
-
-```
-
 #### Debugging the app locally (run as a local FastAPI server)
 
 ```bash
 
 uv run fastapi dev pfun_cma_model/app.py --port 8001
 
+# OR
+
+./scripts/serve-dev.sh
 ```
 
 ## Interact with the app via CLI
