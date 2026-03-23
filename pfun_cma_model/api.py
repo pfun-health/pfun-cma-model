@@ -90,8 +90,6 @@ async def lifespan(app: FastAPI):
     # --- Startup task: initialize Admin database models ---
     await init_models()
 
-    # --- Startup task: configure admin_app login provider ---
-
     # ---
     # --- Shutdown tasks will be handled after this point ---
     # ---
@@ -249,8 +247,7 @@ admin = Admin(
     authentication_backend=authentication_backend,
     title="PFun CMA Admin",
     logo_url="/static/icons/pfun-cutielogo-icon.png",
-    favicon_url="/static/icons/pfun-cutielogo-icon.ico",
-    templates_dir=str(Path(__file__).parent / "templates" / "sqladmin"),
+    favicon_url="/static/icons/pfun-cutielogo-icon.ico"
 )
 
 # Import admin views to register them with the admin interface
@@ -310,6 +307,11 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
             "message": f"Accessed at: {ts_msg}; from: {real_ip}",
         },
     )
+
+
+@app.get("/login")
+def login_sso_route(request: Request):
+    return templates.TemplateResponse("sqladmin/login.html", {"request": request, "admin": admin})
 
 
 @app.get("/favicon.ico", include_in_schema=False)
