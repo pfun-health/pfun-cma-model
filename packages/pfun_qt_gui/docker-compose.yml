@@ -1,0 +1,18 @@
+services:
+  pfun-qt-gui:
+    user: "nonroot:nonroot"
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - USER=nonroot
+      - GROUP=nonroot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pfun-qt-gui:latest
+    container_name: pfun-qt-gui
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - .:/app
+    network_mode: host
+    restart: unless-stopped

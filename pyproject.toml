@@ -48,6 +48,7 @@ dependencies = [
     "aiosqlite>=0.22.1",
     "fastapi-sso>=0.20.0",
     "passlib>=1.7.4",
+    "supervisor>=4.3.0",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",

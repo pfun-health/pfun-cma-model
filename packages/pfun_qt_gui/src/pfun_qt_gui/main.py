@@ -1,6 +1,16 @@
+import logging
+from pathlib import Path
+
+logging.basicConfig(
+    filename=str(Path("../../logs/pfun_qt_gui.log").absolute()),
+    encoding="utf-8",
+    level=logging.DEBUG,
+)
+logger = logging.getLogger()
 import sys
 import os
 import json
+from dotenv import load_dotenv
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -17,6 +27,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QUrl, QUrlQuery
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
+env_fpath = Path(".env").absolute()
+if not load_dotenv(env_fpath):
+    raise RuntimeError(f"Failed to load environment variables (from {env_fpath})")
+logging.debug(f"Loaded environment variables from {env_fpath}")
+import supervisor  # noqa: F401 - we just want to ensure it's imported so that the process group is registered
+
 
 class PFunHealthTipsDemo(QMainWindow):
     def __init__(self):
@@ -24,7 +40,8 @@ class PFunHealthTipsDemo(QMainWindow):
         self.setWindowTitle("PFun Health Tips Demo")
         self.setMinimumSize(800, 600)
 
-        self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "http://127.0.0.1:8001")
+        self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "https://127.0.0.1:8001")
+        logging.debug(f"API URL: {self.api_url}")
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_finished)
 
@@ -166,6 +183,7 @@ class PFunHealthTipsDemo(QMainWindow):
                         error_msg = err_json["detail"]
                 except Exception:
                     pass
+            logging.error(f"Network error: {error_msg}")
             QMessageBox.critical(
                 self, "Error", f"Failed to generate scenario:\n{error_msg}"
             )
@@ -195,6 +213,9 @@ class PFunHealthTipsDemo(QMainWindow):
         except json.JSONDecodeError:
             QMessageBox.critical(self, "Error", "Failed to parse response from server.")
         except Exception as e:
+            logging.exception(
+                "Unexpected error while processing response: %s", str(e), exc_info=True
+            )
             QMessageBox.critical(
                 self, "Error", f"An unexpected error occurred:\n{str(e)}"
             )

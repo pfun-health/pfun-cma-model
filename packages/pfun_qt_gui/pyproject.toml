@@ -9,7 +9,9 @@ authors = [
 requires-python = "==3.12.11"
 dependencies = [
     "PyQt6>=6.6.0",
-    "pfun-common"
+    "dotenv>=0.9.9",
+    "pfun-common",
+    "pyside6>=6.11.0",
 ]
 
 [build-system]
