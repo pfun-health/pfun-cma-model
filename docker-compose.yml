@@ -7,6 +7,8 @@ services:
   #  # NOTE: we use 'extends' here to include the service definition from the package's
 
   pfun-cma-model:
+    labels:
+      - "compose2nix.settings.sops.secrets=.env"
     depends_on:
       redis:
         condition: service_healthy
