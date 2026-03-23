@@ -26,103 +26,9 @@ logger.setLevel(level=logging.DEBUG if get_settings().debug is True else logging
 
 
 class AdminAuth(AuthenticationBackend):
-    """Custom authentication backend for sqladmin using username/password credentials."""
+    """Custom authentication backend for sqladmin using SSO credentials."""
 
     async def login(self, request: Request) -> bool:
-        form = await request.form()
-        username = form.get("username")
-        password = form.get("password")
-        category = "admin" if form.get("is_admin") else "user"
-        openid_info = None
-        if any([not username, not password]):
-            # If username or password is not provided, check if this is an SSO-based login attempt (e.g. Google SSO) by looking for the JWT token in the session
-            # Check instead for SSO-based authentication (e.g. Google SSO) by looking for the JWT token in the session
-            logging.debug(
-                "Username or password not provided, checking for SSO-based authentication. Session data: %s",
-                str(request.session),
-            )
-            cookie = request.cookies.get("token")
-            if cookie is None:
-                logging.warning(
-                    "No authentication token found in session. Session data: %s",
-                    str(request.session),
-                )
-                return False
-            try:
-                decoded_token = jwt.decode(
-                    cookie, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
-                )
-                logging.debug("Decoded JWT token for SSO login: %s", decoded_token)
-                if "pld" not in decoded_token:
-                    logging.warning(
-                        "JWT token does not contain expected 'pld' claim. Token: %s, Session data: %s",
-                        cookie,
-                        str(request.session),
-                    )
-                    return False
-                openid_info = OpenID(**decoded_token["pld"])
-                user = (
-                    openid_info.email
-                )  # Assuming email is used as the username for SSO users
-                
-            except InvalidTokenError as error:
-                logging.error(
-                    "Invalid authentication token.\n\t+ Token: %s\n\t+ Session data: %s.\n\t+ Error: %s",
-                    cookie,
-                    str(request.session),
-                    str(error),
-                )
-                raise HTTPException(
-                    status_code=401, detail="Invalid authentication credentials"
-                ) from error
-            except Exception as error:
-                logging.error(
-                    "Error occurred while decoding JWT token.\n\t+ Token: %s\n\t+ Session data: %s.\n\t+ Error: %s",
-                    cookie,
-                    str(request.session),
-                    type(error).__name__ + ": " + str(error),
-                )
-                raise HTTPException(
-                    status_code=401, detail="Invalid authentication credentials"
-                )
-        elif all([username is not None, password is not None]):
-            # Validate username/password credentials
-            async with Session() as db_session:  # type: ignore
-                result = await db_session.execute(
-                    select(User).where(
-                        (User.name == username) | (User.email == username)
-                    )
-                )
-                user = result.scalars().first()
-                if not user:
-                    logging.warning(
-                        f"Login attempt with non-existent username/email: {username}"
-                    )
-                    return False  # User not found
-
-                # Verify user exists and password is correct
-                ok, new_hash = pwd_context.verify_and_update(
-                    str(password), user.hashed_password, category=category
-                )
-                if not ok:
-                    logging.warning(
-                        "Invalid credentials (user=%s, ok=%s)", str(user), str(ok)
-                    )
-                    return False  # Invalid credentials
-                # If the hash needs to be updated (e.g. if the hashing algorithm has changed), update it in the database
-                if new_hash:
-                    user.hashed_password = new_hash
-                    await db_session.commit()
-
-        # Successful login, update session with user info and token
-        # Update session
-        # create an access token, store in session
-        access_token_expires = timedelta(minutes=CryptContextDefaults.ACCESS_TOKEN_EXPIRE_MINUTES)
-        session_token = create_access_token(
-            data={"usn": username, "category": category},
-            expires_delta=access_token_expires,
-        )
-        request.session.update({"token": session_token})
         return True
 
     async def logout(self, request: Request) -> bool:
@@ -132,50 +38,101 @@ class AdminAuth(AuthenticationBackend):
         return True
 
     async def authenticate(self, request: Request) -> bool:
-        # Check if the session contains our token
-        token = request.session.get("token")
-        if not token:
-            logging.debug(
-                "No authentication token found in session. Session data: %s",
+        logging.debug(
+            "Checking for SSO-based authentication. Session data: %s",
+            str(request.session),
+        )
+
+        # We look for the token either in the session or in cookies
+        # because the sso route stores it in both.
+        cookie = request.cookies.get("token")
+        session_token = request.session.get("token")
+
+        token = cookie or session_token
+
+        if token is None:
+            logging.warning(
+                "No authentication token found. Session data: %s",
                 str(request.session),
             )
             return False
 
-        # Grab the matching user from the session
+        try:
+            decoded_token = jwt.decode(
+                token, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
+            )
+            logging.debug("Decoded JWT token for SSO login: %s", decoded_token)
+
+            # The token format depends on where it comes from:
+            # - If it's directly from our SSO flow, it might have "pld" with openid info.
+            # - If it's the token we re-issued (if we kept that logic), it might have "usn" and "category".
+
+            email = None
+            openid_info = None
+            if "pld" in decoded_token:
+                openid_info = OpenID(**decoded_token["pld"])
+                email = openid_info.email
+            elif "usn" in decoded_token:
+                email = decoded_token["usn"]
+            else:
+                logging.warning(
+                    "JWT token does not contain expected 'pld' or 'usn' claims. Token: %s, Session data: %s",
+                    token,
+                    str(request.session),
+                )
+                return False
+
+        except InvalidTokenError as error:
+            logging.error(
+                "Invalid authentication token.\n\t+ Token: %s\n\t+ Session data: %s.\n\t+ Error: %s",
+                token,
+                str(request.session),
+                str(error),
+            )
+            raise HTTPException(
+                status_code=401, detail="Invalid authentication credentials"
+            ) from error
+        except Exception as error:
+            logging.error(
+                "Error occurred while decoding JWT token.\n\t+ Token: %s\n\t+ Session data: %s.\n\t+ Error: %s",
+                token,
+                str(request.session),
+                type(error).__name__ + ": " + str(error),
+            )
+            raise HTTPException(
+                status_code=401, detail="Invalid authentication credentials"
+            )
+
         async with Session() as db_session:  # type: ignore
+            # Look up the user by email, since it's the primary key for SSO
             result = await db_session.execute(
-                select(User).where(User.id == request.session.get("uid"))
+                select(User).where(User.email == email)
             )
             user = result.scalars().first()
             if not user:
                 logging.warning(
-                    "User not found in session. Session data: %s", str(request.session)
+                    f"Login attempt with non-existent email: {email}"
                 )
-                return False
+                if get_settings().debug:
+                    logging.info("Debug mode enabled. Automatically creating user for %s", email)
+                    display_name = openid_info.display_name if openid_info else email
+                    user = User(
+                        email=email,
+                        name=display_name or email,
+                        hashed_password="SSO_CREATED",
+                        is_admin=False,
+                        age=None,
+                        bio=None,
+                        site_id=None
+                    )
+                    db_session.add(user)
+                    await db_session.commit()
+                    await db_session.refresh(user)
+                else:
+                    return False  # User not found
 
-        # Verify the decoded token contains expected username(or email), plus user category
-        decoded_token = jwt.decode(
-            token,
-            key=get_settings().secret_key,
-            algorithms=[CryptContextDefaults.ALGORITHM],
-        )
-        usn = decoded_token.get("usn")
-        if not (usn in (user.name, user.email)):
-            logging.warning(
-                "Username/email in token does not match user in session. Token usn: %s, User name: %s, User email: %s",
-                usn,
-                user.name,
-                user.email,
-            )
-            return False
-        user_category = "admin" if user.is_admin else "user"
-        if not (decoded_token.get("category") == user_category):
-            logging.warning(
-                "User category mismatch in token. Expected: %s, Found: %s",
-                user_category,
-                decoded_token.get("category"),
-            )
-            return False
+            # Update session with uid for further requests
+            request.session.update({"uid": user.id})
 
         return True
 

@@ -3,19 +3,13 @@
 
 {% block body %}
 <div class="d-flex align-items-center justify-content-center vh-100">
-  <form class="Fcol-lg-6 col-md-6 card card-md" action="{{ url_for('admin:login') }}" method="POST" autocomplete="off">
+  <div class="col-lg-6 col-md-6 card card-md">
     <div class="card-body">
       <h2 class="card-title text-center mb-4">Login to {{ admin.title }}</h2>
-      <div class="mb-3">
-        {{ google_login_button_html(google_client_id, google_login_uri) }}
-      </div>
-      <div class="form-footer">
-        <div class="btn-group flex-wrap" data-toggle="buttons">
-          <button type="submit" class="btn btn-primary w-100">Login</button>
-          <input type="submit" class="btn btn-secondary w-100 mt-2" value="Login with SSO">
-        </div>
+      <div class="form-footer text-center">
+        <a href="/sso/auth/login" class="btn btn-primary w-100">Login with Google SSO</a>
       </div>
     </div>
-  </form>
+  </div>
 </div>
 {% endblock %}

@@ -95,11 +95,11 @@ async def login_callback(request: Request):
         {"token": token}
     )  # Store the token in the session for future authentication
     response = RedirectResponse(
-        url=get_settings().production_server_url + "/sso/protected"
-    )  # Redirect to protected endpoint after login
+        url="/admin/"
+    )  # Redirect to admin endpoint after login
     response.set_cookie(
         key="token", value=token, expires=expiration
-    )  # This cookie will make sure /protected knows the user
+    )  # This cookie will make sure /admin/ knows the user
     logging.debug(
         "Login successful for user: %s. Redirecting to protected endpoint.",
         openid.email,
