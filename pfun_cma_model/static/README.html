@@ -2,8 +2,8 @@
 <h2 id="links-demos-homepage">Links (Demos, Homepage)</h2>
 <ul>
 <li><a href="https://pfun.one/"><strong>PFun Homepage</strong></a></li>
-<li><a href="https://pfun.one/demo/canvas-wave"><strong>Live
-<code>Canvas Wave</code> Web Demo</strong></a></li>
+<li><a href="https://cloud.tail38611b.ts.net/demo/llm"><strong>[<em>Live
+Demo</em>] PFun Health Tips </strong></a></li>
 </ul>
 <h2 id="overview">Overview</h2>
 <h3 id="api-description">API Description</h3>
@@ -16,13 +16,16 @@ influence glucose levels over time.</p>
 exactly does it do?!?</h4>
 <p>A few pithy one-liners:</p>
 <ul>
-<li>_“Implements circadian phase analysis to readily compress weeks’,
-months’, or years’-worth of data into a compact, useful JSON record
-array that plays well with ECMAScript.”</li>
-<li><em>“It provides a way to understand neuroendocrine dynamics
-qualitatively &amp; quantitatively.”</em></li>
-<li><em>“It provides a high-speed interface for understanding how the
-circadian rhythm maps to glucose values.”</em></li>
+<li><strong>Phase-based dimensionality reduction:</strong> “Included is
+a well-validated (on ~30million rows of CGM data) phase portrait
+analysis technique that can compress weeks’, months’, or even
+many-years’-worth of glucose time-series data into a minimum-length
+phase vector (<code>&gt;= 1024b in memory</code>).”</li>
+<li><strong>Interpretable, Quantifiable:</strong> <em>It provides a way
+to quickly translate between qualitative (“mood”, e.g.) &amp;
+biophysical neuroendocrine dynamics (“cortisol levels”, e.g.).</em></li>
+<li><em>It provides a high-speed interface for understanding how the
+circadian rhythm maps to glucose values.</em></li>
 </ul>
 <h4 id="background">Background</h4>
 <ul>
@@ -54,47 +57,6 @@ in the live Demo (or in ./examples/notebooks)
 <ul>
 <li><a href="./TODO.md"
 title="TODO.md"><strong>TODO.md</strong></a></li>
-</ul>
-<h4 id="short-term-dev-goals-30-days">Short-term dev goals (~30
-days)</h4>
-<ul>
-<li>Decided to attempt to use <code>pfun-django</code> as the
-admin/user-auth backend.
-<ul>
-<li>Other options exist, but ultimately it’d be way more straightforward
-(and not too much overhead, IMHO).</li>
-</ul></li>
-</ul>
-<h4 id="mid-term-goals-6090-days">Mid-term goals (60~90 days)</h4>
-<ul>
-<li>Currently I’m stil shopping around for telemetry options
-(<code>open-telemetry</code>)</li>
-<li><strong>I don’t currently have enough <em>Compute</em> to support
-<code>open-telemetry</code> with
-<code>prometheus</code>+<code>grafana</code>.</strong>
-<ul>
-<li><strong>possible to pull off via <code>Cloudflare Workers</code>
-(</strong>see <code>github/pfun-health/d1-worker</code>**)</li>
-</ul></li>
-<li><strong>Evaluation pipeline</strong>
-<ul>
-<li><em>Quantify, evaluate performace on training, test
-datasets.</em></li>
-</ul></li>
-</ul>
-<h4 id="future-directions-ongoing-methods">Future directions (ongoing
-methods)</h4>
-<ul>
-<li>Compare LLMs via actor-critic framework.</li>
-<li>Measure relative perplexity, NLP performance metrics.
-<ul>
-<li>KS Test to quantify the hypothesis space;
-<ul>
-<li>Predicted: neural dynamics of the learning layer (LLM orchestration
-layer) can be measured &amp; understood as in silico “twin” populations
-of corticostriatal interneurons.</li>
-</ul></li>
-</ul></li>
 </ul>
 <h2 id="cma-model-description">CMA Model Description</h2>
 <h4 id="model-parameters">Model Parameters</h4>
