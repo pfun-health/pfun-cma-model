@@ -278,7 +278,7 @@ class TestLoggingConfiguration:
     def test_request_logging_level_set(self):
         """Verify request logging level is configured."""
         security_config = setup_security_config()  # Ensure config is set up
-        assert security_config.log_request_level == "INFO"
+        assert security_config.log_request_level == "WARNING"
 
     def test_suspicious_logging_level_set(self):
         """Verify suspicious activity logging level is configured."""
@@ -288,7 +288,7 @@ class TestLoggingConfiguration:
     def test_custom_log_file_configured(self):
         """Verify custom log file is configured."""
         security_config = setup_security_config()  # Ensure config is set up
-        assert security_config.custom_log_file == "security.log"
+        assert security_config.custom_log_file == "logs/security.log"
 
 
 class TestRedisCacheConfiguration:
