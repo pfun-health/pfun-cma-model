@@ -15,7 +15,7 @@ from wtforms.fields import PasswordField
 from wtforms.validators import InputRequired, EqualTo
 from packages.pfun_common.pfun_common.settings import get_settings
 from pfun_cma_model.admin.models import *
-from pfun_cma_model.admin.core import ALGORITHM, Base, engine, Session, pwd_context
+from pfun_cma_model.admin.core import CryptContextDefaults, engine, Session, pwd_context
 from jose.exceptions import JWTError, ExpiredSignatureError
 
 __all__ = ["UserAdmin", "ReportView"]
@@ -107,7 +107,7 @@ class UserAdmin(ModelView, model=User):
             logging.warning("No authentication token found in session. Session data: %s", str(request.session))
             return False
         try:
-            claims = jwt.decode(token, key=get_settings().secret_key, algorithms=[ALGORITHM])
+            claims = jwt.decode(token, key=get_settings().secret_key, algorithms=[CryptContextDefaults().ALGORITHM])
             logging.debug("Decoded JWT claims: %s", claims)
             # Optionally, you can also check for specific claims like user category or permissions here
         except ExpiredSignatureError:
