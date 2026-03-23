@@ -20,6 +20,10 @@
         # that might be built from source by `uv`.
         # This ensures `uv sync` works smoothly.
         python_build_deps = with pkgs; [
+          # for PyQt6
+          libGLU
+          libGL
+          
           # for matplotlib, scipy
           freetype
           tk

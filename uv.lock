@@ -1,12 +1,6 @@
 version = 1
 revision = 3
-requires-python = "==3.12.11"
-
-[manifest]
-members = [
-    "pfun-cma-model",
-    "pfun-qt-gui",
-]
+requires-python = ">=3.12.11, <3.12.13"
 
 [[package]]
 name = "aiofiles"
@@ -1680,6 +1674,7 @@ dev = [
     { name = "httpx" },
     { name = "mkdocs" },
     { name = "openapi-generator-cli", extra = ["jdk4py"] },
+    { name = "pfun-qt-gui" },
     { name = "pyperformance" },
 ]
 google = [
@@ -1763,6 +1758,7 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.18.0" },
+    { name = "pfun-qt-gui", directory = "packages/pfun_qt_gui" },
     { name = "pyperformance", specifier = ">=1.14.0" },
 ]
 google = [
@@ -1806,7 +1802,7 @@ wheels = [
 [[package]]
 name = "pfun-qt-gui"
 version = "0.1.0"
-source = { editable = "packages/pfun_qt_gui" }
+source = { directory = "packages/pfun_qt_gui" }
 dependencies = [
     { name = "pfun-common" },
     { name = "pyqt6" },
@@ -1814,7 +1810,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pfun-common", directory = "packages/pfun_common" },
+    { name = "pfun-common" },
     { name = "pyqt6", specifier = ">=6.6.0" },
 ]
 

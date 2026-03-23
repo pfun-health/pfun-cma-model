@@ -75,6 +75,7 @@ optional-dependencies = { ui = [], dev = [
 
 [project.scripts]
 pfun-cma-model = "pfun_cma_model.cli:cli"
+pfun-qt-gui = "pfun_qt_gui.main:main"
 
 [build-system]
 requires = ["hatchling", "wheel", "setuptools"]
@@ -100,6 +101,7 @@ dev = [
     "mkdocs>=1.6.1",
     "openapi-generator-cli[jdk4py]>=7.18.0",
     "pyperformance>=1.14.0",
+    "pfun_qt_gui",
 ]
 datasette = [
     "datasette<=1.0a23",
@@ -118,6 +120,7 @@ packages = [
     "pfun_cma_model", "pfun_cma_model.engine",
     "pfun_llm",
     "pfun_common", "pfun_common.utils", "pfun_common.settings",
+    "pfun_qt_gui",
 ]
 # package_data
 [tool.setuptools.package-data]
@@ -135,9 +138,9 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
+pfun_qt_gui = { path = "./packages/pfun_qt_gui" }
 
 [tool.uv.workspace]
 members = [
     "pfun-gradio",
-    "packages/pfun_qt_gui",
 ]

@@ -2,11 +2,21 @@ import sys
 import os
 import json
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QTextEdit, QPushButton, QTextBrowser, QMessageBox, QSplitter
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QTextEdit,
+    QPushButton,
+    QTextBrowser,
+    QMessageBox,
+    QSplitter,
 )
 from PyQt6.QtCore import Qt, QUrl, QUrlQuery
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+
 
 class PFunHealthTipsDemo(QMainWindow):
     def __init__(self):
@@ -37,18 +47,24 @@ class PFunHealthTipsDemo(QMainWindow):
         main_layout.addSpacing(10)
 
         # Input Section
-        input_instruction = QLabel("Please enter a query to generate personalized health tips.\nThe demo will generate a random health scenario if the input is left blank.")
+        input_instruction = QLabel(
+            "Please enter a query to generate personalized health tips.\nThe demo will generate a random health scenario if the input is left blank."
+        )
         input_instruction.setStyleSheet("color: #0056b3;")
         main_layout.addWidget(input_instruction)
 
         self.query_input = QTextEdit()
-        self.query_input.setPlaceholderText("Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?")
+        self.query_input.setPlaceholderText(
+            "Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?"
+        )
         self.query_input.setFixedHeight(120)
         main_layout.addWidget(self.query_input)
 
         # Submit Button
         self.submit_btn = QPushButton("Submit")
-        self.submit_btn.setStyleSheet("background-color: #0d6efd; color: white; font-size: 16px; padding: 10px; border-radius: 5px;")
+        self.submit_btn.setStyleSheet(
+            "background-color: #0d6efd; color: white; font-size: 16px; padding: 10px; border-radius: 5px;"
+        )
         self.submit_btn.clicked.connect(self.on_submit)
 
         btn_layout = QHBoxLayout()
@@ -75,7 +91,9 @@ class PFunHealthTipsDemo(QMainWindow):
         recs_layout.setContentsMargins(0, 0, 5, 0)
         recs_header = QLabel("Recommendations")
         recs_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        recs_header.setStyleSheet("background-color: #0d6efd; color: white; font-weight: bold; padding: 5px; border-radius: 3px;")
+        recs_header.setStyleSheet(
+            "background-color: #0d6efd; color: white; font-weight: bold; padding: 5px; border-radius: 3px;"
+        )
         self.recs_output = QTextBrowser()
         self.recs_output.setOpenExternalLinks(True)
         recs_layout.addWidget(recs_header)
@@ -87,9 +105,13 @@ class PFunHealthTipsDemo(QMainWindow):
         raw_layout.setContentsMargins(5, 0, 0, 0)
         raw_header = QLabel("Raw output")
         raw_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        raw_header.setStyleSheet("background-color: #0dcaf0; color: black; font-weight: bold; padding: 5px; border-radius: 3px;")
+        raw_header.setStyleSheet(
+            "background-color: #0dcaf0; color: black; font-weight: bold; padding: 5px; border-radius: 3px;"
+        )
         self.raw_output = QTextBrowser()
-        self.raw_output.setStyleSheet("background-color: #f8f9fa; font-family: monospace;")
+        self.raw_output.setStyleSheet(
+            "background-color: #f8f9fa; font-family: monospace;"
+        )
         raw_layout.addWidget(raw_header)
         raw_layout.addWidget(self.raw_output)
 
@@ -121,7 +143,9 @@ class PFunHealthTipsDemo(QMainWindow):
         url.setQuery(query_params)
 
         request = QNetworkRequest(url)
-        request.setHeader(QNetworkRequest.KnownHeaders.ContentTypeHeader, "application/json")
+        request.setHeader(
+            QNetworkRequest.KnownHeaders.ContentTypeHeader, "application/json"
+        )
 
         # Send POST request
         self.network_manager.post(request, b"{}")
@@ -134,7 +158,7 @@ class PFunHealthTipsDemo(QMainWindow):
         if reply.error() != QNetworkReply.NetworkError.NoError:
             error_msg = reply.errorString()
             # Try to read body for more specific error
-            body = reply.readAll().data().decode('utf-8')
+            body = reply.readAll().data().decode("utf-8")
             if body:
                 try:
                     err_json = json.loads(body)
@@ -142,21 +166,25 @@ class PFunHealthTipsDemo(QMainWindow):
                         error_msg = err_json["detail"]
                 except Exception:
                     pass
-            QMessageBox.critical(self, "Error", f"Failed to generate scenario:\n{error_msg}")
+            QMessageBox.critical(
+                self, "Error", f"Failed to generate scenario:\n{error_msg}"
+            )
             reply.deleteLater()
             return
 
         # Parse JSON response
         data_bytes = reply.readAll().data()
         try:
-            data_str = data_bytes.decode('utf-8')
+            data_str = data_bytes.decode("utf-8")
             data = json.loads(data_str)
 
             # Format and set Recommendations
             recs_data = data.get("recommendations", {})
             recs_html = "<dl>"
             for key, value in recs_data.items():
-                recs_html += f"<dt style='font-weight: bold;'>{key}</dt><dd>{value}</dd>"
+                recs_html += (
+                    f"<dt style='font-weight: bold;'>{key}</dt><dd>{value}</dd>"
+                )
             recs_html += "</dl>"
             self.recs_output.setHtml(recs_html)
 
@@ -167,9 +195,12 @@ class PFunHealthTipsDemo(QMainWindow):
         except json.JSONDecodeError:
             QMessageBox.critical(self, "Error", "Failed to parse response from server.")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"An unexpected error occurred:\n{str(e)}")
+            QMessageBox.critical(
+                self, "Error", f"An unexpected error occurred:\n{str(e)}"
+            )
 
         reply.deleteLater()
+
 
 def main():
     app = QApplication(sys.argv)
@@ -181,6 +212,7 @@ def main():
     window.show()
 
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
