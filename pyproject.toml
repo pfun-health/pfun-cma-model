@@ -139,4 +139,5 @@ pfun-common = { path = "./packages/pfun_common" }
 [tool.uv.workspace]
 members = [
     "pfun-gradio",
+    "packages/pfun_qt_gui",
 ]
