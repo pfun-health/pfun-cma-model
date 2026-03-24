@@ -103,6 +103,7 @@ dev = [
     "openapi-generator-cli[jdk4py]>=7.18.0",
     "pyperformance>=1.14.0",
     "pfun_qt_gui",
+    "pyside6>=6.11.0",
 ]
 datasette = [
     "datasette<=1.0a23",
