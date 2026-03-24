@@ -6,6 +6,9 @@ TODO for `pfun-cma-model`
 
 ### Short-term Goals
 
++ _Publish documentation using `MkDocs`, `Github Pages`_
+  + Use `MkDocs` to publish the documentation for `pfun-cma-model`.
+  + Publish to: `pfun-health.github.io/pfun-cma-model`.
 + _Complete initial implementation of admin interface:_
   + **Integrate `FastAPI-SSO` with `SQLAlchemy-Admin` database.**
   + ~~Define models (User, Site)~~

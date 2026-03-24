@@ -104,6 +104,7 @@ dev = [
     "pyperformance>=1.14.0",
     "pfun_qt_gui",
     "pyside6>=6.11.0",
+    "mkdocs-material>=9.7.6",
 ]
 datasette = [
     "datasette<=1.0a23",
