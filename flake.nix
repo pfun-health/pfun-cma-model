@@ -2,12 +2,14 @@
   description = "A development environment for pfun-cma-model";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/25.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
     nix2container = {
       url = "github:nlewo/nix2container";
-      inputs = { nixpkgs.follows = "nixpkgs"; };
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
     };
     mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
   };
@@ -44,40 +46,8 @@
           # that might be built from source by `uv`.
           # This ensures `uv sync` works smoothly.
           python_build_deps = with pkgs; [
-            # for PyQt6
-            libGLU
-            libGL
-
-            # for matplotlib, scipy
-            freetype
-            tk
-            qhull
-
-            # for scipy, numpy
-            gfortran
-            openblas
-
-            # for pyarrow
-            arrow-cpp
-
-            # for numba (llvmlite)
-            llvm
-
-            # for pydantic (pydantic-core, which is a rust extension)
-            rustc
-            cargo
-
-            # for paramiko (cryptography)
-            openssl
-
-            # for various packages that might be installed
-            zlib
-
-            # duckdb
-            duckdb
-
-            # data visualization
-            #datasette  # currently isn't working due to dependency on pip module (should work once we have uv install the Python dependencies, but we want to be able to run `uv sync` without errors first)
+            python312Packages.pyside6 # for PyQt6
+            python312Packages.pyqt6 # for PyQt6
           ];
         in
         {
@@ -90,6 +60,41 @@
                 python # note that the version is defined above
                 uv
                 pkg-config # general-purpose build tool
+                # for PyQt6
+                libGLU
+                libGL
+                glib
+
+                # for matplotlib, scipy
+                freetype
+                tk
+                qhull
+
+                # for scipy, numpy
+                gfortran
+                openblas
+
+                # for pyarrow
+                arrow-cpp
+
+                # for numba (llvmlite)
+                llvm
+
+                # for pydantic (pydantic-core, which is a rust extension)
+                rustc
+                cargo
+
+                # for paramiko (cryptography)
+                openssl
+
+                # for various packages that might be installed
+                zlib
+
+                # duckdb
+                duckdb
+
+                # data visualization
+                #datasette  # currently isn't working due to dependency on pip module (should work once we have uv install the Python dependencies, but we want to be able to run `uv sync` without errors first)
               ]
               ++ python_build_deps;
 
