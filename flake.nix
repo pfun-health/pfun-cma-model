@@ -116,6 +116,10 @@
 
               . ./.venv/bin/activate
               echo "Activated Python virtual environment from .venv/ directory."
+
+              ./scripts/uv-full-sync.sh
+              echo "Synchronized Python dependencies using uv. You can now run Python scripts that depend on these packages without issues."
+              echo "e.g., 'uv run pyside6-deploy -c packages/pfun_qt_gui/pysidedeploy.spec' to deploy the PyQt6 GUI application."
             '';
           };
         };

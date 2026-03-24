@@ -10,7 +10,8 @@ full_uv_sync() {
 		--reinstall \
 		--all-extras \
 		--group ollama \
-		--group datasette
+		--group datasette \
+		--link-mode copy
 }
 
 full_uv_sync_gradio() {
@@ -18,7 +19,8 @@ full_uv_sync_gradio() {
 	uv sync \
 		--reinstall \
 		--all-extras \
-		--project=pfun_gradio
+		--project=pfun_gradio \
+		--link-mode copy
 }
 
 partial_uv_sync() {
