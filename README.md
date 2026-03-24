@@ -144,26 +144,43 @@ $ ./scripts/inject-secrets-env.sh
 
 ```
 
+### Convert `docker-compose.yml` to Helm Chart
+
+##
+
+	# convert docker-compose.yml to a Helm Chart (for kubernetes)
+	\# kompose convert -c -o pfun-cma-model-chart
+	...
+	
+	# build a binary helm chart package (ready for deployment)
+	\# helm package pfun-cma-model-chart --destination dist/pfun-cma-model-chart
+	...
+	
+	# install the helm chart
+	\# helm install pfun-cma-model-chart -f dist/pfun-cma-model-chart-<VERSION>.tgz
+	...
+
 ### (containerized) `docker-compose` environment
 
 #### Complete rebuild & launch
 
-```bash
+##
 
-docker compose up -d \
-    --build \
-    --renew-anon-volumes \
-    --remove-orphans
+	docker compose up -d \
+		--build \
+		--renew-anon-volumes \
+		--remove-orphans
 
-```
+	# ...or with the convenience script:
+	./scripts/full-rebuild.sh
 
-...or with the convenience script:
+#### (Nix) `devenv shell`
 
-```bash
+##
 
-./scripts/full-rebuild.sh
-
-```
+    # Enter the devenv shell environment (see flake.nix)
+    devenv shell
+    ...
 
 #### (Nix) `devenv shell`
 

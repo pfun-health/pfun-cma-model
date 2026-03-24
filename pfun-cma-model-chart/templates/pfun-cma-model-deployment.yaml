@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    compose2nix.settings.sops.secrets: .env
     kompose.cmd: kompose convert -c -o pfun-cma-model-chart
     kompose.version: 1.38.0 (HEAD)
   labels:
@@ -15,6 +16,7 @@ spec:
   template:
     metadata:
       annotations:
+        compose2nix.settings.sops.secrets: .env
         kompose.cmd: kompose convert -c -o pfun-cma-model-chart
         kompose.version: 1.38.0 (HEAD)
       labels:
