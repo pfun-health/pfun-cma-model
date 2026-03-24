@@ -1,3 +1,4 @@
+supervisord.pid
 nuitka-crash-report.xml
 /examples/data/
 /generated_clients/
@@ -11,8 +12,6 @@ certs/
 
 # Gradio specific
 .gradio/
-
-# custom
 # nohup logs
 nohup.out
 
@@ -253,3 +252,5 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+
+

@@ -2,24 +2,14 @@
   description = "A development environment for pfun-cma-model";
 
   inputs = {
-<<<<<<< HEAD
     nixpkgs.url = "github:NixOS/nixpkgs/25.11";
-=======
-    nixpkgs.url = "github:NixOS/nixpkgs/25.11";
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
     nix2container = {
       url = "github:nlewo/nix2container";
-<<<<<<< HEAD
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
-=======
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
     };
     mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
   };
@@ -103,59 +93,8 @@
                 # duckdb
                 duckdb
 
-            # data visualization
-            #datasette  # currently isn't working due to dependency on pip module (should work once we have uv install the Python dependencies, but we want to be able to run `uv sync` without errors first)
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
-          ];
-        in
-        {
-          devenv.shells.default = {
-            # https://devenv.sh/reference/options/
-            name = "pfun-cma-model-dev";
-            packages =
-              with pkgs;
-              [
-                python # note that the version is defined above
-                uv
-                pkg-config # general-purpose build tool
-<<<<<<< HEAD
-                # for PyQt6
-                libGLU
-                libGL
-                glib
-
-                # for matplotlib, scipy
-                freetype
-                tk
-                qhull
-
-                # for scipy, numpy
-                gfortran
-                openblas
-
-                # for pyarrow
-                arrow-cpp
-
-                # for numba (llvmlite)
-                llvm
-
-                # for pydantic (pydantic-core, which is a rust extension)
-                rustc
-                cargo
-
-                # for paramiko (cryptography)
-                openssl
-
-                # for various packages that might be installed
-                zlib
-
-                # duckdb
-                duckdb
-
                 # data visualization
                 #datasette  # currently isn't working due to dependency on pip module (should work once we have uv install the Python dependencies, but we want to be able to run `uv sync` without errors first)
-=======
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
               ]
               ++ python_build_deps;
 
@@ -177,13 +116,6 @@
 
               . ./.venv/bin/activate
               echo "Activated Python virtual environment from .venv/ directory."
-<<<<<<< HEAD
-
-              ./scripts/uv-full-sync.sh
-              echo "Synchronized Python dependencies using uv. You can now run Python scripts that depend on these packages without issues."
-              echo "e.g., 'uv run pyside6-deploy -c packages/pfun_qt_gui/pysidedeploy.spec' to deploy the PyQt6 GUI application."
-=======
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
 
               ./scripts/uv-full-sync.sh
               echo "Synchronized Python dependencies using uv. You can now run Python scripts that depend on these packages without issues."

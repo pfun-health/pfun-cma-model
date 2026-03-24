@@ -207,23 +207,11 @@ dev = [
     { name = "pyside6" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "pip" },
-    { name = "pyside6" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "pfun-common" },
     { name = "pyqt6", specifier = ">=6.6.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pip", specifier = ">=26.0.1" },
-    { name = "pyside6", specifier = ">=6.11.0" },
 ]
 
 [package.metadata.requires-dev]

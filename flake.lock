@@ -788,28 +788,16 @@
     },
     "nixpkgs_5": {
       "locked": {
-<<<<<<< HEAD
         "lastModified": 1764521362,
         "narHash": "sha256-M101xMtWdF1eSD0xhiR8nG8CXRlHmv6V+VoY65Smwf4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "871b9fd269ff6246794583ce4ee1031e1da71895",
-=======
-        "lastModified": 1764521362,
-        "narHash": "sha256-M101xMtWdF1eSD0xhiR8nG8CXRlHmv6V+VoY65Smwf4=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "6c9a78c09ff4d6c21d0319114873508a6ec01655",
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-<<<<<<< HEAD
         "ref": "25.11",
-=======
-        "ref": "nixos-unstable",
->>>>>>> 3cd13979 (messing with flake.nix (trying flake-parts, devenv, ...))
         "repo": "nixpkgs",
         "type": "github"
       }
