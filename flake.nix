@@ -2,7 +2,7 @@
   description = "A development environment for pfun-cma-model";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/25.11";
+    nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv = {
       url = "github:cachix/devenv";
@@ -14,6 +14,11 @@
       };
     };
     mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
+  };
+
+  nixConfig = {
+    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+    extra-substituters = "https://devenv.cachix.org";
   };
 
   outputs =
@@ -51,6 +56,8 @@
             python312Packages.pyside6 # for PyQt6
             python312Packages.pyqt6 # for PyQt6
           ];
+          # shorten for calling devenv command per system
+          devenv = inputs.devenv;
         in
         {
           devenv.shells.default = {
@@ -62,10 +69,10 @@
                 # for python
                 python # note that the version is defined above
                 uv
-                
+
                 libxml2
                 pkg-config # general-purpose build tool
-                
+
                 # for PyQt6
                 libGLU
                 libGL

@@ -133,7 +133,15 @@ In summary, your data suggests a well-regulated glucose metabolism with a tenden
 
 - Using `uv` for super fast dependency management, intuitive CLI, and ezpz publishing to pypi.
 
-### Quick start
+### Usage notes
+
+#### `nix`, `devenv`
+
+##
+
+	# https://devenv.sh/guides/using-with-flakes/#entering-the-shell
+	nix develop --no-pure-eval
+
 
 #### (dashlane) Inject secrets to create `.env`
 
