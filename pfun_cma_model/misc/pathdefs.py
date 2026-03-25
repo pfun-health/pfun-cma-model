@@ -109,6 +109,54 @@ class PFunDataPaths:
             else:
                 raise Exception(f"Failed to download sample data: {response.status_code}")
 
+    def download_kaggle_brist1d(self, overwrite: bool = False) -> None:
+        """Download the Brist1D dataset from Kaggle to the pfun_common/data/ directory and save as parquet using duckdb."""
+        import zipfile
+        import duckdb
+
+        target_parquet_path = os.path.join(self._pfun_data_dirpath, "brist1d_train.parquet")
+        if os.path.exists(target_parquet_path) and not overwrite:
+            logger.info("Brist1D data already exists at %s. Skipping download.", target_parquet_path)
+            return
+
+        try:
+            from kaggle.api.kaggle_api_extended import KaggleApi
+        except ImportError:
+            raise ImportError("Kaggle API client not found. Please install the `kaggle` python package.")
+
+        api = KaggleApi()
+        api.authenticate()
+
+        logger.info("Downloading brist1d competition dataset from Kaggle...")
+        api.competition_download_file('brist1d', 'train.csv', path=str(self._pfun_data_dirpath))
+
+        zip_path = os.path.join(self._pfun_data_dirpath, 'train.csv.zip')
+        csv_path = os.path.join(self._pfun_data_dirpath, 'train.csv')
+
+        # In case the api returns a zip file containing the csv
+        if os.path.exists(zip_path):
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extract('train.csv', path=str(self._pfun_data_dirpath))
+            os.remove(zip_path)
+
+        if not os.path.exists(csv_path):
+            # Fallback if download file wasn't zipped or named differently
+            raise FileNotFoundError(f"Expected to find downloaded train.csv at {csv_path}")
+
+        logger.info("Converting downloaded CSV to Parquet using DuckDB...")
+        # Use DuckDB to convert the CSV to a Parquet file
+        query = f"COPY (SELECT * FROM read_csv_auto('{csv_path}')) TO '{target_parquet_path}' (FORMAT PARQUET);"
+
+        try:
+            duckdb.sql(query)
+            logger.info("Successfully converted and saved to %s.", target_parquet_path)
+        except Exception as e:
+            logger.error("Failed to convert CSV to Parquet using DuckDB: %s", str(e))
+            raise
+        finally:
+            if os.path.exists(csv_path):
+                os.remove(csv_path) # Clean up the original CSV
+
     def ensure_local_share_path_exists(self):
         """Create the pfun-cma-model local share path if it doesn't already exist."""
         pth = Path(self._local_pfun_share_path)
@@ -123,6 +171,11 @@ class PFunDataPaths:
     @property
     def sample_data_fpath(self) -> Path:
         return Path(self._sample_data_fpath)
+
+    @property
+    def brist1d_data_fpath(self) -> Path:
+        """Return the path to the downloaded brist1d_train.parquet file."""
+        return Path(os.path.join(self._pfun_data_dirpath, "brist1d_train.parquet"))
 
     @property
     def pfun_data_dirpath(self) -> Path:
