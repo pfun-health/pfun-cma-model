@@ -1,4 +1,4 @@
-"""JWT-secured authentication routes using OrcID SSO provider."""
+"""JWT-secured authentication routes using an SSO provider."""
 
 import os
 from datetime import datetime, timedelta, timezone
@@ -16,7 +16,6 @@ import pfun_cma_model.sso.providers as pfun_providers
 from fastapi_sso.sso.base import OpenID
 
 fastapi_sso.sso.__dict__.update(pfun_providers.__dict__)
-from pfun_cma_model.sso.providers.orcid import OrcidSSO
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
@@ -24,12 +23,6 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("JWT_EXPIRATION_MINUTES", "1440")
 )  # 24 hours default
-
-ORCID_CLIENT_ID = os.getenv("ORCID_CLIENT_ID", "")
-ORCID_CLIENT_SECRET = os.getenv("ORCID_CLIENT_SECRET", "")
-ORCID_REDIRECT_URI = os.getenv(
-    "ORCID_REDIRECT_URI", "http://localhost:8001/auth/orcid/callback"
-)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -189,83 +182,6 @@ async def get_optional_user(request: Request) -> Optional[TokenData]:
 # ==================== SSO Routes ====================
 
 
-async def get_orcid_provider() -> OrcidSSO:
-    """Get OrcID SSO provider instance.
-
-    Returns:
-        Configured OrcidSSO provider
-
-    Raises:
-        RuntimeError: If OrcID credentials are not configured
-    """
-    if not ORCID_CLIENT_ID or not ORCID_CLIENT_SECRET:
-        raise RuntimeError(
-            "OrcID credentials not configured. "
-            "Set ORCID_CLIENT_ID and ORCID_CLIENT_SECRET environment variables."
-        )
-
-    return OrcidSSO(
-        client_id=ORCID_CLIENT_ID,
-        client_secret=ORCID_CLIENT_SECRET,
-        redirect_uri=ORCID_REDIRECT_URI,
-    )
-
-
-@router.get("/orcid/login")
-async def orcid_login(request: Request) -> RedirectResponse:
-    """Initiate OrcID login flow.
-
-    Redirects to OrcID authorization endpoint.
-    """
-    try:
-        sso_provider = await get_orcid_provider()
-        authorization_url = await sso_provider.get_login_url()
-        return RedirectResponse(url=authorization_url)
-    except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(e),
-        )
-
-
-@router.get("/orcid/callback")
-async def orcid_callback(code: str, request: Request) -> Token:
-    """Handle OrcID callback after user authorization.
-
-    Args:
-        code: Authorization code from OrcID
-        request: HTTP request object
-
-    Returns:
-        JWT access token
-
-    Raises:
-        HTTPException: If callback processing fails
-    """
-    try:
-        sso_provider = await get_orcid_provider()
-        user_info: OpenID = await sso_provider.verify_and_process_callback(
-            request, code
-        )
-
-        access_token = create_access_token(
-            user_id=user_info.id,
-            provider=user_info.provider,
-        )
-
-        expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
-        return Token(
-            access_token=access_token,
-            token_type="bearer",
-            expires_in=int(expires_delta.total_seconds()),
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"OrcID authentication failed: {str(e)}",
-        )
-
 
 # ==================== Token Management Routes ====================
 
@@ -372,7 +288,7 @@ async def auth_health_check() -> dict:
         "status": "healthy",
         "service": "auth",
         "jwt_algorithm": ALGORITHM,
-        "providers": ["orcid"],
+        "providers": ["sso:"],
     }
 
 
