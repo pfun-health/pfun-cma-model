@@ -21,5 +21,8 @@
 			}
 		],
 		"sqltools.useNodeRuntime": true
+		"postman.settings.dotenv-detection-notification-visibility": false,
+		"python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+		"editor.wordWrapColumn": 120
 	}
 }

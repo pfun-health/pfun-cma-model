@@ -31,6 +31,7 @@ from pfun_cma_model.engine.cma_model_params import (
 from pfun_common.settings import get_settings
 from pfun_cma_model.misc.templating import get_templates
 from pfun_cma_model.routes import (
+    auth as auth_routes,
     dexcom as dexcom_routes,
     data as data_routes,
     params as params_routes,
@@ -142,17 +143,14 @@ app = FastAPI(
 # Set the application title and description
 app.title = "PFun CMA Model Routing API"
 app.description = (
-    "Server-side operations for operating the PFun CMA model; "
-    + "schema definitions, data IO, model execution."
+    "Server-side operations for operating the PFun CMA model; " + "schema definitions, data IO, model execution."
 )
 
 
 # Set the application version based on the package version and file modification time
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
-    fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime(
-        "%Y%m%d%H%M%S"
-    )
+    fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime("%Y%m%d%H%M%S")
     app.version = str(pfun_cma_model_pkg_version) + f"-dev.{fmod_time}"
     logging.debug("pfun-cma-model version: %s", pfun_cma_model_pkg_version)
     logging.debug("FastAPI app version set to: %s", app.version)
@@ -247,24 +245,28 @@ admin = Admin(
     authentication_backend=authentication_backend,
     title="PFun CMA Admin",
     logo_url="/static/icons/pfun-cutielogo-icon.png",
-    favicon_url="/static/icons/pfun-cutielogo-icon.ico"
+    favicon_url="/static/icons/pfun-cutielogo-icon.ico",
 )
 
 # Import admin views to register them with the admin interface
 admin.add_view(UserAdmin)
 admin.add_view(ReportView)
 
+
 async def login_google(request: Request) -> Response:
     """Redirect the user to the Google login page."""
-    
+
     return RedirectResponse(url="/sso/auth/login")
+
 
 # Register the Google login route with the admin interface
 admin.app.router.add_route("/auth/google", login_google)
 
 ###
 # --- Include Routers ---
-###
+
+app.include_router(auth_routes.router, tags=["auth"])
+
 app.include_router(dexcom_routes.router, prefix="/dexcom", tags=["dexcom"])
 
 app.include_router(data_routes.router, prefix="/data", tags=["data"])
@@ -288,9 +290,7 @@ def health_check():
 @app.get("/pitch")
 def pitch_document(request: Request):
     """PFun pitch document."""
-    return templates.TemplateResponse(  # type: ignore
-        "pitch-doc.html.jinja2", context={"request": request}
-    )
+    return templates.TemplateResponse("pitch-doc.html.jinja2", context={"request": request})  # type: ignore
 
 
 @app.get("/")
@@ -438,12 +438,8 @@ async def run_at_time_stream_route(
 # -- WebSocket Routes --
 
 # Import websockets module to register events
-PFunSocketIOSession = importlib.import_module(
-    "pfun_cma_model.misc.sessions"
-).PFunSocketIOSession
-PFunWebsocketNamespace = importlib.import_module(
-    "pfun_cma_model.routes.ws"
-).PFunWebsocketNamespace
+PFunSocketIOSession = importlib.import_module("pfun_cma_model.misc.sessions").PFunSocketIOSession
+PFunWebsocketNamespace = importlib.import_module("pfun_cma_model.routes.ws").PFunWebsocketNamespace
 
 # Consolidated Socket.IO session instantiation
 socketio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
