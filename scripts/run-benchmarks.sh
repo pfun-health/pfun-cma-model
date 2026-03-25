@@ -3,4 +3,7 @@
 # scripts/run-benchmarks.sh :
 # run benchmarks using pyperformance
 
-uv run pyperformance run --python=$(which python3.12) -o py312-uv.json
+uv run \
+   pyperformance run \
+   --python="$(uv python dir)/bin/python" \
+   -o "py312-uv.json"
