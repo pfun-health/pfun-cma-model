@@ -4,7 +4,9 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/25.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    devenv.url = "github:cachix/devenv";
+    devenv = {
+      url = "github:cachix/devenv";
+    };
     nix2container = {
       url = "github:nlewo/nix2container";
       inputs = {
