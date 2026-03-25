@@ -15,4 +15,11 @@ jobs:
         uses: astral-sh/setup-uv@v7
       
       - name: Run Tests
-        run: ./scripts/uv-full-sync.sh && ./scripts/run-tests.sh
+        run: |
+          ./scripts/uv-full-sync.sh && \
+          ./scripts/run-tests.sh
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: logs/benchmarks/pytest-benchmark.json
