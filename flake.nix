@@ -57,9 +57,13 @@
             packages =
               with pkgs;
               [
+                # for python
                 python # note that the version is defined above
                 uv
+                
+                libxml2
                 pkg-config # general-purpose build tool
+                
                 # for PyQt6
                 libGLU
                 libGL

@@ -5,7 +5,7 @@ version = "0.4.192"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
-requires-python = ">=3.12.11,<3.12.13" # Additional properties are not allowed (package' was unexpected)
+requires-python = ">=3.12.11,<=3.12.13" # Additional properties are not allowed (package' was unexpected)
 
 dependencies = [
     "setuptools>=78.1.1",
@@ -104,7 +104,7 @@ dev = [
     "pyperformance>=1.14.0",
     "pfun_qt_gui",
     "pyside6>=6.11.0",
-    "mkdocs-material>=9.7.6",
+    "zensical>=0.0.29",
 ]
 datasette = [
     "datasette<=1.0a23",

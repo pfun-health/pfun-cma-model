@@ -20,7 +20,7 @@
 				"database": "/home/robbiec/.local/share/pfun-cma-model/admin.db"
 			}
 		],
-		"sqltools.useNodeRuntime": true
+		"sqltools.useNodeRuntime": true,
 		"postman.settings.dotenv-detection-notification-visibility": false,
 		"python.pythonPath": "${workspaceFolder}/.venv/bin/python",
 		"editor.wordWrapColumn": 120
