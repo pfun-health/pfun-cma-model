@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = "==3.12.11"
+requires-python = ">=3.12.11, <=3.12.13"
 
 [[package]]
 name = "annotated-types"
@@ -157,7 +157,7 @@ wheels = [
 
 [[package]]
 name = "pfun-common"
-version = "0.1.84"
+version = "0.1.85"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
