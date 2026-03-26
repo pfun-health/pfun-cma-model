@@ -4,18 +4,10 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Security, status
-from fastapi.responses import RedirectResponse
-from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from jose import JWTError, jwt
-
-# SSO imports
-import fastapi_sso.sso
-import pfun_cma_model.sso.providers as pfun_providers
-from fastapi_sso.sso.base import OpenID
-
-fastapi_sso.sso.__dict__.update(pfun_providers.__dict__)
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
@@ -180,7 +172,6 @@ async def get_optional_user(request: Request) -> Optional[TokenData]:
 
 
 # ==================== SSO Routes ====================
-
 
 
 # ==================== Token Management Routes ====================

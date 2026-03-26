@@ -55,7 +55,7 @@ while True:
                 "role": "assistant",
                 "thinking": thinking,
                 "content": content,
-                "tool_calls": tool_calls,
+                "tool_calls": tool_calls,  # type: ignore
             }
         )
 

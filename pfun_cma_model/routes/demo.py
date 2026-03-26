@@ -111,7 +111,9 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
                 url="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css?",
                 decache=True,
             ),
-            "inline-script": CDNResource(hash="sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM=", url=None),
+            "inline-script": CDNResource(
+                hash="sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM=", url=None
+            ),
             "jquery-ui": CDNResource(
                 url="https://code.jquery.com/ui/1.14.1/jquery-ui.js",
                 decache=True,
@@ -121,19 +123,25 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
     )
     context = demo_route_context.model_dump()
     logger.debug("Demo context: %s", str(context))
-    return templates.TemplateResponse("llm-demo.html.jinja2", context=context)
+    return templates.TemplateResponse(request, "llm-demo.html.jinja2", context=context)
 
 
 @router.get("/data-stream")
-def demo_data_stream(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+def demo_data_stream(
+    request: Request, templates: Jinja2Templates = Depends(get_templates)
+):
     """Demo UI endpoint for data stream interactions."""
     demo_route_context = PFunDemoRoutesContext(request=request)
     context = demo_route_context.model_dump()
-    return templates.TemplateResponse("data-stream-demo.html.jinja2", context=context)
+    return templates.TemplateResponse(
+        request, "data-stream-demo.html.jinja2", context=context
+    )
 
 
 @router.get("/run-at-time")
-async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+async def demo_run_at_time(
+    request: Request, templates: Jinja2Templates = Depends(get_templates)
+):
     """Demo UI endpoint to run the model at a specific time (using websockets)."""
     # load default bounded parameters, formatted parameters to appear in the rendered template.
     params = get_formatted_params()
@@ -154,6 +162,7 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
     )
     context_output = demo_route_context.model_dump()
     return templates.TemplateResponse(
+        request,
         "run-at-time-demo.html.jinja2",
         context=context_output,
         headers={"Content-Type": "text/html"},
@@ -161,7 +170,9 @@ async def demo_run_at_time(request: Request, templates: Jinja2Templates = Depend
 
 
 @router.get("/canvas-wave")
-async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+async def demo_canvas_wave(
+    request: Request, templates: Jinja2Templates = Depends(get_templates)
+):
     """Demo UI endpoint for canvas wave demo (using websockets)."""
     # load default bounded parameters
     params = get_formatted_params()
@@ -179,6 +190,7 @@ async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depend
     context_dict = demo_route_context.model_dump()
     logger.debug("Demo context: %s", context_dict)
     return templates.TemplateResponse(
+        request,
         "canvas-wave-demo.html.jinja2",
         context=context_dict,
         headers={"Content-Type": "text/html"},
@@ -186,7 +198,9 @@ async def demo_canvas_wave(request: Request, templates: Jinja2Templates = Depend
 
 
 @router.get("/full-model-run")
-async def demo_full_model_run(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+async def demo_full_model_run(
+    request: Request, templates: Jinja2Templates = Depends(get_templates)
+):
     """Demo UI endpoint to run the full model (c, m, a) at a specific time (using websockets)."""
     # load default bounded parameters
     params = get_formatted_params()
@@ -208,6 +222,7 @@ async def demo_full_model_run(request: Request, templates: Jinja2Templates = Dep
     context_dict = demo_route_context.model_dump()
     logger.debug("(post-validation) Demo context: %s", context_dict)
     return templates.TemplateResponse(
+        request,
         "full-model-run-demo.html.jinja2",
         context=context_dict,
         headers={"Content-Type": "text/html"},
@@ -215,7 +230,9 @@ async def demo_full_model_run(request: Request, templates: Jinja2Templates = Dep
 
 
 @router.get("/webgl-demo")
-async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_templates)):
+async def demo_webgl(
+    request: Request, templates: Jinja2Templates = Depends(get_templates)
+):
     """Demo UI endpoint for the WebGL-based real-time plot."""
     # formatted parameters to appear in the rendered template
     params = get_formatted_params()
@@ -237,5 +254,8 @@ async def demo_webgl(request: Request, templates: Jinja2Templates = Depends(get_
     context_dict = demo_route_context.model_dump()
     logger.debug("WebGL Demo context: %s", context_dict)
     return templates.TemplateResponse(
-        "webgl-demo.html.jinja2", context=context_dict, headers={"Content-Type": "text/html"}
+        request,
+        "webgl-demo.html.jinja2",
+        context=context_dict,
+        headers={"Content-Type": "text/html"},
     )

@@ -1,26 +1,15 @@
 import logging
 from datetime import datetime, timezone
-from ipaddress import ip_address
-from typing import Annotated, Any
-
+from typing import Any
 from fastapi import (
-    Body,
-    FastAPI,
-    Header,
-    HTTPException,
-    Query,
     Request,
     Response,
-    WebSocket,
-    WebSocketDisconnect,
     status,
 )
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from guard import SecurityConfig, SecurityMiddleware
-from guard.decorators import SecurityDecorator
-from guard.handlers.behavior_handler import BehaviorRule
+from guard import SecurityConfig
 from pfun_common.settings import get_settings
 from pfun_common.utils import setup_logging
 
@@ -91,7 +80,9 @@ class StatsResponse(BaseModel):
                 "blocked_requests": 50,
                 "banned_ips": ["192.168.1.100", "10.0.0.50"],
                 "rate_limited_ips": {"192.168.1.200": 5},
-                "suspicious_activities": [{"ip": "192.168.1.100", "reason": "SQL injection attempt"}],
+                "suspicious_activities": [
+                    {"ip": "192.168.1.100", "reason": "SQL injection attempt"}
+                ],
                 "active_rules": {"rate_limit": 10, "auto_ban_threshold": 5},
             }
         }
@@ -133,7 +124,9 @@ class TestPayload(BaseModel):
     query: str | None = Field(None, description="Test query for SQL injection")
     path: str | None = Field(None, description="Test path for traversal attacks")
     cmd: str | None = Field(None, description="Test command for injection")
-    honeypot_field: str | None = Field(None, description="Hidden field for bot detection")
+    honeypot_field: str | None = Field(
+        None, description="Hidden field for bot detection"
+    )
 
 
 # ==================== Custom Hooks ====================
@@ -143,7 +136,10 @@ async def custom_request_check(request: Request) -> Response | None:
     """Custom request validation hook."""
     # Example: Block requests with specific query parameters
     if "debug" in request.query_params and request.query_params["debug"] == "true":
-        logger.warning("Blocked debug request from %s", request.client.host if request.client else "unknown")
+        logger.warning(
+            "Blocked debug request from %s",
+            request.client.host if request.client else "unknown",
+        )
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"detail": "Debug mode not allowed"},
@@ -183,7 +179,7 @@ def setup_security_config() -> SecurityConfig:
         # blocked_countries=["XX"],  # Example: block country code XX
         # whitelist_countries=[],  # Allow all countries by default
         # Cloud Provider Blocking
-        #block_cloud_providers={"AWS", "GCP", "Azure"},
+        # block_cloud_providers={"AWS", "GCP", "Azure"},
         # User Agent Filtering
         blocked_user_agents=["badbot", "evil-crawler", "sqlmap"],
         # Rate Limiting
@@ -203,8 +199,8 @@ def setup_security_config() -> SecurityConfig:
         # HTTPS Enforcement
         enforce_https=not get_settings().debug,  # Set to True in production
         # Custom Hooks
-        custom_request_check=custom_request_check,
-        custom_response_modifier=custom_response_modifier,
+        custom_request_check=custom_request_check,  # type: ignore
+        custom_response_modifier=custom_response_modifier,  # type: ignore
         # Security Headers Configuration
         security_headers={
             "enabled": True,

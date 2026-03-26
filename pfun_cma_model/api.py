@@ -4,9 +4,9 @@
 from pfun_cma_model.admin.models import init_models
 from pfun_cma_model.misc.middleware import track_client_request_middleware
 from pfun_cma_model.security import (
-    SecurityMiddleware,
     setup_security_config,
 )
+from guard import SecurityMiddleware
 from contextlib import asynccontextmanager
 from datetime import datetime
 import importlib
@@ -52,7 +52,7 @@ logger.setLevel(level=logging.DEBUG if debug_mode is True else logging.INFO)
 redis_client: Redis | None = None
 #: Global Redis client instance
 
-templates: Jinja2Templates | None = None
+templates: Jinja2Templates | None = None  # type: ignore
 #: Global Jinja2 templates instance
 
 
@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: initialize templates ---
     global templates
-    templates = get_templates()
+    templates: Jinja2Templates = get_templates()
 
     # --- Startup task: connect to Redis ---
     global redis_client
@@ -99,7 +99,7 @@ async def lifespan(app: FastAPI):
     # NOTE: Yes, these steps are technically unnecessary.
     # ...It's an extra guarantee when you're using hot reload.
     # --- Delete the templates instance ---
-    templates = None
+    templates = None  # type: ignore
     # TODO: sample data needs to be loaded via db connection.
     # --- Delete the sample data ---
     pfun_data_paths.remove_sample_data()
@@ -143,14 +143,17 @@ app = FastAPI(
 # Set the application title and description
 app.title = "PFun CMA Model Routing API"
 app.description = (
-    "Server-side operations for operating the PFun CMA model; " + "schema definitions, data IO, model execution."
+    "Server-side operations for operating the PFun CMA model; "
+    + "schema definitions, data IO, model execution."
 )
 
 
 # Set the application version based on the package version and file modification time
 def set_app_version(app: FastAPI = app) -> FastAPI:
     """Set the application version based on the package version and `app.py` file modification time."""
-    fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime("%Y%m%d%H%M%S")
+    fmod_time = datetime.fromtimestamp(Path(__file__).stat().st_mtime).strftime(
+        "%Y%m%d%H%M%S"
+    )
     app.version = str(pfun_cma_model_pkg_version) + f"-dev.{fmod_time}"
     logging.debug("pfun-cma-model version: %s", pfun_cma_model_pkg_version)
     logging.debug("FastAPI app version set to: %s", app.version)
@@ -299,19 +302,22 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse(  # type: ignore
+    return templates.TemplateResponse(
+        request,
         "index.html.jinja2",
-        {
-            "request": request,
-            "year": datetime.now().year,
-            "message": f"Accessed at: {ts_msg}; from: {real_ip}",
-        },
+        context=dict(
+            year=datetime.now().year, message=f"Accessed at: {ts_msg}; from: {real_ip}"
+        ),
     )
 
 
 @app.get("/login")
 def login_sso_route(request: Request):
-    return templates.TemplateResponse("sqladmin/login.html", {"request": request, "admin": admin})
+    return templates.TemplateResponse(
+        request,
+        "sqladmin/login.html",
+        context={"admin": admin}
+    )
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -438,8 +444,12 @@ async def run_at_time_stream_route(
 # -- WebSocket Routes --
 
 # Import websockets module to register events
-PFunSocketIOSession = importlib.import_module("pfun_cma_model.misc.sessions").PFunSocketIOSession
-PFunWebsocketNamespace = importlib.import_module("pfun_cma_model.routes.ws").PFunWebsocketNamespace
+PFunSocketIOSession = importlib.import_module(
+    "pfun_cma_model.misc.sessions"
+).PFunSocketIOSession
+PFunWebsocketNamespace = importlib.import_module(
+    "pfun_cma_model.routes.ws"
+).PFunWebsocketNamespace
 
 # Consolidated Socket.IO session instantiation
 socketio_session = PFunSocketIOSession(app=app, ns=PFunWebsocketNamespace())
