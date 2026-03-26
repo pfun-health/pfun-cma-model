@@ -49,6 +49,9 @@ dependencies = [
     "fastapi-sso>=0.20.0",
     "passlib>=1.7.4",
     "supervisor>=4.3.0",
+    "pkginfo>=1.12.1.2",
+    "tqdm>=4.67.3",
+    "packaging==24.1",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -102,13 +105,20 @@ dev = [
     "mkdocs>=1.6.1",
     "openapi-generator-cli[jdk4py]>=7.18.0",
     "pyperformance>=1.14.0",
-    "pfun_qt_gui",
-    "pyside6>=6.11.0",
     "zensical>=0.0.29",
 ]
 datasette = [
     "datasette<=1.0a23",
     "datasette-parquet>=0.6.1",
+]
+android = [
+    "pkginfo>=1.12.1.2",
+    "tqdm>=4.67.3",
+]
+qt6 = [
+    "pfun-qt-gui",
+    "pyqt6>=6.10.2",
+    "pyside6>=6.11.0",
 ]
 
 # hatch configurations
@@ -141,9 +151,10 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
-pfun_qt_gui = { path = "./packages/pfun_qt_gui" }
+pfun-qt-gui = { workspace = true }
 
 [tool.uv.workspace]
 members = [
     "pfun-gradio",
+    "packages/pfun_qt_gui",
 ]

@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = ">=3.12.11, <=3.12.13"
 
+[manifest]
+members = [
+    "pfun-cma-model",
+    "pfun-qt-gui",
+]
+
 [[package]]
 name = "aiofiles"
 version = "25.1.0"
@@ -1499,11 +1505,11 @@ jdk4py = [
 
 [[package]]
 name = "packaging"
-version = "25.0"
+version = "24.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727, upload-time = "2025-04-19T11:48:59.673Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/65/50db4dda066951078f0a96cf12f4b9ada6e4b811516bf0262c0f4f7064d4/packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002", size = 148788, upload-time = "2024-06-09T23:19:24.956Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469, upload-time = "2025-04-19T11:48:57.875Z" },
+    { url = "https://files.pythonhosted.org/packages/08/aa/cc0199a5f0ad350994d660967a8efb233fe0416e4639146c089643407ce6/packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124", size = 53985, upload-time = "2024-06-09T23:19:21.909Z" },
 ]
 
 [[package]]
@@ -1629,11 +1635,13 @@ dependencies = [
     { name = "mss" },
     { name = "numba" },
     { name = "numpy" },
+    { name = "packaging" },
     { name = "pandas" },
     { name = "passlib" },
     { name = "pfun-common" },
     { name = "pfun-path-helper" },
     { name = "pip" },
+    { name = "pkginfo" },
     { name = "pyarrow" },
     { name = "pydantic-settings" },
     { name = "python-jose", extra = ["cryptography"] },
@@ -1650,6 +1658,7 @@ dependencies = [
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "supervisor" },
     { name = "tabulate" },
+    { name = "tqdm" },
     { name = "websockets" },
 ]
 
@@ -1675,6 +1684,10 @@ numba = [
 ]
 
 [package.dev-dependencies]
+android = [
+    { name = "pkginfo" },
+    { name = "tqdm" },
+]
 datasette = [
     { name = "datasette" },
     { name = "datasette-parquet" },
@@ -1684,9 +1697,7 @@ dev = [
     { name = "httpx" },
     { name = "mkdocs" },
     { name = "openapi-generator-cli", extra = ["jdk4py"] },
-    { name = "pfun-qt-gui" },
     { name = "pyperformance" },
-    { name = "pyside6" },
     { name = "zensical" },
 ]
 google = [
@@ -1698,6 +1709,11 @@ ollama = [
 ]
 perplexity = [
     { name = "perplexityai" },
+]
+qt6 = [
+    { name = "pfun-qt-gui" },
+    { name = "pyqt6" },
+    { name = "pyside6" },
 ]
 
 [package.metadata]
@@ -1729,12 +1745,14 @@ requires-dist = [
     { name = "numba", marker = "extra == 'numba'", specifier = ">=0.58.0" },
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "openapi-generator-cli", extras = ["jdk4py"], marker = "extra == 'dev'", specifier = ">=7.17.0" },
+    { name = "packaging", specifier = "==24.1" },
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "pfun-common", directory = "packages/pfun_common" },
     { name = "pfun-path-helper", specifier = ">=0.1.4" },
     { name = "pip", specifier = ">=25.1.1" },
+    { name = "pkginfo", specifier = ">=1.12.1.2" },
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "pydantic-settings", specifier = ">=2.2.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.2" },
@@ -1754,6 +1772,7 @@ requires-dist = [
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.46" },
     { name = "supervisor", specifier = ">=4.3.0" },
     { name = "tabulate", specifier = ">=0.9.0" },
+    { name = "tqdm", specifier = ">=4.67.3" },
     { name = "types-requests", marker = "extra == 'dev'", specifier = ">=2.32.4.20250611" },
     { name = "types-setuptools", marker = "extra == 'dev'", specifier = ">=80.9.0.20251223" },
     { name = "types-tabulate", marker = "extra == 'dev'", specifier = ">=0.9.0.20241207" },
@@ -1762,6 +1781,10 @@ requires-dist = [
 provides-extras = ["ui", "dev", "numba", "cext"]
 
 [package.metadata.requires-dev]
+android = [
+    { name = "pkginfo", specifier = ">=1.12.1.2" },
+    { name = "tqdm", specifier = ">=4.67.3" },
+]
 datasette = [
     { name = "datasette", specifier = "<=1.0a23" },
     { name = "datasette-parquet", specifier = ">=0.6.1" },
@@ -1771,9 +1794,7 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.18.0" },
-    { name = "pfun-qt-gui", directory = "packages/pfun_qt_gui" },
     { name = "pyperformance", specifier = ">=1.14.0" },
-    { name = "pyside6", specifier = ">=6.11.0" },
     { name = "zensical", specifier = ">=0.0.29" },
 ]
 google = [
@@ -1782,6 +1803,11 @@ google = [
 ]
 ollama = [{ name = "ollama", specifier = "==0.6.1" }]
 perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
+qt6 = [
+    { name = "pfun-qt-gui", editable = "packages/pfun_qt_gui" },
+    { name = "pyqt6", specifier = ">=6.10.2" },
+    { name = "pyside6", specifier = ">=6.11.0" },
+]
 
 [[package]]
 name = "pfun-common"
@@ -1817,17 +1843,23 @@ wheels = [
 [[package]]
 name = "pfun-qt-gui"
 version = "0.1.0"
-source = { directory = "packages/pfun_qt_gui" }
+source = { editable = "packages/pfun_qt_gui" }
 dependencies = [
     { name = "dotenv" },
     { name = "pfun-common" },
     { name = "pyqt6" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pip" },
+    { name = "pyside6" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "pfun-common" },
+    { name = "pfun-common", directory = "packages/pfun_common" },
     { name = "pyqt6", specifier = ">=6.6.0" },
 ]
 
@@ -1858,11 +1890,20 @@ wheels = [
 
 [[package]]
 name = "pip"
-version = "25.3"
+version = "26.0.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fe/6e/74a3f0179a4a73a53d66ce57fdb4de0080a8baa1de0063de206d6167acc2/pip-25.3.tar.gz", hash = "sha256:8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343", size = 1803014, upload-time = "2025-10-25T00:55:41.394Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/83/0d7d4e9efe3344b8e2fe25d93be44f64b65364d3c8d7bc6dc90198d5422e/pip-26.0.1.tar.gz", hash = "sha256:c4037d8a277c89b320abe636d59f91e6d0922d08a05b60e85e53b296613346d8", size = 1812747, upload-time = "2026-02-05T02:20:18.702Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/3c/d717024885424591d5376220b5e836c2d5293ce2011523c9de23ff7bf068/pip-25.3-py3-none-any.whl", hash = "sha256:9655943313a94722b7774661c21049070f6bbb0a1516bf02f7c8d5d9201514cd", size = 1778622, upload-time = "2025-10-25T00:55:39.247Z" },
+    { url = "https://files.pythonhosted.org/packages/de/f0/c81e05b613866b76d2d1066490adf1a3dbc4ee9d9c839961c3fc8a6997af/pip-26.0.1-py3-none-any.whl", hash = "sha256:bdb1b08f4274833d62c1aa29e20907365a2ceb950410df15fc9521bad440122b", size = 1787723, upload-time = "2026-02-05T02:20:16.416Z" },
+]
+
+[[package]]
+name = "pkginfo"
+version = "1.12.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/03/e26bf3d6453b7fda5bd2b84029a426553bb373d6277ef6b5ac8863421f87/pkginfo-1.12.1.2.tar.gz", hash = "sha256:5cd957824ac36f140260964eba3c6be6442a8359b8c48f4adf90210f33a04b7b", size = 451828, upload-time = "2025-02-19T15:27:37.188Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/3d/f4f2ba829efb54b6cd2d91349c7463316a9cc55a43fc980447416c88540f/pkginfo-1.12.1.2-py3-none-any.whl", hash = "sha256:c783ac885519cab2c34927ccfa6bf64b5a704d7c69afaea583dd9b7afe969343", size = 32717, upload-time = "2025-02-19T15:27:33.071Z" },
 ]
 
 [[package]]
@@ -2815,6 +2856,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0c/1a/d7592328d037d36f2d2462f4bc1fbb383eec9278bc786c1b111cbbd44cfa/tornado-6.5.4-cp39-abi3-win32.whl", hash = "sha256:1768110f2411d5cd281bac0a090f707223ce77fd110424361092859e089b38d1", size = 446481, upload-time = "2025-12-15T19:21:00.008Z" },
     { url = "https://files.pythonhosted.org/packages/d6/6d/c69be695a0a64fd37a97db12355a035a6d90f79067a3cf936ec2b1dc38cd/tornado-6.5.4-cp39-abi3-win_amd64.whl", hash = "sha256:fa07d31e0cd85c60713f2b995da613588aa03e1303d75705dca6af8babc18ddc", size = 446886, upload-time = "2025-12-15T19:21:01.287Z" },
     { url = "https://files.pythonhosted.org/packages/50/49/8dc3fd90902f70084bd2cd059d576ddb4f8bb44c2c7c0e33a11422acb17e/tornado-6.5.4-cp39-abi3-win_arm64.whl", hash = "sha256:053e6e16701eb6cbe641f308f4c1a9541f91b6261991160391bfc342e8a551a1", size = 445910, upload-time = "2025-12-15T19:21:02.571Z" },
+]
+
+[[package]]
+name = "tqdm"
+version = "4.67.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/09/a9/6ba95a270c6f1fbcd8dac228323f2777d886cb206987444e4bce66338dd4/tqdm-4.67.3.tar.gz", hash = "sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb", size = 169598, upload-time = "2026-02-03T17:35:53.048Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/16/e1/3079a9ff9b8e11b846c6ac5c8b5bfb7ff225eee721825310c91b3b50304f/tqdm-4.67.3-py3-none-any.whl", hash = "sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf", size = 78374, upload-time = "2026-02-03T17:35:50.982Z" },
 ]
 
 [[package]]
