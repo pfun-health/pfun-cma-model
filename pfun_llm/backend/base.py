@@ -31,6 +31,7 @@ class BaseGenerativeModel:
         """Call the API client with the specified model and contents."""
         if model is None:
             model = self._model
+        return model
 
     @classmethod
     def setup_genai_client(cls):

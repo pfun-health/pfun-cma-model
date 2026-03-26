@@ -117,6 +117,10 @@ async def authenticate_user(db, username: str, password: str):
     return user
 
 
+from typing import Annotated
+from fastapi import Depends
+
+
 async def get_logged_user(
     cookie: str | bytes = Security(APIKeyCookie(name="token")),
 ) -> OpenID:
@@ -129,10 +133,16 @@ async def get_logged_user(
     """
     try:
         claims = jwt.decode(
-            cookie, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
+            cookie,
+            key=get_settings().secret_key,
+            algorithms=[CryptContextDefaults.ALGORITHM],
         )
         return OpenID(**claims["pld"])
     except Exception as error:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
         ) from error
+
+
+OIDAuthenticatedUser = Annotated[OpenID, Depends(get_logged_user)]
+#: Authenticated User (OpenID credentials)

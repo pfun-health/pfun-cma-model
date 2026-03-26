@@ -1,17 +1,18 @@
 """This module defines the routes related to Single Sign-On (SSO) authentication, e.g. using Google SSO."""
 
+from typing import Annotated
+from pfun_common.settings import get_settings
+from pfun_cma_model.admin.core import CryptContextDefaults, OIDAuthenticatedUser
+from pfun_cma_model.admin.sso import setup_google_sso
+from contextlib import asynccontextmanager
+import jwt
+from fastapi_sso import OpenID
+import datetime
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Request
 import logging
 
 logger = logging.getLogger(__name__)
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
-import datetime
-from fastapi_sso import OpenID
-import jwt
-from contextlib import asynccontextmanager
-from pfun_cma_model.admin.sso import setup_google_sso
-from pfun_cma_model.admin.core import get_logged_user, CryptContextDefaults
-from pfun_common.settings import get_settings
 
 logger.setLevel(level=logging.DEBUG if get_settings().debug is True else logging.INFO)
 
@@ -35,8 +36,22 @@ async def lifespan(router: APIRouter):
 router = APIRouter(lifespan=lifespan)
 
 
+async def sso_protected_google(user: OIDAuthenticatedUser, **kwargs) -> dict:
+    """Authenticates for Google SSO-protected endpoint."""
+    if not isinstance(user, OpenID):
+        raise HTTPException(
+            status_code=403, detail="Failed to authenticate via Google SSO."
+        )
+    kwargs.update({"user": user})
+    return kwargs
+
+
+GoogleUser = Annotated[dict, Depends(sso_protected_google)]
+#: Annotation for SSO (google) protected endpoint. Raises an error without user: OIDAuthenticatedUser.
+
+
 @router.get("/protected")
-async def protected_endpoint(request: Request, user=Depends(get_logged_user)):
+async def protected_endpoint(request: Request, user: GoogleUser):
     """This endpoint will say hello to the logged user.
     If the user is not logged, it will return a 401 error from `get_logged_user`."""
     logging.debug(
@@ -94,9 +109,8 @@ async def login_callback(request: Request):
     request.session.update(
         {"token": token}
     )  # Store the token in the session for future authentication
-    response = RedirectResponse(
-        url="/admin/"
-    )  # Redirect to admin endpoint after login
+    # Redirect to user profile endpoint after login
+    response = RedirectResponse(url="/user/")
     response.set_cookie(
         key="token", value=token, expires=expiration
     )  # This cookie will make sure /admin/ knows the user

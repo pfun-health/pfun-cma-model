@@ -31,7 +31,9 @@ class OllamaMessages(BaseModel):
         serialized_messages = []
         for message in v:
             if isinstance(message, OllamaMessage):
-                serialized_messages.append({"role": message.role, "content": message.content})
+                serialized_messages.append(
+                    {"role": message.role, "content": message.content}
+                )
             else:
                 raise ValueError(
                     "Each message must be a OllamaMessage instance. "
@@ -40,12 +42,16 @@ class OllamaMessages(BaseModel):
         return serialized_messages
 
 
-OllamaDefaultModel = Literal["gpt-oss:120b-cloud", "gemma3:4b-cloud", "deepseek-v3.2:cloud"]
+OllamaDefaultModel = Literal[
+    "gpt-oss:120b-cloud", "gemma3:4b-cloud", "deepseek-v3.2:cloud"
+]
 
 _OLLAMA_DEFAULT_MODEL: OllamaDefaultModel = "gpt-oss:120b-cloud"
 
 
-def _conv_str2msg(message_content: str | OllamaMessage, role: str = "user") -> OllamaMessage:
+def _conv_str2msg(
+    message_content: str | OllamaMessage, role: str = "user"
+) -> OllamaMessage:
     """convert raw string to OllamaMessage."""
     if isinstance(message_content, OllamaMessage):
         return message_content
@@ -53,13 +59,15 @@ def _conv_str2msg(message_content: str | OllamaMessage, role: str = "user") -> O
 
 
 def _format_messages(raw_messages: str | list, role: str = "user") -> OllamaMessages:  # type: ignore
-    """format raw messages (str|list), return OllamaMessages object."""
+    """Format raw messages (str|list), return OllamaMessages object."""
 
     if not isinstance(raw_messages, list):
         raw_messages: list = [
             raw_messages,
         ]
-    return OllamaMessages(messages=[_conv_str2msg(msg_, role=role) for msg_ in raw_messages])
+    return OllamaMessages(
+        messages=[_conv_str2msg(msg_, role=role) for msg_ in raw_messages]
+    )
 
 
 class OllamaGenerativeModel(BaseGenerativeModel):
@@ -85,7 +93,10 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         if model is None:
             model = self._model
         async for part in await self._client.chat(
-            model=model, messages=messages, stream=True, **self._extra_kwds  # with streaming enabled
+            model=model,
+            messages=messages,
+            stream=True,
+            **self._extra_kwds,  # with streaming enabled
         ):
             yield part["message"]["content"]
 
@@ -93,17 +104,23 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         if model is None:
             model = self._model
         logging.debug("Extra arguments (called on ollama.chat): %s", self._extra_kwds)
-        response = await asyncio.ensure_future(self._client.chat(model=model, messages=messages, **self._extra_kwds))
+        response = await asyncio.ensure_future(
+            self._client.chat(model=model, messages=messages, **self._extra_kwds)
+        )
         return response
 
     def call_genai_client(
         self,
         model: Optional[str] = None,
         contents: Optional[list | str | OllamaMessages | OllamaMessage] = None,
+        stream: bool = True,
         **kwds,
     ) -> None | Any | asyncio.Future:
-        """Call the API client with the specified model and contents."""
-        super().call_genai_client(model=model, contents=contents, **kwds)  # type: ignore
+        """Call the API client with the specified model and contents.
+
+        :param: stream [bool] : flag to indicate streaming for the agent chat call.
+        """
+        model = super().call_genai_client(model=model, contents=contents, **kwds) # type: ignore
         if not isinstance(contents, OllamaMessages):
             contents = _format_messages(contents)  # type: ignore
         serialized_messages = contents.model_dump()["messages"]
@@ -115,16 +132,16 @@ class OllamaGenerativeModel(BaseGenerativeModel):
         try:
             # ensure the response is an awaitable (avoid making this method async, handle in context)
             return self.chat(model=model, messages=serialized_messages)
-        except ollama._types.ResponseError as exc:
+        except ollama._types.ResponseError as exc:  # type: ignore
             logging.error("Ollama API error: %s", exc)
             if exc.status_code == 404:
                 logging.warning(
                     "Model not found: %s. Please check the model name and ensure it is available in your Ollama instance. Now attempting to pull the specified model.",
                     model,
                 )
-                prog_response: ProgressResponse = ollama.pull(model=model)
+                prog_response: ProgressResponse = ollama.pull(model)  # type: ignore
                 logging.info("Pull response: %s", prog_response)
-                if prog_response.status.lower() == "completed":
+                if prog_response.status.lower() == "completed":  # type: ignore
                     logging.info("Model pulled successfully. Retrying the API call.")
                     return self.chat(model=model, messages=serialized_messages)
             # if we reach here, it means the error was not a 404 or the pull did not succeed, so we raise the error

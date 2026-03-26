@@ -24,7 +24,7 @@ dependencies = [
     "pyarrow>=20.0.0",
     "ipykernel>=6.29.5",
     "websockets>=13.0,<15.0",
-    "fastapi[standard]>=0.116.1",
+    "fastapi[standard]==0.135.0",
     "redis>=6.4.0",
     "python-socketio>=5.13.0",
     "python-socketio-stubs>=5.13.0.12.20250809",

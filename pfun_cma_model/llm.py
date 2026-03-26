@@ -25,7 +25,9 @@ def _import_genai_with_backend(llm_backend: LLMBackendChoice):
 def init_gen_model(**kwds):
     """Initializes the generative model based on the selected backend and provided keyword arguments.
 
-    :param kwds: Keyword arguments to pass to the generative model upon initialization (e.g. temperature, seed, etc.). These will be passed directly to the model's internal _extra_kwds dictionary, which is used to configure the model's behavior.
+    :param kwds: Keyword arguments to pass to the generative model upon initialization (e.g. temperature, seed, etc.).
+                 These will be passed directly to the model's internal _extra_kwds dictionary,
+                 which is used to configure the model's behavior.
     """
     kwargs = dict(options={"temperature": 0, "seed": 23})
     kwargs.update(kwds)
@@ -38,7 +40,7 @@ def init_gen_model(**kwds):
 GenerativeModel = init_gen_model
 
 
-async def _parse_generated_response(response: Any | str) -> str:
+async def _parse_generated_response(response: Any | str) -> str:  # type: ignore
     """Parse the response that was returned by the generative model.
     Await the future if it's an async routine-like object.
     Get the response text attribute if it exists, otherwise return the string.
@@ -46,7 +48,7 @@ async def _parse_generated_response(response: Any | str) -> str:
     # explicitly test to see if the response needs awaited
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
-        response_as_dict = response.dict()
+        response_as_dict = response.dict()  # type: ignore
         txt_resp = response_as_dict["message"]["content"]
         # Properly handle UTF-8 encoding: encode to bytes then decode as UTF-8
         txt_resp = str(txt_resp).replace("'", '"')
@@ -68,15 +70,19 @@ async def _parse_generated_response(response: Any | str) -> str:
                 txt_resp,
             )
         return txt_resp
-    return await _parse_generated_response(await response)
+    elif hasattr(response, "__await__"):
+        return await _parse_generated_response(await response)  # type: ignore
 
 
-async def _call_llm_for_json(prompt: str) -> dict:
+async def _call_llm_for_json(prompt: str, stream: bool = False) -> dict:
     """
     Calls the generative model with a prompt and parses the JSON response.
 
     Args:
         prompt: The prompt to send to the model.
+
+    Kwargs:
+        stream [bool] : flag to indicate whether to stream the chat interaction or not.
 
     Returns:
         A dictionary parsed from the model's JSON response.
@@ -85,7 +91,7 @@ async def _call_llm_for_json(prompt: str) -> dict:
         Exception: If the API response cannot be parsed as JSON.
     """
     model = GenerativeModel()
-    response = model.generate_content(prompt)
+    response = model.generate_content(prompt, stream=stream)
     resp_text: str = await _parse_generated_response(response)
     logging.debug("LLM Response (raw text attribute):\n'%s'", resp_text)
     # use regex to extract JSON from markdown code blocks (if present)
@@ -116,9 +122,18 @@ async def _call_llm_for_json(prompt: str) -> dict:
 
 
 class DescribedParameter(BaseModel):
+    """
+    PFun model parameter, along with descriptioon, value, standard error estimate.
+    """
+
     value: float | int | Any
+    #: Parameter value.
+
     description: str
+    #: Text description.
+
     stderr: float
+    #: Standard error estimate.
 
 
 class PFunLLMGeneratedScenario(BaseModel):
@@ -139,11 +154,15 @@ class PFunLLMGeneratedScenario(BaseModel):
     #: A mapping of pfun llm generated recommendations, indexed by recommendation-type.
 
 
+GeneratedScenario = PFunLLMGeneratedScenario
+#: Alias for PFunLLMGeneratedScenario
+
+
 async def generate_scenario(
     query: Optional[str] = None,
     include_sample_trace: bool = False,
     include_recommendations: bool = True,
-) -> dict | PFunLLMGeneratedScenario:
+) -> PFunLLMGeneratedScenario:
     """
     Generates a realistic "pfun-scene" JSON object using the selected llm backend (see pfun_common.settings).
 
