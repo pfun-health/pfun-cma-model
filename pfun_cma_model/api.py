@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
 
     # --- Startup task: initialize templates ---
     global templates
-    templates: Jinja2Templates = get_templates()
+    templates = get_templates()
 
     # --- Startup task: connect to Redis ---
     global redis_client

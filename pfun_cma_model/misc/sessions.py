@@ -84,11 +84,13 @@ class PFunSocketIOSession:
         This allows WebSocket connections to be handled at the given path.
         """
         self.app.add_route(
-            path, route=self.sio_app, methods=["GET", "POST"], include_in_schema=False
+            path, self.sio_app, methods=["GET", "POST"], include_in_schema=False  # type: ignore
         )
-        self.app.add_websocket_route(path, route=self.sio_app)
+        self.app.add_api_websocket_route(path, self.sio_app)
 
-    def setup_redis_manager(self, url: str = None, **kwargs) -> socketio.AsyncRedisManager:
+    def setup_redis_manager(
+        self, url: Optional[str] = None, **kwargs
+    ) -> socketio.AsyncRedisManager:
         """
         Setup Redis manager for Socket.IO.
         """

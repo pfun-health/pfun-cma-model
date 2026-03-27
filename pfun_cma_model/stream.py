@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 async def async_generate_parameters(
-        description: str, llm_gen_scenario_endpoint: str
+    description: str, llm_gen_scenario_endpoint: str
 ) -> str:
     """
     Asynchronously generate parameters for a scenario description.
@@ -22,14 +22,15 @@ async def async_generate_parameters(
     :param llm_gen_scenario_endpoint: Description
     """
     from httpx import AsyncClient
+
     logger.debug("Hitting llm generation endpoint: %s", str(llm_gen_scenario_endpoint))
     async with AsyncClient(timeout=30) as client:
         try:
-            response = await client.stream(
+            response = client.stream(
                 method="POST",
                 url=llm_gen_scenario_endpoint,
                 json={"description": description},
-                timeout=30
+                timeout=30,
             )
             if response.status_code == 200:
                 # Successful response (JSON object)
@@ -37,13 +38,13 @@ async def async_generate_parameters(
                 description_text = response_jdict.get("qualitative_description", "")
                 import pandas as pd
 
-                parameters = response_jdict.get("parameters", {})
-                if parameters:
+                parameters = response_jdict.get("parameters", None)
+                if parameters is not None:
                     param_df = pd.DataFrame.from_dict(parameters, orient="index")
                     param_df.index.name = "Parameter"
                     param_df.reset_index(inplace=True)
                     formatted_params_table = param_df.to_markdown(index=False)
-                else:
+                elif parameters is None:
                     formatted_params_table = "😞 No parameters generated.\n"
                     formatted_response = (
                         "## Description:\n"
@@ -51,12 +52,11 @@ async def async_generate_parameters(
                         "## Generated Parameters:\n"
                         f"{formatted_params_table}\n"
                     )
-                return formatted_response
+                    return formatted_response
             else:
                 return f"Error: {response.status_code} - {response.text}"
         except Exception as e:
             return f"Request failed: {e}"
-
 
 
 async def read_create_async_generator(fake_file) -> AsyncGenerator[str, None]:
@@ -166,4 +166,6 @@ async def stream_full_model_run(
     async for line in read_create_async_generator(txt_buffer):
         parts = line.split(",")
         # Yield a JSON object with all values
-        yield json.dumps({"t": parts[0], "c": parts[1], "m": parts[2], "a": parts[3]}) + "\n"
+        yield json.dumps(
+            {"t": parts[0], "c": parts[1], "m": parts[2], "a": parts[3]}
+        ) + "\n"

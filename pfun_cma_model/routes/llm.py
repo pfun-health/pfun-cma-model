@@ -15,6 +15,7 @@ from fastapi.sse import (
     EventSourceResponse,
     ServerSentEvent,
 )
+from pydantic import BaseModel, ConfigDict, field_serializer
 from pfun_common.settings import get_settings
 from pfun_cma_model.llm import generate_scenario as gen_scene, GeneratedScenario
 from pfun_cma_model.db import save2duckdb
@@ -28,11 +29,11 @@ They get around 6-7 hours of sleep per night, but their sleep quality is not gre
 They do some light exercise a few times a week, but they are not very consistent with it.
 """
 
-from pydantic import BaseModel, field_serializer
-
 
 class SceneGenOptions(BaseModel):
     """Options for generating a scenario asynchronously"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     prompt: str
     include_sample_trace: bool
