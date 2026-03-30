@@ -467,7 +467,7 @@ wheels = [
 
 [[package]]
 name = "datasette"
-version = "1.0a23"
+version = "1.0a26"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -489,9 +489,9 @@ dependencies = [
     { name = "sqlite-utils" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/74/486c662f0cc3aaa35b72efbe2d9436c8383ef874231a779a7d368ada96a4/datasette-1.0a23.tar.gz", hash = "sha256:80b81b0d29de5e31cd46fa3b4021eec1efe8bae7f47dcb01a2e4975b9e0d2a5e", size = 443047, upload-time = "2025-12-03T03:26:11.271Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/5b/ab59e7ac89dda4419fcaa196748db9242c03a96719db53ce680a6a8cecdc/datasette-1.0a26.tar.gz", hash = "sha256:4e8fcab2333df4db18c48d39cda00d49b3153f2334f7326dea8533a7ab56ef0f", size = 489604, upload-time = "2026-03-18T22:20:40.473Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/50/33b82e6e505398a49d67780796c461574af11fb96acc5365d6d2f42df1ff/datasette-1.0a23-py3-none-any.whl", hash = "sha256:6bb6c2d02f5611eeb84f88d2571d3cc6c56b32594bd53dc593b68b2b111df84e", size = 352341, upload-time = "2025-12-03T03:26:09.215Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/19/f721b060307dffabbbf1530b24213d838b7b15d9ea2aeab5ed3c80b0d8ff/datasette-1.0a26-py3-none-any.whl", hash = "sha256:58ca3b66c15335130e5526373bf75733dce3397f9289540e5e463f5127a3d032", size = 381327, upload-time = "2026-03-18T22:20:38.499Z" },
 ]
 
 [[package]]
@@ -1899,7 +1899,7 @@ android = [
     { name = "tqdm", specifier = ">=4.67.3" },
 ]
 datasette = [
-    { name = "datasette", specifier = "<=1.0a23" },
+    { name = "datasette", specifier = "<=1.0a26" },
     { name = "datasette-parquet", specifier = ">=0.6.1" },
 ]
 dev = [
