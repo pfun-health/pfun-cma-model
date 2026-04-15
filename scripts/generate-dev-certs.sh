@@ -37,12 +37,14 @@ show_menu() {
 		choice=$(whiptail --title "Generate Dev Certificates" \
 			--menu "Choose certificate generation method:" 12 60 2 \
 			"${tailscale_options[@]}" \
-			"${openssl_options[@]}" 3>&1 1>&2)
+			"${openssl_options[@]}" 3>&1 1>&2 2>&3)
+		choice=$(echo "$choice" | sed 's/[[:space:]]*$//')
 	elif [[ "$tool" == "dialog" ]]; then
 		choice=$(dialog --title "Generate Dev Certificates" \
 			--menu "Choose certificate generation method:" 12 60 2 \
 			"${tailscale_options[@]}" \
-			"${openssl_options[@]}" 3>&1 1>&2)
+			"${openssl_options[@]}" 3>&1 1>&2 2>&3)
+		choice=$(echo "$choice" | sed 's/[[:space:]]*$//')
 	elif [[ "$tool" == "select" ]]; then
 		echo "Certificate generation methods:" >&2
 		echo "${tailscale_options[0]}) ${tailscale_options[1]}" >&2
@@ -50,6 +52,7 @@ show_menu() {
 		echo ""
 		read -p "Enter choice [1]: " choice
 		choice="${choice:-1}"
+		choice=$(echo "$choice" | sed 's/[[:space:]]*$//')
 	elif [[ "$tool" == "none" ]]; then
 		echo "No menu tool detected. Falling back to command-line input." >&2
 		echo "Certificate generation methods:" >&2
@@ -58,6 +61,7 @@ show_menu() {
 		echo "" >&2
 		read -p "Enter choice [1]: " choice
 		choice="${choice:-1}"
+		choice=$(echo "$choice" | sed 's/[[:space:]]*$//')
 	else
 		echo "Certificate generation methods:" >&2
 		echo "${tailscale_options[0]}) ${tailscale_options[1]}" >&2

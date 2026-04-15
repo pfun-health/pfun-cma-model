@@ -3,7 +3,13 @@
 # scripts/run-benchmarks.sh :
 # run benchmarks using pyperformance
 
+OUTPUT_JSON_PATH="results/benchmarks/py312-uv.json"
+
+echo "Running benchmarks (pyperformance)..."
+echo "Output saved to: '${OUTPUT_JSON_PATH}'"
+echo "######################################"
+
 uv run \
    pyperformance run \
    --python="$(uv python dir)/bin/python" \
-   -o "py312-uv.json"
+   -o "${OUTPUT_JSON_PATH}"

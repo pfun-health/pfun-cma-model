@@ -6,9 +6,16 @@ TODO for `pfun-cma-model`
 
 ### Short-term Goals
 
-+ _Publish documentation using `MkDocs`, `Github Pages`_
-  + Use `MkDocs` to publish the documentation for `pfun-cma-model`.
-  + Publish to: `pfun-health.github.io/pfun-cma-model`.
++ _Publish documentation using `Zensical`, `Github Pages`_
+  + Use `Zensical` to publish the documentation for `pfun-cma-model`.
+  + Publish to: `pfun-health.github.io/pfun-cma-model` (Github Pages).
+  + Ensure documentation is comprehensive and includes:
+    + Installation instructions
+    + Usage examples
+    + API reference
+    + Contribution guidelines
+    + Security guidelines
+    + FAQ and troubleshooting section
 + _Complete initial implementation of admin interface:_
   + **Integrate `FastAPI-SSO` with `SQLAlchemy-Admin` database.**
   + ~~Define models (User, Site)~~
@@ -34,7 +41,7 @@ TODO for `pfun-cma-model`
 #### Curate Dataset(s)
 
 + _PFun recommendations synthetic dataset:_
-  + Currently doing aggregating from live data (`results/duckdb.db`).
+  + Currently aggregating from live data (`results/duckdb.db`).
     + This is useful for initial testing, but we want a more comprehensive dataset for training and evaluation.
   + Generate synthetic dataset of health recommendations and outcomes.
   + Include various scenarios, conditions, and outcomes to test model performance.
