@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     debug: bool = False
     #: Whether to enable debug mode (e.g. more verbose logging, auto-reload). Can also be set via the DEBUG environment variable.
 
+    logger_name: str = "pfun-app"
+    #: The name of the project-level logger.
+
     guard_passive_mode: bool = False
     #: Whether to enable passive mode for the security guard (i.e. log-only mode without blocking). Can also be set via the GUARD_PASSIVE_MODE environment variable.
 
@@ -41,10 +44,10 @@ class Settings(BaseSettings):
 
     server_port: str | int = "8001"
     #: The port for the server to listen on. Can also be set via the SERVER_PORT environment variable.
-    
+
     production_server_url: str = "https://cloud.tail38611b.ts.net"
     #: The public URL for the production server (e.g. for constructing redirect URIs). Can also be set via the PRODUCTION_SERVER_URL environment variable.
-    
+
     ssl_server_host: str = "cloud.tail38611b.ts.net"
     #: The host for the SSL server (e.g. for constructing redirect URIs). Can also be set via the SSL_SERVER_HOST environment variable.
 
@@ -84,7 +87,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="allow",
     )
-    
+
     @field_validator("server_port", "redis_port", mode="before")
     @classmethod
     def convert_port_to_int(cls, v: str | int) -> int:
@@ -150,7 +153,9 @@ class Settings(BaseSettings):
                 info.data.get("redis_db"),
             )
         except Exception as exc:
-            logging.warning("Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
+            logging.warning(
+                "Failed to parse REDIS_CONNECTION_STRING: %s", v, exc_info=exc
+            )
             logging.debug("No such REDIS_CONNECTION_STRING: %s", v, exc_info=exc)
             pass  # Keep existing values if parsing fails
 

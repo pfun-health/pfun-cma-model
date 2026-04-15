@@ -2,6 +2,8 @@
 PFun CMA Model - LLM API Routes
 """
 
+import logging
+import shlex
 from collections.abc import AsyncIterable, Iterable
 import asyncio
 import json
@@ -17,8 +19,11 @@ from fastapi.sse import (
 )
 from pydantic import BaseModel, ConfigDict, field_serializer
 from pfun_common.settings import get_settings
+from pfun_common.logs import setup_logging
 from pfun_cma_model.llm import generate_scenario as gen_scene, GeneratedScenario
 from pfun_cma_model.db import save2duckdb
+
+logger = setup_logging()
 
 router = APIRouter()
 
@@ -43,7 +48,7 @@ class SceneGenOptions(BaseModel):
     @field_serializer("prompt")
     @classmethod
     def sanitize_prompt(cls, prompt):
-        return prompt.strip()
+        return shlex.quote(prompt.strip())
 
 
 async def attempt_scene_gen(options: SceneGenOptions) -> str:
@@ -51,8 +56,9 @@ async def attempt_scene_gen(options: SceneGenOptions) -> str:
     Try to generate a scenario asynchronously, try again if the first attempt fails.
     """
 
-    # sanitize the prompt (basic sanitation to prevent injection of malicious content into the LLM prompt - this is a simple example and should be improved for production use)
-    prompt = options.prompt.strip()
+    # retrieve the user-provided prompt
+    prompt = options.prompt
+    logging.debug("Prompt (after initial sanitization): '%s'", str(prompt))
 
     # Generate the scenario
     generated_scenario: GeneratedScenario = await gen_scene(
@@ -112,7 +118,12 @@ async def generate_multiple_scenarios(
 
 
 @router.post("/generate-scenario")
-async def generate_scenario(options: SceneGenOptions) -> Response:
+async def generate_scenario(
+    background_tasks: BackgroundTasks,
+    prompt: str,
+    include_sample_trace: bool = False,
+    include_recommendations: bool = True,
+) -> Response:
     """Use LLM endpoint to generate a realistic scenario (with hypothetical parameters).
 
     prompt: A natural language description of the scenario to generate (e.g. "a mostly healthy person who occasionally eats a late dinner").
@@ -122,6 +133,12 @@ async def generate_scenario(options: SceneGenOptions) -> Response:
 
     # Perform the generation with a retry mechanism in case of JSON parsing errors.
     # ...this can happen if the model's response is not well-formed JSON.
+    options = SceneGenOptions(
+        prompt=prompt,
+        include_sample_trace=include_sample_trace,
+        include_recommendations=include_recommendations,
+        background_tasks=background_tasks,
+    )
     content = await attempt_scene_gen(options)
 
     return Response(

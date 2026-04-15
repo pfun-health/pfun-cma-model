@@ -5,7 +5,7 @@ set -e
 
 echo -e "generating openapi client for pfun-cma-model..."
 
-OPENAPI_URI="https://pfun-cma-model-446025415469.us-central1.run.app/openapi.json"
+OPENAPI_URI="https://pfun.one/openapi.json"
 OPENAPI_JSON="${PWD}/openapi.json"
 OUTPUT_DIR="${PWD}/generated_clients/pfun-cma-model-client"
 

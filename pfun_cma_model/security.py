@@ -19,12 +19,7 @@ from pfun_common.utils import setup_logging
 # Configure logging
 # FastAPI Guard uses its own logger hierarchy under "fastapi_guard" namespace
 # This basic config is for the example app's own logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
-setup_logging(debug=get_settings().debug)
+logger = setup_logging(debug=get_settings().debug)
 
 
 # Note: FastAPI Guard automatically sets up its own logging via the middleware

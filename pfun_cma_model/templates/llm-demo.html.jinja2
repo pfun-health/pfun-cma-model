@@ -1,6 +1,6 @@
 {% extends "base.html.jinja2" %}
 {% import "macros/demos_common.html.jinja2" as demos_common %}
-{% block title %}LLM Generate Scenario Demo{% endblock %}
+{% block title %}PFun Health Tips Demo{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -20,15 +20,19 @@
 	<div id="content">
 		{% block content %}
 
-		<h1 class="display-1">PFun Health Tips Demo</h1>
-		<h4 class="subtitle text-secondary"><span class="badge bg-primary">PFun Health Tips</span> Generate personalized
-			health tips</h4>
+		<h1 class="display-1">PFun Health Tips</h1>
+		<h6 class="subtitle text-secondary">
+            <span class="badge bg-secondary">Demo</span> <span class="text-secondary">Generate personalized health tips using the PFun CMA Model API.</span>
+        </h6>
 		<div class="container-fluid grid d-flex">
 
 			<div id="llm-app-content" class="container flex p-2">
 				<div id="input-container"
 					class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
-					<h5 class="text-primary">Please enter a query to generate personalized health tips.<br />The demo will generate a random health scenario if the input is left blank.</h5>
+					<h6>
+                        <span class="text-primary">What are your health goals?</span>
+                        <span class="text-secondary">Use the text box below to enter your query. Describe your overall health; include any specific health goals if you have some in mind.</span>
+                    </h6>
 					<form id="query-form" class="form">
 						<div class="form-group row p-4 rounded">
 							<textarea id="query-input" rows="15" cols="30"

@@ -2,6 +2,8 @@ import logging
 import sys
 from json import dumps
 from pathlib import Path
+from pfun_common.logs import setup_logging
+
 try:
     # Python 2 fallback
     from urllib import unquote, urlencode  # type: ignore
@@ -9,18 +11,7 @@ try:
     from urlparse import ParseResult, parse_qsl, urlparse  # type: ignore
 except ImportError:
     # Python 3 fallback
-    from urllib.parse import (
-        ParseResult, parse_qsl, unquote, urlencode, urlparse
-    )
-
-
-def setup_logging(**kwargs) -> logging.Logger:
-    """Setup the logger according to settings."""
-    from pfun_common.settings import get_settings  # type: ignore
-    debug_mode: bool = kwargs.get("debug", get_settings().debug)
-    logger = logging.getLogger(name=kwargs.get("name", __name__))
-    logger.setLevel(level=logging.DEBUG if debug_mode else logging.INFO)
-    return logger
+    from urllib.parse import ParseResult, parse_qsl, unquote, urlencode, urlparse
 
 
 def add_url_params(url, params):
@@ -50,10 +41,7 @@ def add_url_params(url, params):
 
     # Bool and Dict values should be converted to json-friendly values.
     parsed_get_args.update(
-        {
-            k: dumps(v) for k, v in parsed_get_args.items()
-            if isinstance(v, (bool, dict))
-        }
+        {k: dumps(v) for k, v in parsed_get_args.items() if isinstance(v, (bool, dict))}
     )
 
     # Converting URL argument to proper query string

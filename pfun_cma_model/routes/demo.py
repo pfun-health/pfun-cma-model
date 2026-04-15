@@ -1,6 +1,7 @@
 """Defines demo routes for the PFun CMA Model application."""
 
 import logging
+from os import urandom
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict, ValidationInfo, field_validator
 from fastapi import APIRouter, Depends, Request
@@ -8,9 +9,11 @@ from fastapi.templating import Jinja2Templates
 
 from pfun_cma_model.engine.cma_model_params import _DEFAULTS
 from pfun_cma_model.misc.templating import get_templates
+from pfun_common.settings import get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG if get_settings().debug is True else logging.INFO)
 
 
 def get_formatted_params() -> dict:
@@ -70,8 +73,6 @@ class CDNResource(BaseModel):
         # Append dummy query param if decache is True and not already present
         if decache and "dummy=" not in v:
             sep = "&" if "?" in v else "?"
-            from os import urandom
-
             dummy_val = urandom(8).hex()
             v = f"{v}{sep}dummy={dummy_val}"
         return v

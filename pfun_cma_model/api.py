@@ -43,11 +43,12 @@ from pfun_cma_model.routes import (
 # Global variables and constants
 debug_mode: bool = get_settings().debug
 
-# --- Setup app Lifespan events ---
+# --- Setup FastAPI app lifespan-scope events ---
 
-logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.DEBUG if debug_mode is True else logging.INFO)
 #: globally accessible logger (with appropriate logging level)
+from pfun_common.logs import setup_logging
+
+logger = setup_logging(debug=debug_mode)
 
 redis_client: Redis | None = None
 #: Global Redis client instance
@@ -59,6 +60,17 @@ templates: Jinja2Templates | None = None  # type: ignore
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI app."""
+
+    # --- Startup task: configure debug mode based on environment variable ---
+    logger.info("DEBUG flag: %s", str(debug_mode))
+    if debug_mode:
+        app.debug = True
+        logging.info("Running app in DEBUG mode.")
+        logging.debug("Debug mode is enabled.")
+    else:
+        app.debug = False
+        logging.info("Running app in PRODUCTION mode.")
+        logging.debug("Debug mode is disabled.")
 
     # --- Startup task: initialize templates ---
     global templates
@@ -162,16 +174,6 @@ def set_app_version(app: FastAPI = app) -> FastAPI:
 
 app = set_app_version(app=app)
 
-# Configure debug mode based on environment variable
-if debug_mode:
-    app.debug = True
-    logging.info("Running in DEBUG mode.")
-    logging.debug("Debug mode is enabled.")
-else:
-    app.debug = False
-    logging.info("Running in PRODUCTION mode.")
-    logging.debug("Debug mode is disabled.")
-
 # Mount the static directory to serve static files
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -202,6 +204,8 @@ allow_all_origins = {
         "pfun.me",
         "pfun.app",
         "cloud.tail38611b.ts.net",
+        "gbot.tail38611b.ts.net",
+        "nixos.tail38611b.ts.net",
     },
 }
 # type: ignore  # pyright: ignore[reportArgumentType]
@@ -314,9 +318,7 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
 @app.get("/login")
 def login_sso_route(request: Request):
     return templates.TemplateResponse(
-        request,
-        "sqladmin/login.html",
-        context={"admin": admin}
+        request, "sqladmin/login.html", context={"admin": admin}
     )
 
 

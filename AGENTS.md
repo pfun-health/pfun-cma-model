@@ -7,7 +7,7 @@ This file provides guidance for agentic coding agents working in this repository
 - **Python version**: 3.12.11
 - **Package manager**: `uv`
 - **Test framework**: pytest
-- **Linter**: ruff (via trunk)
+- **Linter**: pylint
 - **Type checker**: mypy
 - **Formatter**: black
 
@@ -42,7 +42,7 @@ source .venv/bin/activate
 uv run fastapi dev pfun_cma_model/app.py --port 8001
 
 # Run via CLI
-uv run pfun-cma-model <command>
+uv run pfun-cma-model COMMAND [ARGS]
 ```
 
 ### Testing

@@ -1,135 +1,184 @@
 
-const showLoadingContainer = async () => {
-    const loadingContainer = $("#loading-container");
-    $(loadingContainer).removeClass("d-none");
-    $(loadingContainer).show();
-};
+class LlmDemo {
+    constructor() {
+        this.dom = {
+            form: document.getElementById('query-form'),
+            queryInput: document.getElementById('query-input'),
+            submitBtn: $('#submit-btn'),
+            loadingContainer: $('#loading-container'),
+            responseOutput: $('#response-output'),
+            formattedOutput: $('#formatted-response-output'),
+            outputTitle: $('#output-title'),
+        };
 
-const showAlerts = async () => {
-    const error_msg = "Whoops! The server is busy right now."
-    "\nRetrying your request... Please wait.";
-    const timeTillHide = 4500; // time in ms until the toast should hide
-    const errToast = $.toast({
-	heading: 'Error',
-	text: `${error_msg}`,
-	showHideTransition: 'fade',
-	icon: 'error',
-	hideAfter: timeTillHide,
-	stack: true,
-    });
-    setTimeout(() => {
-	errToast.update({
-	    heading: 'Trying again...',
-	    text: 'Attempting your request again... Please wait.',
-	    hideAfter: timeTillHide,
-	});
-	setTimeout(async () => {
-	    // try the request again.
-	    await onFormSubmit();
-	}, timeTillHide + 500); // add a little buffer time after the toast hides to try the request again
-    }, timeTillHide + 1230);``
-};
-    
-const onFormSubmit = async (event) => {
+        this.retryStorageKey = 'ntry_count';
+        this.maxRetries = 4;
 
-    try {
-        event.preventDefault();
-    } catch(err) {
-        console.warn(err);
+        this.initialize();
     }
 
-    // show loading indicator
-    showLoadingContainer();
+    initialize() {
+        localStorage.setItem(this.retryStorageKey, '0');
+        this.setupEventListeners();
+        this.setupJqToast();
+    }
 
-    // get the relevant elements
-    const query = document.getElementById('query-input').value;
-    const query_url = new URL(window.location.origin + "/llm/generate-scenario");
-    const responseOutput = $("#response-output");
-    const fmtOutput = $("#formatted-response-output");
-
-    try {
-        if(query === '<<TEST_ERROR>>') {
-            // test the error behavior (not a real prompt)
-            throw new Error("<<TEST_ERROR>>");
+    setupEventListeners() {
+        if (!this.dom.form) {
+            console.error('LLM demo: query form not found');
+            return;
         }
-        query_url.searchParams.set('prompt', query);
-        $("#submit-btn").addClass("disabled"); // disable the submit button temporarily
-	$(fmtOutput).html(''); // clear the existing recommendations
-	$(responseOutput).html(''); // clear old response data
-        const response = await fetch(query_url.toString(), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: null
-        }).then((response) => {
-            console.log('raw response:\n', response);
-            $("#loading-container").hide();
-            return response;
+
+        this.dom.form.addEventListener('submit', (event) => this.onFormSubmit(event));
+    }
+
+    async setupJqToast() {
+        try {
+            const module = await import('/static/js/jquery.toast.min.js');
+            const jqToast = module.default ?? module;
+            jqToast(jQuery, window, document);
+            console.debug('...finished setup for jquery toast, try: $.toast(...)');
+        } catch (error) {
+            console.warn('Failed to load jquery toast:', error);
+        }
+    }
+
+    showLoadingContainer() {
+        this.dom.loadingContainer.removeClass('d-none');
+        this.dom.loadingContainer.show();
+    }
+
+    hideLoadingContainer() {
+        this.dom.loadingContainer.hide();
+    }
+
+    async showAlerts() {
+        const errorMsg = 'Whoops! The server is busy right now.\nRetrying your request... Please wait.';
+        const timeTillHide = 4500; // time in ms until the toast should hide
+
+        const errToast = $.toast({
+            heading: 'Error',
+            text: errorMsg,
+            showHideTransition: 'fade',
+            icon: 'error',
+            hideAfter: timeTillHide,
+            stack: true,
         });
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail);
-        }
-
-        const data = await response.json();
-        const str_content = JSON.stringify(data, null, 2);
-        if(!str_content.startsWith("Err")) {
-            console.debug('confirmed! this is a successful response');
-            // update the response output (in the UI)
-            let recs_data = data.recommendations;
-            console.log("Recommendations data:", recs_data);
-            $(Object.entries(recs_data)).each((ix, [key, value]) => {
-                $(fmtOutput).append(
-                    `<dt>${key}</dt><dd>${value}</dd>`
-                );  // update the formatted response output
+        setTimeout(() => {
+            errToast.update({
+                heading: 'Trying again...',
+                text: 'Attempting your request again... Please wait.',
+                hideAfter: timeTillHide,
             });
-            $(responseOutput).text(str_content); // update the raw response output text
-	    // scroll the output area into view
-	    // Source - https://stackoverflow.com/a/20760191
-	    // Posted by Atharva, modified by community. See post 'Timeline' for change history
-	    // Retrieved 2026-02-16, License - CC BY-SA 4.0
-	    $("#output-title").get(0).scrollIntoView({behavior: 'smooth'});
 
-            // re-enable the submit button
-            $("#submit-btn").removeClass("disabled");
-        } else {
-            // there was an error otherwise
-            throw new Error(str_content);
-        }
-    } catch (error) {
-        // ensure the user can't submit manually again during this time
-        $("#submit-btn").addClass("disabled");
-        // increment the count of retries
-        let ntry_count = parseInt(localStorage.getItem("ntry_count"));
-        ntry_count = ntry_count + 1;
-        localStorage.setItem("ntry_count", `${ntry_count}`);
-        if(ntry_count >= 4) {
-            alert(
-                "Your request has been tried too many times.\n\nAfter the page reloads, please try again." +
-                "\nThe page should automatically refresh after you close this dialog."
-            );
-            // attempt to refresh the page automatically
-            window.location.reload();
-        }
-        console.warn(`Error: ${error.message}`);
-	// show the alerts as toasts
-	await showAlerts();
+            setTimeout(async () => {
+                await this.onFormSubmit();
+            }, timeTillHide + 500);
+        }, timeTillHide + 1230);
     }
-};
 
-const setupJqToast = async () => {
-    const jqToast = await import("/static/js/jquery.toast.min.js").then(
-	(Module) => { return Module.default; });
-    jqToast(jQuery, window, document);
-    console.debug('...finished setup for jquery toast, try: $.toast(...)');
-};
+    getRetryCount() {
+        return parseInt(localStorage.getItem(this.retryStorageKey) ?? '0', 10);
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-    localStorage.setItem('ntry_count', '0'); // number of times we've tried the endpoint before reloading
-    // setup form submission handler
-    document.getElementById('query-form').addEventListener('submit', onFormSubmit);
-    // import, configure the jqToast module
-    setupJqToast();
+    incrementRetryCount() {
+        const nextCount = this.getRetryCount() + 1;
+        localStorage.setItem(this.retryStorageKey, `${nextCount}`);
+        return nextCount;
+    }
+
+    disableSubmit() {
+        this.dom.submitBtn.addClass('disabled');
+    }
+
+    enableSubmit() {
+        this.dom.submitBtn.removeClass('disabled');
+    }
+
+    clearOutput() {
+        this.dom.formattedOutput.html('');
+        this.dom.responseOutput.html('');
+    }
+
+    renderResponse(data) {
+        /**
+         * Render the successfully generated recommendations.
+         */
+        const strContent = JSON.stringify(data, null, 2);
+        const scenarioDesc = data?.qualitative_description ?? '';
+        const recsData = data?.recommendations ?? {};
+
+        this.dom.formattedOutput.append(`<p class="lead">${scenarioDesc}</p>`);
+
+        Object.entries(recsData).forEach(([key, value]) => {
+            this.dom.formattedOutput.append(`<dt>${key}</dt><dd>${value}</dd>`);
+        });
+
+        this.dom.responseOutput.text(strContent);
+        this.dom.outputTitle.get(0)?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async onFormSubmit(event) {
+        if (event?.preventDefault) {
+            event.preventDefault();
+        }
+
+        this.showLoadingContainer();
+
+        const query = this.dom.queryInput?.value ?? '';
+        const queryUrl = new URL(window.location.origin + '/llm/generate-scenario');
+        queryUrl.searchParams.set('prompt', query);
+
+        this.disableSubmit();
+        this.clearOutput();
+
+        try {
+            if (query === '<<TEST_ERROR>>') {
+                throw new Error('<<TEST_ERROR>>');
+            }
+
+            const response = await fetch(queryUrl.toString(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: null,
+            });
+
+            this.hideLoadingContainer();
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                throw new Error(errorBody?.detail ?? response.statusText);
+            }
+
+            const data = await response.json();
+            const strContent = JSON.stringify(data, null, 2);
+
+            if (strContent.startsWith('Err')) {
+                throw new Error(strContent);
+            }
+
+            this.renderResponse(data);
+            this.enableSubmit();
+        } catch (error) {
+            const retryCount = this.incrementRetryCount();
+
+            if (retryCount >= this.maxRetries) {
+                alert(
+                    'Your request has been tried too many times.\n\nAfter the page reloads, please try again.\nThe page should automatically refresh after you close this dialog.'
+                );
+                window.location.reload();
+                return;
+            }
+
+            console.warn(`Error: ${error.message}`);
+            await this.showAlerts();
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new LlmDemo();
 });

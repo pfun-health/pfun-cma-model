@@ -1,28 +1,25 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python-envs.workspaceSearchPaths": [
-			"./**/.venv"
-		],
-		"editor.wordWrapColumn": 120,
-		"editor.formatOnSave": true,
-		"editor.formatOnSaveMode": "file",
-		"sqltools.connections": [
-			{
-				"previewLimit": 50,
-				"driver": "SQLite",
-				"name": "admin",
-				"group": "pfun-cma-model",
-				"database": "/home/robbiec/.local/share/pfun-cma-model/admin.db"
-			}
-		],
-		"sqltools.useNodeRuntime": true,
-		"postman.settings.dotenv-detection-notification-visibility": false,
-		"python.pythonPath": "${workspaceFolder}/.venv/bin/python",
-		"editor.wordWrapColumn": 120
-	}
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "python-envs.workspaceSearchPaths": [
+            "./.venv"
+        ],
+        "editor.wordWrapColumn": 120,
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "sqltools.connections": [
+            {
+                "previewLimit": 50,
+                "driver": "SQLite",
+                "name": "admin",
+                "group": "pfun-cma-model",
+                "database": "/home/robbiec/.local/share/pfun-cma-model/admin.db"
+            }
+        ],
+        "sqltools.useNodeRuntime": true,
+    }
 }
