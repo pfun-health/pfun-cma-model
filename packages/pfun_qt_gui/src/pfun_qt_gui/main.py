@@ -19,8 +19,11 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QUrl, QUrlQuery
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from pfun_common.settings import get_settings
 
-env_fpath = Path(".env").absolute()
+settings = get_settings()
+
+env_fpath = Path(__file__).parent.parent.parent / ".env"
 if not load_dotenv(env_fpath):
     raise RuntimeError(f"Failed to load environment variables (from {env_fpath})")
 logging.debug(f"Loaded environment variables from {env_fpath}")

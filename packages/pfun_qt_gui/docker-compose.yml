@@ -1,5 +1,4 @@
 services:
-  
   pfun-qt-gui:
     labels:
       - "compose2nix.settings.sops.secrets=.env"

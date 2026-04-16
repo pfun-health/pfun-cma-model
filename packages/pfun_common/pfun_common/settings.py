@@ -10,10 +10,15 @@ from urllib.parse import urlparse
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from pfun_llm.backend.ollama import (
-    OllamaDefaultModel,
-    _OLLAMA_DEFAULT_MODEL,
-)
+try:
+    from pfun_llm.backend.ollama import (
+        OllamaDefaultModel,
+        _OLLAMA_DEFAULT_MODEL,
+    )
+except ImportError:
+    logging.warning("pfun_llm not installed, using fallback OllamaDefaultModel")
+    OllamaDefaultModel = Literal["deepseek-v3.2:cloud", "gemma3:4b-cloud", "gpt-oss:120b-cloud"]
+    _OLLAMA_DEFAULT_MODEL = "gpt-oss:120b-cloud"
 
 
 def generate_default_secret_key() -> str:
