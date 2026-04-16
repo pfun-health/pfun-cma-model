@@ -19,3 +19,4 @@ files = ["src/pfun_qt_gui/main.py"]
 
 [tool.uv.sources]
 pfun-common = { path = "../pfun_common" }
+pfun_llm = { path = "../../pfun_llm" }

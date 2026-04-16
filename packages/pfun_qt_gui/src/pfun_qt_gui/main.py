@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import os
@@ -20,14 +21,19 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QUrl, QUrlQuery
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from pfun_common.settings import get_settings
+from pfun_common.logs import setup_logging
+import subprocess as subproc
 
+logger = setup_logging(logger_name="pfun-qt-gui-app")
 settings = get_settings()
 
+# env_fpath is the path to the .env file for this application
 env_fpath = Path(__file__).parent.parent.parent / ".env"
-if not load_dotenv(env_fpath):
-    raise RuntimeError(f"Failed to load environment variables (from {env_fpath})")
-logging.debug(f"Loaded environment variables from {env_fpath}")
-import supervisor  # noqa: F401 - we just want to ensure it's imported so that the process group is registered
+# root_dir is the directory containing the top-level .env file
+root_dir = Path(env_fpath).parent.parent.parent
+
+# import supervisor so that the process group is registered
+import supervisor  # noqa: F401
 
 
 class PFunHealthTipsDemo(QMainWindow):
@@ -35,13 +41,40 @@ class PFunHealthTipsDemo(QMainWindow):
         super().__init__()
         self.setWindowTitle("PFun Health Tips Demo")
         self.setMinimumSize(800, 600)
-
+        self.load_env()  # load env vars from .env file
         self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "https://127.0.0.1:8001")
         logging.debug(f"API URL: {self.api_url}")
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_finished)
 
+        # start server if not already running
+        # asyncio.run(self.start_server())  # wait for server to be available
+
+        # start the UI
         self.init_ui()
+
+    def load_env(self):
+        """Load environment variables from .env file."""
+        if not load_dotenv(env_fpath):
+            raise RuntimeError(
+                f"Failed to load environment variables (from {env_fpath})"
+            )
+        logging.debug(f"Loaded environment variables from {env_fpath}")
+
+    # async def start_server(self):
+    #     """Start the server if not already running.
+
+    #     NOTE: This is a blocking call, so it is run in a separate thread.
+    #     """
+    #     await asyncio.to_thread(
+    #         subproc.run,
+    #         args=[str(root_dir / "scripts" / "quick-relaunch-dev.sh")],
+    #         cwd=root_dir,
+    #         check=True,
+    #         capture_output=True,
+    #         shell=False,
+    #         env=os.environ,
+    #     )
 
     def init_ui(self):
         # Main widget and layout
