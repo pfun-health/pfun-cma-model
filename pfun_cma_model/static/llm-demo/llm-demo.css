@@ -1,0 +1,60 @@
+/* LLM Demo ScrollSpy Styles */
+body {
+    position: relative;
+}
+
+#sidebar-nav {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+#sidebar-nav .nav-link {
+    color: #6c757d;
+    border-left: 3px solid transparent;
+    padding-left: 1rem;
+    transition: all 0.2s ease;
+}
+
+#sidebar-nav .nav-link:hover {
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+}
+
+#sidebar-nav .nav-link.active {
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+    font-weight: 600;
+}
+
+#sidebar-nav .nav-link.nested {
+    padding-left: 2rem;
+    font-size: 0.95rem;
+}
+
+.content-section {
+    scroll-margin-top: 80px;
+}
+
+#raw-output-section pre {
+    max-height: 260px;
+    min-height: 120px;
+    overflow: auto;
+}
+
+@media (max-width: 991px) {
+    #sidebar-nav {
+        position: static;
+        max-height: none;
+    }
+
+    #sidebar-nav .nav-link {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    #sidebar-nav .nav-link.nested {
+        padding-left: 1.5rem;
+    }
+}

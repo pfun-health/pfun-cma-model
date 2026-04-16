@@ -6,6 +6,8 @@
 {{ super() }}
 <!-- load styles for jquery toasts -->
 <link rel="stylesheet" href="{{ url_for('static', path='css/jquery.toast.min.css') }}">
+<!-- load styles for LLM demo scrollspy -->
+<link rel="stylesheet" href="{{ url_for('static', path='llm-demo/llm-demo.css') }}">
 {% endblock head %}
 
 <body>
@@ -17,63 +19,116 @@
         {% endblock %}
     </header>
 
-    <div id="content">
+    <div id="main-wrapper">
         {% block content %}
 
-        <div class="text-center">
+        <div class="text-center mb-4">
             <h1><span class="badge bg-secondary">Demo</span> PFun Health Tips</h1>
             <h6 class="subtitle text-secondary">
                 <span class="text-wrap fw-light text-secondary">Generate personalized health tips
                     using the PFun CMA Model API.</span>
             </h6>
         </div>
-        <div class="container-fluid grid d-flex">
 
-            <div id="llm-app-content" class="container flex p-2">
-                <div id="input-container"
-                    class="container grid flex shadow-lg p-3 mb-5 bg-body rounded border border-primary">
-                    <h6>
-                        <span class="lead fw-bolder text-primary">Describe your health goals...&nbsp;&nbsp;</span>
-                        <span class="text-secondary">Enter your query in the text box below. How are you feeling in
-                            general? Any specific health concerns or goals you'd like to address?</span>
-                    </h6>
-                    <form id="query-form" class="form">
-                        <div class="form-group row p-4 rounded">
-                            <textarea id="query-input" rows="15" cols="30"
-                                placeholder="{{ prompt_placeholder_text }}"></textarea>
+        <div id="content" data-bs-spy="scroll" data-bs-target="#sidebar-nav" data-bs-offset="80"
+            class="scrollspy-example">
+            <div class="container-fluid">
+                <div class="row gy-4">
+                    <aside class="col-lg-3">
+                        <button class="btn btn-outline-secondary w-100 mb-3 d-lg-none" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#sidebar-collapse" aria-expanded="false"
+                            aria-controls="sidebar-collapse">
+                            Navigation
+                        </button>
+
+                        <div class="collapse d-lg-block" id="sidebar-collapse">
+                            <nav class="list-group" id="sidebar-nav">
+                                <a href="#input-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link">📝 Input
+                                    Form</a>
+                                <a href="#output-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link">📊
+                                    Output</a>
+                                <a href="#health-summary-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link nested">💚
+                                    Health Summary</a>
+                                <a href="#health-tips-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link nested">💡
+                                    Health Tips</a>
+                                <a href="#raw-output-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link nested">🔧
+                                    Raw
+                                    Output</a>
+                                <a href="#forecasted-events-section"
+                                    class="list-group-item list-group-item-action border-0 rounded-0 nav-link">🔮
+                                    Forecasted
+                                    Events</a>
+                            </nav>
                         </div>
-                        <div class="button-group row p-1 mb-2 rounded">
-                            <button id="submit-btn" type="submit"
-                                class="btn btn-primary btn-lg btn-block">Submit</button>
-                            <div id="loading-container" class="container-fluid text-bg-secondary text-left d-none">
-                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                                Loading...
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    </aside>
 
-                <!-- output container -->
-                <div id="output-container"
-                    class="grid container d-flex flex border border-dark rounded shadow-lg p-3 mb-5 bg-body">
-                    <div id="responses-container" class="grid flex">
-                        <ul class="list-group">
-                            <div id="formatted-response-container" class="list-group-item">
-                                <dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
+                    <main id="llm-app-content" class="col-lg-9">
+                        <section id="input-section" class="content-section mb-5">
+                            <div class="border rounded shadow-sm p-4 bg-body">
+                                <h3 class="mb-3">📝 Input Form</h3>
+                                <p class="text-secondary mb-4">Describe your health goals and submit a prompt below.</p>
+                                <form id="query-form">
+                                    <div class="mb-3">
+                                        <textarea id="query-input" class="form-control" rows="10"
+                                            placeholder="{{ prompt_placeholder_text }}"></textarea>
+                                    </div>
+                                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-start">
+                                        <button id="submit-btn" type="submit" class="btn btn-primary">Submit</button>
+                                        <div id="loading-container" class="d-none text-secondary align-items-center">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"
+                                                aria-hidden="true"></span>
+                                            Loading...
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                            <div id="raw-response-container" class="list-group-item">
-                                <pre id="response-output" class="text-wrap fw-light"></pre>
-                            </div>
-                    </div>
-                </div>
+                        </section>
 
-            </div><!-- /end output container -->
-        </div>
+                        <section id="output-section" class="content-section mb-5">
+                            <div class="border rounded shadow-sm p-4 bg-body">
+                                <h3 class="mb-3">📊 Output</h3>
+
+                                <section id="health-summary-section" class="mb-4">
+                                    <h4 class="h5 mb-2">💚 Health Summary</h4>
+                                    <div id="health-summary-content" class="text-secondary">Your summary will appear
+                                        here.</div>
+                                </section>
+
+                                <section id="health-tips-section" class="mb-4">
+                                    <h4 class="h5 mb-2">💡 Personalized Health Tips</h4>
+                                    <dl id="formatted-response-output" class="row g-3"></dl>
+                                </section>
+
+                                <section id="raw-output-section" class="mb-4">
+                                    <h4 class="h5 mb-2">🔧 Raw Output</h4>
+                                    <pre id="response-output" class="bg-light p-3 rounded small overflow-auto"></pre>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section id="forecasted-events-section" class="content-section">
+                            <div class="border rounded shadow-sm p-4 bg-body">
+                                <h3 class="mb-3">🔮 Forecasted Events</h3>
+                                <div id="forecasted-events-content" class="text-secondary">
+                                    <p class="mb-0 text-muted">Forecasted health events and recommendations will appear
+                                        here after you submit a query.</p>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            </div>
+        </div><!-- /end content -->
         <!-- llm prompt interaction -->
         <script type="module" src="{{ url_for('static', path='llm-demo/llm-demo.js') }}"
             crossorigin="anonymous"></script>
         {% endblock content %}
-    </div>
+    </div><!-- /end main-wrapper -->
 
     <footer>
         {% block footer %}

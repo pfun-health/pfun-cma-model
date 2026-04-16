@@ -16,6 +16,10 @@ TODO for `pfun-cma-model`
     + Contribution guidelines
     + Security guidelines
     + FAQ and troubleshooting section
++ _Implement SSE-based streaming for LLM responses:_
+  + **Modify LLM route to support streaming responses.**
+  + Update frontend to handle and display streamed data.
+  + Test streaming functionality with various LLM backends.
 + _Complete initial implementation of admin interface:_
   + **Integrate `FastAPI-SSO` with `SQLAlchemy-Admin` database.**
   + ~~Define models (User, Site)~~

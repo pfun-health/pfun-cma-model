@@ -8,7 +8,8 @@ class LlmDemo {
             loadingContainer: $('#loading-container'),
             responseOutput: $('#response-output'),
             formattedOutput: $('#formatted-response-output'),
-            outputTitle: $('#output-title'),
+            healthSummaryContent: $('#health-summary-content'),
+            forecastedEventsContent: $('#forecasted-events-content'),
         };
 
         this.retryStorageKey = 'ntry_count';
@@ -21,6 +22,19 @@ class LlmDemo {
         localStorage.setItem(this.retryStorageKey, '0');
         this.setupEventListeners();
         this.setupJqToast();
+        this.initializeScrollSpy();
+    }
+
+    initializeScrollSpy() {
+        // Initialize Bootstrap ScrollSpy
+        const contentElement = document.querySelector('[data-bs-spy="scroll"]');
+        if (contentElement) {
+            const scrollSpy = new bootstrap.ScrollSpy(contentElement, {
+                target: '#sidebar-nav',
+                offset: 80,
+            });
+            console.debug('ScrollSpy initialized for sidebar navigation');
+        }
     }
 
     setupEventListeners() {
@@ -99,6 +113,8 @@ class LlmDemo {
     clearOutput() {
         this.dom.formattedOutput.html('');
         this.dom.responseOutput.html('');
+        this.dom.healthSummaryContent.html('');
+        this.dom.forecastedEventsContent.html('<p class="text-muted">Forecasted health events and recommendations will appear here after you submit a query.</p>');
     }
 
     renderResponse(data) {
@@ -109,24 +125,56 @@ class LlmDemo {
         const scenarioDesc = data?.qualitative_description ?? '';
         const recsData = data?.recommendations ?? {};
 
-        this.dom.formattedOutput.append(`
-            <h3 class="mt-4">Current health summary</h3>
-            <p class="fs-5 text-secondary">${scenarioDesc}</p>
-            <hr class="my-4" />
-        `);
+        // Render health summary
+        if (scenarioDesc) {
+            this.dom.healthSummaryContent.html(`<p class="fs-5">${scenarioDesc}</p>`);
+        }
 
-        this.dom.formattedOutput.append('<h4 class="mb-3">Your personalized health tips</h4>');
+        // Render health tips
+        this.dom.formattedOutput.html('');
         this.dom.formattedOutput.append('<dl class="row">');
         Object.entries(recsData).forEach(([key, value]) => {
+            let title = key.replace(/_/g, ' ');
+            title = title.charAt(0).toUpperCase() + title.slice(1);
             this.dom.formattedOutput.append(`
-                <dt class="col-sm-3">${key}</dt>
+                <dt class="col-sm-3"><strong>${title}</strong></dt>
                 <dd class="col-sm-9">${value}</dd>
             `);
         });
         this.dom.formattedOutput.append('</dl>');
 
+        // Render raw output
         this.dom.responseOutput.text(strContent);
-        this.dom.outputTitle.get(0)?.scrollIntoView({ behavior: 'smooth' });
+
+        // Update forecasted events section if available
+        if (data?.forecasted_events) {
+            this.dom.forecastedEventsContent.html(this.formatForecastedEvents(data.forecasted_events));
+        }
+
+        // Scroll to output section
+        const outputSection = document.getElementById('output-section');
+        if (outputSection) {
+            outputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    formatForecastedEvents(events) {
+        /**
+         * Format forecasted events for display
+         */
+        if (typeof events === 'string') {
+            return `<p>${events}</p>`;
+        }
+        if (Array.isArray(events)) {
+            return `<ul class="list-group">${events.map(e => `<li class="list-group-item">${e}</li>`).join('')}</ul>`;
+        }
+        if (typeof events === 'object') {
+            return `<dl class="row">${Object.entries(events).map(([k, v]) => `
+                <dt class="col-sm-4"><strong>${k}</strong></dt>
+                <dd class="col-sm-8">${v}</dd>
+            `).join('')}</dl>`;
+        }
+        return '<p class="text-muted">No events available</p>';
     }
 
     async onFormSubmit(event) {
