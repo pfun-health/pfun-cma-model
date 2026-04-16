@@ -12,4 +12,4 @@ OFFSET (SELECT count(*) - num_rows FROM cma_recs);
 --
 -- Usage:
 -- -----
--- select * from get_last_rows(10);
+select * from get_last_rows(10);
