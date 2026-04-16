@@ -104,19 +104,25 @@
                                     <dl id="formatted-response-output" class="row g-3"></dl>
                                 </section>
 
-                                <section id="raw-output-section" class="mb-4">
-                                    <h4 class="h5 mb-2">🔧 Raw Output</h4>
-                                    <pre id="response-output" class="bg-light p-3 rounded small overflow-auto"></pre>
+                                <section id="forecasted-events-section" class="mb-4">
+                                    <h4 class="h5 mb-2">🔮 Forecasted Events</h4>
+                                    <div id="forecasted-events-content" class="text-secondary">
+                                        <p class="mb-0 text-muted">Forecasted health events and recommendations will
+                                            appear here after you submit a query.</p>
+                                    </div>
                                 </section>
-                            </div>
-                        </section>
 
-                        <section id="forecasted-events-section" class="content-section">
-                            <div class="border rounded shadow-sm p-4 bg-body">
-                                <h3 class="mb-3">🔮 Forecasted Events</h3>
-                                <div id="forecasted-events-content" class="text-secondary">
-                                    <p class="mb-0 text-muted">Forecasted health events and recommendations will appear
-                                        here after you submit a query.</p>
+                                <div class="mb-4">
+                                    <button class="btn btn-sm btn-outline-secondary mb-3" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#raw-output-section"
+                                        aria-expanded="false" aria-controls="raw-output-section">
+                                        🔧 Show Raw Output
+                                    </button>
+                                    <div class="collapse" id="raw-output-section">
+                                        <div class="border rounded bg-light p-3">
+                                            <pre id="response-output" class="mb-0 small"></pre>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </section>

@@ -115,6 +115,12 @@ class LlmDemo {
         this.dom.responseOutput.html('');
         this.dom.healthSummaryContent.html('');
         this.dom.forecastedEventsContent.html('<p class="text-muted">Forecasted health events and recommendations will appear here after you submit a query.</p>');
+
+        const rawOutputElement = document.getElementById('raw-output-section');
+        if (rawOutputElement) {
+            const collapseInstance = bootstrap.Collapse.getInstance(rawOutputElement) || new bootstrap.Collapse(rawOutputElement, { toggle: false });
+            collapseInstance.hide();
+        }
     }
 
     renderResponse(data) {
