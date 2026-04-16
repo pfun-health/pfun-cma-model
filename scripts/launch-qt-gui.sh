@@ -4,17 +4,19 @@
 
 set -e
 
+SCRIPT_DIR="$(dirname "$0")"
+
 start_pfun_api_server() {
     # Start the pfun-cma-model server in the background
     echo "starting the pfun-cma-model API server..."
     pkill pfun-cma-model && sleep 1s
-    nohup ./scripts/serve-dev.sh &
+    nohup "$SCRIPT_DIR/serve-dev.sh" &
 }
 
 launch_qt_gui() {
     # Launch the Qt GUI
     echo "launching the Qt GUI..."
-    pfun-qt-gui
+    cd "$SCRIPT_DIR/../packages/pfun_qt_gui" && uv run python -m pfun_qt_gui.main
 }
 
 echo -e "#################################"

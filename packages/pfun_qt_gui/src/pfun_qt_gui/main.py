@@ -1,14 +1,7 @@
 import logging
-from pathlib import Path
-
-logging.basicConfig(
-    filename=str(Path("../../logs/pfun_qt_gui.log").absolute()),
-    encoding="utf-8",
-    level=logging.DEBUG,
-)
-logger = logging.getLogger()
 import sys
 import os
+from pathlib import Path
 import json
 from dotenv import load_dotenv
 from PyQt6.QtWidgets import (

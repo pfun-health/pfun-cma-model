@@ -118,7 +118,7 @@ android = [
     "tqdm>=4.67.3",
 ]
 qt6 = [
-    "pfun-qt-gui",
+    "pfun_qt_gui",
     "pyqt6>=6.10.2",
     "pyside6>=6.11.0",
 ]
@@ -153,10 +153,10 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
-pfun-qt-gui = { workspace = true }
+pfun-qt-gui = { path = "./packages/pfun_qt_gui"}
 
 [tool.uv.workspace]
 members = [
     "pfun-gradio",
-    "packages/pfun_qt_gui",
+    # "packages/pfun_qt_gui",
 ]

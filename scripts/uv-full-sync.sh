@@ -11,4 +11,8 @@ set -e
 
 # remove old virtual environment, then fully sync
 rm -rf ./.venv ./packages/pfun_common/.venv && \
-	full_uv_sync
+	if [ "$1" = '-gui' ]; then
+		full_uv_sync_qt_gui
+	else
+		full_uv_sync
+	fi

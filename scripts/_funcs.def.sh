@@ -14,6 +14,14 @@ full_uv_sync() {
 		--link-mode copy
 }
 
+full_uv_sync_qt_gui() {
+	# Perform a full uv sync for the qt-gui package.
+	cd packages/pfun_qt_gui && uv sync \
+		--reinstall \
+		--all-extras \
+		--link-mode copy
+}
+
 full_uv_sync_gradio() {
 	# Perform a full uv sync including all extras and specific groups.
 	uv sync \

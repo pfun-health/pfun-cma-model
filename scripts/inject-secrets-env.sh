@@ -4,7 +4,8 @@
 
 set -e
 
-DCLI="$HOME/standalone-apps/dcli-linux-x64"
+# try to find dcli
+DCLI=$(which dcli)
 
 if [[ -z $DCLI ]]; then
     echo "dashlane cli not installed (exiting!)"

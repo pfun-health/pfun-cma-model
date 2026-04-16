@@ -19,3 +19,4 @@ services:
       - .:/app
     network_mode: host
     restart: unless-stopped
+    command: ./scripts/launch-qt-gui.sh

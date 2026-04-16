@@ -30,8 +30,7 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    ./scripts/launch-qt-gui.sh && \
-
+    ./scripts/uv-full-sync -gui
 
 FROM deps AS dist
 
