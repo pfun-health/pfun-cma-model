@@ -78,6 +78,9 @@ class CDNResource(BaseModel):
         return v
 
 
+DEFAULT_HEALTHY_PROMPT = "I'm a relatively healthy individual who exercises most mornings before sunrise. How can I improve my routine to be more effective?"
+
+
 class PFunDemoRoutesContext(BaseModel):
     """Defines the context to include for rendering demo routes (jinja2templates)."""
 
@@ -98,6 +101,9 @@ class PFunDemoRoutesContext(BaseModel):
 
     cdn: dict[str, CDNResource] = Field(default_factory=dict)
     #: Optional CDN URLs and integrity hashes for external resources (e.g. JS/CSS libraries)
+
+    prompt_placeholder_text: str = Field(default=DEFAULT_HEALTHY_PROMPT)
+    #: Placeholder text for the prompt input in the LLM demo route (can be overridden in the context)
 
 
 @router.get("/llm")
@@ -121,6 +127,7 @@ def demo_llm(request: Request, templates: Jinja2Templates = Depends(get_template
             ),
         },
         year=datetime.now().year,
+        prompt_placeholder_text="Example:  " + DEFAULT_HEALTHY_PROMPT,
     )
     context = demo_route_context.model_dump()
     logger.debug("Demo context: %s", str(context))

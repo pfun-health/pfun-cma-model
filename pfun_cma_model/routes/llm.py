@@ -4,12 +4,14 @@ PFun CMA Model - LLM API Routes
 
 import logging
 import shlex
-from collections.abc import AsyncIterable, Iterable
+from typing import Dict, List, Sequence
+from collections.abc import AsyncIterable
 import asyncio
 import json
 import pandas as pd
 from fastapi import (
     APIRouter,
+    Depends,
     Response,
     BackgroundTasks,
 )
@@ -21,18 +23,21 @@ from pydantic import BaseModel, ConfigDict, field_serializer
 from pfun_common.settings import get_settings
 from pfun_common.logs import setup_logging
 from pfun_cma_model.llm import generate_scenario as gen_scene, GeneratedScenario
-from pfun_cma_model.db import save2duckdb
+from pfun_cma_model.db import query_duckdb, query_duckdb, save2duckdb
 
 logger = setup_logging()
 
 router = APIRouter()
 
-DEFAULT_HEALTHY_PROMPT = """
-This person is mostly healthy. They occasionally eat a late dinner (after 8pm) and sometimes skip breakfast.
-They have a moderate amount of stress in their life, but they manage it well.
-They get around 6-7 hours of sleep per night, but their sleep quality is not great.
-They do some light exercise a few times a week, but they are not very consistent with it.
-"""
+
+def get_db_path() -> str:
+    """Helper function to determine the appropriate duckdb database path based on the application's debug mode."""
+    db_path = (
+        "results/duckdb-local.db"
+        if get_settings().debug
+        else "results/duckdb-remote.db"
+    )
+    return db_path
 
 
 class SceneGenOptions(BaseModel):
@@ -80,20 +85,13 @@ async def attempt_scene_gen(options: SceneGenOptions) -> str:
         # if it succeeds, store the original dict in duckdb (background task)
         df_result = pd.DataFrame([response_data], index=[0])
         table_id = "cma_recs"
-        db_path = (
-            "results/duckdb-local.db"
-            if get_settings().debug
-            else "results/duckdb-remote.db"
-        )
+        db_path = get_db_path()
         options.background_tasks.add_task(
             save2duckdb, df_result=df_result, db_path=db_path, table_id=table_id
         )
 
     # return the content as a JSON serialized string
     return content
-
-
-from typing import Sequence
 
 
 @router.post("/generate-scenarios", response_class=EventSourceResponse)
@@ -146,3 +144,10 @@ async def generate_scenario(
         status_code=200,
         headers={"Content-Type": "application/json"},
     )
+
+
+@router.get("/cached-scenarios")
+async def get_cached_scenarios(db_path: str = Depends(get_db_path), n: int = 10) -> List[Dict]:
+    """Retrieve cached scenarios from the duckdb database."""
+    query = f"SELECT * FROM cma_recs LIMIT {n}"
+    return query_duckdb(query, db_path=db_path).to_dict(orient="records")

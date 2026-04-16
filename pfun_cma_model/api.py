@@ -294,10 +294,16 @@ def health_check():
     return {"status": "ok", "message": "PFun CMA Model API is running."}
 
 
+@app.get("/about")
+def about_document(request: Request):
+    """PFun Glucose about document."""
+    return templates.TemplateResponse(request, "about-doc.html.jinja2", context={})
+
+
 @app.get("/pitch")
 def pitch_document(request: Request):
-    """PFun pitch document."""
-    return templates.TemplateResponse("pitch-doc.html.jinja2", context={"request": request})  # type: ignore
+    """PFun Glucose pitch document."""
+    return templates.TemplateResponse(request, "pitch-doc.html.jinja2")
 
 
 @app.get("/")

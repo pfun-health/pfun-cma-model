@@ -162,6 +162,7 @@ async def generate_scenario(
     query: Optional[str] = None,
     include_sample_trace: bool = False,
     include_recommendations: bool = True,
+    stream: bool = False,
 ) -> PFunLLMGeneratedScenario:
     """
     Generates a realistic "pfun-scene" JSON object using the selected llm backend (see pfun_common.settings).
@@ -279,6 +280,6 @@ User: "{query if query else 'No query provided.'}"
 Assistant:
 """
     # query the LLM with the formatted prompt, generate a scenario
-    generated_scenario = await _call_llm_for_json(prompt)
+    generated_scenario = await _call_llm_for_json(prompt, stream=stream)
 
     return PFunLLMGeneratedScenario(**generated_scenario)

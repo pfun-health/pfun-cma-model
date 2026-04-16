@@ -109,11 +109,21 @@ class LlmDemo {
         const scenarioDesc = data?.qualitative_description ?? '';
         const recsData = data?.recommendations ?? {};
 
-        this.dom.formattedOutput.append(`<p class="lead">${scenarioDesc}</p>`);
+        this.dom.formattedOutput.append(`
+            <h3 class="mt-4">Current health summary</h3>
+            <p class="fs-5 text-secondary">${scenarioDesc}</p>
+            <hr class="my-4" />
+        `);
 
+        this.dom.formattedOutput.append('<h4 class="mb-3">Your personalized health tips</h4>');
+        this.dom.formattedOutput.append('<dl class="row">');
         Object.entries(recsData).forEach(([key, value]) => {
-            this.dom.formattedOutput.append(`<dt>${key}</dt><dd>${value}</dd>`);
+            this.dom.formattedOutput.append(`
+                <dt class="col-sm-3">${key}</dt>
+                <dd class="col-sm-9">${value}</dd>
+            `);
         });
+        this.dom.formattedOutput.append('</dl>');
 
         this.dom.responseOutput.text(strContent);
         this.dom.outputTitle.get(0)?.scrollIntoView({ behavior: 'smooth' });
@@ -129,6 +139,7 @@ class LlmDemo {
         const query = this.dom.queryInput?.value ?? '';
         const queryUrl = new URL(window.location.origin + '/llm/generate-scenario');
         queryUrl.searchParams.set('prompt', query);
+        queryUrl.searchParams.set('stream', 'true');
 
         this.disableSubmit();
         this.clearOutput();

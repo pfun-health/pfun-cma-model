@@ -1,0 +1,35 @@
+{% extends "base.html.jinja2" %}
+
+{% block title %}About the PFun CMA Model API{% endblock title %}
+
+<head>
+    {% block head %}
+    {{ super() }}
+    {% endblock head %}
+</head>
+
+<body>
+    {% block body %}
+
+    <header>
+        {% block navheader %}
+        {{ super() }}
+        {% endblock navheader %}
+    </header>
+
+    <h1>About the PFun CMA Model API</h1>
+
+    <div class="container-fluid border border-dark rounded shadow-lg p-3 mb-5 bg-body" id="readme-html-content">
+        <!-- The README.html content will be injected here by the API endpoint -->
+    </div>
+
+    <script type="text/javascript" src="{{ url_for('static', path='about-doc/about-doc.js') }}"></script>
+
+    <footer>
+        {% block footer %}
+        {{ super() }}
+        {% endblock footer %}
+    </footer>
+
+    {% endblock body %}
+</body>

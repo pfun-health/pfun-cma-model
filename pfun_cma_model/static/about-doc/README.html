@@ -1,229 +1,214 @@
 <h1 id="pfun-cma-model">pfun-cma-model</h1>
-<h2 id="links-demos-homepage">Links (Demos, Homepage)</h2>
-<ul>
-<li><a href="https://pfun.one/"><strong>PFun Homepage</strong></a></li>
-<li><a href="https://cloud.tail38611b.ts.net/demo/llm"><strong>[<em>Live
-Demo</em>] PFun Health Tips </strong></a></li>
-</ul>
 <h2 id="overview">Overview</h2>
 <h3 id="api-description">API Description</h3>
 <p>The <code>pfun-cma-model</code> API provides a comprehensive
-framework for analyzing and modeling the interplay between circadian
-rhythm, glucose metabolism, and hormonal dynamics. It enables
-researchers and practitioners to understand how physiological processes
-influence glucose levels over time.</p>
+    framework for analyzing and modeling the interplay between circadian
+    rhythm, glucose metabolism, and hormonal dynamics. It enables
+    researchers and practitioners to understand how physiological processes
+    influence glucose levels over time.</p>
 <h4 id="in-simple-terms-what-exactly-does-it-do">In simple terms, what
-exactly does it do?!?</h4>
+    exactly does it do?!?</h4>
 <p>A few pithy one-liners:</p>
 <ul>
-<li><strong>Phase-based dimensionality reduction:</strong> “Included is
-a well-validated (on ~30million rows of CGM data) phase portrait
-analysis technique that can compress weeks’, months’, or even
-many-years’-worth of glucose time-series data into a minimum-length
-phase vector (<code>&gt;= 1024b in memory</code>).”</li>
-<li><strong>Interpretable, Quantifiable:</strong> <em>It provides a way
-to quickly translate between qualitative (“mood”, e.g.) &amp;
-biophysical neuroendocrine dynamics (“cortisol levels”, e.g.).</em></li>
-<li><em>It provides a high-speed interface for understanding how the
-circadian rhythm maps to glucose values.</em></li>
+    <li><strong>Phase-based dimensionality reduction:</strong> “Included is
+        a well-validated (on ~30million rows of CGM data) phase portrait
+        analysis technique that can compress weeks’, months’, or even
+        many-years’-worth of glucose time-series data into a minimum-length
+        phase vector (<code>&gt;= 1024b in memory</code>).”</li>
+    <li><strong>Interpretable, Quantifiable:</strong> <em>It provides a way
+            to quickly translate between qualitative (“mood”, e.g.) &amp;
+            biophysical neuroendocrine dynamics (“cortisol levels”, e.g.).</em></li>
+    <li><em>It provides a high-speed interface for understanding how the
+            circadian rhythm maps to glucose values.</em></li>
 </ul>
-<h4 id="background">Background</h4>
-<ul>
-<li><strong>About the project:</strong>
-<a href="https://cloud.tail38611b.ts.net/pitch">PFun Glucose ~ App pitch
-summary</a></li>
-<li><strong>Preliminary research summary (includes citations):</strong>
-<a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun
-Glucose - Chronometabolic Analysis.pdf</a></li>
-</ul>
-<h3 id="about-this-repository">About this repository</h3>
+<h3 id="about-this-repository">About the API</h3>
 <p><strong>Generated Cortisol-Melatonin-Adiponectin decomposition (from
-Glucose time series)</strong></p>
+        Glucose time series)</strong></p>
 <figure>
-<img src="./results/generated.png"
-alt="Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series)." />
-<figcaption aria-hidden="true">Generated Cortisol-Melatonin-Adiponectin
-decomposition (from Glucose time series).</figcaption>
+    <img src="./results/generated.png"
+        alt="Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series)." />
+    <figcaption aria-hidden="true">Generated Cortisol-Melatonin-Adiponectin
+        decomposition (from Glucose time series).</figcaption>
 </figure>
 <div style="border-width: 1px; border-color: #444;">
-The CMA model leverages physiological modeling principles to decompose
-glucose time series data into underlying hormonal influences,
-specifically cortisol, melatonin, and adiponectin. See example notebooks
-in the live Demo (or in ./examples/notebooks)
+    The CMA model leverages physiological modeling principles to decompose
+    glucose time series data into underlying hormonal influences,
+    specifically cortisol, melatonin, and adiponectin. See example notebooks
+    in the live Demo (or in ./examples/notebooks)
 </div>
 <h3 id="project-goals">Project Goals</h3>
 <p><strong>For detailed development information, check the
-<code>TODO.md</code>:</strong></p>
+        <code>TODO.md</code>:</strong></p>
 <ul>
-<li><a href="./TODO.md"
-title="TODO.md"><strong>TODO.md</strong></a></li>
+    <li><a href="./TODO.md" title="TODO.md"><strong>TODO.md</strong></a></li>
 </ul>
 <h2 id="cma-model-description">CMA Model Description</h2>
 <h4 id="model-parameters">Model Parameters</h4>
 <table>
-<colgroup>
-<col style="width: 7%" />
-<col style="width: 22%" />
-<col style="width: 14%" />
-<col style="width: 9%" />
-<col style="width: 9%" />
-<col style="width: 35%" />
-</colgroup>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Lower Bound</th>
-<th>Upper Bound</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>t</td>
-<td>Optional[array_like]</td>
-<td>None</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Time vector (decimal hours)</td>
-</tr>
-<tr>
-<td>N</td>
-<td>int</td>
-<td>24</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Number of time points</td>
-</tr>
-<tr>
-<td>d</td>
-<td>float</td>
-<td>0.0</td>
-<td>-12.0</td>
-<td>14.0</td>
-<td>Time zone offset (hours)</td>
-</tr>
-<tr>
-<td>taup</td>
-<td>float</td>
-<td>1.0</td>
-<td>0.5</td>
-<td>3.0</td>
-<td>Circadian-relative photoperiod length</td>
-</tr>
-<tr>
-<td>taug</td>
-<td>float</td>
-<td>1.0</td>
-<td>0.1</td>
-<td>3.0</td>
-<td>Glucose response time constant</td>
-</tr>
-<tr>
-<td>B</td>
-<td>float</td>
-<td>0.05</td>
-<td>0.0</td>
-<td>1.0</td>
-<td>Glucose Bias constant</td>
-</tr>
-<tr>
-<td>Cm</td>
-<td>float</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>2.0</td>
-<td>Cortisol temporal sensitivity coefficient</td>
-</tr>
-<tr>
-<td>toff</td>
-<td>float</td>
-<td>0.0</td>
-<td>-3.0</td>
-<td>3.0</td>
-<td>Solar noon offset (latitude)</td>
-</tr>
-<tr>
-<td>tM</td>
-<td>Tuple[float, float, float]</td>
-<td>(7.0, 11.0, 17.5)</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Meal times (hours)</td>
-</tr>
-<tr>
-<td>seed</td>
-<td>Optional[int]</td>
-<td>None</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Random seed</td>
-</tr>
-<tr>
-<td>eps</td>
-<td>float</td>
-<td>1e-18</td>
-<td>N/A</td>
-<td>N/A</td>
-<td>Random noise scale (“epsilon”)</td>
-</tr>
-</tbody>
+    <colgroup>
+        <col style="width: 7%" />
+        <col style="width: 22%" />
+        <col style="width: 14%" />
+        <col style="width: 9%" />
+        <col style="width: 9%" />
+        <col style="width: 35%" />
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Lower Bound</th>
+            <th>Upper Bound</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>t</td>
+            <td>Optional[array_like]</td>
+            <td>None</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Time vector (decimal hours)</td>
+        </tr>
+        <tr>
+            <td>N</td>
+            <td>int</td>
+            <td>24</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Number of time points</td>
+        </tr>
+        <tr>
+            <td>d</td>
+            <td>float</td>
+            <td>0.0</td>
+            <td>-12.0</td>
+            <td>14.0</td>
+            <td>Time zone offset (hours)</td>
+        </tr>
+        <tr>
+            <td>taup</td>
+            <td>float</td>
+            <td>1.0</td>
+            <td>0.5</td>
+            <td>3.0</td>
+            <td>Circadian-relative photoperiod length</td>
+        </tr>
+        <tr>
+            <td>taug</td>
+            <td>float</td>
+            <td>1.0</td>
+            <td>0.1</td>
+            <td>3.0</td>
+            <td>Glucose response time constant</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>float</td>
+            <td>0.05</td>
+            <td>0.0</td>
+            <td>1.0</td>
+            <td>Glucose Bias constant</td>
+        </tr>
+        <tr>
+            <td>Cm</td>
+            <td>float</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>2.0</td>
+            <td>Cortisol temporal sensitivity coefficient</td>
+        </tr>
+        <tr>
+            <td>toff</td>
+            <td>float</td>
+            <td>0.0</td>
+            <td>-3.0</td>
+            <td>3.0</td>
+            <td>Solar noon offset (latitude)</td>
+        </tr>
+        <tr>
+            <td>tM</td>
+            <td>Tuple[float, float, float]</td>
+            <td>(7.0, 11.0, 17.5)</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Meal times (hours)</td>
+        </tr>
+        <tr>
+            <td>seed</td>
+            <td>Optional[int]</td>
+            <td>None</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Random seed</td>
+        </tr>
+        <tr>
+            <td>eps</td>
+            <td>float</td>
+            <td>1e-18</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Random noise scale (“epsilon”)</td>
+        </tr>
+    </tbody>
 </table>
 <h4 id="example-fitted-parameters">Example Fitted Parameters</h4>
 <table>
-<colgroup>
-<col style="width: 9%" />
-<col style="width: 13%" />
-<col style="width: 78%" />
-</colgroup>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Value</th>
-<th>Example Description (Human provided)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>d</td>
-<td>-2.144894e-01</td>
-<td>The individual is only slightly out of sync with their local time
-zone.</td>
-</tr>
-<tr>
-<td>taup</td>
-<td>4.671609e+00</td>
-<td>The individual is definitely exposed to artificial light for
-extended periods.</td>
-</tr>
-<tr>
-<td>taug</td>
-<td>1.097094e+00</td>
-<td>The individual’s glucose response is within a normal range.</td>
-</tr>
-<tr>
-<td>B</td>
-<td>1.288179e-01</td>
-<td>The individual has a bias towards higher glucose levels.</td>
-</tr>
-<tr>
-<td>Cm</td>
-<td>0.000000e+00</td>
-<td>The individual has a low-normal metabolic sensitivity to
-cortisol.</td>
-</tr>
-<tr>
-<td>toff</td>
-<td>0.000000e+00</td>
-<td>The individual’s cortisol response is in sync with the solar
-noon.</td>
-</tr>
-</tbody>
+    <colgroup>
+        <col style="width: 9%" />
+        <col style="width: 13%" />
+        <col style="width: 78%" />
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Example Description (Human provided)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>d</td>
+            <td>-2.144894e-01</td>
+            <td>The individual is only slightly out of sync with their local time
+                zone.</td>
+        </tr>
+        <tr>
+            <td>taup</td>
+            <td>4.671609e+00</td>
+            <td>The individual is definitely exposed to artificial light for
+                extended periods.</td>
+        </tr>
+        <tr>
+            <td>taug</td>
+            <td>1.097094e+00</td>
+            <td>The individual’s glucose response is within a normal range.</td>
+        </tr>
+        <tr>
+            <td>B</td>
+            <td>1.288179e-01</td>
+            <td>The individual has a bias towards higher glucose levels.</td>
+        </tr>
+        <tr>
+            <td>Cm</td>
+            <td>0.000000e+00</td>
+            <td>The individual has a low-normal metabolic sensitivity to
+                cortisol.</td>
+        </tr>
+        <tr>
+            <td>toff</td>
+            <td>0.000000e+00</td>
+            <td>The individual’s cortisol response is in sync with the solar
+                noon.</td>
+        </tr>
+    </tbody>
 </table>
 <h4 id="example-chatgpt-output">Example ChatGPT Output</h4>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Based on the given model parameters and their example fitted values, we can make several clinically and physiologically relevant observations about the individual:</span>
+<div class="sourceCode" id="cb1">
+    <pre
+        class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Based on the given model parameters and their example fitted values, we can make several clinically and physiologically relevant observations about the individual:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Time Zone Offset (d)**: The value is -0.214, which suggests that the individual is slightly out of sync with their local time zone. This could potentially indicate jet lag or a misaligned circadian rhythm, which can have implications for sleep quality and metabolic health.</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -241,11 +226,13 @@ class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>**Random Noise Scale (eps)**: Not provided in the example, but this could indicate the level of stochasticity or &quot;noise&quot; in the system, which might be relevant for understanding variability in physiological responses.</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>Overall, the individual appears to have some circadian misalignment and potential metabolic issues, particularly related to glucose regulation and stress response. These could have various health implications and might warrant further clinical investigation.</span></code></pre></div>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>Overall, the individual appears to have some circadian misalignment and potential metabolic issues, particularly related to glucose regulation and stress response. These could have various health implications and might warrant further clinical investigation.</span></code></pre>
+</div>
 <h4 id="example-non-pfun-chatgpt-response">Example Non-PFun ChatGPT
-Response</h4>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Based on the analysis of your CGM data, here&#39;s a personalized report on your metabolic health:</span>
+    Response</h4>
+<div class="sourceCode" id="cb2">
+    <pre
+        class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Based on the analysis of your CGM data, here&#39;s a personalized report on your metabolic health:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Average Glucose:** 120.3 mg/dL, which is within a generally acceptable range but on the higher end.</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Minimum Glucose:** 95.0 mg/dL, indicating good management of low glucose episodes.</span>
@@ -255,11 +242,13 @@ class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Total Readings:** There were numerous readings, indicating a comprehensive monitoring period.</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Standard Deviation of Glucose:** 17.7, which reflects moderate variability in your glucose levels.</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>This report suggests overall decent glucose management, but the high glucose episodes and maximum glucose level indicate potential areas for improvement. Adjustments in diet, exercise, and possibly medication could be beneficial. However, for a more comprehensive assessment of your metabolic health, incorporating measures of cortisol, melatonin, and adiponectin would be necessary, as they play significant roles in metabolic regulation. Always consult with your healthcare provider for personalized medical advice.</span></code></pre></div>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>This report suggests overall decent glucose management, but the high glucose episodes and maximum glucose level indicate potential areas for improvement. Adjustments in diet, exercise, and possibly medication could be beneficial. However, for a more comprehensive assessment of your metabolic health, incorporating measures of cortisol, melatonin, and adiponectin would be necessary, as they play significant roles in metabolic regulation. Always consult with your healthcare provider for personalized medical advice.</span></code></pre>
+</div>
 <h4 id="example-chatgpt-response-with-pfun-parameters">Example ChatGPT
-Response with PFun Parameters</h4>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>The additional details you provided, including model parameters and example fitted values, offer valuable insights into your metabolic health, particularly concerning your circadian rhythm and glucose metabolism.</span>
+    Response with PFun Parameters</h4>
+<div class="sourceCode" id="cb3">
+    <pre
+        class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>The additional details you provided, including model parameters and example fitted values, offer valuable insights into your metabolic health, particularly concerning your circadian rhythm and glucose metabolism.</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Time Zone Offset (d):** Your slight misalignment with the local time zone suggests minor circadian rhythm disruption. This could be due to travel, work schedule, or lifestyle habits.</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -275,21 +264,25 @@ class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>**Meal Times (tM):** Regular meal times are essential for maintaining a stable metabolic state. Consistency in meal timing helps regulate your body&#39;s clock, impacting glucose metabolism and overall health.</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>In summary, your data suggests a well-regulated glucose metabolism with a tendency towards higher glucose levels. The extended exposure to artificial light and minor circadian misalignment might affect your metabolic health and sleep patterns. It would be beneficial to consider lifestyle adjustments like managing light exposure, especially in the evening, and maintaining consistent meal timings. Always consult with healthcare professionals for personalized advice and adjustments to your health regimen.</span></code></pre></div>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>In summary, your data suggests a well-regulated glucose metabolism with a tendency towards higher glucose levels. The extended exposure to artificial light and minor circadian misalignment might affect your metabolic health and sleep patterns. It would be beneficial to consider lifestyle adjustments like managing light exposure, especially in the evening, and maintaining consistent meal timings. Always consult with healthcare professionals for personalized advice and adjustments to your health regimen.</span></code></pre>
+</div>
 <h2 id="development-notes">Development notes</h2>
 <ul>
-<li>Using <code>uv</code> for super fast dependency management,
-intuitive CLI, and ezpz publishing to pypi.</li>
+    <li>Using <code>uv</code> for super fast dependency management,
+        intuitive CLI, and ezpz publishing to pypi.</li>
 </ul>
 <h3 id="quick-start">Quick start</h3>
 <h4 id="dashlane-inject-secrets-to-create-.env">(dashlane) Inject
-secrets to create <code>.env</code></h4>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
+    secrets to create <code>.env</code></h4>
+<div class="sourceCode" id="cb4">
+    <pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: only works if you have dcli (the dashlane CLI) installed locally</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./scripts/inject-secrets-env.sh</span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./scripts/inject-secrets-env.sh</span></code></pre>
+</div>
 <h3 id="convert-docker-compose.yml-to-helm-chart">Convert
-<code>docker-compose.yml</code> to Helm Chart</h3>
+    <code>docker-compose.yml</code> to Helm Chart
+</h3>
 <h2 id="section"></h2>
 <pre><code># convert docker-compose.yml to a Helm Chart (for kubernetes)
 \# kompose convert -c -o pfun-cma-model-chart
@@ -303,7 +296,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 \# helm install pfun-cma-model-chart -f dist/pfun-cma-model-chart-&lt;VERSION&gt;.tgz
 ...</code></pre>
 <h3 id="containerized-docker-compose-environment">(containerized)
-<code>docker-compose</code> environment</h3>
+    <code>docker-compose</code> environment
+</h3>
 <h4 id="complete-rebuild-launch">Complete rebuild &amp; launch</h4>
 <h2 id="section-1"></h2>
 <pre><code>docker compose up -d \
@@ -318,28 +312,31 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <pre><code># Enter the devenv shell environment (see flake.nix)
 devenv shell
 ...</code></pre>
-<h4
-id="cloud-run-create-a-new-version-publish-to-google-cloud-platform">(Cloud
-Run) Create a new Version &amp; Publish to Google Cloud Platform</h4>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/new-version.sh</span></span></code></pre></div>
+<h4 id="cloud-run-create-a-new-version-publish-to-google-cloud-platform">(Cloud
+    Run) Create a new Version &amp; Publish to Google Cloud Platform</h4>
+<div class="sourceCode" id="cb8">
+    <pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/new-version.sh</span></span></code></pre>
+</div>
 <h3 id="local-uv-python-dev-environment">(local) <code>uv</code> Python
-Dev environment</h3>
-<h4
-id="debugging-the-app-locally-run-as-a-local-fastapi-server">Debugging
-the app locally (run as a local FastAPI server)</h4>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
+    Dev environment</h3>
+<h4 id="debugging-the-app-locally-run-as-a-local-fastapi-server">Debugging
+    the app locally (run as a local FastAPI server)</h4>
+<div class="sourceCode" id="cb9">
+    <pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run fastapi dev pfun_cma_model/app.py <span class="at">--port</span> 8001</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># OR</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/serve-dev.sh</span></span></code></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/serve-dev.sh</span></span></code></pre>
+</div>
 <h2 id="interact-with-the-app-via-cli">Interact with the app via
-CLI</h2>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
+    CLI</h2>
+<div class="sourceCode" id="cb10">
+    <pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> pfun-cma-model generate-scenario <span class="at">--query</span> <span class="st">&#39;a healthy individual with a tendency to sleep in.&#39;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;qualitative_description&quot;</span><span class="ex">:</span> <span class="st">&quot;This individual is a healthy young adult who is a natural &#39;night owl&#39;. They have a delayed sleep phase, meaning they tend to go to bed late, around 2:00 AM, and wake up late in the morning, typically after 10:00 AM. Their meal schedule is shifted accordingly, with &#39;breakfast&#39; often being eaten closer to noon. They are otherwise healthy, with a stable diet and regular activity levels, but their entire daily rhythm, including their natural cortisol cycle, is pushed back by several hours compared to someone with a more conventional sleep schedule.&quot;</span>,</span>
@@ -360,4 +357,5 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href=
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the model, output results</span></span>
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run pfun-cma-model run-fit-model <span class="at">--plot</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span></code></pre></div>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span></code></pre>
+</div>

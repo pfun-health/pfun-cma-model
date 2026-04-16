@@ -21,8 +21,15 @@ def save2duckdb(
         connection.commit()
 
     logging.debug(
-        "...saved df_result to table '%s', located in database '%s'",
-        table_id,
-        db_path
+        "...saved df_result to table '%s', located in database '%s'", table_id, db_path
     )
-                  
+
+
+def query_duckdb(query: str, db_path: str = "results/duckdb.db") -> DataFrame:
+    """
+    Execute the provided SQL query against the specified duckdb database and return the results as a DataFrame.
+    """
+    with duckdb.connect(database=db_path) as connection:
+        result_df = connection.sql(query).df()
+    logging.debug("Executed query against database '%s': %s", db_path, query)
+    return result_df
