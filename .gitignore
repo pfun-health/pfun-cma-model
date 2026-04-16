@@ -1,3 +1,6 @@
+session-*.md
+ses-*.md
+
 supervisord.pid
 nuitka-crash-report.xml
 /examples/data/

@@ -59,24 +59,41 @@ class AdminAuth(AuthenticationBackend):
 
         try:
             decoded_token = jwt.decode(
-                token, key=get_settings().secret_key, algorithms=[CryptContextDefaults.ALGORITHM]
+                token,
+                key=get_settings().secret_key,
+                algorithms=[CryptContextDefaults.ALGORITHM],
             )
             logging.debug("Decoded JWT token for SSO login: %s", decoded_token)
 
             # The token format depends on where it comes from:
-            # - If it's directly from our SSO flow, it might have "pld" with openid info.
-            # - If it's the token we re-issued (if we kept that logic), it might have "usn" and "category".
+            # - If it's directly from our SSO flow, it has "pld" with openid info.
+            # - Legacy tokens may have "usn" (username) claim.
+            # - Bearer tokens have "type": "bearer" with "sub" as the user identifier (email).
+            # All formats are supported for backward compatibility.
 
             email = None
             openid_info = None
             if "pld" in decoded_token:
+                # SSO token format (from /sso/auth/callback)
                 openid_info = OpenID(**decoded_token["pld"])
                 email = openid_info.email
+            elif decoded_token.get("type") == "bearer":
+                # Bearer token format (from /auth/* endpoints)
+                # Use "sub" as the email identifier
+                email = decoded_token.get("sub")
+                if not email:
+                    logging.warning(
+                        "Bearer token missing 'sub' claim. Token: %s, Session data: %s",
+                        token,
+                        str(request.session),
+                    )
+                    return False
             elif "usn" in decoded_token:
+                # Legacy token format (backward compatibility)
                 email = decoded_token["usn"]
             else:
                 logging.warning(
-                    "JWT token does not contain expected 'pld' or 'usn' claims. Token: %s, Session data: %s",
+                    "JWT token does not contain expected 'pld', 'type=bearer', or 'usn' claims. Token: %s, Session data: %s",
                     token,
                     str(request.session),
                 )
@@ -105,16 +122,14 @@ class AdminAuth(AuthenticationBackend):
 
         async with Session() as db_session:  # type: ignore
             # Look up the user by email, since it's the primary key for SSO
-            result = await db_session.execute(
-                select(User).where(User.email == email)
-            )
+            result = await db_session.execute(select(User).where(User.email == email))
             user = result.scalars().first()
             if not user:
-                logging.warning(
-                    f"Login attempt with non-existent email: {email}"
-                )
+                logging.warning(f"Login attempt with non-existent email: {email}")
                 if get_settings().debug:
-                    logging.info("Debug mode enabled. Automatically creating user for %s", email)
+                    logging.info(
+                        "Debug mode enabled. Automatically creating user for %s", email
+                    )
                     display_name = openid_info.display_name if openid_info else email
                     user = User(
                         email=email,
@@ -123,7 +138,7 @@ class AdminAuth(AuthenticationBackend):
                         is_admin=False,
                         age=None,
                         bio=None,
-                        site_id=None
+                        site_id=None,
                     )
                     db_session.add(user)
                     await db_session.commit()

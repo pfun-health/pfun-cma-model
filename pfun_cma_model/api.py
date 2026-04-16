@@ -196,7 +196,7 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=track_client_request_middleware)
 # Add CORS middleware to allow cross-origin requests
 allow_all_origins = {
     True: ["*", "localhost", "127.0.0.1", "::1"],  # for debug mode, allow all
-    False: {
+    False: [
         "localhost",
         "127.0.0.1",
         "pfun.run",
@@ -206,10 +206,12 @@ allow_all_origins = {
         "cloud.tail38611b.ts.net",
         "gbot.tail38611b.ts.net",
         "nixos.tail38611b.ts.net",
-    },
+    ],
 }
-# type: ignore  # pyright: ignore[reportArgumentType]
+# Convert to list to satisfy Sequence[str] type requirement
 allowed_hosts = allow_all_origins[debug_mode]
+if isinstance(allowed_hosts, set):
+    allowed_hosts = list(allowed_hosts)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_hosts,
@@ -294,16 +296,27 @@ def health_check():
     return {"status": "ok", "message": "PFun CMA Model API is running."}
 
 
+def _get_templates() -> Jinja2Templates:
+    """Get templates, raising HTTPException if not initialized."""
+    if templates is None:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=503, detail="Templates not initialized")
+    return templates
+
+
 @app.get("/about")
 def about_document(request: Request):
     """PFun Glucose about document."""
-    return templates.TemplateResponse(request, "about-doc.html.jinja2", context={})
+    return _get_templates().TemplateResponse(
+        request, "about-doc.html.jinja2", context={}
+    )
 
 
 @app.get("/pitch")
 def pitch_document(request: Request):
     """PFun Glucose pitch document."""
-    return templates.TemplateResponse(request, "pitch-doc.html.jinja2")
+    return _get_templates().TemplateResponse(request, "pitch-doc.html.jinja2")
 
 
 @app.get("/")
@@ -312,7 +325,7 @@ def root(request: Request, real_ip: str = Header(None, alias="X-Real-IP")):
     ts_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug("Root endpoint accessed at %s", ts_msg)
     # Render the index.html template
-    return templates.TemplateResponse(
+    return _get_templates().TemplateResponse(
         request,
         "index.html.jinja2",
         context=dict(
@@ -439,12 +452,15 @@ async def run_at_time_stream_route(
             # Log full exception details and stack trace on the server,
             # but return only a generic error message to the client.
             logger.error("failed to run at time.", exc_info=True)
-            yield json.dumps(
-                {
-                    "error": "failed to run at time. See error message on server log.",
-                    "status_code": 500,
-                }
-            ) + "\n"
+            yield (
+                json.dumps(
+                    {
+                        "error": "failed to run at time. See error message on server log.",
+                        "status_code": 500,
+                    }
+                )
+                + "\n"
+            )
 
     return StreamingResponse(iter_response(), media_type="application/x-ndjson")
 

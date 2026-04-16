@@ -278,6 +278,9 @@ def setup_security_config() -> SecurityConfig:
         custom_log_file="logs/security.log",  # Or remove/set to None for console-only output
         # Excluded Paths
         exclude_paths=[
+            "/",
+            "/demo/llm",
+            "/login",
             "/docs",
             "/redoc",
             "/openapi.json",

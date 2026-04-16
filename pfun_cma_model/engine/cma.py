@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """app.engine.cma: define the Cortisol-Melatonin-Adiponectin model."""
+
 import copy
 import json
 import logging
@@ -268,7 +269,9 @@ class CMASleepWakeModel:
         # Setup the random number generator (if seed is given)
         self.rng = None
         if self.seed is not None:
-            self.rng = default_rng(seed=self.seed)
+            # Convert seed to int (default_rng requires int, not float)
+            seed_value = int(self.seed) if isinstance(self.seed, float) else self.seed
+            self.rng = default_rng(seed=seed_value)
 
     @property
     def eps(self) -> float | None:
@@ -276,6 +279,11 @@ class CMASleepWakeModel:
         Random noise scale ("epsilon").
         """
         return self.params.eps
+
+    @eps.setter
+    def eps(self, value: float | None):
+        """Set the eps (random noise scale) value."""
+        self._params.eps = value
 
     @property
     def seed(self) -> Optional[int | float]:
@@ -385,9 +393,7 @@ class CMASleepWakeModel:
                     f"Invalid type for tM: {type(tM_raw)}. Must be a list, tuple, or string of numeric values."
                 )
         try:
-            tM = [
-                float(x) for x in tM if isinstance(x, (int, float))
-            ]  # type: ignore
+            tM = [float(x) for x in tM if isinstance(x, (int, float))]  # type: ignore
         except ValueError:
             raise ValueError(f"Invalid value in tM: {tM}. All values must be numeric.")
         return array(tM, dtype=float).flatten()
@@ -634,7 +640,9 @@ class CMASleepWakeModel:
         Returns:
             np.ndarray: Array of Post-prandial glucose dynamics.
         """
-        return vectorized_G(self.t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff)  # type: ignore
+        return vectorized_G(
+            self.t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff
+        )  # type: ignore
 
     @property
     def g(self):
@@ -672,13 +680,13 @@ class CMASleepWakeModel:
         to be included in the target time period.
         """
         # trunk-ignore(bandit/B101)
-        assert any(
-            [(signal is None), (signal_name is None)]
-        ), "Must provide exactly one of signal or signal_name"
+        assert any([(signal is None), (signal_name is None)]), (
+            "Must provide exactly one of signal or signal_name"
+        )
         # trunk-ignore(bandit/B101)
-        assert any(
-            [(signal is not None), (signal_name is not None)]
-        ), "Must provide exactly one of signal or signal_name"
+        assert any([(signal is not None), (signal_name is not None)]), (
+            "Must provide exactly one of signal or signal_name"
+        )
         if tvec is None:
             tvec = self.t  # type: ignore
         if signal_name is not None:
@@ -804,7 +812,6 @@ def round_to_nearest_integer(number):
 
 
 class CMAUtils:
-
     @staticmethod
     def get_hour_of_day(
         hour: Tuple[float | int] | float | int,
