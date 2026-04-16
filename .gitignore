@@ -12,8 +12,11 @@ certs/
 
 # Gradio specific
 .gradio/
-# nohup logs
+
+# Logfiles
 nohup.out
+logs/**/*.log
+logs/**/*.log.*
 
 # Ignore the .env file
 .env
