@@ -27,6 +27,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from pfun_qt_gui.theme import scale, get_theme
+
 
 # ---------------------------------------------------------------------------
 # Quirky loading messages
@@ -85,7 +87,6 @@ class LoadingOverlay(QWidget):
     # -- visual constants (shared by all overlays) --
     _BACKDROP_COLOR = QColor(15, 23, 42, 210)
     _CARD_COLOR = QColor(20, 27, 46, 240)
-    _CARD_RADIUS = 16
 
     # -- subclass hooks (defaults) --
     _initial_heading: str = "Loading…"
@@ -101,6 +102,12 @@ class LoadingOverlay(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAutoFillBackground(False)
 
+        theme = get_theme()
+
+        # --- DPI-aware card dimensions ---
+        self._card_radius = scale(16)
+        self._card_max_width = scale(460)
+
         # --- outer layout (centres the card) ---
         outer_layout = QVBoxLayout(self)
         outer_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -108,16 +115,19 @@ class LoadingOverlay(QWidget):
         # --- card container ---
         self._content_box = QWidget(self)
         self._content_box.setStyleSheet("background: transparent;")
-        self._content_box.setFixedWidth(420)
+        self._content_box.setMaximumWidth(self._card_max_width)
         card_layout = QVBoxLayout(self._content_box)
-        card_layout.setContentsMargins(32, 28, 32, 28)
+        card_layout.setContentsMargins(
+            scale(32), scale(28), scale(32), scale(28)
+        )
         card_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # --- spinner ---
         self._spinner_label = QLabel("⠋")
         self._spinner_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._spinner_label.setStyleSheet(
-            f"color: {self._spinner_color.name()}; font-size: 48px; background: transparent;"
+            f"color: {self._spinner_color.name()}; "
+            f"font-size: {scale(48)}px; background: transparent;"
         )
         self._spinner_frames = list("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
         self._spinner_idx = 0
@@ -129,16 +139,20 @@ class LoadingOverlay(QWidget):
         self._heading = QLabel(self._initial_heading)
         self._heading.setAlignment(Qt.AlignmentFlag.AlignCenter)
         heading_font = QFont()
-        heading_font.setPointSize(18)
+        heading_font.setPointSize(scale(18))
         heading_font.setBold(True)
         self._heading.setFont(heading_font)
-        self._heading.setStyleSheet("color: #f1f5f9; background: transparent;")
+        self._heading.setStyleSheet(
+            f"color: {theme.palette.text_primary}; background: transparent;"
+        )
+        self._heading.setWordWrap(True)
 
         # --- detail ---
         self._detail = QLabel("")
         self._detail.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._detail.setStyleSheet(
-            "color: #94a3b8; font-size: 13px; background: transparent;"
+            f"color: {theme.palette.text_secondary}; "
+            f"font-size: {scale(13)}px; background: transparent;"
         )
         self._detail.setWordWrap(True)
 
@@ -146,17 +160,18 @@ class LoadingOverlay(QWidget):
         self._quip_label = QLabel("")
         self._quip_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._quip_label.setStyleSheet(
-            "color: #cbd5e1; font-size: 12px; font-style: italic; background: transparent;"
+            f"color: #cbd5e1; font-size: {scale(12)}px; "
+            f"font-style: italic; background: transparent;"
         )
         self._quip_label.setWordWrap(True)
 
         # Assemble card layout
         card_layout.addWidget(self._spinner_label)
-        card_layout.addSpacing(12)
+        card_layout.addSpacing(scale(12))
         card_layout.addWidget(self._heading)
-        card_layout.addSpacing(6)
+        card_layout.addSpacing(scale(6))
         card_layout.addWidget(self._detail)
-        card_layout.addSpacing(10)
+        card_layout.addSpacing(scale(10))
         card_layout.addWidget(self._quip_label)
 
         outer_layout.addWidget(self._content_box, 0, Qt.AlignmentFlag.AlignCenter)
@@ -211,7 +226,7 @@ class LoadingOverlay(QWidget):
         card_rect = self._content_box.geometry().adjusted(-4, -4, 4, 4)
         painter.setPen(QPen(self._card_accent_color, 1.0))
         painter.setBrush(QBrush(self._CARD_COLOR))
-        painter.drawRoundedRect(card_rect, self._CARD_RADIUS, self._CARD_RADIUS)
+        painter.drawRoundedRect(card_rect, self._card_radius, self._card_radius)
 
         painter.end()
 

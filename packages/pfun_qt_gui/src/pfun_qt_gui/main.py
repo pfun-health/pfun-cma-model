@@ -16,13 +16,22 @@ from PyQt6.QtWidgets import (
     QTextBrowser,
     QMessageBox,
     QSplitter,
+    QSizePolicy,
+    QFrame,
+    QScrollArea,
 )
-from PyQt6.QtCore import Qt, QTimer, QUrl, QUrlQuery
+from PyQt6.QtCore import Qt, QTimer, QUrl, QUrlQuery, QSize
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from pfun_common.settings import get_settings
 from pfun_common.logs import setup_logging
 from pfun_qt_gui.loading_overlay import StartupLoadingOverlay, SubmitLoadingOverlay
-from pfun_qt_gui.mixins import HealthCheckMixin
+from pfun_qt_gui.mixins import AutoRetryMixin, HealthCheckMixin
+from pfun_qt_gui.theme import (
+    get_theme,
+    platform_tier,
+    PlatformTier,
+    scale,
+)
 
 logger = setup_logging(logger_name="pfun-qt-gui-app")
 settings = get_settings()
@@ -35,21 +44,33 @@ root_dir = Path(env_fpath).parent.parent.parent
 # import supervisor so that the process group is registered
 import supervisor  # noqa: F401
 
-# Auto-retry settings for generate-scenario requests
-MAX_GENERATE_RETRIES = 3
-GENERATE_RETRY_BASE_DELAY_MS = 1000  # doubles each attempt (exponential backoff)
+# Breakpoint for switching from horizontal to vertical splitter
+_NARROW_BREAKPOINT = 700
 
 
-class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
+class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PFun Health Tips Demo")
-        self.setMinimumSize(800, 600)
+
+        # Apply responsive minimum size based on platform
+        tier = platform_tier()
+        if tier == PlatformTier.MOBILE:
+            self.setMinimumSize(QSize(320, 480))
+        elif tier == PlatformTier.TV:
+            self.setMinimumSize(QSize(1200, 800))
+        else:
+            self.setMinimumSize(QSize(640, 480))
+
         self.load_env()  # load env vars from .env file
         self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "https://127.0.0.1:8001")
         logging.debug(f"API URL: {self.api_url}")
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_finished)
+
+        # Apply the global theme stylesheet
+        theme = get_theme()
+        self.setStyleSheet(theme.stylesheet())
 
         # start the UI
         self.init_ui()
@@ -60,9 +81,11 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
         )
         self._submit_overlay: SubmitLoadingOverlay | None = None
 
-        # Retry state for generate-scenario requests
-        self._retry_count = 0
-        self._pending_request: QNetworkRequest | None = None
+        # Initialise auto-retry state (from AutoRetryMixin)
+        self.init_retry_state()
+
+        # Track current splitter orientation for adaptive layout
+        self._current_splitter_horizontal = True
 
         # Show startup loading overlay and begin health polling
         self._loading_overlay = StartupLoadingOverlay(self.centralWidget())
@@ -90,98 +113,187 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
         if hasattr(self, "_submit_overlay") and self._submit_overlay is not None:
             self._submit_overlay.setGeometry(central_rect)
 
+        # Adaptive splitter orientation: switch to vertical on narrow windows
+        if hasattr(self, "splitter"):
+            w = event.size().width()
+            if w < scale(_NARROW_BREAKPOINT) and self._current_splitter_horizontal:
+                self.splitter.setOrientation(Qt.Orientation.Vertical)
+                self._current_splitter_horizontal = False
+            elif w >= scale(_NARROW_BREAKPOINT) and not self._current_splitter_horizontal:
+                self.splitter.setOrientation(Qt.Orientation.Horizontal)
+                self._current_splitter_horizontal = True
+
+        # Dynamically adjust query input height based on window height
+        if hasattr(self, "query_input"):
+            h = event.size().height()
+            # Allocate 12–18% of window height to the input area
+            input_height = max(scale(80), min(int(h * 0.15), scale(200)))
+            self.query_input.setMinimumHeight(scale(60))
+            self.query_input.setMaximumHeight(input_height)
+
     def init_ui(self):
-        # Main widget and layout
+        """Build the complete responsive UI."""
+        # Scroll area wrapping the main content so everything is reachable
+        # on very small screens / mobile
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
+        main_layout.setContentsMargins(
+            scale(24), scale(20), scale(24), scale(20)
+        )
+        main_layout.setSpacing(scale(4))
 
-        # Header
-        title_label = QLabel("PFun Health Tips Demo")
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+        # ── Header ──────────────────────────────────────────────────────
+        title_label = QLabel("PFun Health Tips")
+        title_label.setObjectName("title_label")
+        title_label.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
 
-        subtitle_label = QLabel("Generate personalized health tips")
-        subtitle_label.setStyleSheet("font-size: 14px; color: gray;")
+        subtitle_label = QLabel("Generate personalised health tips powered by AI")
+        subtitle_label.setObjectName("subtitle_label")
+        subtitle_label.setWordWrap(True)
+        subtitle_label.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
 
         main_layout.addWidget(title_label)
         main_layout.addWidget(subtitle_label)
-        main_layout.addSpacing(10)
+        main_layout.addSpacing(scale(12))
 
-        # Input Section
-        input_instruction = QLabel(
-            "Please enter a query to generate personalized health tips.\nThe demo will generate a random health scenario if the input is left blank."
+        # ── Divider ─────────────────────────────────────────────────────
+        divider = QFrame()
+        divider.setFrameShape(QFrame.Shape.HLine)
+        divider.setStyleSheet(
+            f"background-color: {get_theme().palette.border}; max-height: 1px;"
         )
-        input_instruction.setStyleSheet("color: #0056b3;")
+        main_layout.addWidget(divider)
+        main_layout.addSpacing(scale(12))
+
+        # ── Input section ───────────────────────────────────────────────
+        input_instruction = QLabel(
+            "Enter a query below, or leave blank for a random health scenario."
+        )
+        input_instruction.setObjectName("input_instruction")
+        input_instruction.setWordWrap(True)
+        input_instruction.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
         main_layout.addWidget(input_instruction)
+        main_layout.addSpacing(scale(4))
 
         self.query_input = QTextEdit()
+        self.query_input.setObjectName("query_input")
         self.query_input.setPlaceholderText(
-            "Example: I'm a relatively healthy individual who exercises most mornings before sunrise. What tips do you have for me?"
+            "Example: I'm a relatively healthy individual who exercises most "
+            "mornings before sunrise. What tips do you have for me?"
         )
-        self.query_input.setFixedHeight(120)
+        # Flexible height — will be dynamically constrained in resizeEvent
+        self.query_input.setMinimumHeight(scale(60))
+        self.query_input.setMaximumHeight(scale(140))
+        self.query_input.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
         main_layout.addWidget(self.query_input)
+        main_layout.addSpacing(scale(8))
 
-        # Submit Button
-        self.submit_btn = QPushButton("Submit")
-        self.submit_btn.setStyleSheet(
-            "background-color: #0d6efd; color: white; font-size: 16px; padding: 10px; border-radius: 5px;"
+        # ── Submit button ───────────────────────────────────────────────
+        self.submit_btn = QPushButton("✦  Submit")
+        self.submit_btn.setObjectName("submit_btn")
+        self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.submit_btn.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
         )
         self.submit_btn.clicked.connect(self.on_submit)
 
         btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.addWidget(self.submit_btn)
         btn_layout.addStretch()
         main_layout.addLayout(btn_layout)
-        main_layout.addSpacing(20)
+        main_layout.addSpacing(scale(16))
 
-        # Output Section Header
+        # ── Output header ───────────────────────────────────────────────
         output_title = QLabel("Output")
-        output_title.setStyleSheet("font-size: 20px; font-weight: bold;")
+        output_title.setObjectName("output_title")
+        output_title.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
         output_subtitle = QLabel("PFun generated information")
-        output_subtitle.setStyleSheet("font-size: 12px; color: gray;")
+        output_subtitle.setObjectName("output_subtitle")
+        output_subtitle.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
 
         main_layout.addWidget(output_title)
         main_layout.addWidget(output_subtitle)
+        main_layout.addSpacing(scale(8))
 
-        # Splitter for outputs
+        # ── Splitter (recommendations | raw JSON) ───────────────────────
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.setHandleWidth(scale(6))
 
-        # Recommendations area
+        # -- Recommendations pane --
         recs_widget = QWidget()
         recs_layout = QVBoxLayout(recs_widget)
-        recs_layout.setContentsMargins(0, 0, 5, 0)
+        recs_layout.setContentsMargins(0, 0, scale(4), 0)
+        recs_layout.setSpacing(scale(6))
+
         recs_header = QLabel("Recommendations")
+        recs_header.setObjectName("section_header_recs")
         recs_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        recs_header.setStyleSheet(
-            "background-color: #0d6efd; color: white; font-weight: bold; padding: 5px; border-radius: 3px;"
+        recs_header.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
+
         self.recs_output = QTextBrowser()
+        self.recs_output.setObjectName("recs_output")
         self.recs_output.setOpenExternalLinks(True)
+        self.recs_output.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+
         recs_layout.addWidget(recs_header)
         recs_layout.addWidget(self.recs_output)
 
-        # Raw Output area
+        # -- Raw output pane --
         raw_widget = QWidget()
         raw_layout = QVBoxLayout(raw_widget)
-        raw_layout.setContentsMargins(5, 0, 0, 0)
+        raw_layout.setContentsMargins(scale(4), 0, 0, 0)
+        raw_layout.setSpacing(scale(6))
+
         raw_header = QLabel("Raw output")
+        raw_header.setObjectName("section_header_raw")
         raw_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        raw_header.setStyleSheet(
-            "background-color: #0dcaf0; color: black; font-weight: bold; padding: 5px; border-radius: 3px;"
+        raw_header.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
+
         self.raw_output = QTextBrowser()
-        self.raw_output.setStyleSheet(
-            "background-color: #f8f9fa; font-family: monospace;"
+        self.raw_output.setObjectName("raw_output")
+        self.raw_output.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
+
         raw_layout.addWidget(raw_header)
         raw_layout.addWidget(self.raw_output)
 
         self.splitter.addWidget(recs_widget)
         self.splitter.addWidget(raw_widget)
-        self.splitter.setSizes([400, 400])
+        self.splitter.setStretchFactor(0, 3)
+        self.splitter.setStretchFactor(1, 2)
 
-        main_layout.addWidget(self.splitter)
+        main_layout.addWidget(self.splitter, 1)  # stretch factor 1 → fills space
 
-        self.setCentralWidget(main_widget)
+        scroll_area.setWidget(main_widget)
+        self.setCentralWidget(scroll_area)
 
     def _show_submit_overlay(self) -> None:
         """Show the generation-in-progress overlay."""
@@ -210,7 +322,7 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
 
         # Disable button and update text
         self.submit_btn.setEnabled(False)
-        self.submit_btn.setText("Loading...")
+        self.submit_btn.setText("⏳  Generating…")
 
         # Clear previous outputs
         self.recs_output.clear()
@@ -232,52 +344,31 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
             QNetworkRequest.KnownHeaders.ContentTypeHeader, "application/json"
         )
 
-        # Reset retry state and store request for potential retries
-        self._retry_count = 0
-        self._pending_request = request
+        # Register request for auto-retry (via AutoRetryMixin)
+        self.start_retryable_request(request)
 
         # Send POST request
         self.network_manager.post(request, b"{}")
 
     def on_request_finished(self, reply: QNetworkReply):
-        # Check for Internal Server Error (HTTP 500) and auto-retry
-        status_code = reply.attribute(
-            QNetworkRequest.Attribute.HttpStatusCodeAttribute
-        )
-
-        if status_code == 500 and self._retry_count < MAX_GENERATE_RETRIES:
-            self._retry_count += 1
-            delay_ms = GENERATE_RETRY_BASE_DELAY_MS * (2 ** (self._retry_count - 1))
-            logger.warning(
-                "generate-scenario returned 500 – scheduling retry %d/%d in %d ms",
-                self._retry_count,
-                MAX_GENERATE_RETRIES,
-                delay_ms,
-            )
-
-            # Update the submit overlay so the user knows what's happening
-            if self._submit_overlay is not None:
-                self._submit_overlay.set_status(
-                    "Server error – retrying…",
-                    f"Attempt {self._retry_count}/{MAX_GENERATE_RETRIES} "
-                    f"(waiting {delay_ms / 1000:.0f}s)",
-                )
-
-            reply.deleteLater()
-            QTimer.singleShot(delay_ms, self._retry_generate_request)
+        # Delegate HTTP-500 retries to AutoRetryMixin
+        if self.should_retry(reply):
             return
 
         # ---------- No retry: process the response normally ----------
+        status_code = reply.attribute(
+            QNetworkRequest.Attribute.HttpStatusCodeAttribute
+        )
 
         # Dismiss the submit overlay
         self._dismiss_submit_overlay()
 
         # Re-enable button
         self.submit_btn.setEnabled(True)
-        self.submit_btn.setText("Submit")
+        self.submit_btn.setText("✦  Submit")
 
-        # Clear stored request
-        self._pending_request = None
+        # Clear stored request (AutoRetryMixin)
+        self.clear_pending_request()
 
         if reply.error() != QNetworkReply.NetworkError.NoError:
             error_msg = reply.errorString()
@@ -295,7 +386,7 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
             if status_code == 500:
                 error_msg = (
                     f"Server returned an internal error after "
-                    f"{self._retry_count} retry attempt(s).\n\n{error_msg}"
+                    f"{self.retry_count} retry attempt(s).\n\n{error_msg}"
                 )
 
             logging.error(f"Network error: {error_msg}")
@@ -311,12 +402,23 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
             data_str = data_bytes.decode("utf-8")
             data = json.loads(data_str)
 
-            # Format and set Recommendations
+            # Format and set Recommendations with themed HTML
             recs_data = data.get("recommendations", {})
-            recs_html = "<dl>"
+            theme = get_theme()
+            p = theme.palette
+            recs_html = (
+                f"<style>"
+                f"body {{ color: {p.text_primary}; font-family: {theme.font_family}; "
+                f"font-size: {scale(theme.font_size_body)}px; }}"
+                f"dt {{ font-weight: 700; color: {p.accent_hover}; "
+                f"margin-top: {scale(12)}px; margin-bottom: {scale(4)}px; }}"
+                f"dd {{ color: {p.text_secondary}; margin-left: {scale(8)}px; "
+                f"margin-bottom: {scale(8)}px; line-height: 1.5; }}"
+                f"</style><dl>"
+            )
             for key, value in recs_data.items():
                 recs_html += (
-                    f"<dt style='font-weight: bold;'>{key}</dt><dd>{value}</dd>"
+                    f"<dt>{key}</dt><dd>{value}</dd>"
                 )
             recs_html += "</dl>"
             self.recs_output.setHtml(recs_html)
@@ -337,37 +439,19 @@ class PFunHealthTipsDemo(HealthCheckMixin, QMainWindow):
 
         reply.deleteLater()
 
-    def _retry_generate_request(self) -> None:
-        """Re-send the stored generate-scenario request.
-
-        Called by a QTimer after an HTTP 500 response.  The original
-        ``QNetworkRequest`` is preserved in ``self._pending_request`` so
-        we can re-issue the same POST without rebuilding the URL/query.
-        """
-        if self._pending_request is None:
-            logger.error("_retry_generate_request called but no pending request.")
-            return
-
-        logger.info(
-            "Retrying generate-scenario (attempt %d/%d)…",
-            self._retry_count,
-            MAX_GENERATE_RETRIES,
-        )
-
-        if self._submit_overlay is not None:
-            self._submit_overlay.set_status(
-                "Retrying…",
-                f"Sending attempt {self._retry_count}/{MAX_GENERATE_RETRIES}",
-            )
-
-        self.network_manager.post(self._pending_request, b"{}")
-
 
 def main():
+    # Enable high-DPI scaling (important for crisp rendering everywhere)
+    os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+
     app = QApplication(sys.argv)
 
     # Optional: Set an application-wide style or palette
     app.setStyle("Fusion")
+
+    # Apply the global theme stylesheet at the app level as well
+    theme = get_theme()
+    app.setStyleSheet(theme.stylesheet())
 
     window = PFunHealthTipsDemo()
     window.show()

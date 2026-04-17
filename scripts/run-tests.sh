@@ -3,10 +3,23 @@
 set -e
 set -x
 
-# Run pytest with options to show the 5 slowest tests and use line-based tracebacks for easier readability in CI logs.
+# Run pytest with options to show the 5 slowest tests
+# and use line-based tracebacks for easier readability in CI logs.
 
-uv run python -m pytest \
-	--durations=5 \
-	--tb=line \
-	tests \
-	"${@}"
+run_tests() {
+	uv run python -m pytest \
+		--durations=5 \
+		--tb=line \
+		tests \
+		"${@}"
+}
+
+run_tests
+
+# run the tests for sub-packages too
+
+sh -c 'cd packages/pfun_qt_gui; run_tests'
+
+sh -c 'cd packages/pfun_common; run_tests'
+
+	
