@@ -5,7 +5,7 @@ version = "0.4.198"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
-requires-python = ">=3.12.11,<=3.12.13" # Additional properties are not allowed (package' was unexpected)
+requires-python = ">=3.11,<3.14" # Additional properties are not allowed (package' was unexpected)
 
 dependencies = [
     "setuptools>=78.1.1",
@@ -13,7 +13,7 @@ dependencies = [
     "scipy>=1.11.3",
     "matplotlib>=3.8.0",
     "click>=8.1.7",
-    "pfun_path_helper>=0.1.4",
+    "pfun_path_helper>=0.1.5",
     "jinja2>=3.1.2",
     "gunicorn>=23.0.0",
     "PyYAML>=6.0.1",
@@ -162,5 +162,4 @@ pfun-qt-gui = { path = "./packages/pfun_qt_gui"}
 [tool.uv.workspace]
 members = [
     "pfun-gradio",
-    # "packages/pfun_qt_gui",
 ]

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A PyQt6 frontend for the PFun CMA Model."
 readme = "README.md"
 authors = [{ name = "Robbie Capps", email = "robbie@pfun.me" }]
-requires-python = ">=3.12.11,<3.14"
+requires-python = ">=3.11,<3.14"
 dependencies = ["PyQt6>=6.6.0", "dotenv>=0.9.9", "pfun-common", "supervisor>=4.3.0"]
 
 [build-system]
@@ -17,6 +17,7 @@ dev = [
     "pyside6>=6.11.0",
     "pytest>=9.0.3",
     "pfun-cma-model",
+    "qtpip>=0.1.4",
 ]
 
 [tool.pyside6-project]
