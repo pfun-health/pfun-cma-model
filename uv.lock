@@ -1813,6 +1813,8 @@ dependencies = [
     { name = "pkginfo" },
     { name = "pyarrow" },
     { name = "pydantic-settings" },
+    { name = "pyqt6" },
+    { name = "python-dotenv" },
     { name = "python-jose", extra = ["cryptography"] },
     { name = "python-socketio" },
     { name = "python-socketio-stubs" },
@@ -1866,6 +1868,7 @@ dev = [
     { name = "httpx" },
     { name = "kaggle" },
     { name = "mkdocs" },
+    { name = "mypy" },
     { name = "openapi-generator-cli", extra = ["jdk4py"] },
     { name = "pyperformance" },
     { name = "ruff" },
@@ -1927,8 +1930,10 @@ requires-dist = [
     { name = "pkginfo", specifier = ">=1.12.1.2" },
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "pydantic-settings", specifier = ">=2.2.1" },
+    { name = "pyqt6", specifier = ">=6.10.2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.2" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.3.0" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-jose", extras = ["cryptography"], specifier = ">=3.5.0" },
     { name = "python-package-size", marker = "extra == 'dev'", specifier = ">=1.0.1" },
     { name = "python-socketio", specifier = ">=5.13.0" },
@@ -1966,6 +1971,7 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "kaggle", specifier = ">=2.0.1" },
     { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mypy", specifier = ">=1.19.1" },
     { name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.18.0" },
     { name = "pyperformance", specifier = ">=1.14.0" },
     { name = "ruff", specifier = ">=0.15.11" },
@@ -2036,6 +2042,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pfun-cma-model", directory = "." },
     { name = "pip", specifier = ">=26.0.1" },
     { name = "pyside6", specifier = ">=6.11.0" },
     { name = "pytest", specifier = ">=9.0.3" },

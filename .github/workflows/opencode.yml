@@ -1,0 +1,35 @@
+name: opencode
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  opencode:
+    if: |
+      contains(github.event.comment.body, '/oc') ||
+      contains(github.event.comment.body, '/opencode')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+       - name: Checkout repository
+         uses: actions/checkout@v6
+         with:
+           fetch-depth: 1
+           persist-credentials: false
+
+       - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          model: ollama/minimax-m2.7:cloud
+            share: false
+            github_token: ${{ GITHUB_TOKEN }}
+          # model: anthropic/claude-sonnet-4-20250514
+          #   share: true
+          #   github_token: xxxx

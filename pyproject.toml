@@ -52,6 +52,8 @@ dependencies = [
     "pkginfo>=1.12.1.2",
     "tqdm>=4.67.3",
     "packaging==24.1",
+    "pyqt6>=6.10.2",
+    "python-dotenv>=1.2.2",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
@@ -104,6 +106,7 @@ dev = [
     "httpx>=0.28.1",
     "kaggle>=2.0.1",
     "mkdocs>=1.6.1",
+    "mypy>=1.19.1",
     "openapi-generator-cli[jdk4py]>=7.18.0",
     "pyperformance>=1.14.0",
     "ruff>=0.15.11",

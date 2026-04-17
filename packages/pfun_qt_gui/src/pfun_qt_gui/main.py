@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import json
 from dotenv import load_dotenv
+import supervisor  # noqa: F401 # import supervisor so that the process group is registered
+
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -20,7 +22,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QScrollArea,
 )
-from PyQt6.QtCore import Qt, QTimer, QUrl, QUrlQuery, QSize
+from PyQt6.QtCore import Qt, QUrl, QUrlQuery, QSize, pyqtSignal
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from pfun_common.settings import get_settings
 from pfun_common.logs import setup_logging
@@ -32,6 +34,9 @@ from pfun_qt_gui.theme import (
     PlatformTier,
     scale,
 )
+from pfun_qt_gui.auth.secure_token_store import QtSecureTokenStore
+from pfun_qt_gui.auth.login_dialog import LoginDialog
+from pfun_qt_gui.auth.avatar_widget import AvatarWidget
 
 logger = setup_logging(logger_name="pfun-qt-gui-app")
 settings = get_settings()
@@ -40,15 +45,13 @@ settings = get_settings()
 env_fpath = Path(__file__).parent.parent.parent / ".env"
 # root_dir is the directory containing the top-level .env file
 root_dir = Path(env_fpath).parent.parent.parent
-
-# import supervisor so that the process group is registered
-import supervisor  # noqa: F401
-
-# Breakpoint for switching from horizontal to vertical splitter
 _NARROW_BREAKPOINT = 700
 
 
 class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
+    # Signal emitted when user logs out
+    logout_requested = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PFun Health Tips Demo")
@@ -62,11 +65,17 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
         else:
             self.setMinimumSize(QSize(640, 480))
 
+        self.server_healthy = False  # Initialize server health status
+
         self.load_env()  # load env vars from .env file
         self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "https://127.0.0.1:8001")
         logging.debug(f"API URL: {self.api_url}")
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_finished)
+
+        # Initialize authentication
+        self.token_store = QtSecureTokenStore()
+        self.logout_requested.connect(self._on_logout)
 
         # Apply the global theme stylesheet
         theme = get_theme()
@@ -119,7 +128,9 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
             if w < scale(_NARROW_BREAKPOINT) and self._current_splitter_horizontal:
                 self.splitter.setOrientation(Qt.Orientation.Vertical)
                 self._current_splitter_horizontal = False
-            elif w >= scale(_NARROW_BREAKPOINT) and not self._current_splitter_horizontal:
+            elif (
+                w >= scale(_NARROW_BREAKPOINT) and not self._current_splitter_horizontal
+            ):
                 self.splitter.setOrientation(Qt.Orientation.Horizontal)
                 self._current_splitter_horizontal = True
 
@@ -138,18 +149,17 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-        scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
-        main_layout.setContentsMargins(
-            scale(24), scale(20), scale(24), scale(20)
-        )
+        main_layout.setContentsMargins(scale(24), scale(20), scale(24), scale(20))
         main_layout.setSpacing(scale(4))
 
         # ── Header ──────────────────────────────────────────────────────
+        header_layout = QHBoxLayout()
+        header_layout.setContentsMargins(0, 0, 0, 0)
+
         title_label = QLabel("PFun Health Tips")
         title_label.setObjectName("title_label")
         title_label.setSizePolicy(
@@ -163,7 +173,13 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
         )
 
-        main_layout.addWidget(title_label)
+        # Add avatar widget to header
+        self.avatar_widget = AvatarWidget(self.token_store)
+        header_layout.addWidget(title_label)
+        header_layout.addStretch()
+        header_layout.addWidget(self.avatar_widget)
+
+        main_layout.addLayout(header_layout)
         main_layout.addWidget(subtitle_label)
         main_layout.addSpacing(scale(12))
 
@@ -272,9 +288,7 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
         raw_header = QLabel("Raw output")
         raw_header.setObjectName("section_header_raw")
         raw_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        raw_header.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
-        )
+        raw_header.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
         self.raw_output = QTextBrowser()
         self.raw_output.setObjectName("raw_output")
@@ -356,9 +370,7 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
             return
 
         # ---------- No retry: process the response normally ----------
-        status_code = reply.attribute(
-            QNetworkRequest.Attribute.HttpStatusCodeAttribute
-        )
+        status_code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
 
         # Dismiss the submit overlay
         self._dismiss_submit_overlay()
@@ -393,51 +405,93 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
             QMessageBox.critical(
                 self, "Error", f"Failed to generate scenario:\n{error_msg}"
             )
-            reply.deleteLater()
-            return
+        else:
+            # Parse JSON response
+            data_bytes = reply.readAll().data()
+            try:
+                data_str = data_bytes.decode("utf-8")
+                data = json.loads(data_str)
 
-        # Parse JSON response
-        data_bytes = reply.readAll().data()
-        try:
-            data_str = data_bytes.decode("utf-8")
-            data = json.loads(data_str)
-
-            # Format and set Recommendations with themed HTML
-            recs_data = data.get("recommendations", {})
-            theme = get_theme()
-            p = theme.palette
-            recs_html = (
-                f"<style>"
-                f"body {{ color: {p.text_primary}; font-family: {theme.font_family}; "
-                f"font-size: {scale(theme.font_size_body)}px; }}"
-                f"dt {{ font-weight: 700; color: {p.accent_hover}; "
-                f"margin-top: {scale(12)}px; margin-bottom: {scale(4)}px; }}"
-                f"dd {{ color: {p.text_secondary}; margin-left: {scale(8)}px; "
-                f"margin-bottom: {scale(8)}px; line-height: 1.5; }}"
-                f"</style><dl>"
-            )
-            for key, value in recs_data.items():
-                recs_html += (
-                    f"<dt>{key}</dt><dd>{value}</dd>"
+                # Format and set Recommendations with themed HTML
+                recs_data = data.get("recommendations", {})
+                theme = get_theme()
+                p = theme.palette
+                recs_html = (
+                    f"<style>"
+                    f"body {{ color: {p.text_primary}; font-family: {theme.font_family}; "
+                    f"font-size: {scale(theme.font_size_body)}px; }}"
+                    f"dt {{ font-weight: 700; color: {p.accent_hover}; "
+                    f"margin-top: {scale(12)}px; margin-bottom: {scale(4)}px; }}"
+                    f"dd {{ color: {p.text_secondary}; margin-left: {scale(8)}px; "
+                    f"margin-bottom: {scale(8)}px; line-height: 1.5; }}"
+                    f"</style><dl>"
                 )
-            recs_html += "</dl>"
-            self.recs_output.setHtml(recs_html)
+                for key, value in recs_data.items():
+                    recs_html += f"<dt>{key}</dt><dd>{value}</dd>"
+                recs_html += "</dl>"
+                self.recs_output.setHtml(recs_html)
 
-            # Set Raw Output
-            pretty_json = json.dumps(data, indent=2)
-            self.raw_output.setPlainText(pretty_json)
+                # Set Raw Output
+                pretty_json = json.dumps(data, indent=2)
+                self.raw_output.setPlainText(pretty_json)
 
-        except json.JSONDecodeError:
-            QMessageBox.critical(self, "Error", "Failed to parse response from server.")
-        except Exception as e:
-            logging.exception(
-                "Unexpected error while processing response: %s", str(e), exc_info=True
-            )
-            QMessageBox.critical(
-                self, "Error", f"An unexpected error occurred:\n{str(e)}"
-            )
+            except json.JSONDecodeError:
+                QMessageBox.critical(
+                    self, "Error", "Failed to parse response from server."
+                )
+            except Exception as e:
+                logging.exception(
+                    "Unexpected error while processing response: %s",
+                    str(e),
+                    exc_info=True,
+                )
+                QMessageBox.critical(
+                    self, "Error", f"An unexpected error occurred:\n{str(e)}"
+                )
 
         reply.deleteLater()
+
+    def show_login_dialog(self):
+        """Show the login dialog."""
+        login_dialog = LoginDialog(self.token_store, self)
+        login_dialog.login_successful.connect(self._on_login_success)
+
+        # Execute as modal dialog
+        result = login_dialog.exec()
+
+        # Update avatar widget after login attempt
+        if hasattr(self, "avatar_widget"):
+            self.avatar_widget.update_auth_state()
+
+        return result
+
+    def _on_login_success(self):
+        """Handle successful login."""
+        logger.info("User login successful")
+        # Update UI elements that depend on auth state
+        if hasattr(self, "avatar_widget"):
+            self.avatar_widget.update_auth_state()
+
+    def _on_logout(self):
+        """Handle user logout."""
+        logger.info("User logout requested")
+        try:
+            # Clear stored tokens
+            self.token_store.clear_tokens()
+
+            # Update UI
+            if hasattr(self, "avatar_widget"):
+                self.avatar_widget.update_auth_state()
+
+            # Show confirmation
+            QMessageBox.information(
+                self, "Logged Out", "You have been successfully logged out."
+            )
+        except Exception as e:
+            logger.error(f"Error during logout: {e}")
+            QMessageBox.critical(
+                self, "Logout Error", f"An error occurred during logout: {str(e)}"
+            )
 
 
 def main():

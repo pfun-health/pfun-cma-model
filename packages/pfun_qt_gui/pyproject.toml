@@ -16,6 +16,7 @@ dev = [
     "pip>=26.0.1",
     "pyside6>=6.11.0",
     "pytest>=9.0.3",
+    "pfun-cma-model",
 ]
 
 [tool.pyside6-project]
@@ -24,3 +25,4 @@ files = ["src/pfun_qt_gui/main.py"]
 [tool.uv.sources]
 pfun-common = { path = "../pfun_common" }
 pfun_llm = { path = "../../pfun_llm" }
+pfun-cma-model = { path = "../../" }
