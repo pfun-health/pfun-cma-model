@@ -1,8 +1,8 @@
 [project]
 site_name = "PFun CMA Model"
-site_description = "Documentation for the pfun-cma-model Python package, including usage, API reference, and deployment guidance."
+site_description = "Documentation for the pfun-cma-model — a physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis."
 site_author = "Robbie Capps"
-site_url = "https://github.com/pfun-health/pfun-cma-model"
+site_url = "https://pfun-health.github.io/pfun-cma-model"
 copyright = """
 Copyright © 2026 PFun Health
 """
@@ -11,7 +11,27 @@ docs_dir = "docs"
 
 nav = [
   { "Home" = "index.md" },
+  { "Getting Started" = [
+    { "Installation" = "getting-started/installation.md" },
+    { "Quickstart" = "getting-started/quickstart.md" },
+  ]},
+  { "CMA Model" = [
+    { "Overview" = "model/overview.md" },
+    { "Parameters" = "model/parameters.md" },
+    { "Fitting" = "model/fitting.md" },
+  ]},
+  { "Demos & Examples" = [
+    { "Gallery" = "demos/gallery.md" },
+    { "LLM Scenario Generation" = "demos/llm-scenarios.md" },
+    { "WebSocket Streaming" = "demos/websocket-streaming.md" },
+    { "Qt GUI" = "demos/qt-gui.md" },
+    { "Notebooks" = "demos/notebooks.md" },
+  ]},
+  { "CLI Reference" = "cli.md" },
   { "API Reference" = "api.md" },
+  { "Deployment" = "deployment.md" },
+  { "Security" = "security.md" },
+  { "Contributing" = "contributing.md" },
 ]
 
 language = "en"
@@ -24,15 +44,19 @@ features = [
   "content.footnote.tooltips",
   "content.tabs.link",
   "content.tooltips",
+  "navigation.expand",
   "navigation.footer",
   "navigation.indexes",
   "navigation.instant",
   "navigation.instant.prefetch",
   "navigation.path",
   "navigation.sections",
+  "navigation.tabs",
   "navigation.top",
   "navigation.tracking",
   "search.highlight",
+  "search.suggest",
+  "toc.follow",
 ]
 
 [project.theme]
