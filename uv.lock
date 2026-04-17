@@ -2007,6 +2007,9 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.2.1" },
 ]
 
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.0.3" }]
+
 [[package]]
 name = "pfun-path-helper"
 version = "0.1.4"

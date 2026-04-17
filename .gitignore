@@ -271,3 +271,4 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+packages/pfun_qt_gui/logs/

@@ -65,7 +65,7 @@ class PFunHealthTipsDemo(AutoRetryMixin, HealthCheckMixin, QMainWindow):
         else:
             self.setMinimumSize(QSize(640, 480))
 
-        self.server_healthy = False  # Initialize server health status
+        self._server_healthy = False  # Initialize server health status
 
         self.load_env()  # load env vars from .env file
         self.api_url = os.environ.get("PFUN_QT_GUI_API_URL", "https://127.0.0.1:8001")

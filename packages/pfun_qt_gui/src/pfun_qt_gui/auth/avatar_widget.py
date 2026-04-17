@@ -374,7 +374,7 @@ class AvatarWidget(QWidget):
                     # Create avatar button
                     self.avatar_button = CircularAvatarButton(username)
                     # Connect logout signal
-                    self.avatar_button.logout_requested = self.token_store
+                    self.avatar_button.logout_requested.connect(self._on_logout)
                     layout.addWidget(self.avatar_button)
 
                     logger.debug("Showing avatar button for authenticated user")
@@ -404,3 +404,15 @@ class AvatarWidget(QWidget):
         parent = self.parent()
         if hasattr(parent, "show_login_dialog"):
             parent.show_login_dialog()
+
+    def _on_logout(self):
+        """Handle logout request from avatar button."""
+        # Clear stored tokens
+        self.token_store.clear_tokens()
+        logger.info("User logged out - tokens cleared")
+
+        # Update UI to show login button
+        self.update_auth_state()
+
+        # Emit auth state changed signal
+        self.auth_state_changed.emit(False)

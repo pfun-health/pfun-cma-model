@@ -7,12 +7,14 @@ set -x
 # and use line-based tracebacks for easier readability in CI logs.
 
 run_tests() {
-	uv run python -m pytest \
-		--durations=5 \
-		--tb=line \
-		tests \
-		"${@}"
+    uv run python -m pytest \
+        --durations=5 \
+        --tb=line \
+        tests \
+        "${@}"
 }
+
+export -f run_tests
 
 run_tests
 
@@ -21,5 +23,3 @@ run_tests
 sh -c 'cd packages/pfun_qt_gui; run_tests'
 
 sh -c 'cd packages/pfun_common; run_tests'
-
-	

@@ -24,3 +24,8 @@ packages = [
     "pfun_common.settings",
     "pfun_common.data",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

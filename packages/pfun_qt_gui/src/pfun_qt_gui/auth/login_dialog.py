@@ -52,7 +52,7 @@ class LoginDialog(QDialog):
         # Configure dialog properties
         self.setWindowTitle("Login to PFun Health")
         self.setModal(True)
-        self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
+        self.setWindowFlags(Qt.WindowType.Dialog)
 
         # Platform-adaptive sizing
         tier = platform_tier()
@@ -180,9 +180,34 @@ class LoginDialog(QDialog):
         username = self.username_input.text().strip()
         password = self.password_input.text()
 
-        if not username or not password:
+        # Validate inputs - require non-empty with minimum length
+        if not username:
+            logger.warning("Login attempt with empty username")
             QMessageBox.warning(
-                self, "Validation Error", "Please enter both username and password."
+                self, "Validation Error", "Please enter your username or email."
+            )
+            return
+
+        if len(username) < 3:
+            logger.warning(
+                f"Login attempt with username too short: {len(username)} chars"
+            )
+            QMessageBox.warning(
+                self, "Validation Error", "Username must be at least 3 characters."
+            )
+            return
+
+        if not password:
+            logger.warning("Login attempt with empty password")
+            QMessageBox.warning(self, "Validation Error", "Please enter your password.")
+            return
+
+        if len(password) < 4:
+            logger.warning(
+                f"Login attempt with password too short: {len(password)} chars"
+            )
+            QMessageBox.warning(
+                self, "Validation Error", "Password must be at least 4 characters."
             )
             return
 
@@ -199,7 +224,7 @@ class LoginDialog(QDialog):
             # Store tokens securely
             self.token_store.store_tokens(access_token, refresh_token)
 
-            logger.info("User authenticated successfully with basic auth")
+            logger.info(f"User '{username}' authenticated successfully with basic auth")
 
             # Emit success signal
             self.login_successful.emit()
@@ -208,7 +233,7 @@ class LoginDialog(QDialog):
             self.accept()
 
         except Exception as e:
-            logger.error(f"Authentication failed: {e}")
+            logger.error(f"Authentication failed for user '{username}': {e}")
             QMessageBox.critical(
                 self, "Login Failed", f"Unable to authenticate: {str(e)}"
             )
@@ -216,32 +241,17 @@ class LoginDialog(QDialog):
     def on_sso_google_clicked(self):
         """Handle Google SSO login."""
         # TODO: Implement Google OAuth flow
-        QMessageBox.information(
-            self,
-            "SSO Not Implemented",
-            "Google SSO integration is not implemented in this demo.",
-        )
-        logger.info("User attempted Google SSO login")
+        logger.info("Google SSO login not implemented - feature not yet available")
 
     def on_sso_dexcom_clicked(self):
         """Handle Dexcom SSO login."""
         # TODO: Implement Dexcom OAuth flow
-        QMessageBox.information(
-            self,
-            "SSO Not Implemented",
-            "Dexcom SSO integration is not implemented in this demo.",
-        )
-        logger.info("User attempted Dexcom SSO login")
+        logger.info("Dexcom SSO login not implemented - feature not yet available")
 
     def on_sso_fitbit_clicked(self):
         """Handle Fitbit SSO login."""
         # TODO: Implement Fitbit OAuth flow
-        QMessageBox.information(
-            self,
-            "SSO Not Implemented",
-            "Fitbit SSO integration is not implemented in this demo.",
-        )
-        logger.info("User attempted Fitbit SSO login")
+        logger.info("Fitbit SSO login not implemented - feature not yet available")
 
     def on_signup_clicked(self):
         """Handle signup navigation."""
