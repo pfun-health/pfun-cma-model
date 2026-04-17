@@ -16,7 +16,8 @@ full_uv_sync() {
 
 full_uv_sync_qt_gui() {
 	# Perform a full uv sync for the qt-gui package.
-	cd packages/pfun_qt_gui && uv sync \
+	local GUI_DIR=$(realpath "$SCRIPT_DIR/../packages/pfun_qt_gui")
+	cd "$GUI_DIR" && uv sync \
 		--reinstall \
 		--all-extras \
 		--link-mode copy

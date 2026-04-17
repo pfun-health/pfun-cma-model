@@ -7,16 +7,26 @@ This file provides guidance for agentic coding agents working in this repository
 - **Python version**: 3.12.11
 - **Package manager**: `uv`
 - **Test framework**: pytest
-- **Linter**: pylint
+- **Linter**: ruff
 - **Type checker**: mypy
-- **Formatter**: black
+- **Formatter**: ruff
 
 ## Key References
 
+### Core Package
 - [`README.md`](./README.md) - Project overview
 - [`pyproject.toml`](./pyproject.toml) - Package configuration and dependencies
 - [`pfun_cma_model/app.py`](./pfun_cma_model/app.py) - Central FastAPI application
 - [`packages/pfun_common/pyproject.toml`](./packages/pfun_common/pyproject.toml) - Common utilities
+
+### Qt GUI Package
+- [`packages/pfun_qt_gui/pyproject.toml`](./packages/pfun_qt_gui/pyproject.toml) - Qt GUI package
+- [`packages/pfun_qt_gui/.env`](./packages/pfun_qt_gui/.env) - Qt GUI environment variables
+
+### Scripts
+- [`scripts/launch-qt-gui.sh`](./scripts/launch-qt-gui.sh) - Launch Qt GUI script
+- [`scripts/uv-full-sync.sh`](./scripts/uv-full-sync.sh) - Full uv sync script
+- [`scripts/_funcs.def.sh`](./scripts/_funcs.def.sh) - Common functions
 
 ---
 
@@ -76,8 +86,8 @@ uv run ruff check .
 # Run ruff with auto-fix
 uv run ruff check --fix .
 
-# Run black formatter
-uv run black .
+# Run ruff formatter
+uv run ruff .
 
 # Run mypy type checker
 uv run mypy .
@@ -136,8 +146,8 @@ from pfun_cma_model.models import SomeModel
 
 ### Formatting
 
-- Use **black** for code formatting (line length handled by black)
-- Maximum line length: 88 characters (black default)
+- Use **ruff** for code formatting (line length handled by ruff)
+- Maximum line length: 88 characters (ruff default)
 - Use 4 spaces for indentation (no tabs)
 - Use trailing commas in multi-line structures
 - One blank line between top-level definitions
