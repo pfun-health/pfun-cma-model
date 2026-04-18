@@ -13,7 +13,10 @@ jobs:
       contains(github.event.comment.body, '/opencode')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+       id-token: write
+       contents: write
+       pull-requests: write
+       issues: write
     steps:
        - name: Checkout repository
          uses: actions/checkout@v6
@@ -22,12 +25,12 @@ jobs:
            persist-credentials: false
 
        - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
+         uses: anomalyco/opencode/github@latest
         env:
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
-          model: ollama/minimax-m2.7:cloud
+          model: github/
             share: false
             github_token: ${{ GITHUB_TOKEN }}
           # model: anthropic/claude-sonnet-4-20250514
