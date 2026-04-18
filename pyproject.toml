@@ -54,6 +54,7 @@ dependencies = [
     "packaging==24.1",
     "pyqt6>=6.10.2",
     "python-dotenv>=1.2.2",
+    "pyside6>=6.11.0",
 ]
 optional-dependencies = { ui = [], dev = [
         "fastapi[standard]>=0.115.12",
