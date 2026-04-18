@@ -17,7 +17,9 @@ try:
     )
 except ImportError:
     logging.warning("pfun_llm not installed, using fallback OllamaDefaultModel")
-    OllamaDefaultModel = Literal["deepseek-v3.2:cloud", "gemma3:4b-cloud", "gpt-oss:120b-cloud"]
+    OllamaDefaultModel = Literal[
+        "deepseek-v3.2:cloud", "gemma3:4b-cloud", "gpt-oss:120b-cloud"
+    ]
     _OLLAMA_DEFAULT_MODEL = "gpt-oss:120b-cloud"
 
 
@@ -74,13 +76,23 @@ class Settings(BaseSettings):
     redis_connection_string: str = ""
     #: A connection string for Redis. Can also be set via the REDIS_CONNECTION_STRING environment variable.
 
+    logfire_write_token: str = ""
+    #: The write token for Logfire. Can also be set via the LOGFIRE_WRITE_TOKEN environment variable.
+
     perplexity_api_key: str = ""
+    #: The API key for Perplexity AI. Can also be set via the PERPLEXITY_API_KEY environment variable.
+
     google_api_key: str = ""
+    #: The API key for Google AI. Can also be set via the GOOGLE_API_KEY environment variable.
+
     ollama_api_key: str = ""
     ollama_host: str = "http://localhost:11434"
     ollama_model: OllamaDefaultModel = _OLLAMA_DEFAULT_MODEL
+
     llm_backend: Literal["google", "perplexity", "ollama", "openai"] = "ollama"
+
     secret_key: str = Field(default_factory=generate_default_secret_key)
+
     google_cloud_project_id: str = "pfun-cma-model"
     google_cloud_location: str = "us-central1"
     google_cloud_client_id: str = ""

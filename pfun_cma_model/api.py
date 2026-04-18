@@ -12,6 +12,7 @@ from datetime import datetime
 import importlib
 import json
 import logging
+import logfire
 from pathlib import Path
 from typing import Annotated, Mapping, Optional
 from fastapi import Body, Depends, FastAPI, Request, Response, Header
@@ -172,7 +173,12 @@ def set_app_version(app: FastAPI = app) -> FastAPI:
     return app
 
 
-app = set_app_version(app=app)
+app = set_app_version(app=app)  # set app version info
+
+# configure logfire for FastAPI app (telemetry instrumentation)
+logfire.configure(token=get_settings().logfire_write_token)
+logfire.instrument_fastapi(app)
+
 
 # Mount the static directory to serve static files
 STATIC_DIR = Path(__file__).parent / "static"

@@ -8,7 +8,7 @@ function isNumeric(str) {
   // Source - https://stackoverflow.com/a
   // Posted by Dan, modified by community. See post 'Timeline' for change history
   // Retrieved 2026-01-12, License - CC BY-SA 4.0
-  if (typeof str != "string") 
+  if (typeof str != "string")
     return false; // we only process strings!
   return (!isNaN(str) && !isNaN(parseFloat(str))) // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...); // ...and ensure strings of whitespace fail
 }
@@ -64,44 +64,48 @@ document.addEventListener("DOMContentLoaded", () => {
     dataBody.innerHTML = ""; // Clear previous data
 
     try {
+      const endpoint_urlquery = `/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=octet-stream`;
       // Fetch the data stream
-      const response = await fetch(`/data/sample/stream?pct0=${pct0}&nrows=${nrows}&media_type=octet-stream`, {
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-        signal
-      });
+      const response = await fetch(
+        endpoint_urlquery,
+        {
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+          signal
+        }
+      );
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
       // Function to read and process the stream (async -> formatted table rows)
       const read = async () => {
-        const {done, value} = await reader.read();
-        if (done) {
-          console.log("Stream complete");
-          startButton.disabled = false;
-          stopButton.disabled = true;
-          return;
-        }
-
-        const chunk = decoder.decode(value, {stream: true});
-        // pre-clean the rows
-        const rows = chunk.split("\n").filter(row => row.trim() !== "");
-
-        rows.forEach(row => {
-          // first check to see if this might be a title or other expected non-conforming row
-          let testnum_str = row.split(",")[0].replaceAll(" ", "");
-          if ( !isNumeric(testnum_str) ) {
-            console.warn("Skipping this row, it seems to be non-conforming.", "testnum_str:", testnum_str, "original_row:", row);
+        for await (const { done, value } of reader.read()) {
+          if (done) {
+            console.log("Stream complete");
+            startButton.disabled = false;
+            stopButton.disabled = true;
             return;
           }
-          try {
-            const dataRow = new DataRow(row);
-            dataRow.insertRow(dataBody);
-          } catch (e) {
-            console.error("Failed to parse row:", row, e);
-          }
-        });
+          const chunk = decoder.decode(value, { stream: true });
+          // pre-clean the rows
+          const rows = chunk.split("\n").filter(row => row.trim() !== "");
+
+          rows.forEach(row => {
+            // first check to see if this might be a title or other expected non-conforming row
+            let testnum_str = row.split(",")[0].replaceAll(" ", "");
+            if (!isNumeric(testnum_str)) {
+              console.warn("Skipping this row, it seems to be non-conforming.", "testnum_str:", testnum_str, "original_row:", row);
+              return;
+            }
+            try {
+              const dataRow = new DataRow(row);
+              dataRow.insertRow(dataBody);
+            } catch (e) {
+              console.error("Failed to parse row:", row, e);
+            }
+          });
+        }
       };
 
       // begin reading the stream (async)

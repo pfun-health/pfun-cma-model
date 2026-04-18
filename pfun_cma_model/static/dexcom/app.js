@@ -781,4 +781,6 @@ window.startDexcomAuth = (environment) => {
 };
 
 // Render the application
-ReactDOM.render(<DexcomDashboard />, document.getElementById('root'));
+// NOTE: previously this would have been ReactDOM.render(<DexcomDashboard />, document.getElementById('root'));
+// ref: https://reactjs.org/link/switch-to-createroot
+ReactDOM.createRoot(document.getElementById('root')).render(<DexcomDashboard />);
