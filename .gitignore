@@ -1,3 +1,7 @@
+packages/pfun_qt_gui/src/pfun_qt_gui/.buildozer/
+packages/pfun_qt_gui/src/pfun_qt_gui/deployment/
+packages/pfun_qt_gui/src/pfun_qt_gui/jar/
+
 session-*.md
 ses-*.md
 
