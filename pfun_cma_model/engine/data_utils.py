@@ -1,7 +1,7 @@
 import importlib
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Literal
 
 from numba import njit
 from numpy import array, interp, nan, nansum, ndarray
@@ -16,7 +16,10 @@ from pandas import (
     to_timedelta,
 )
 
-from pfun_cma_model.engine.calc import normalize_glucose
+from pfun_cma_model.engine.calc import (
+    normalize_glucose,
+    guess_glucose_units,
+)
 
 root_path = str(Path(__file__).parents[1])
 mod_path = str(Path(__file__).parent)
@@ -199,7 +202,7 @@ def downsample_data(df: Union[DataFrame, Series], N: int = 1024) -> DataFrame | 
     df = df.resample(freq).mean()
     return df
 
-
+        
 def format_data(
     records: Union[Dict, DataFrame],
     N: int = 1024,
@@ -260,7 +263,8 @@ def format_data(
     if "value" not in df.columns:
         df["value"] = df["sg"]  # for practice data
     gvalues = df["value"].to_numpy(dtype=float, na_value=nan)
-    gvalues_normed = normalize_glucose(gvalues)
+    g_units = guess_glucose_units(gvalues)
+    gvalues_normed = normalize_glucose(gvalues, g_units)
     df["G"] = gvalues_normed
     df["time"] = time
     df.sort_values(by="time", inplace=True)

@@ -3,12 +3,16 @@
 import importlib
 import sys
 from pathlib import Path
-
+from typing import Annotated, Literal
+from fastapi import Depends
 from numpy import array, atleast_1d, clip, cos
 from numpy import exp as np_exp
-from numpy import log, nan, ndarray, pi, piecewise, power, zeros
+from numpy import (
+    log, nan, ndarray, pi, piecewise, power, zeros,
+    nansum, nanmean, nanmin, nanmax,
+)
 from pandas import Series
-
+from pydantic import BaseModel
 try:
     from pfun_cma_model.misc.decorators import check_is_numpy
 except ModuleNotFoundError:
@@ -66,8 +70,43 @@ def normalize(x, a: float = 0.0, b: float = 1.0):
     return _normalize(x, a, b)
 
 
+class GlucoseRange_mgdl(BaseModel):
+    g0: float = 70
+    g1: float = 180
+    g_s: float = 90
+
+    @property
+    def g_range(self) -> ndarray:
+        return array([self.g0, self.g1, self.g_s])
+
+
+class GlucoseRange_mmoll(GlucoseRange_mgdl):
+    g0: float = 3.7
+    g1: float = 11.0
+    g_s: float = 4.77
+
+
+GlucoseUnits = Literal["mgdl", "mmoll"]
+
+
+def guess_glucose_units(values) -> GlucoseUnits:
+    """Guess the glucose units (mgdl or mmoll)."""
+    def calc_dist(x):
+        gx0, gx1, gx_s = nanmin(values), nanmax(values), nanmean(values)
+        gx = array([gx0, gx1, gx_s])
+        return "mgdl" if nansum((gx - GlucoseRange_mgdl().g_range) ** 2) < nansum((gx - GlucoseRange_mmoll().g_range) ** 2) else "mmoll"
+    return calc_dist(values)
+
+
+def scale_glucose_units(units: GlucoseUnits):
+    return {
+        "mgdl": GlucoseRange_mgdl(),
+        "mmoll": GlucoseRange_mmoll(),
+    }[units].dict()
+
+
 @check_is_numpy
-def normalize_glucose(G, g0=70, g1=180, g_s=90):
+def normalize_glucose(G, units: GlucoseUnits):
     """Normalize glucose (mg/dL -> [0.0, 2.0]).
 
         <0.9: low,
@@ -77,6 +116,8 @@ def normalize_glucose(G, g0=70, g1=180, g_s=90):
 
     see the graph: https://www.desmos.com/calculator/ii4qrawgjo
     """
+    glucose_range = scale_glucose_units(units)
+    g0, g1, g_s = glucose_range["g0"], glucose_range["g1"], glucose_range["g_s"]
     numer = 8.95 * power((G - g_s), 3) + power((G - g0), 2) - power((G - g1), 2)
     return 2.0 * E(1e-4 * numer / (g1 - g0))
 
