@@ -5,7 +5,7 @@ version = "0.4.199"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
-requires-python = ">=3.11,<3.14" # Additional properties are not allowed (package' was unexpected)
+requires-python = ">=3.11,<3.13" # Additional properties are not allowed (package' was unexpected)
 
 dependencies = [
     "setuptools>=78.1.1",
@@ -52,13 +52,14 @@ dependencies = [
     "pkginfo>=1.12.1.2",
     "tqdm>=4.67.3",
     "packaging==24.1",
-    "pyqt6>=6.10.2",
     "python-dotenv>=1.2.2",
-    "pyside6>=6.11.0",
     "logfire[fastapi]>=4.32.1",
     "uvicorn>=0.42.0",
 ]
-optional-dependencies = { ui = [], dev = [
+optional-dependencies = { ui = [
+        "pyqt6>=6.10.2",
+        "pyside6>=6.11.0"
+    ], dev = [
         "fastapi[standard]>=0.115.12",
         "types-requests>=2.32.4.20250611",
         "types-tabulate>=0.9.0.20241207",
@@ -157,6 +158,11 @@ extra_compile_args = ["-O3", "-march=native"]
 # Build the module inside the Python package namespace
 module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
+
+# [tool.uv]
+# environments = [
+# 	     "python_full_version == '3.11.*' and sys_platform == 'linux'"
+# ]
 
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
