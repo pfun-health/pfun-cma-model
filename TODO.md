@@ -94,16 +94,28 @@ TODO for `pfun-cma-model`
 + ~~_Continue implementing gemini demo:_~~
   + ~~<https://codelabs.developers.google.com/devsite/codelabs/gemini-multimodal-chat-assistant-python>~~
 
-## Infra
+## Infra + Architecture
 
 + _Options for infra configuration_:
-  + Gcp Fabric (terraform)
-  + Digital Ocean droplet (serverless)
-  + Cloudflare Worker: load-balancing between api instances
+  + Puluumi
+  + Digital Ocean droplet
+  + ~~Cloudflare Worker: load-balancing between api instances~~
 + _ML operations_:
-  + Use OpenRLHF for LLM safeguard experiments
+  + **OpenRLHF for RL training gym:**
+    + Use OpenRLHF for LLM safeguard experiments
+  + for a prototype, consider: `pymdptoolbox`
 
-<img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" alt="openrlhf-arch.png" />  
+### OpenRLHF, Ray
+
+#### OpenRLHF 
+
++ https://github.com/ray-project/ray
+
+<img src="https://openrlhf.readthedocs.io/en/latest/_images/openrlhf-arch.png" alt="openrlhf-arch.png" />
+
+#### LLM Workflows
+
+<img src="https://raw.githubusercontent.com/anyscale/e2e-llm-workflows/refs/heads/main/images/e2e_llm.png" alt="e2e_llm.png" />
 
 ---
 
