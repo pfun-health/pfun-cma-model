@@ -5,7 +5,8 @@ FROM ghcr.io/astral-sh/uv:debian AS base
 RUN apt-get update && \
     apt install -yyq --no-install-recommends \
     build-essential \
-    portaudio19-dev
+    portaudio19-dev \
+    systemd-timesyncd
 
 # create a non-root user
 # and set the app root directory
