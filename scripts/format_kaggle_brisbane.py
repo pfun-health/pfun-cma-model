@@ -24,6 +24,10 @@ def main():
     df_subj_bg["systemTime"] = df_subj_bg["displayTime"].copy()
 
     print("\n\n", df_subj_bg)
+
+    df_subj_bg.to_parquet(
+        "packages/pfun_common/pfun_common/data/kaggle_brisbane.parquet"
+    )
     
     return df_subj_bg
 
