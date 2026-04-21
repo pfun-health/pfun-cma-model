@@ -111,6 +111,7 @@ dev = [
     "kaggle>=2.0.1",
     "mkdocs>=1.6.1",
     "mypy>=1.19.1",
+    "nbformat>=5.10.4",
     "openapi-generator-cli[jdk4py]>=7.18.0",
     "pyperformance>=1.14.0",
     "ruff>=0.15.11",
