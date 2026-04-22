@@ -1,7 +1,7 @@
+name: pfun-qt-gui
+
 services:
   pfun-qt-gui:
-    labels:
-      - "compose2nix.settings.sops.secrets=.env"
     user: "nonroot:nonroot"
     environment:
       - DISPLAY=${DISPLAY}
