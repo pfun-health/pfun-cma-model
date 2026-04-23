@@ -190,30 +190,6 @@ $ ./scripts/inject-secrets-env.sh
     devenv shell
     ...
 
-#### (Nix) `devenv shell`
-
-##
-
-    # Enter the devenv shell environment (see flake.nix)
-    devenv shell
-    ...
-
-#### (Nix) `devenv shell`
-
-##
-
-    # Enter the devenv shell environment (see flake.nix)
-    devenv shell
-    ...
-
-#### (Nix) `devenv shell`
-
-##
-
-    # Enter the devenv shell environment (see flake.nix)
-    devenv shell
-    ...
-
 #### (Cloud Run) Create a new Version & Publish to Google Cloud Platform
 
 ```bash

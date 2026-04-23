@@ -7,6 +7,8 @@
 }:
 
 {
+  # Enable the .env file for the project pfun-cma-model
+  dotenv.enable = true;
   # https://devenv.sh/basics/
   env.GREET = "devenv";
 
