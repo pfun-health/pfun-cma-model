@@ -267,6 +267,8 @@ def format_data(
     gvalues_normed = normalize_glucose(gvalues, g_units)
     df["G"] = gvalues_normed
     df["time"] = time
+    # save the original index (and ensure the name differs from 'time')
+    df.index.name = "original_index"
     df.sort_values(by="time", inplace=True)
     keepers = ["time", "value", "tod", "t", "G"]
     df = df[keepers]
