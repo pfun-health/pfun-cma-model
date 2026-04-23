@@ -40,14 +40,15 @@
   # https://devenv.sh/basics/
   enterShell = ''
     git --version # Use packages
-    pfun-cma-model version         # Run scripts directly
+    pfun-cma-model download-sample-data  # Download the valid-data.csv (if missing)
+    pfun-cma-model version               # Display the current version, then exit cleanly
   '';
 
   # https://devenv.sh/tasks/
-  # tasks = {
-  #   "myproj:setup".exec = "mytool build";
-  #   "devenv:enterShell".after = [ "myproj:setup" ];
-  # };
+  tasks = {
+    "pfun-cma-model:setup".exec = "./scripts/rebuild-uv.sh";
+    "devenv:enterShell".after = [ "pfun-cma-model:setup" ];
+  };
 
   # https://devenv.sh/tests/
   enterTest = ''

@@ -4,10 +4,10 @@ import logging
 from base64 import b64encode
 from datetime import datetime
 from secrets import token_urlsafe
-from typing import Literal
+from typing import Literal, Any
 from urllib.parse import urlparse
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 try:
@@ -105,6 +105,17 @@ class Settings(BaseSettings):
         extra="allow",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def preprocess_string_fields(cls, data: Any) -> Any:
+        """Preprocess string fields to remove whitespace, quotations."""
+        if isinstance(data, dict):
+            keys = data.keys()
+            for k in keys:
+                if isinstance(data[k], str):
+                    data[k] = data[k].replace("'", "").lstrip().rstrip()
+        return data
+
     @field_validator("server_port", "redis_port", mode="before")
     @classmethod
     def convert_port_to_int(cls, v: str | int) -> int:
@@ -141,8 +152,9 @@ class Settings(BaseSettings):
 
             # Extract port (optional, defaults to 6379)
             if parsed.port:
-                info.data["redis_port"] = parsed.port
-            elif parsed.hostname:  # Only set default if we have a hostname
+                port_str = str(parsed.port).strip().replace("'", "")
+                info.data["redis_port"] = int(port_str)
+            elif parsed.hostname and not parsed.port:  # Only set default if we have a hostname (without an explicit port)
                 info.data["redis_port"] = 6379
 
             # Extract username (optional, defaults to "default")
