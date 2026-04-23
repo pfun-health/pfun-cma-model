@@ -30,9 +30,6 @@ jobs:
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
-          model: github/
+          model: opencode/big-pickle
             share: false
             github_token: ${{ GITHUB_TOKEN }}
-          # model: anthropic/claude-sonnet-4-20250514
-          #   share: true
-          #   github_token: xxxx
