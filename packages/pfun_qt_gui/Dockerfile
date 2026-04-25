@@ -17,6 +17,7 @@ RUN mkdir -p /app && \
 WORKDIR /app
 # copy as root
 COPY --chown=nonroot:nonroot . .
+COPY --chown=nonroot:nonroot ./scripts ./scripts
 # ensure permissions for nonroot
 RUN chown nonroot:nonroot .
 
@@ -30,7 +31,7 @@ ENV PATH=$PATH:/home/nonroot/.local/bin
 ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
-    ./scripts/uv-full-sync -gui
+    /app/scripts/uv-full-sync-qt-gui.sh
 
 FROM deps AS dist
 

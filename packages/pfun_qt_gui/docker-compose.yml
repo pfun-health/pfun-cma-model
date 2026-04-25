@@ -16,6 +16,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/app
+      - ./scripts:/app/scripts
     network_mode: host
     restart: unless-stopped
-    command: ./scripts/launch-qt-gui.sh
+    command: "scripts/launch-qt-gui.sh"

@@ -5,8 +5,8 @@
 # Load common functions
 export REPO_ROOT="${PWD}"
 source "${REPO_ROOT}/scripts/_funcs.def.sh"
-
-echo -e "RepoRoot:\t'${REPO_ROOT}'\n\nTimestamp:\n$(timedatectl)\n"
+tstamp="$(date --iso-8601='hours')"
+echo -e "RepoRoot:\t'${REPO_ROOT}'\n\nTimestamp:\n${tstamp}\n"
 
 # Start server full uv sync and serve pfun-cma-model, pfun-gradio
 if [ "$1" = 'cma' ]; then
