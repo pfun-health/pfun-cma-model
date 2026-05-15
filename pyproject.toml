@@ -156,3 +156,8 @@ pfun-qt-gui = { path = "./packages/pfun_qt_gui"}
 members = [
     "pfun-gradio",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--tb=short --durations=5"
