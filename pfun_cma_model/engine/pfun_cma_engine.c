@@ -98,7 +98,7 @@ void calc_I_E(int N, const double* a, const double* I_S, double* out) {
     }
 }
 
-void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_meals, const double* taug, double B, double Cm, double toff, double* out_G_instant, double* out_g_components) {
+void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_meals, const double* taug, double B, double Cm, double toff, int include_bias_in_components, double* out_G_instant, double* out_g_components) {
     if (out_G_instant) {
         for (int i = 0; i < N; i++) {
             out_G_instant[i] = B * (1.0 + meal_distr_pfun(Cm, t[i], toff));
@@ -116,6 +116,9 @@ void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_m
 
             if (out_g_components) {
                 out_g_components[j * N + i] = g_val;
+                if (include_bias_in_components) {
+                    out_g_components[j * N + i] += B * (1.0 + meal_distr_pfun(Cm, t[i], toff));
+                }
             }
             if (out_G_instant) {
                 out_G_instant[i] += g_val;
@@ -150,7 +153,7 @@ void run_cma_model(
         actual_taug = temp_taug;
     }
 
-    calc_G(t, N, out_I_E, tM, n_meals, actual_taug, B, Cm, toff, out_G, out_g);
+    calc_G(t, N, out_I_E, tM, n_meals, actual_taug, B, Cm, toff, 0, out_G, out_g);
 
     if (temp_taug) free(temp_taug);
 }

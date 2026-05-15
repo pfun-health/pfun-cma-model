@@ -610,7 +610,7 @@ class CMASleepWakeModel:
         df_gt = DataFrame(
             {"Gt{}".format(i): Gt[i] for i in range(Gt.shape[0])}, index=t
         )  # type: ignore
-        df_gt["Gt"] = nansum(Gt, axis=0)
+        df_gt["Gt"] = nansum(Gt, axis=0) + self.B * (1.0 + meal_distr(self.Cm, t, self.toff))
         return df_gt
 
     def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
@@ -745,7 +745,7 @@ class CMASleepWakeModel:
     @property
     def g_instant(self):
         """vector of instantaneous (overall) glucose."""
-        return nansum(self.g, axis=0)
+        return nansum(self.g, axis=0) + self.B * (1.0 + meal_distr(self.Cm, self.t, self.toff))
 
     @property
     def df(self) -> DataFrame:

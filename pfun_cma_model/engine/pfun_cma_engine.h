@@ -41,7 +41,7 @@ void calc_I_E(int N, const double* a, const double* I_S, double* out);
  * @param out_G_instant Output for instantaneous glucose (size N, optional, can be NULL)
  * @param out_g_components Output for per-meal components (size n_meals * N, row-major: meal x time, optional, can be NULL)
  */
-void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_meals, const double* taug, double B, double Cm, double toff, double* out_G_instant, double* out_g_components);
+void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_meals, const double* taug, double B, double Cm, double toff, int include_bias_in_components, double* out_G_instant, double* out_g_components);
 
 /**
  * Run the full CMA model.

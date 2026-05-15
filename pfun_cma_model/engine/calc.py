@@ -193,6 +193,7 @@ def vectorized_G(
     B: float,
     Cm: float,
     toff: float,
+    include_bias: bool = False,
 ):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
 
@@ -234,5 +235,6 @@ def vectorized_G(
         gtmp = Gtmp(tm[j], taug[j])
         out[j, :] = gtmp
         j = j + 1
-    out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
+    if include_bias:
+        out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
     return out
