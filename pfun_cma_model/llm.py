@@ -48,7 +48,7 @@ async def _parse_generated_response(response: Any | str) -> str:  # type: ignore
     # explicitly test to see if the response needs awaited
     if not hasattr(response, "__await__"):
         # parse text attribute if it exists
-        response_as_dict = response.dict()  # type: ignore
+        response_as_dict = response.model_dump()  # type: ignore
         txt_resp = response_as_dict["message"]["content"]
         # Properly handle UTF-8 encoding: encode to bytes then decode as UTF-8
         txt_resp = str(txt_resp).replace("'", '"')

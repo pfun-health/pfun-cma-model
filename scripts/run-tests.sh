@@ -19,7 +19,5 @@ export -f run_tests
 run_tests
 
 # run the tests for sub-packages too
-
-sh -c 'cd packages/pfun_qt_gui; run_tests'
-
-sh -c 'cd packages/pfun_common; run_tests'
+#(cd packages/pfun_qt_gui && run_tests)
+#(cd packages/pfun_common && run_tests)

@@ -12,6 +12,7 @@ def setup_test_environment():
     # Set environment variables for testing
     os.environ["DEBUG"] = "True"
     os.environ["Testing"] = "True"
+    os.environ["SECRET_KEY"] = "test-secret-key-for-predictable-signatures"
 
     # Get the root path of the project (two levels up from this file)
     # and the module path (one level up from this file).

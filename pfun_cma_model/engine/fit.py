@@ -68,7 +68,7 @@ class CMAFitResult(BaseModel):
             if isinstance(value, np.ndarray):
                 self.__dict__[key] = value.tolist()
             if isinstance(value, CMASleepWakeModel):
-                self.__dict__[key] = value.dict()  # type: ignore
+                self.__dict__[key] = value.to_dict()  # type: ignore
             elif isinstance(value, (Generator)):
                 logging.warning(
                     "Could not convert '%s' (key=%s, type=%s) to JSON (saving as naive string representation).",
@@ -86,7 +86,7 @@ class CMAFitResult(BaseModel):
                     if isinstance(v, np.ndarray):
                         value[k] = v.tolist()
                     if isinstance(v, CMASleepWakeModel):
-                        value[k] = v.dict()  # type: ignore
+                        value[k] = v.to_dict()  # type: ignore
                 self.__dict__[key] = value
         try:
             output = super().model_dump_json(
