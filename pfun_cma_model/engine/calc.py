@@ -102,7 +102,7 @@ def scale_glucose_units(units: GlucoseUnits):
     return {
         "mgdl": GlucoseRange_mgdl(),
         "mmoll": GlucoseRange_mmoll(),
-    }[units].dict()
+    }[units].model_dump()
 
 
 @check_is_numpy
