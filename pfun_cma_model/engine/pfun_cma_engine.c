@@ -100,7 +100,9 @@ void calc_I_E(int N, const double* a, const double* I_S, double* out) {
 
 void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_meals, const double* taug, double B, double Cm, double toff, double* out_G_instant, double* out_g_components) {
     if (out_G_instant) {
-        for (int i = 0; i < N; i++) out_G_instant[i] = 0.0;
+        for (int i = 0; i < N; i++) {
+            out_G_instant[i] = B * (1.0 + meal_distr_pfun(Cm, t[i], toff));
+        }
     }
 
     for (int j = 0; j < n_meals; j++) {
@@ -110,8 +112,7 @@ void calc_G(const double* t, int N, const double* I_E, const double* tM, int n_m
 
         for (int i = 0; i < N; i++) {
             double k_G = K_pfun((t[i] - tm_j) / taug_j_sq);
-            double bias_term = B * (1.0 + meal_distr_pfun(Cm, t[i], toff));
-            double g_val = (1.3 * k_G / (1.0 + I_E[i])) + bias_term;
+            double g_val = 1.3 * k_G / (1.0 + I_E[i]);
 
             if (out_g_components) {
                 out_g_components[j * N + i] = g_val;
@@ -144,6 +145,7 @@ void run_cma_model(
     double* temp_taug = NULL;
     if (actual_taug == NULL) {
         temp_taug = (double*)malloc(n_meals * sizeof(double));
+        if (temp_taug == NULL) return; // Allocation failed
         for (int j = 0; j < n_meals; j++) temp_taug[j] = taug_val;
         actual_taug = temp_taug;
     }

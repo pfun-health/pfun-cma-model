@@ -4,21 +4,39 @@ import numpy as np
 from pfun_cma_model.engine.cma import CMASleepWakeModel
 
 # Load the shared library
-lib_path = os.path.abspath("pfun_cma_model/engine/libpfun_cma_engine.so")
-
-if not os.path.exists(lib_path):
-    print(f"Shared library not found at {lib_path}. Attempting to compile...")
-    src_path = os.path.abspath("pfun_cma_model/engine/pfun_cma_engine.c")
-    if not os.path.exists(src_path):
-        raise FileNotFoundError(f"Source file not found at {src_path}")
-
+def get_lib():
+    """Find or compile the shared library."""
+    import sysconfig
     import subprocess
-    cmd = ["gcc", "-O3", "-shared", "-o", lib_path, "-fPIC", src_path, "-lm"]
-    print(f"Running command: {' '.join(cmd)}")
-    subprocess.check_call(cmd)
-    print("Compilation successful.")
 
-lib = ctypes.CDLL(lib_path)
+    # Try to find existing .so file
+    ext_suffix = sysconfig.get_config_var('EXT_SUFFIX') or ".so"
+    # Look for the .so file in the same directory as the source
+    engine_dir = os.path.abspath("pfun_cma_model/engine")
+    lib_path = os.path.join(engine_dir, "libpfun_cma_engine" + ext_suffix)
+
+    if not os.path.exists(lib_path):
+        # Also check for a simple .so extension
+        lib_path_simple = os.path.join(engine_dir, "libpfun_cma_engine.so")
+        if os.path.exists(lib_path_simple):
+            lib_path = lib_path_simple
+
+    if not os.path.exists(lib_path):
+        print(f"Shared library not found at {lib_path}. Attempting to compile...")
+        src_path = os.path.join(engine_dir, "pfun_cma_engine.c")
+        if not os.path.exists(src_path):
+            raise FileNotFoundError(f"Source file not found at {src_path}")
+
+        # Compile to libpfun_cma_engine.so
+        lib_path = os.path.join(engine_dir, "libpfun_cma_engine.so")
+        cmd = ["gcc", "-O3", "-shared", "-o", lib_path, "-fPIC", src_path, "-lm"]
+        print(f"Running command: {' '.join(cmd)}")
+        subprocess.check_call(cmd)
+        print("Compilation successful.")
+
+    return ctypes.CDLL(lib_path)
+
+lib = get_lib()
 
 # Define argument types for run_cma_model
 lib.run_cma_model.argtypes = [

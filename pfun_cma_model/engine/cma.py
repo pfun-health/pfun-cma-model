@@ -41,7 +41,7 @@ from numpy.random import default_rng
 from pandas import DataFrame, Series, json_normalize, to_timedelta
 
 from pfun_cma_model.engine.bounds import Bounds
-from pfun_cma_model.engine.calc import E, Light, exp, vectorized_G
+from pfun_cma_model.engine.calc import E, Light, exp, vectorized_G, meal_distr
 from pfun_cma_model.engine.cma_model_params import CMABoundedParams, CMAModelParams
 from pfun_cma_model.misc.types import NumpyArray
 
