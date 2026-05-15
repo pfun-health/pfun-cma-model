@@ -5,6 +5,19 @@ from pfun_cma_model.engine.cma import CMASleepWakeModel
 
 # Load the shared library
 lib_path = os.path.abspath("pfun_cma_model/engine/libpfun_cma_engine.so")
+
+if not os.path.exists(lib_path):
+    print(f"Shared library not found at {lib_path}. Attempting to compile...")
+    src_path = os.path.abspath("pfun_cma_model/engine/pfun_cma_engine.c")
+    if not os.path.exists(src_path):
+        raise FileNotFoundError(f"Source file not found at {src_path}")
+
+    import subprocess
+    cmd = ["gcc", "-O3", "-shared", "-o", lib_path, "-fPIC", src_path, "-lm"]
+    print(f"Running command: {' '.join(cmd)}")
+    subprocess.check_call(cmd)
+    print("Compilation successful.")
+
 lib = ctypes.CDLL(lib_path)
 
 # Define argument types for run_cma_model
