@@ -132,15 +132,6 @@ allow-direct-references = true
 # setuptools configurations
 [tool.setuptools]
 include-package-data = true
-packages = [
-    "pfun_cma_model", "pfun_cma_model.engine",
-    "pfun_llm",
-    "pfun_common", "pfun_common.utils", "pfun_common.settings",
-    "pfun_qt_gui",
-]
-# package_data
-[tool.setuptools.package-data]
-pfun_data = ["*.csv"]
 
 [tool.setuptools.ext_modules]
 # This defines the compiled module (pfun-cma-engine)
