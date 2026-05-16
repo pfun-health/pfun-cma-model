@@ -6,7 +6,7 @@ icon: lucide/rocket
 
 <div align="center">
 
-![PFun Logo](assets/img/pfunCelticFlower.png){ width="180" }
+![PFun Logo](assets/img/pfunCelticFlower.png){width="180"}
 
 **A physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis.**
 
