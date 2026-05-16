@@ -2098,7 +2098,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.200"
+version = "0.4.201"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2309,7 +2309,7 @@ qt6 = [
 
 [[package]]
 name = "pfun-common"
-version = "0.1.92"
+version = "0.1.93"
 source = { directory = "packages/pfun_common" }
 dependencies = [
     { name = "matplotlib" },
