@@ -1,8 +1,0 @@
-name: pfun-cma-model-chart
-description: A generated Helm Chart for pfun-cma-model-chart from Skippbox Kompose
-version: 0.0.1
-apiVersion: v2
-keywords:
-  - pfun-cma-model-chart
-sources:
-home:
