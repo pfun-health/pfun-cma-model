@@ -77,7 +77,6 @@ optional-dependencies = { ui = [
 
 [project.scripts]
 pfun-cma-model = "pfun_cma_model.cli:cli"
-pfun-qt-gui = "pfun_qt_gui.main:main"
 
 [build-system]
 requires = ["hatchling", "wheel", "setuptools"]
@@ -118,11 +117,12 @@ android = [
     "pkginfo>=1.12.1.2",
     "tqdm>=4.67.3",
 ]
-qt6 = [
-    "pfun_qt_gui",
-    "pyqt6>=6.10.2",
-    "pyside6>=6.11.0",
-]
+# In this pruned version, we've removed the qt6 group
+# qt6 = [
+#     "pfun_qt_gui",
+#     "pyqt6>=6.10.2",
+#     "pyside6>=6.11.0",
+# ]
 
 # hatch configurations
 [tool.hatch.metadata]
@@ -150,7 +150,6 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
-pfun-qt-gui = { path = "./packages/pfun_qt_gui"}
 
 [tool.uv.workspace]
 members = [

@@ -2203,11 +2203,6 @@ ollama = [
 perplexity = [
     { name = "perplexityai" },
 ]
-qt6 = [
-    { name = "pfun-qt-gui" },
-    { name = "pyqt6" },
-    { name = "pyside6" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -2301,11 +2296,6 @@ google = [
 ]
 ollama = [{ name = "ollama", specifier = "==0.6.1" }]
 perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
-qt6 = [
-    { name = "pfun-qt-gui", directory = "packages/pfun_qt_gui" },
-    { name = "pyqt6", specifier = ">=6.10.2" },
-    { name = "pyside6", specifier = ">=6.11.0" },
-]
 
 [[package]]
 name = "pfun-common"
@@ -2339,34 +2329,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5e/63/c8a7189341d2d2eb931e6b3a25011e4baecd7d20cda07080f5ebcf198428/pfun_path_helper-0.1.5.tar.gz", hash = "sha256:71a091cdf825af01fffb655dec8d006e6ce1ae235cb14916087c37b3641fcf55", size = 3315, upload-time = "2026-04-17T18:57:59.234Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/88/bd3710df1bd4907fc4647847be949829d5c53fe145525f341d05e4c68938/pfun_path_helper-0.1.5-py3-none-any.whl", hash = "sha256:df63008762d6829e24b0057767b1b5900ea3e2579ae02790de1f649ac1bb6b84", size = 2963, upload-time = "2026-04-17T18:57:58.362Z" },
-]
-
-[[package]]
-name = "pfun-qt-gui"
-version = "0.1.0"
-source = { directory = "packages/pfun_qt_gui" }
-dependencies = [
-    { name = "dotenv" },
-    { name = "pfun-common" },
-    { name = "pyqt6" },
-    { name = "supervisor" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "pfun-common", directory = "packages/pfun_common" },
-    { name = "pyqt6", specifier = ">=6.6.0" },
-    { name = "supervisor", specifier = ">=4.3.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pfun-cma-model", directory = "." },
-    { name = "pip", specifier = ">=26.0.1" },
-    { name = "pyside6", specifier = ">=6.11.0" },
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "qtpip", specifier = ">=0.1.4" },
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
-
 import pytest
 import pandas as pd
 from pfun_cma_model.engine.fit import estimate_mealtimes
+
 
 def test_estimate_mealtimes_invalid_input():
     with pytest.raises(ValueError, match="Input data cannot be None or empty."):
@@ -9,6 +9,7 @@ def test_estimate_mealtimes_invalid_input():
 
     with pytest.raises(ValueError, match="Input data cannot be None or empty."):
         estimate_mealtimes(pd.DataFrame())
+
 
 def test_estimate_mealtimes_valid_input():
     # Simple test to ensure it doesn't crash with valid data
@@ -18,10 +19,7 @@ def test_estimate_mealtimes_valid_input():
     # but estimate_mealtimes checks df[["t", ycol]]
 
     # Let's create a DataFrame that mimics what estimate_mealtimes expects
-    data = pd.DataFrame({
-        "t": t.total_seconds() / 3600.0,
-        "G": [100.0] * len(t)
-    })
+    data = pd.DataFrame({"t": t.total_seconds() / 3600.0, "G": [100.0] * len(t)})
 
     # Just checking it doesn't raise the None/Empty error
     # It might fail later in logic if data is too simple, but we only care about the first check here mostly.
