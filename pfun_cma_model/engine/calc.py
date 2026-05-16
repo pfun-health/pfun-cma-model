@@ -3,7 +3,7 @@
 import importlib
 import sys
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Literal
 from fastapi import Depends
 from numpy import array, atleast_1d, clip, cos
 from numpy import exp as np_exp
