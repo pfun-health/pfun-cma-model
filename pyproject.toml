@@ -46,14 +46,12 @@ dependencies = [
     "aiosqlite>=0.22.1",
     "fastapi-sso>=0.20.0",
     "passlib>=1.7.4",
-    "supervisor>=4.3.0",
     "pkginfo>=1.12.1.2",
     "tqdm>=4.67.3",
     "python-dotenv>=1.2.2",
     "uvicorn>=0.42.0",
 ]
 optional-dependencies = {dev = [
-        "fastapi[standard]>=0.115.12",
         "types-requests>=2.32.4.20250611",
         "types-tabulate>=0.9.0.20241207",
         "ipykernel>=6.29.5",
