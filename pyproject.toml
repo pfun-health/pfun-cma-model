@@ -125,7 +125,6 @@ allow-direct-references = true
 include-package-data = true
 packages = [
          "pfun_cma_model",
-         "pfun_common",
 ]
 
 [tool.setuptools.ext_modules]

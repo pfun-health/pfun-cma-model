@@ -13,7 +13,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import func, select
 from wtforms.fields import PasswordField
 from wtforms.validators import InputRequired, EqualTo
-from packages.pfun_common.pfun_common.settings import get_settings
+from pfun_common.settings import get_settings
 from pfun_cma_model.admin.models import *
 from pfun_cma_model.admin.core import CryptContextDefaults, engine, Session, pwd_context
 from jose.exceptions import JWTError, ExpiredSignatureError
