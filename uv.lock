@@ -2235,7 +2235,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "passlib", specifier = ">=1.7.4" },
-    { name = "pfun-common", directory = "packages/pfun_common" },
+    { name = "pfun-common", git = "https://github.com/pfun-health/pfun-common" },
     { name = "pfun-path-helper", specifier = ">=0.1.5" },
     { name = "pkginfo", specifier = ">=1.12.1.2" },
     { name = "pyarrow", specifier = ">=20.0.0" },
@@ -2299,23 +2299,13 @@ perplexity = [{ name = "perplexityai", specifier = ">=0.22.0" }]
 
 [[package]]
 name = "pfun-common"
-version = "0.1.94"
-source = { directory = "packages/pfun_common" }
+version = "0.1.93"
+source = { git = "https://github.com/pfun-health/pfun-common#0be07a992a399d3d84852875ccafc20c6cd634c7" }
 dependencies = [
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "pydantic-settings" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "matplotlib", specifier = ">=3.8.0" },
-    { name = "pandas", specifier = ">=2.2.0" },
-    { name = "pydantic-settings", specifier = ">=2.2.1" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0.3" }]
 
 [[package]]
 name = "pfun-path-helper"

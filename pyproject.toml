@@ -149,7 +149,7 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # ]
 
 [tool.uv.sources]
-pfun-common = { path = "./packages/pfun_common" }
+pfun-common = { git = "https://github.com/pfun-health/pfun-common" }
 
 [tool.uv.workspace]
 members = [
