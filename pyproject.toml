@@ -1,7 +1,7 @@
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
-version = "0.4.200"
+version = "0.4.202"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{name = "Robbie Capps", email = "robbie@pfun.me"}]
 readme = "README.md" # Additional properties are not allowed ('package' was unexpected)
@@ -21,7 +21,6 @@ dependencies = [
     "tabulate>=0.9.0",
     "requests>=2.32.4",
     "pyarrow>=20.0.0",
-    "ipykernel>=6.29.5",
     "websockets>=13.0,<15.0",
     "fastapi[standard]==0.135.0",
     "redis>=6.4.0",
@@ -52,10 +51,7 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "uvicorn>=0.42.0",
 ]
-optional-dependencies = { ui = [
-        "pyqt6>=6.10.2",
-        "pyside6>=6.11.0"
-    ], dev = [
+optional-dependencies = {dev = [
         "fastapi[standard]>=0.115.12",
         "types-requests>=2.32.4.20250611",
         "types-tabulate>=0.9.0.20241207",
@@ -77,7 +73,6 @@ optional-dependencies = { ui = [
 
 [project.scripts]
 pfun-cma-model = "pfun_cma_model.cli:cli"
-pfun-qt-gui = "pfun_qt_gui.main:main"
 
 [build-system]
 requires = ["hatchling", "wheel", "setuptools"]
@@ -108,6 +103,8 @@ dev = [
     "pyperformance>=1.14.0",
     "ruff>=0.15.11",
     "textual>=8.2.3",
+]
+docs = [
     "zensical>=0.0.29",
 ]
 datasette = [
@@ -118,11 +115,6 @@ android = [
     "pkginfo>=1.12.1.2",
     "tqdm>=4.67.3",
 ]
-qt6 = [
-    "pfun_qt_gui",
-    "pyqt6>=6.10.2",
-    "pyside6>=6.11.0",
-]
 
 # hatch configurations
 [tool.hatch.metadata]
@@ -132,6 +124,10 @@ allow-direct-references = true
 # setuptools configurations
 [tool.setuptools]
 include-package-data = true
+packages = [
+         "pfun_cma_model",
+         "pfun_common",
+]
 
 [tool.setuptools.ext_modules]
 # This defines the compiled module (pfun-cma-engine)
@@ -143,19 +139,8 @@ extra_compile_args = ["-O3", "-march=native"]
 module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
-# [tool.uv]
-# environments = [
-# 	     "python_full_version == '3.11.*' and sys_platform == 'linux'"
-# ]
-
 [tool.uv.sources]
 pfun-common = { path = "./packages/pfun_common" }
-pfun-qt-gui = { path = "./packages/pfun_qt_gui"}
-
-[tool.uv.workspace]
-members = [
-    "pfun-gradio",
-]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
