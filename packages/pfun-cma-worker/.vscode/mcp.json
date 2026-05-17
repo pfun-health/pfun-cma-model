@@ -1,9 +1,0 @@
-{
-	"servers": {
-		"gradio-pfun-cma-model": {
-			"url": "https://cloud.tail38611b.ts.net/gradio/gradio/gradio_api/mcp/",
-			"type": "http"
-		}
-	},
-	"inputs": []
-}

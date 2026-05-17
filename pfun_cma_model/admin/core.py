@@ -51,9 +51,9 @@ def setup_pwd_context() -> CryptContext:
 
     # Initialize password context for hashing and verifying passwords
     local_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    local_pwd_context.load_path(
-        os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
-    )
+    policy_path = os.path.join(PFunDataPaths._pfun_root_path, "SECURITY_POLICY.ini")
+    if os.path.exists(policy_path):
+        local_pwd_context.load_path(policy_path)
     return local_pwd_context
 
 

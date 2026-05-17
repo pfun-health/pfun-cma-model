@@ -6,7 +6,7 @@ icon: lucide/rocket
 
 <div align="center">
 
-![PFun Logo](assets/img/pfunCelticFlower.png){ width="180" }
+![PFun Logo](assets/img/pfunCelticFlower.png)
 
 **A physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis.**
 
@@ -14,9 +14,9 @@ icon: lucide/rocket
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/pfun-health/pfun-cma-model)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688.svg)](https://fastapi.tiangolo.com)
 
-[Live Demo](https://cloud.tail38611b.ts.net/demo/llm){ .md-button .md-button--primary }
-[API Docs](api.md){ .md-button }
-[Source Code](https://github.com/pfun-health/pfun-cma-model){ .md-button }
+[Live Demo](https://cloud.tail38611b.ts.net/demo/llm)
+[API Docs](api.md)
+[Source Code](https://github.com/pfun-health/pfun-cma-model)
 
 </div>
 

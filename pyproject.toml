@@ -1,3 +1,4 @@
+
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
@@ -140,7 +141,7 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 # Make the C extension optional (fail gracefully if build tools aren't available.)
 
 [tool.uv.sources]
-pfun-common = { path = "./packages/pfun_common" }
+pfun-common = { git = "https://github.com/pfun-health/pfun-common" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
