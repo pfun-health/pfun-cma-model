@@ -107,7 +107,7 @@ docs = [
     "zensical>=0.0.29",
 ]
 datasette = [
-    "datasette<=1.0a23",
+    "datasette<=1.0a29",
     "datasette-parquet>=0.6.1",
 ]
 android = [
