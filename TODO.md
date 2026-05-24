@@ -4,11 +4,18 @@ TODO for `pfun-cma-model`
 
 ## Goals
 
-### Short-term Goals
+### Itemized objectives
 
++ _(CGM on the cloud) Setup self-hosted Nightscout:_
+  + [Nightscout on NixOS](https://nightscout.github.io/vendors/VPS/nixos/)
+  + Integrate `nightscout`, `pfun-cma-model`.
++ _Migrate `packages/*` to modular `pfun-health/` repositories:_
+  + `pfun-health/pfun-llm`
+  + `pfun-health/pfun-examples` (checkout historical `examples/...`, migrate to new repo)
+  + `pfun-health/pfun-common`
 + _Publish documentation using `Zensical`, `Github Pages`_
   + Use `Zensical` to publish the documentation for `pfun-cma-model`.
-  + Publish to: `pfun-health.github.io/pfun-cma-model` (Github Pages).
+  + ~~Publish to: `pfun-health.github.io/pfun-cma-model` (Github Pages).~~
   + Ensure documentation is comprehensive and includes:
     + Installation instructions
     + Usage examples
@@ -37,8 +44,7 @@ TODO for `pfun-cma-model`
     + **Demo frontend** at: `pfun.app`.
     + **Backend API** at: `api.pfun.run`.
   + _Routing and load-balancing:_
-    + Cloudflare Workers for routing and load-balancing between API instances.
-    + CDN for frontend assets (Still shopping around for best option here, but Cloudflare also offers CDN services).
+	+ **On-prem implementation (in progress...)**
 
 ### Overall Goal: Complete Evaluation Pipeline
 
@@ -78,6 +84,8 @@ TODO for `pfun-cma-model`
 ## Demos
 
 + _Datasets for training, counterfactuals, twin studies_
+  + _Kaggle Dataset (see examples/notebooks)_
+	+ **Finish migration of demos to `pfun-health/pfun-examples`**
   + Consider MIMO (multi-input, multi-output) embedding approach for flexibility.
   + _ScenarioDataset:_
     + {X1: ScenarioConditionedParameters},
