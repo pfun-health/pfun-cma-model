@@ -9,7 +9,7 @@ full_uv_sync() {
 	uv sync \
 		--reinstall \
 		--all-extras \
-		--group ollama \
+		--group llm \
 		--group datasette \
 		--link-mode copy
 }

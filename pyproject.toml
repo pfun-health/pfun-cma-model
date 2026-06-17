@@ -5,8 +5,8 @@ urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
 version = "0.4.206"
 description = "A Python package for the Physiofunctional CMA model, a generative model that functionally replicates neuroendocrine dynamics."
 authors = [{ name = "Robbie Capps", email = "robbie@pfun.me" }]
-readme = "README.md"                                                                                                                          # Additional properties are not allowed ('package' was unexpected)
-requires-python = ">=3.11,<3.13"                                                                                                              # Additional properties are not allowed (package' was unexpected)
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
 
 dependencies = [
   "pandas>=2.1.1",
@@ -93,7 +93,7 @@ dev = [
   { include-group = "lint" },
   { include-group = "llm" },
 ]
-llm = ["pfun-llm"]
+llm = ["pfun-llm[ollama]"]
 lint = ["black>=25.12.0", "mypy>=1.19.1", "ruff>=0.15.11"]
 docs = ["zensical>=0.0.29"]
 datasette = ["datasette<=1.0a23", "datasette-parquet>=0.6.1"]

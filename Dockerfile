@@ -22,7 +22,6 @@ RUN chown nonroot:nonroot .
 FROM base AS deps
 
 # install python + dependencies
-# NOTE: specify extras, groups, e.g., '--extra standard --group perplexity'
 # ...also, download the sample data (overwrite anything existing)
 USER nonroot
 WORKDIR /app
