@@ -1971,7 +1971,7 @@ wheels = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.206"
+version = "0.4.207"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
