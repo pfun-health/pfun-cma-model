@@ -4,19 +4,19 @@ icon: lucide/rocket
 
 # PFun CMA Model
 
+_A physiofunctional chronometabolic model implementation (numerical inference for glucose, stress hormones, circadian time series)._
+
 <div align="center">
 
-![PFun Logo](assets/img/pfunCelticFlower.png)
+<img alt="PFun Logo" src="assets/img/pfunCelticFlower.png" width="250px" style="padding: 2pt;" />
+<hr />
 
-**A physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis.**
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/pfun-health/pfun-cma-model)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688.svg)](https://fastapi.tiangolo.com)
-
-[Live Demo](https://cloud.tail38611b.ts.net/demo/llm)
-[API Docs](api.md)
-[Source Code](https://github.com/pfun-health/pfun-cma-model)
+<a href="https://www.python.org/downloads/"><img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12+-blue.svg" width="70px" /></a>
+<a href="https://fastapi.tiangolo.com"><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.135-009688.svg" width="70px" /></a>
+<hr />
+<a title="API Docs" href="/api/" style="border-radius: 10%; padding: 4pt; color: white; background: blue;">API Docs</a>
+<a title="Source Code" href="https://github.com/pfun-health/pfun-cma-model" style="border-radius: 10%; padding: 4pt; color: white; background: blue;">Source Code</a>
 
 </div>
 
@@ -28,9 +28,9 @@ The **PFun CMA Model** is a generative physiological model that functionally rep
 
 ### In simple terms
 
-- :material-compress: **Phase-based dimensionality reduction** — Compress weeks or months of CGM time-series data into a compact phase vector (`≥ 1024b in memory`).
-- :material-translate: **Interpretable & Quantifiable** — Translate between qualitative states ("mood", "stress") and biophysical neuroendocrine dynamics ("cortisol levels", "glucose variability").
-- :material-clock-fast: **High-speed circadian mapping** — Understand how circadian rhythm maps to glucose values in real time.
+- 🗜  **Phase-based dimensionality reduction** — Compress weeks or months of CGM time-series data into a compact phase vector (`≥ 1024b in memory`).
+- 🕮  **Interpretable & Quantifiable** — Translate between qualitative states ("mood", "stress") and biophysical neuroendocrine dynamics ("cortisol levels", "glucose variability").
+- 🕒 **High-speed circadian mapping** — Understand how circadian rhythm maps to glucose values in real time.
 
 ---
 
@@ -115,21 +115,10 @@ uv run fastapi dev pfun_cma_model/app.py --port 8001
 pfun-cma-model/
 ├── pfun_cma_model/          # Core Python package
 │   ├── engine/              # CMA model, fit, grid, plotting
-│   │   ├── cma.py           # CMASleepWakeModel class
-│   │   ├── fit.py           # Curve fitting pipeline
-│   │   ├── grid.py          # Parameter grid search
-│   │   └── pfun_cma_engine.c  # Optional C extension
 │   ├── routes/              # FastAPI route handlers
-│   │   ├── demo.py          # Interactive demo endpoints
-│   │   ├── llm.py           # LLM scenario generation API
-│   │   ├── ws.py            # WebSocket streaming
-│   │   └── params.py        # Parameter CRUD endpoints
 │   ├── llm.py               # LLM prompting logic
 │   ├── cli.py               # Click CLI commands
 │   └── security.py          # Security middleware
-├── packages/
-│   ├── pfun_common/         # Shared utilities & settings
-│   └── pfun_qt_gui/         # Qt6 desktop application
 ├── examples/
 │   ├── notebooks/           # Jupyter notebooks
 │   ├── screenshots/         # Application screenshots
@@ -146,7 +135,7 @@ pfun-cma-model/
 | Resource | Link |
 |----------|------|
 | :material-web: Homepage | [pfun.one](https://pfun.one/) |
-| :material-play-circle: Live Demo | [PFun Health Tips](https://cloud.tail38611b.ts.net/demo/llm) |
+| :material-play-circle: Live Demo | [PFun Health Tips](https://pfun.one/demo/llm) |
 | :material-github: Source Code | [pfun-health/pfun-cma-model](https://github.com/pfun-health/pfun-cma-model) |
 | :material-file-document: Research Paper | [Chronometabolic Analysis (PDF)](https://github.com/pfun-health/pfun-cma-model/blob/main/docs/rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf) |
 | :material-api: API Swagger | `http://localhost:8001/docs` |
