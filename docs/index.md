@@ -9,13 +9,12 @@ _A physiofunctional chronometabolic model implementation (numerical inference fo
 <div align="center">
 
 <img alt="PFun Logo" src="assets/img/pfunCelticFlower.png" width="250px" style="padding: 2pt;" />
-<hr />
-
+<hr style="max-width: 25%;" />
 
 <a href="https://www.python.org/downloads/"><img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12+-blue.svg" width="70px" /></a>
 <a href="https://fastapi.tiangolo.com"><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.135-009688.svg" width="70px" /></a>
-<hr />
-<a title="API Docs" href="https://pfun-health.github.io/pfun-cma-model/api/" style="border-radius: 10%; padding: 4pt; color: white; background: blue;">API Docs</a>
+<hr style="max-width: 25%;" />
+<a title="API Docs" href="https://pfun-health.github.io/pfun-cma-model/api" style="border-radius: 10%; padding: 4pt; color: white; background: blue;">API Docs</a>
 <a title="Source Code" href="https://github.com/pfun-health/pfun-cma-model" style="border-radius: 10%; padding: 4pt; color: white; background: blue;">Source Code</a>
 
 </div>
