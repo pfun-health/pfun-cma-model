@@ -1970,6 +1970,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pfun-cma-engine-c"
+version = "0.1.0"
+source = { git = "https://github.com/pfun-health/pfun-cma-engine-c#109261983a0434918d04fc5b56008d90373a702c" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pfun-path-helper" },
+]
+
+[[package]]
 name = "pfun-cma-model"
 version = "0.4.207"
 source = { editable = "." }
@@ -2018,6 +2027,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+cext = [
+    { name = "pfun-cma-engine-c" },
+]
 dev = [
     { name = "ipykernel" },
     { name = "ipython", version = "9.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -2094,6 +2106,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "passlib", specifier = ">=1.7.4" },
+    { name = "pfun-cma-engine-c", marker = "extra == 'cext'", git = "https://github.com/pfun-health/pfun-cma-engine-c" },
     { name = "pfun-common", git = "https://github.com/pfun-health/pfun-common" },
     { name = "pfun-path-helper", specifier = ">=0.1.5" },
     { name = "pkginfo", specifier = ">=1.12.1.2" },

@@ -71,6 +71,7 @@ dev = [
 
 cext = [
   # c extension is compiled
+  "pfun-cma-engine-c"
 ]
 
 [project.scripts]
@@ -121,6 +122,7 @@ module_name = "pfun_cma_model.engine.pfun_cma_engine"
 [tool.uv.sources]
 pfun-common = { git = "https://github.com/pfun-health/pfun-common" }
 pfun-llm = { git = "https://github.com/pfun-health/pfun-llm" }
+pfun-cma-engine-c = { git = "https://github.com/pfun-health/pfun-cma-engine-c" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
