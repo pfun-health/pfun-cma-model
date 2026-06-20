@@ -21,7 +21,7 @@ A few pithy one-liners:
 
 #### Background
 
-- **About the project:** <a href="https://cloud.tail38611b.ts.net/pitch">PFun Glucose ~ App pitch summary</a>
+- **About the project:** <a href="https://pfun-health.github.io/pfun-cma-model">PFun CMA Model Documentation</a>
 - **Preliminary research summary (includes citations):** <a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>
 
 ### About this repository
