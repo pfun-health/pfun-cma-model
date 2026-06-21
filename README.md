@@ -3,7 +3,9 @@
 ## Links (Demos, Homepage)
 
 - [**PFun Homepage**](https://pfun.one/)
-- [**[_Live Demo_] PFun Health Tips **](https://cloud.tail38611b.ts.net/demo/llm)
+- [**Terminal Demo Video**](./DEMO.md) — performance benchmarks + 3D waveform animation
+
+[![CMA Model 3D Waveform Visualization](docs/assets/img/demo-terminal.svg)](./DEMO.md)
 
 ## Overview
 
@@ -22,7 +24,7 @@ A few pithy one-liners:
 #### Background
 
 - **About the project:** <a href="https://pfun-health.github.io/pfun-cma-model">PFun CMA Model Documentation</a>
-- **Preliminary research summary (includes citations):** <a href="./docs/rendered_pdf/PFun Glucose - Chronometabolic Analysis.pdf">PFun Glucose - Chronometabolic Analysis.pdf</a>
+- **Preliminary research summary (includes citations):** <a href="./docs/pfun-glucose-chronometabolic-analysis.md">Chronometabolic Analysis (Markdown)</a> · <a href="./docs/rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf">PDF</a>
 
 ### About this repository
 

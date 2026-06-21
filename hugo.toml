@@ -1,0 +1,95 @@
+baseURL = "https://docs.pfun.one/"
+title = "PFun CMA Model"
+theme = "hextra"
+languageCode = "en"
+
+defaultContentLanguage = "en"
+
+[languages]
+  [languages.en]
+    languageName = "English"
+    weight = 1
+    title = "PFun CMA Model"
+
+[params]
+  description = "Documentation for the pfun-cma-model — a physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis."
+  author = "Robbie Capps"
+  images = ["logo.png"]
+
+  navbar.displayLogo = true
+  navbar.displayTitle = true
+  navbar.width = "wide"
+  footer.displayCopyright = true
+  footer.displayPoweredBy = true
+  footer.since = 2026
+
+  page.width = "wide"
+
+  search.flexsearch = true
+  search.index = "all"
+
+  editURL.enable = false
+
+  theme.default = "system"
+  theme.displayToggle = true
+
+  highlight.copy = true
+  highlight.lang = ["bash", "python", "toml", "yaml", "json", "text"]
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      typographer = true
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [["\\[", "\\]"], ["$$", "$$"]]
+          inline = [["\\(", "\\)"]]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+    style = "catppuccin-latte"
+
+[module]
+  [[module.mounts]]
+    source = "docs/assets"
+    target = "static/assets"
+  [[module.mounts]]
+    source = "docs/javascripts"
+    target = "static/javascripts"
+
+[outputs]
+  home = ["HTML"]
+  page = ["HTML"]
+  section = ["HTML"]
+
+[services]
+  [services.googleAnalytics]
+    ID = ""
+
+[mediaTypes]
+  [mediaTypes."application/atom+xml"]
+    suffixes = ["xml"]
+
+[imaging]
+  resampleFilter = "Box"
+  quality = 85
+  anchor = "smart"
+
+[sitemap]
+  changefreq = "weekly"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+[permalinks]
+  page = "/:slug/"
+  section = "/:slug/"
+
+[privacy]
+  [privacy.x]
+    enableDNT = true
+  [privacy.youtube]
+    privacyEnhanced = true

@@ -136,6 +136,6 @@ pfun-cma-model/
 | :material-web: Homepage | [pfun.one](https://pfun.one/) |
 | :material-play-circle: Live Demo | [PFun Health Tips](https://pfun.one/demo/llm) |
 | :material-github: Source Code | [pfun-health/pfun-cma-model](https://github.com/pfun-health/pfun-cma-model) |
-| :material-file-document: Research Paper | [Chronometabolic Analysis (PDF)](https://github.com/pfun-health/pfun-cma-model/blob/main/docs/rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf) |
+| :material-file-document: Research Paper | [Chronometabolic Analysis (Markdown)](pfun-glucose-chronometabolic-analysis.md) · [PDF](rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf) |
 | :material-api: API Swagger | `http://localhost:8001/docs` |
 | :material-api: API ReDoc | `http://localhost:8001/redoc` |

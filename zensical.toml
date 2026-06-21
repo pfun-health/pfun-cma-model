@@ -19,6 +19,7 @@ nav = [
     { "Overview" = "model/overview.md" },
     { "Parameters" = "model/parameters.md" },
     { "Fitting" = "model/fitting.md" },
+    { "Chronometabolic Analysis" = "pfun-glucose-chronometabolic-analysis.md" },
   ]},
   { "Demos & Examples" = [
     { "Gallery" = "demos/gallery.md" },
