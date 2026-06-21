@@ -10,12 +10,12 @@ The `examples/notebooks/` directory contains interactive Jupyter notebooks for e
 
 | Notebook | Description |
 |----------|-------------|
-| [`cma-model-modular-demos.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/cma-model-modular-demos.ipynb) | Comprehensive modular demo of all CMA model components |
-| [`cma-model-tuning.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/cma-model-tuning.ipynb) | Parameter tuning and optimization walkthrough |
-| [`visualize-generated-scenarios.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/visualize-generated-scenarios.ipynb) | Visualize LLM-generated scenario outputs |
-| [`visualize-cma-parameter-grid.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/visualize-cma-parameter-grid.ipynb) | Explore precomputed parameter grids |
-| [`kaggle-brist1d-fit-model-example.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/kaggle-brist1d-fit-model-example.ipynb) | Fit the CMA model to Kaggle BrisT1D dataset |
-| [`plot-raw-glucose-data.ipynb`](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/plot-raw-glucose-data.ipynb) | Visualize raw CGM data from various sources |
+| [`cma-model-modular-demos.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/cma-model-modular-demos.ipynb) | Comprehensive modular demo of all CMA model components |
+| [`cma-model-tuning.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/cma-model-tuning.ipynb) | Parameter tuning and optimization walkthrough |
+| [`visualize-generated-scenarios.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/visualize-generated-scenarios.ipynb) | Visualize LLM-generated scenario outputs |
+| [`visualize-cma-parameter-grid.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/visualize-cma-parameter-grid.ipynb) | Explore precomputed parameter grids |
+| [`kaggle-brist1d-fit-model-example.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/kaggle-brist1d-fit-model-example.ipynb) | Fit the CMA model to Kaggle BrisT1D dataset |
+| [`plot-raw-glucose-data.ipynb`](https://github.com/pfun-health/pfun-cma-examples/notebooks/plot-raw-glucose-data.ipynb) | Visualize raw CGM data from various sources |
 
 ## Running Notebooks
 
@@ -34,9 +34,9 @@ uv run jupyter lab examples/notebooks/cma-model-modular-demos.ipynb
 
 Pre-rendered HTML versions of select notebooks are available for quick viewing:
 
-- [cma-model-modular-demos.html](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/cma-model-modular-demos.html)
-- [cma-model-tuning.html](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/cma-model-tuning.html)
-- [visualize-generated-scenarios.html](https://github.com/pfun-health/pfun-cma-model/blob/main/examples/notebooks/visualize-generated-scenarios.html)
+- [cma-model-modular-demos.html](https://html-preview.github.io?url=https://github.com/pfun-health/pfun-cma-examples/notebooks/cma-model-modular-demos.html)
+- [cma-model-tuning.html](https://html-preview.github.io?url=https://github.com/pfun-health/pfun-cma-examples/notebooks/cma-model-tuning.html)
+- [visualize-generated-scenarios.html](https://html-preview.github.io?url=https://github.com/pfun-health/pfun-cma-examples/notebooks/visualize-generated-scenarios.html)
 
 ## Code Samples
 
@@ -50,24 +50,12 @@ The `examples/code_samples/` directory contains standalone Python scripts:
 | `sqladmin_basic_auth_backend.py` | SQLAdmin with basic authentication |
 | `sqladmin_sso_auth_backend.py` | SQLAdmin with SSO authentication |
 
-## Other Examples
-
-### HTML5 1D Wave Equation
-
-An interactive HTML5/JavaScript demo of the 1D wave equation — demonstrating numerical simulation techniques used in the CMA engine:
-
-```
-examples/html5-1d-wave-equation/
-├── index.html    # Entry point
-└── wave1d.js     # Wave equation solver
-```
-
 ### Audio Processing
 
 Experimental notebook for converting numerical arrays to audio tracks:
 
 ```
-examples/audio/
+examples/code_samples/audio/
 ├── Numerical_Array_to_Audio_Track.ipynb
 └── audacity_pipe_example.py
 ```
