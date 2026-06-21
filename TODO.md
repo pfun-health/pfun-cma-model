@@ -9,20 +9,10 @@ TODO for `pfun-cma-model`
 + _(CGM on the cloud) Setup self-hosted Nightscout:_
   + [Nightscout on NixOS](https://nightscout.github.io/vendors/VPS/nixos/)
   + Integrate `nightscout`, `pfun-cma-model`.
-+ _Migrate `packages/*` to modular `pfun-health/` repositories:_
-  + `pfun-health/pfun-llm`
-  + `pfun-health/pfun-examples` (checkout historical `examples/...`, migrate to new repo)
-  + `pfun-health/pfun-common`
-+ _Publish documentation using `Zensical`, `Github Pages`_
-  + Use `Zensical` to publish the documentation for `pfun-cma-model`.
++ _Publish documentation using `Zensical`, ~~`Github Pages`~~_
+  + **After the on-prem network is ready, migrate docs to Gitea (or whichever selfhosted service).**
+  + ~~Use `Zensical` to publish the documentation for `pfun-cma-model`.~~
   + ~~Publish to: `pfun-health.github.io/pfun-cma-model` (Github Pages).~~
-  + Ensure documentation is comprehensive and includes:
-    + Installation instructions
-    + Usage examples
-    + API reference
-    + Contribution guidelines
-    + Security guidelines
-    + FAQ and troubleshooting section
 + _Implement SSE-based streaming for LLM responses:_
   + **Modify LLM route to support streaming responses.**
   + Update frontend to handle and display streamed data.
