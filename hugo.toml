@@ -38,6 +38,24 @@ defaultContentLanguage = "en"
   highlight.copy = true
   highlight.lang = ["bash", "python", "toml", "yaml", "json", "text"]
 
+[menu]
+  [[menu.main]]
+    identifier = "blog"
+    name = "Blog"
+    pageRef = "/blog"
+    weight = 1
+  [[menu.main]]
+    name = "Search"
+    weight = 2
+    [menu.main.params]
+      type = "search"
+  [[menu.main]]
+    name = "GitHub"
+    weight = 3
+    url = "https://github.com/pfun-health/pfun-cma-model"
+    [menu.main.params]
+      icon = "github"
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
