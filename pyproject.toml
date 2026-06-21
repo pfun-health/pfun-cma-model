@@ -1,4 +1,3 @@
-
 [project]
 name = "pfun-cma-model"
 urls = { homepage = "https://github.com/pfun-health/pfun-cma-model" }
