@@ -1,5 +1,5 @@
 ---
-icon: lucide/flask
+icon: lucide/flask-conical
 ---
 
 # PFun Glucose — Chronometabolic Analysis

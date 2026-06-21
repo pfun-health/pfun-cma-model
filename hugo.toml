@@ -1,20 +1,23 @@
-baseURL = "https://docs.pfun.one/"
+baseURL = "https://blog.pfun.one/"
 title = "PFun CMA Model"
 theme = "hextra"
-languageCode = "en"
+locale = "en"
 
 defaultContentLanguage = "en"
 
 [languages]
   [languages.en]
-    languageName = "English"
+    label = "English"
     weight = 1
     title = "PFun CMA Model"
 
 [params]
   description = "Documentation for the pfun-cma-model — a physiological chronometabolic model for glucose, hormone, and circadian rhythm analysis."
-  author = "Robbie Capps"
   images = ["logo.png"]
+
+  [params.author]
+    name = "Robbie Capps"
+    email = "robbie@pfun.me"
 
   navbar.displayLogo = true
   navbar.displayTitle = true
@@ -25,7 +28,6 @@ defaultContentLanguage = "en"
 
   page.width = "wide"
 
-  search.flexsearch = true
   search.index = "all"
 
   editURL.enable = false

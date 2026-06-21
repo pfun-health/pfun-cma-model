@@ -1,0 +1,20 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PFun CMA Model – Categories</title>
+    <link>https://blog.pfun.one/categories/</link>
+    <description>Recent content in Categories on PFun CMA Model</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <managingEditor>robbie@pfun.me (Robbie Capps)</managingEditor>
+    <webMaster>robbie@pfun.me (Robbie Capps)</webMaster>
+    
+	  <atom:link href="https://blog.pfun.one/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+  </channel>
+</rss>
