@@ -31,4 +31,3 @@ jobs:
         with:
           model: opencode/big-pickle
           share: false
-          github_token: ${{ GITHUB_TOKEN }}
