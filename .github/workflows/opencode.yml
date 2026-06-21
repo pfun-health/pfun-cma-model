@@ -18,18 +18,17 @@ jobs:
        pull-requests: write
        issues: write
     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v6
-         with:
-           fetch-depth: 1
-           persist-credentials: false
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+         fetch-depth: 1
+         persist-credentials: false
 
-       - name: Run OpenCode
-         uses: anomalyco/opencode/github@latest
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
         env:
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-          # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
           model: opencode/big-pickle
-            share: false
-            github_token: ${{ GITHUB_TOKEN }}
+          share: false
+          github_token: ${{ GITHUB_TOKEN }}
