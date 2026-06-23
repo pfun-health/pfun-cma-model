@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 # scripts/run-benchmarks.sh :
 # run benchmarks using pyperformance
 
@@ -11,5 +13,4 @@ echo "######################################"
 
 uv run \
    pyperformance run \
-   --python="$(uv python dir)/bin/python" \
    -o "${OUTPUT_JSON_PATH}"
