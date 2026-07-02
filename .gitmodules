@@ -3,4 +3,4 @@
 	url = https://github.com/imfing/hextra.git
 [submodule "examples"]
 	path = examples
-	url = https://github.com/pfun-health/pfun-cma-examples
+	url = https://github.com/pfun-health/pfun-cma-examples.git
