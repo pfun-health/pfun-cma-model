@@ -1,5 +1,6 @@
+import argparse
 import asyncio
-from typing import Literal
+from typing import Literal, Optional
 import json
 import os
 from pathlib import Path
@@ -38,7 +39,8 @@ def process_kwds(ctx, param, value):
 @click.pass_context
 def cli(ctx):
     """Command line interface for the pfun-cma-model package.
-    This CLI provides commands to fit the PFun CMA model, run parameter grid searches, and launch the application.
+    This CLI provides commands to fit the PFun CMA model, run parameter grid searches,
+    launch the application, and run benchmarks.
     """
     # Set up the context object with default paths
     # for sample data and output directory
@@ -344,6 +346,82 @@ def run_doctests():
     import doctest
 
     doctest.testmod()
+
+
+@cli.command()
+@click.option(
+    "--sizes",
+    type=str,
+    default="256,512,1024,2048,4096,8192,16384,32768",
+    help="Comma-separated list of timepoint counts to test (default: 256,512,1024,2048,4096,8192,16384,32768)"
+)
+@click.option(
+    "--repeats",
+    type=int,
+    default=5,
+    help="Number of runs per configuration (median reported) (default: 5)"
+)
+@click.option(
+    "--implementations",
+    type=str,
+    default="python,c",
+    help="Comma-separated list of implementations to test (python, c) (default: python,c)"
+)
+@click.option(
+    "--output",
+    type=str,
+    help="Output file to save results in JSON format"
+)
+@click.option(
+    "--params",
+    type=str,
+    help="JSON string of model parameters to use (default: d=0.0, taup=1.0, taug=1.0, B=0.05, Cm=0.0, toff=0.0)"
+)
+@click.option(
+    "--warmup",
+    type=int,
+    default=3,
+    help="Number of warmup runs before timing begins (default: 3)"
+)
+@click.option(
+    "--threshold",
+    type=float,
+    default=1e-6,
+    help="Maximum allowed absolute difference for correctness check (default: 1e-6)"
+)
+def benchmark(sizes, repeats, implementations, output, params, warmup, threshold):
+    """Run benchmark tests comparing Python CMA engine vs. C extension."""
+    from pfun_cma_model.engine.benchmark import (
+        _parse_sizes, _parse_implementations, _parse_params, benchmark as run_benchmark
+    )
+    
+    try:
+        benchmark_sizes = _parse_sizes(sizes)
+        impls = _parse_implementations(implementations)
+        custom_params = _parse_params(params)
+    except ValueError as e:
+        click.secho(f"Error: {e}", fg="red", bold=True)
+        return
+    
+    # Run benchmark with parsed arguments
+    results = run_benchmark(
+        sizes=benchmark_sizes,
+        n_repeats=repeats,
+        implementations=impls,
+        custom_params=custom_params,
+        n_warmup=warmup,
+        threshold=threshold,
+    )
+    
+    # Output results to file if requested
+    if output:
+        try:
+            import json
+            with open(output, 'w') as f:
+                json.dump(results, f, indent=2)
+            click.secho(f"\nResults saved to: {output}", fg="green", bold=True)
+        except Exception as e:
+            click.secho(f"Error saving results to {output}: {e}", fg="red", bold=True)
 
 
 if __name__ == "__main__":
