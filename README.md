@@ -5,8 +5,6 @@
 - [**PFun Homepage**](https://pfun.one/)
 - [**Terminal Demo Video**](./DEMO.md) — performance benchmarks + 3D waveform animation
 
-[![CMA Model 3D Waveform Visualization](docs/assets/img/demo-terminal.svg)](./DEMO.md)
-
 ## Overview
 
 ### API Description
