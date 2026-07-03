@@ -1,0 +1,42 @@
+---
+
+# ── Push Docker Image to GHCR ────────────────────────────────────────────────
+#
+# Builds and pushes a Docker image to ghcr.io whenever a version tag
+# (e.g. 0.4.209) is pushed.  These tags are created by the Release workflow
+# in release.yaml.
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: Push Docker Image
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: ./scripts/push-docker.sh

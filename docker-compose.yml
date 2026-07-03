@@ -1,5 +1,4 @@
 services:
-
   pfun-cma-model:
     restart: unless-stopped
     build:
@@ -14,25 +13,4 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    networks:
-      - pfun-cma-network
-    command:
-      [
-        "scripts/serve-prod.sh",
-        "full"
-      ]
-
-  pfun-qt-gui:
-    extends:
-      file: packages/pfun_qt_gui/docker-compose.yml
-      service: pfun-qt-gui
-    # #NOTE: we use 'extends' here to include the service definition from the package's
-
-# Define networks at the root level
-networks:
-  pfun-cma-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
+    command: ["scripts/serve-prod.sh"]

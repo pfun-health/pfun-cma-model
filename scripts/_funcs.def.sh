@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -11,24 +11,6 @@ full_uv_sync() {
 		--all-extras \
 		--group llm \
 		--group datasette \
-		--link-mode copy
-}
-
-full_uv_sync_qt_gui() {
-	# Perform a full uv sync for the qt-gui package.
-	local GUI_DIR=$(realpath "$SCRIPT_DIR/../packages/pfun_qt_gui")
-	cd "$GUI_DIR" && uv sync \
-		--reinstall \
-		--all-extras \
-		--link-mode copy
-}
-
-full_uv_sync_gradio() {
-	# Perform a full uv sync including all extras and specific groups.
-	uv sync \
-		--reinstall \
-		--all-extras \
-		--project=pfun_gradio \
 		--link-mode copy
 }
 
@@ -56,8 +38,4 @@ serve_pfun_cma_model_dev() {
 serve_pfun_cma_model() {
 	# [PROD] Serve the pfun_cma_model FastAPI app using uvicorn with uv.
 	/usr/bin/env sh -c "uv run uvicorn pfun_cma_model.main:app --port 8001 --workers 1 $(get_ssl_args) $*"
-}
-
-serve_pfun_gradio() {
-	/usr/bin/env sh -c "cd pfun_gradio; uv run uvicorn pfun_gradio.main:app --port 7860 --workers 1 $(get_ssl_args) $*"
 }
