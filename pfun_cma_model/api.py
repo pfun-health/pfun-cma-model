@@ -34,6 +34,8 @@ from pfun_cma_model.routes import (
     auth as auth_routes,
     dexcom as dexcom_routes,
     data as data_routes,
+    llm as llm_routes,
+    demo as demo_routes,
     params as params_routes,
     sso as sso_routes,
 )
@@ -282,6 +284,10 @@ app.include_router(data_routes.router, prefix="/data", tags=["data"])
 app.include_router(params_routes.router, prefix="/params", tags=["params"])
 
 app.include_router(sso_routes.router, prefix="/sso", tags=["sso"])
+
+app.include_router(demo_routes.router, prefix="/demo", tags=["demo"])
+
+app.include_router(llm_routes.router, prefix="/llm", tags=["llm"])
 
 
 @app.get("/health")
