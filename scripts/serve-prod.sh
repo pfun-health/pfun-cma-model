@@ -16,4 +16,5 @@ sleep 1s
 
 # Start server full uv sync and serve pfun-cma-model
 full_uv_sync
-serve_pfun_cma_model
+# (the additional args are important, especially for docker entrypoint/command)
+serve_pfun_cma_model "$@"

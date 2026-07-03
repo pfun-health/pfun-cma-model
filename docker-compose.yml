@@ -13,4 +13,4 @@ services:
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    command: ["scripts/serve-prod.sh"]
+    command: ["scripts/serve-prod.sh", "--host", "0.0.0.0"]
