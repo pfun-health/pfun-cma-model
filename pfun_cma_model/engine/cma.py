@@ -601,16 +601,14 @@ class CMASleepWakeModel:
             # type: ignore
             t,
             self.I_E[-1],
-            self.tM,
-            self.taug,
-            self.B,
-            self.Cm,
-            self.toff,
+            self.params,
         )
         df_gt = DataFrame(
             {"Gt{}".format(i): Gt[i] for i in range(Gt.shape[0])}, index=t
         )  # type: ignore
-        df_gt["Gt"] = nansum(Gt, axis=0) + self.B * (1.0 + meal_distr(self.Cm, t, self.toff))
+        df_gt["Gt"] = nansum(Gt, axis=0) + self.B * (
+            1.0 + meal_distr(self.Cm, t, self.toff)
+        )
         return df_gt
 
     def update_Gt(self, t=None, dt=None, n=1, keep_tvec_size=True):
@@ -640,9 +638,7 @@ class CMASleepWakeModel:
         Returns:
             np.ndarray: Array of Post-prandial glucose dynamics.
         """
-        return vectorized_G(
-            self.t, self.I_E, self.tM, self.taug, self.B, self.Cm, self.toff
-        )  # type: ignore
+        return vectorized_G(self.t, self.I_E, self.params)  # type: ignore
 
     @property
     def g(self):
@@ -745,7 +741,9 @@ class CMASleepWakeModel:
     @property
     def g_instant(self):
         """vector of instantaneous (overall) glucose."""
-        return nansum(self.g, axis=0) + self.B * (1.0 + meal_distr(self.Cm, self.t, self.toff))
+        return nansum(self.g, axis=0) + self.B * (
+            1.0 + meal_distr(self.Cm, self.t, self.toff)
+        )
 
     @property
     def df(self) -> DataFrame:
