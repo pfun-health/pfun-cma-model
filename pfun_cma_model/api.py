@@ -579,3 +579,10 @@ async def fit_model_to_data(
         headers={"Content-Type": "application/json"},
     )
     return response
+
+
+from fastapi_mcp import FastApiMCP
+
+# setup MCP server
+mcp = FastApiMCP(app)
+mcp.mount_http()
