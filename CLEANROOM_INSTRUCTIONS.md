@@ -54,11 +54,11 @@ Replicate behavior-level protections:
   - Optional Redis-backed security storage
   - Blocked user agents: `badbot`, `evil-crawler`, `sqlmap`
   - Debug-query rejection behavior (`?debug=true` => HTTP 403 with `{"detail":"Debug mode not allowed"}`)
-- Custom response headers:
-  - `X-Content-Type-Options: nosniff`
-  - `X-Frame-Options: DENY`
-  - `X-XSS-Protection: 1; mode=block`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
+- Custom response headers (at minimum those documented in `docs/security.md`):
+  - `Content-Security-Policy` (strict CSP with nonces), `Strict-Transport-Security` (HSTS)
+  - `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`
+  - `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (restricted feature access)
+  - (Optional/legacy) `X-XSS-Protection: 1; mode=block` if present in `origin/main`
 - CORS and trusted-host controls equivalent to debug/prod host allowlists in main branch config.
 - Session middleware using configured secret key.
 - Request-tracking middleware:
