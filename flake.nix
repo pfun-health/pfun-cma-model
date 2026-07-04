@@ -23,7 +23,7 @@
       pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
       appName = pyproject.project.name;
       appVersion = pyproject.project.version;
-      defaultAppDir = "/tmp/pfun-cma-model";
+      defaultAppDir = "/var/lib/pfun-cma-model";
       sourceTree = builtins.path {
         path = ./.;
         name = "${appName}-source-tree";
@@ -90,7 +90,7 @@
           ExposedPorts = {
             "8001/tcp" = { };
           };
-          WorkingDir = "/tmp/pfun-cma-model";
+          WorkingDir = defaultAppDir;
         };
       };
       vmImage = nixos-generators.nixosGenerate {

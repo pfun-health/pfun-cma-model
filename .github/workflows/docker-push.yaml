@@ -28,7 +28,7 @@ jobs:
       - name: Resolve image metadata
         id: meta
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           import pathlib
           import tomllib
           import os
@@ -69,7 +69,8 @@ jobs:
       - name: Stage VM image artifact
         id: vm
         run: |
-          VM_SOURCE="$(find -L result -type f \( -name '*.qcow2' -o -name '*.qcow' \) | sort | head -n 1)"
+          # nixos-generators qcow outputs may use either .qcow or .qcow2.
+          VM_SOURCE="$(find -L result -type f -name '*.qcow*' | sort | head -n 1)"
           if [ -z "${VM_SOURCE}" ]; then
             echo "Unable to find a VM image artifact in ./result" >&2
             exit 1
