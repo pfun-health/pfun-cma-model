@@ -26,6 +26,7 @@
       pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
       appName = pyproject.project.name;
       appVersion = pyproject.project.version;
+      appModule = builtins.replaceStrings [ "-" ] [ "_" ] appName;
       defaultAppDir = "/var/lib/pfun-cma-model";
       sourceTree = builtins.path {
         path = ./.;
@@ -58,7 +59,7 @@
           export UV_PROJECT_ENVIRONMENT=".venv"
 
           mkdir -p "$APP_DIR"
-          if [ ! -f "$APP_DIR/pyproject.toml" ] || [ ! -f "$APP_DIR/pfun_cma_model/main.py" ]; then
+          if [ ! -f "$APP_DIR/pyproject.toml" ] || [ ! -f "$APP_DIR/${appModule}/__init__.py" ]; then
             cp -R "$APP_SOURCE"/. "$APP_DIR"/
             chmod -R u+w "$APP_DIR"
           fi
