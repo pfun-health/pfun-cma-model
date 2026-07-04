@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 curl -X 'POST' \
-  'http://localhost:8001/fit' \
+  'http://localhost:8001/model/fit' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
