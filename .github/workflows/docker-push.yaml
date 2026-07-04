@@ -1,53 +1,47 @@
----
-# ── Push Docker Image to GHCR ────────────────────────────────────────────────
-#
-# Builds and pushes a Docker image to ghcr.io whenever a version tag
-# (e.g. 0.4.209) is pushed.  These tags are created by the Release workflow
-# in release.yaml.
-# ──────────────────────────────────────────────────────────────────────────────
-
-name: Push Docker Image
+name: Build Nix Images
 
 on:
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: "Log level"
-        required: true
-        default: "warning"
-        type: choice
-        options:
-          - info
-          - warning
-          - debug
-      tags:
-        description: "optional workflow dispatch tags"
-        required: false
-        type: boolean
-      environment:
-        description: "Environment to run tests against"
-        type: environment
-        required: false
-  push:
-    tags:
-      - '(prod\-|v|)[0-9]+\.[0-9]+\.[0-9]+'
+  release:
+    types: [published]
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
-  push:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Resolve image metadata
+        id: meta
+        run: |
+          VERSION="$(python - <<'PY'
+          import pathlib
+          import tomllib
+
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+          print(data["project"]["version"])
+          PY
+          )"
+          IMAGE_BASE="ghcr.io/${{ github.repository_owner }}/pfun-cma-model"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "image_base=${IMAGE_BASE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build OCI image
+        run: nix build .#oci-image
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -56,5 +50,42 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        run: ./scripts/push-docker.sh
+      - name: Push OCI image
+        run: |
+          docker load < result
+          docker tag \
+            "pfun-cma-model:${{ steps.meta.outputs.version }}" \
+            "${{ steps.meta.outputs.image_base }}:${{ steps.meta.outputs.version }}"
+          docker tag \
+            "pfun-cma-model:${{ steps.meta.outputs.version }}" \
+            "${{ steps.meta.outputs.image_base }}:latest"
+          docker push "${{ steps.meta.outputs.image_base }}:${{ steps.meta.outputs.version }}"
+          docker push "${{ steps.meta.outputs.image_base }}:latest"
+
+      - name: Build VM image
+        run: nix build .#vm-image
+
+      - name: Stage VM image artifact
+        id: vm
+        run: |
+          VM_SOURCE="$(find -L result -type f \( -name '*.qcow2' -o -name '*.qcow' -o -name '*.img' \) | head -n 1)"
+          if [ -z "${VM_SOURCE}" ]; then
+            echo "Unable to find a VM image artifact in ./result" >&2
+            exit 1
+          fi
+          VM_TARGET="pfun-cma-model-${{ steps.meta.outputs.version }}.qcow2"
+          cp "${VM_SOURCE}" "${VM_TARGET}"
+          echo "artifact=${VM_TARGET}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload VM image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pfun-cma-model-vm-image
+          path: ${{ steps.vm.outputs.artifact }}
+
+      - name: Attach VM image to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ steps.vm.outputs.artifact }}
