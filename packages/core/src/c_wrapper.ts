@@ -1,11 +1,45 @@
-import { load } from 'koffi';
-import { join } from 'path';
+import koffi from 'koffi';
+import { join, dirname } from 'path';
+import { existsSync } from 'fs';
+import { platform } from 'os';
+import { fileURLToPath } from 'url';
 
-// Load the compiled shared library (adjust extension based on OS: .so, .dylib, .dll)
-const libPath = join(__dirname, '../../pfun-cma-engine-c/build/libpfun_cma_engine.so');
-const engine = load(libPath);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// Replicate the C wrapper from c_wrapper.py
-export const cma_init = engine.func('cma_init', 'int', []);
-export const cma_step = engine.func('cma_step', 'void', ['int']);
-export const cma_cleanup = engine.func('cma_cleanup', 'void', []);
+const ext = platform() === 'win32' ? 'dll' : platform() === 'darwin' ? 'dylib' : 'so';
+let libPath = join(__dirname, '../../../pfun-cma-engine-c/pfun_cma_engine/libpfun_cma_engine.' + ext);
+
+if (!existsSync(libPath)) {
+  libPath = join(__dirname, '../../pfun-cma-engine-c/pfun_cma_engine/libpfun_cma_engine.' + ext);
+}
+
+if (!existsSync(libPath)) {
+    throw new Error(`Could not find the compiled C engine at ${libPath}. Did you run build?`);
+}
+
+const lib = koffi.load(libPath);
+
+export const run_cma_model = lib.func('run_cma_model', 'void', [
+  'const double*',
+  'int',
+  'double',
+  'double',
+  'double',
+  'const double*',
+  'double',
+  'double',
+  'double',
+  'const double*',
+  'int',
+  'int*',
+  'double',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*'
+]);

@@ -1,9 +1,7 @@
 packages:
-  - 'packages/*'
-  - 'packages/pfun-cma-engine-c'
+  - "packages/*"
+  - "pfun-cma-engine-c"
 allowBuilds:
-  '@google/genai': false
   duckdb: false
   esbuild: false
   koffi: false
-  protobufjs: false
