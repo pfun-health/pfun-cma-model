@@ -85,7 +85,8 @@ class TestSecurityHeaders:
             "Referrer-Policy": security_headers.get("referrer_policy"),
             "Permissions-Policy": security_headers.get("permissions_policy"),
         }
-        assert all(required_headers.values())
+        missing = [name for name, value in required_headers.items() if not value]
+        assert not missing, f"Missing required security header config entries for: {', '.join(missing)}"
 
     def test_security_headers_enabled(self):
         """Verify security headers are enabled."""
