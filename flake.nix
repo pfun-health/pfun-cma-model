@@ -2,6 +2,8 @@
   description = "Nix deployment artifacts for pfun-cma-model";
 
   inputs = {
+    # Pin both upstream flakes to immutable Git revisions so image builds stay
+    # reproducible even without committing a generated flake.lock file.
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-24.05&rev=b134951a4c9f3c995fd7be05f3243f8ecd65d798";
     nixos-generators.url = "git+https://github.com/nix-community/nixos-generators?rev=8946737ff703382fda7623b9fab071d037e897d5";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
@@ -20,6 +22,7 @@
       pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
       appName = pyproject.project.name;
       appVersion = pyproject.project.version;
+      defaultAppDir = "/tmp/pfun-cma-model";
       sourceTree = builtins.path {
         path = ./.;
         name = "${appName}-source-tree";
@@ -45,7 +48,7 @@
         inherit runtimeInputs;
         text = ''
           APP_SOURCE=${appSource}
-          APP_DIR="''${APP_DIR:-/tmp/pfun-cma-model}"
+          APP_DIR="''${APP_DIR:-${defaultAppDir}}"
           export HOME="''${HOME:-/tmp}"
           export PYTHONUNBUFFERED=1
           export UV_PROJECT_ENVIRONMENT=".venv"
@@ -77,7 +80,7 @@
         config = {
           Cmd = [ "${startScript}/bin/start-pfun-cma-model" ];
           Env = [
-            "APP_DIR=/tmp/pfun-cma-model"
+            "APP_DIR=${defaultAppDir}"
             "HOME=/tmp"
             "PORT=8001"
             "PYTHONUNBUFFERED=1"
