@@ -20,6 +20,16 @@ uv run fastapi dev pfun_cma_model/app.py --port 8001
 | **ReDoc** | [`/redoc`](http://localhost:8001/redoc) | Clean reference documentation |
 | **OpenAPI JSON** | [`/openapi.json`](http://localhost:8001/openapi.json) | Raw schema for tooling |
 
+## Security Headers
+
+All HTTP responses are expected to include the hardened security headers documented in [`docs/security.md`](./security.md). Required headers:
+
+- `Content-Security-Policy`
+- `Strict-Transport-Security`
+- `X-Frame-Options`
+- `Referrer-Policy`
+- `Permissions-Policy`
+
 ## Route Groups
 
 ### Demo Routes (`/demo/`)
