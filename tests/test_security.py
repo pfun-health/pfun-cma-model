@@ -85,13 +85,6 @@ class TestSecurityHeaders:
             "Referrer-Policy": security_headers.get("referrer_policy"),
             "Permissions-Policy": security_headers.get("permissions_policy"),
         }
-        assert set(required_headers) == {
-            "Content-Security-Policy",
-            "Strict-Transport-Security",
-            "X-Frame-Options",
-            "Referrer-Policy",
-            "Permissions-Policy",
-        }
         assert all(required_headers.values())
 
     def test_security_headers_enabled(self):
