@@ -83,6 +83,20 @@ This script:
 
 The `cloudbuild.yml` defines the CI/CD pipeline for automated builds on push.
 
+## Nix Images
+
+The repository now defines two Nix build outputs for deployment artifacts:
+
+```bash
+nix build .#oci-image
+nix build .#vm-image
+```
+
+- `.#oci-image` builds an OCI container archive for registry publishing.
+- `.#vm-image` builds a qcow-based VM image for VM deployments.
+
+The GitHub Actions workflow at `.github/workflows/docker-push.yaml` builds and publishes the OCI image to GHCR and uploads the VM image artifact when a GitHub Release is published.
+
 ## Domain Configuration
 
 | Service | Domain | Description |
