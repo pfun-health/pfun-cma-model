@@ -29,16 +29,32 @@ jobs:
         id: meta
         run: |
           python3 - <<'PY'
+          import os
           import pathlib
           import tomllib
-          import os
 
-          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
-          owner = os.environ["GITHUB_REPOSITORY_OWNER"]
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-              fh.write(f"image_name={data['project']['name']}\n")
-              fh.write(f"version={data['project']['version']}\n")
-              fh.write(f"image_base=ghcr.io/{owner}/{data['project']['name']}\n")
+          try:
+              owner = os.environ["GITHUB_REPOSITORY_OWNER"]
+              output_path = os.environ["GITHUB_OUTPUT"]
+          except KeyError as exc:
+              raise SystemExit(f"Missing required GitHub Actions environment variable: {exc.args[0]}") from exc
+
+          try:
+              data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+              project = data["project"]
+              image_name = project["name"]
+              version = project["version"]
+          except FileNotFoundError as exc:
+              raise SystemExit("pyproject.toml is required to resolve image metadata.") from exc
+          except tomllib.TOMLDecodeError as exc:
+              raise SystemExit(f"pyproject.toml is not valid TOML: {exc}") from exc
+          except KeyError as exc:
+              raise SystemExit(f"Missing required project metadata key in pyproject.toml: {exc.args[0]}") from exc
+
+          with open(output_path, "a", encoding="utf-8") as fh:
+              fh.write(f"image_name={image_name}\n")
+              fh.write(f"version={version}\n")
+              fh.write(f"image_base=ghcr.io/{owner}/{image_name}\n")
           PY
 
       - name: Build OCI image
@@ -69,8 +85,9 @@ jobs:
       - name: Stage VM image artifact
         id: vm
         run: |
-          # nixos-generators qcow outputs may use either .qcow or .qcow2.
-          VM_SOURCE="$(find -L result -type f -name '*.qcow*' | sort | head -n 1)"
+          # nixos-generators qcow outputs may use either .qcow or .qcow2, so
+          # pick the first path in deterministic lexical order if both exist.
+          VM_SOURCE="$(find -L result -type f -name '*.qcow*' | LC_ALL=C sort | head -n 1)"
           if [ -z "${VM_SOURCE}" ]; then
             echo "Unable to find a VM image artifact in ./result" >&2
             exit 1

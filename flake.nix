@@ -5,6 +5,9 @@
     # Pin the current nixos-24.05 nixpkgs revision and the current
     # nixos-generators revision directly in the flake so image builds stay
     # reproducible even without committing a generated flake.lock file.
+    # nixpkgs rev b134951... was current on the nixos-24.05 branch when this
+    # workflow was added, and nixos-generators rev 8946737... was the then-
+    # current upstream HEAD used to produce qcow images.
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-24.05&rev=b134951a4c9f3c995fd7be05f3243f8ecd65d798";
     nixos-generators.url = "git+https://github.com/nix-community/nixos-generators?rev=8946737ff703382fda7623b9fab071d037e897d5";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
@@ -64,7 +67,8 @@
 
           if [ ! -d .venv ]; then
             # Copy mode keeps the runtime environment self-contained instead of
-            # relying on symlinks back into transient build locations.
+            # relying on symlinks back into transient build locations, which is
+            # important because the app directory is materialized at runtime.
             uv sync --frozen --no-dev --link-mode copy
           fi
 
