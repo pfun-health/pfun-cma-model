@@ -35,14 +35,23 @@ export function fitModel(data: DataPoint[], opts?: FitOptions): FitResult {
 
     // Fit a PLS model to capture the glucose dynamics
     const latentVariables = opts?.latentVariables ?? 1;
-    const pls = new PLS({ latentVariables });
+    // The PLS type declaration incorrectly requires a second argument.
+    // The JavaScript implementation accepts a single options argument.
+    const pls = new (PLS as unknown as new (options: { latentVectors?: number }) => PLS)({ latentVectors: latentVariables });
     pls.train(x, y);
 
-    // Derive CMA model parameters from the fitted data characteristics
+    // Extract PLS regression coefficient to inform CMA model parameters.
+    // pls.B is the regression coefficient matrix (set by train()).
+    const coefficient = pls.B?.get(0, 0);
+    const taugHint = coefficient !== undefined && coefficient !== 0
+        ? Math.abs(coefficient) * 0.5 + 1.0
+        : 1.0;
+    const taupHint = taugHint * 1.5;
+
     const fittedModel = new CMASleepWakeModel();
     fittedModel.update({
-        taug: 1.0,
-        taup: 1.0,
+        taug: Math.min(Math.max(taugHint, 0.1), 3.0),
+        taup: Math.min(Math.max(taupHint, 0.5), 3.0),
         B: 0.05,
         N: opts?.N ?? data.length,
     });

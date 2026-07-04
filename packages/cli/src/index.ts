@@ -15,18 +15,27 @@ program.command('launch')
   .option('--host <host>', 'Host to run the application on.', '127.0.0.1')
   .option('--port <port>', 'Port to run the application on.', '8001')
   .action(async (options) => {
-      // Stub to launch the API server dynamically
       const apiPath = join(dirname(fileURLToPath(import.meta.url)), '../../api/dist/index.js');
-      console.log(`Launching API on ${options.host}:${options.port}...`);
-      await import(apiPath);
+      try {
+          console.log(`Launching API on ${options.host}:${options.port}...`);
+          await import(apiPath);
+      } catch (err) {
+          console.error('Failed to launch API server. Has it been built? Run: pnpm --filter api build');
+          process.exit(1);
+      }
   });
 
 program.command('fit-model')
   .description('Fit the model to a dataset.')
   .option('--N <number>', 'Number of time points.', '288')
   .action((options) => {
-    console.log(`Fitting model with N=${options.N}...`);
-    const model = new CMASleepWakeModel({ N: parseInt(options.N) });
+    const n = parseInt(options.N);
+    if (isNaN(n) || n < 2) {
+      console.error('N must be an integer >= 2');
+      process.exit(1);
+    }
+    console.log(`Fitting model with N=${n}...`);
+    const model = new CMASleepWakeModel({ N: n });
     model.solve();
     console.log('...wrote fitted model params to: fit_result.json');
   });
@@ -46,8 +55,18 @@ program.command('run-param-grid')
   .option('-N, --N <number>', 'Length of solutions vector', '6')
   .option('-m, --m <number>', 'Parameter grid width', '3')
   .action((options) => {
+    const n = parseInt(options.N);
+    const m = parseInt(options.m);
+    if (isNaN(n) || n < 2) {
+      console.error('N must be an integer >= 2');
+      process.exit(1);
+    }
+    if (isNaN(m) || m < 2) {
+      console.error('m must be an integer >= 2');
+      process.exit(1);
+    }
     console.log('Running parameter grid search...');
-    const grid = new PFunCMAParamsGrid({ N: parseInt(options.N), m: parseInt(options.m) });
+    const grid = new PFunCMAParamsGrid({ N: n, m: m });
     grid.run();
     console.log(`...done (saved results).`);
   });

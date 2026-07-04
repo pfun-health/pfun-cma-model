@@ -15,8 +15,22 @@ if (!existsSync(libPath)) {
 }
 
 if (!existsSync(libPath)) {
-    throw new Error(`Could not find the compiled C engine at ${libPath}. Did you run build?`);
+  throw new Error(`Could not find the compiled C engine at ${libPath}. Did you run build?`);
 }
+
+/** Expected C engine function signature for ABI compatibility checks */
+export const EXPECTED_ENGINE_SIGNATURE = {
+  name: 'run_cma_model',
+  returnType: 'void',
+  paramTypes: [
+    'const double*', 'int', 'double', 'double', 'double',
+    'const double*', 'double', 'double', 'double',
+    'const double*', 'int', 'int*', 'double',
+    'double*', 'double*', 'double*', 'double*',
+    'double*', 'double*', 'double*', 'double*'
+  ],
+  paramCount: 21
+} as const;
 
 const lib = koffi.load(libPath);
 

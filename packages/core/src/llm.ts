@@ -5,9 +5,9 @@ export interface CMAScenarioGenerationResult {
     parameters: Partial<CMAModelParams>;
 }
 
+// Keyword-based scenario generation mapping natural language to model parameters.
+// To be replaced with LLM-based generation once an API is integrated.
 export function generateScenario(query: string): CMAScenarioGenerationResult {
-    // Feature-complete implementation using an external API endpoint or dynamic processing
-    // Maintaining 1:1 mapping of parameters generated from natural language descriptions
     
     const params: Partial<CMAModelParams> = {
         d: 0.0,

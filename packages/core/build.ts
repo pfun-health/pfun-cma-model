@@ -12,5 +12,8 @@ try {
   console.log('C engine built successfully.');
 } catch (error) {
   console.error('Failed to build C engine:', error);
+  // process.exit(1) is acceptable here since this is a build script,
+  // not a reusable module. If this is ever used programmatically,
+  // consider throwing instead of exiting.
   process.exit(1);
 }

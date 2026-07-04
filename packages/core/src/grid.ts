@@ -4,8 +4,8 @@ export class PFunCMAParamsGrid {
     N: number;
     m: number;
     keys: string[];
-    collection: any[] = [];
-    pgrid: any[] = [];
+    collection: Record<string, unknown>[] = [];
+    pgrid: Record<string, number>[] = [];
 
     private readonly PARAM_RANGES: Record<string, [number, number]> = {
         taug: [0.1, 3.0],
