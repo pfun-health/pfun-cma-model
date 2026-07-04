@@ -51,7 +51,7 @@
           export UV_PROJECT_ENVIRONMENT=".venv"
 
           mkdir -p "$APP_DIR"
-          if [ ! -f "$APP_DIR/pyproject.toml" ]; then
+          if [ ! -f "$APP_DIR/pyproject.toml" ] || [ ! -f "$APP_DIR/pfun_cma_model/main.py" ]; then
             cp -R "$APP_SOURCE"/. "$APP_DIR"/
             chmod -R u+w "$APP_DIR"
           fi
@@ -59,6 +59,8 @@
           cd "$APP_DIR"
 
           if [ ! -d .venv ]; then
+            # Copy mode keeps the runtime environment self-contained instead of
+            # relying on symlinks back into transient build locations.
             uv sync --frozen --no-dev --link-mode copy
           fi
 
