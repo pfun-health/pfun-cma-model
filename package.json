@@ -1,10 +1,12 @@
 {
   "name": "pfun-cma-model",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "pfun-cma-model - Circadian Metabolic Analysis",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "pnpm -r build"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,10 @@
       "version": "^11.3.0",
       "onFail": "download"
     }
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
   },
   "type": "module"
 }

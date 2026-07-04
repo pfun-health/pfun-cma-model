@@ -1,0 +1,3 @@
+/home/robbiec/Git/pfun-cma-model/.devenv/bootstrap/bootstrapLib.nix
+/home/robbiec/Git/pfun-cma-model/.devenv/bootstrap/default.nix
+/home/robbiec/Git/pfun-cma-model/.env

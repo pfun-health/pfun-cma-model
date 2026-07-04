@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write   # needed to push version commit, create tags, and create GitHub Release
+  contents: write
 
 jobs:
   # ── 1. Run the test suite ─────────────────────────────────────────────────
@@ -16,73 +16,76 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
 
       - name: Run Tests
-        run: |
-          ./scripts/uv-full-sync.sh && \
-          ./scripts/run-tests.sh
+        run: pnpm test
 
   # ── 2. Bump version, build, and publish a GitHub Release ─────────────────
   release:
     name: Create Release
-    needs: test          # only runs if tests pass
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          # Fetch full history so that git operations (tagging, pushing) work
           fetch-depth: 0
-          # Use a PAT (stored as GH_TOKEN secret) so the push triggers downstream
-          # workflows.  Falls back to the default GITHUB_TOKEN if not set.
           token: ${{ secrets.GH_TOKEN || github.token }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: uv sync --all-extras --group dev --link-mode copy
+        run: pnpm install --frozen-lockfile
 
-      # Configure git so the version-bump commit is attributed correctly
       - name: Configure git identity
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Bump the patch version in pyproject.toml (e.g. 0.4.208 → 0.4.209)
-      - name: Bump patch version
-        run: uv version --bump patch --project pfun-cma-model
+      - name: Build all packages
+        run: pnpm -r build
 
-      # Capture the new version string for use in later steps
-      - name: Read new version
+      - name: Bump version
         id: version
         run: |
-          VERSION=$(uv version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          pnpm version patch --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
           echo "value=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Build the wheel and sdist
-      - name: Build package
-        run: uv build --no-cache --wheel --sdist
-
-      # Commit the bumped pyproject.toml and uv.lock back to main
       - name: Commit version bump
         run: |
-          git add pyproject.toml uv.lock
+          git add package.json packages/*/package.json
           git commit -m "(${{ steps.version.outputs.value }}) bump to new version. [skip ci]"
 
-      # Create a lightweight tag for the release (e.g. 0.4.209)
       - name: Create version tag
         run: git tag "${{ steps.version.outputs.value }}"
 
-      # Push the commit and the tag together
       - name: Push commit and tag
         run: |
           git push origin main
           git push origin "${{ steps.version.outputs.value }}"
 
-      # Create a GitHub Release and upload the built wheels/sdist
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -92,7 +95,6 @@ jobs:
             Automated release — patch version bump.
 
             ### Assets
-            Built wheel and source distribution are attached below.
-          files: dist/*
+            Built packages are available on the npm registry.
           draft: false
           prerelease: false

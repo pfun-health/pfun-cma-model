@@ -1,4 +1,4 @@
-import { run_cma_model } from './c_wrapper.js';
+import { runCMAModel } from './engine.js';
 import { CMAModelParams, CMAModelParamsSchema } from './cma_model_params.js';
 
 export class CMASleepWakeModel {
@@ -30,7 +30,7 @@ export class CMASleepWakeModel {
     // Ensure all TypedArrays are sized appropriately
     const tArray = new Float64Array(t);
     const tMArray = new Float64Array(tM);
-    const seedPtr = new Int32Array([seed ?? 42]);
+    const seedPtr = new Int32Array([seed ?? Math.floor(Math.random() * 100000)]);
     const out_L = new Float64Array(N);
     const out_m = new Float64Array(N);
     const out_c = new Float64Array(N);
@@ -38,15 +38,10 @@ export class CMASleepWakeModel {
     const out_I_S = new Float64Array(N);
     const out_I_E = new Float64Array(N);
     const out_G = new Float64Array(N);
-    const out_g = new Float64Array(N * tM.length); // sized by meal count from tM
+    const out_g = new Float64Array(N * tM.length);
 
-    // Safety buffer for glucose rate array (const double*).
-    // The C engine computes glucose internally when no external data is provided.
-    // A zero-filled buffer prevents segfault if the C function dereferences the pointer.
-    const glucoseBuffer = new Float64Array(N);
-
-    run_cma_model(
-      tArray, N, d, taup, taug, glucoseBuffer, B, Cm, toff,
+    runCMAModel(
+      tArray, N, d, taup, taug, null, B, Cm, toff,
       tMArray, tM.length, seedPtr, eps,
       out_L, out_m, out_c, out_a, out_I_S, out_I_E, out_G, out_g
     );
@@ -60,7 +55,6 @@ export class CMASleepWakeModel {
       I_S: Array.from(out_I_S),
       I_E: Array.from(out_I_E),
       G: Array.from(out_G),
-      g: Array.from(out_g)
     };
   }
 }

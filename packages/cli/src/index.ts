@@ -87,4 +87,8 @@ program.command('benchmark')
       console.log('Results saved to benchmark output');
   });
 
-program.parse(process.argv);
+// Only auto-parse when executed directly (not when imported by tests)
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isDirectRun) {
+  program.parse(process.argv);
+}

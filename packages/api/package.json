@@ -5,7 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "core": "workspace:*",
@@ -23,6 +24,7 @@
     "@types/node": "^20.19.43",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.0"
   }
 }

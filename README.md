@@ -69,97 +69,38 @@ A few pithy one-liners:
 | Cm        | 0.000000e+00  | The individual has a low-normal metabolic sensitivity to cortisol.             |
 | toff      | 0.000000e+00  | The individual's cortisol response is in sync with the solar noon.             |
 
-## Development notes
+## Development
 
-- Using `uv` for super fast dependency management, intuitive CLI, and ezpz publishing to pypi.
+### Prerequisites
+- Node.js 22+
+- pnpm 11+
 
-### Usage notes
-
-#### `nix`, `devenv`
-
-##
-
-	# https://devenv.sh/guides/using-with-flakes/#entering-the-shell
-	nix develop --no-pure-eval
-
-
-#### (dashlane) Inject secrets to create `.env`
+### Setup
 
 ```bash
+# Install dependencies
+pnpm install
 
-# NOTE: only works if you have dcli (the dashlane CLI) installed locally
-$ ./scripts/inject-secrets-env.sh
-
+# Build all packages
+pnpm build
 ```
 
-### Convert `docker-compose.yml` to Helm Chart
+### Run Tests
 
-##
+```bash
+pnpm test
+```
 
-	# convert docker-compose.yml to a Helm Chart (for kubernetes)
-	\# kompose convert -c -o pfun-cma-model-chart
-	...
-	
-	# build a binary helm chart package (ready for deployment)
-	\# helm package pfun-cma-model-chart --destination dist/pfun-cma-model-chart
-	...
-	
-	# install the helm chart
-	\# helm install pfun-cma-model-chart -f dist/pfun-cma-model-chart-<VERSION>.tgz
-	...
+### Development
 
-### (containerized) `docker-compose` environment
+```bash
+# Watch mode for tests
+pnpm test:watch
+```
 
-#### Complete rebuild & launch
+### Package Structure
 
-##
-
-	docker compose up -d \
-		--build \
-		--renew-anon-volumes \
-		--remove-orphans
-
-	# ...or with the convenience script:
-	./scripts/full-rebuild.sh
-
-#### (Nix) `devenv shell`
-
-##
-
-    # Enter the devenv shell environment (see flake.nix)
-    devenv shell
-    ...
-
-### (local) `uv` Python Dev environment
-
-#### Debugging the app locally (run as a local FastAPI server)
-
-##
-
-	# Run using fastapi development server
-	$ uv run fastapi dev pfun_cma_model/app.py --port 8001
-
-	# Alternatively, use the convenience script
-	$ scripts/serve-dev.sh
-
-
-## Interact with the app via CLI
-
-##
-
-	$ pfun-cma-model generate-scenario --query 'a healthy individual with a tendency to sleep in.'
-	{
-		"qualitative_description": "This individual is a healthy young adult who is a natural 'night owl'. They have a delayed sleep phase, meaning they tend to go to bed late, around 2:00 AM, and wake up late in the morning, typically after 10:00 AM. Their meal schedule is shifted accordingly, with 'breakfast' often being eaten closer to noon. They are otherwise healthy, with a stable diet and regular activity levels, but their entire daily rhythm, including their natural cortisol cycle, is pushed back by several hours compared to someone with a more conventional sleep schedule.",
-    "parameters": {
-        "toff": 2.5,
-        "d": 0,
-        "taup": 1,
-        "taug": 1,
-        "B": 0.05,
-        "Cm": 0
-		}
-	}
-
-	# fit the CMA model using partial least squares, plot the results
-	$ uv run pfun-cma-model run-fit-model --plot
+- `packages/core` - Core CMA model logic
+- `packages/api` - API server
+- `packages/cli` - CLI tool
 

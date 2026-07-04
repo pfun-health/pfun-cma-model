@@ -1,5 +1,4 @@
 packages:
   - "packages/*"
-  - "pfun-cma-engine-c"
 allowBuilds:
   esbuild: false
