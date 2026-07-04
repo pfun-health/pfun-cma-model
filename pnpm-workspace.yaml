@@ -2,6 +2,4 @@ packages:
   - "packages/*"
   - "pfun-cma-engine-c"
 allowBuilds:
-  duckdb: false
   esbuild: false
-  koffi: false

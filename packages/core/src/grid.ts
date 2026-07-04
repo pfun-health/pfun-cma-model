@@ -4,7 +4,6 @@ export class PFunCMAParamsGrid {
     N: number;
     m: number;
     keys: string[];
-    include_mealtimes: boolean;
     collection: any[] = [];
     pgrid: any[] = [];
 
@@ -17,12 +16,11 @@ export class PFunCMAParamsGrid {
         toff: [-3.0, 3.0]
     };
 
-    constructor(options: { N?: number, m?: number, keys?: string[], include_mealtimes?: boolean } = {}) {
+    constructor(options: { N?: number, m?: number, keys?: string[] } = {}) {
         this.N = options.N ?? 6;
-        this.m = options.m ?? 3;
+        this.m = Math.max(2, options.m ?? 3);
         this.keys = options.keys ?? ["taug", "taup", "B", "Cm"];
-        this.include_mealtimes = options.include_mealtimes ?? true;
-        
+
         // Dynamically build the parameter grid based on m span and requested keys
         this.buildGrid();
     }

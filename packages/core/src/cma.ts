@@ -23,7 +23,9 @@ export class CMASleepWakeModel {
 
   solve(): void {
     const { N, d, taup, taug, B, Cm, toff, tM, seed, eps } = this._params;
-    const t = this._params.t || Array.from({ length: N }, (_, i) => i * (24.0 / (N - 1)));
+    const t = (this._params.t && this._params.t.length > 0)
+        ? this._params.t
+        : Array.from({ length: N }, (_, i) => i * (24.0 / (N - 1)));
 
     // Ensure all TypedArrays are sized appropriately
     const tArray = new Float64Array(t);
@@ -38,6 +40,9 @@ export class CMASleepWakeModel {
     const out_G = new Float64Array(N);
     const out_g = new Float64Array(N * tM.length); // assuming 3 meals
 
+    // The 6th argument (glucose rate) is passed as null because the C engine
+    // computes it internally from the meal schedule; we don't need to provide
+    // an external glucose infusion profile for the standard solver path.
     run_cma_model(
       tArray, N, d, taup, taug, null, B, Cm, toff,
       tMArray, tM.length, seedPtr, eps,
@@ -52,7 +57,8 @@ export class CMASleepWakeModel {
       A: Array.from(out_a),
       I_S: Array.from(out_I_S),
       I_E: Array.from(out_I_E),
-      G: Array.from(out_G)
+      G: Array.from(out_G),
+      g: Array.from(out_g)
     };
   }
 }

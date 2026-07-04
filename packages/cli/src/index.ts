@@ -10,12 +10,6 @@ program
   .description('Command line interface for the pfun-cma-model package.')
   .version('1.0.0');
 
-program.command('version')
-  .description('Print the version of the pfun-cma-model package.')
-  .action(() => {
-    console.log(`pfun-cma-model version: 1.0.0`);
-  });
-
 program.command('launch')
   .description('Launch the application.')
   .option('--host <host>', 'Host to run the application on.', '127.0.0.1')
@@ -40,9 +34,9 @@ program.command('fit-model')
 program.command('generate-scenario')
   .description('Generate a realistic pfun scenario.')
   .option('--query <query>', 'Specify a query describing the desired scenario.', 'A healthy individual.')
-  .action(async (options) => {
+  .action((options) => {
     console.log(`Generating a scenario from prompt:\n\t'${options.query.substring(0, 20)}...'`);
-    const result = await generateScenario(options.query);
+    const result = generateScenario(options.query);
     console.log(JSON.stringify(result, null, 4));
     console.log('...successfully saved result to the database.');
   });

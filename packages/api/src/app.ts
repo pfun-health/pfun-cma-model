@@ -2,11 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { CMASleepWakeModel, CMAModelParamsSchema } from 'core';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:8001',
+    methods: ['GET', 'POST']
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -50,12 +55,15 @@ app.post('/model/run-at-time/stream', (req, res) => {
     }
 });
 
+// Global error handler — must be registered after all routes
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
+
 export default app;
 
 // Serve static assets and templates
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

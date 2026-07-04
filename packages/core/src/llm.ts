@@ -5,7 +5,7 @@ export interface CMAScenarioGenerationResult {
     parameters: Partial<CMAModelParams>;
 }
 
-export async function generateScenario(query: string): Promise<CMAScenarioGenerationResult> {
+export function generateScenario(query: string): CMAScenarioGenerationResult {
     // Feature-complete implementation using an external API endpoint or dynamic processing
     // Maintaining 1:1 mapping of parameters generated from natural language descriptions
     

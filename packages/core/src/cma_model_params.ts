@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CMAModelParamsSchema = z.object({
   t: z.array(z.number()).nullable().default(null),
-  N: z.number().int().default(24),
+  N: z.number().int().min(2).default(24),
   d: z.number().default(0.0),
   taup: z.number().default(1.0),
   taug: z.number().default(1.0),
