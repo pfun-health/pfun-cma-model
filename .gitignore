@@ -1,3 +1,5 @@
+certs/*
+
 # Dependencies
 node_modules/
 .pnp
