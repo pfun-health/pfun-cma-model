@@ -46,7 +46,7 @@ export function createDexcomRoutes(config: AppConfig): Hono {
 
       if (!tokenRes.ok) {
         const errData = await tokenRes.json().catch(() => ({}));
-        return c.json({ detail: errData }, tokenRes.status as 400);
+        return c.json({ detail: errData }, (tokenRes.status >= 400 && tokenRes.status < 600 ? tokenRes.status : 500) as 400);
       }
 
       const data = (await tokenRes.json()) as {
@@ -102,7 +102,7 @@ export function createDexcomRoutes(config: AppConfig): Hono {
         { headers: { Authorization: authHeader } },
       );
       const data = await res.json();
-      return c.json(data, res.status as 200);
+      return c.json(data, 200);
     } catch (err) {
       return c.json({ detail: "Failed to fetch EGVs", error: String(err) }, 500);
     }
@@ -124,7 +124,7 @@ export function createDexcomRoutes(config: AppConfig): Hono {
         headers: { Authorization: authHeader },
       });
       const data = await res.json();
-      return c.json(data, res.status as 200);
+      return c.json(data, 200);
     } catch (err) {
       return c.json({ detail: "Failed to fetch devices", error: String(err) }, 500);
     }

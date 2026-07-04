@@ -143,10 +143,8 @@ export function createApp() {
 }
 
 // Main entry point
-if (
-  process.argv[1] &&
-  (process.argv[1].endsWith("index.ts") || process.argv[1].endsWith("index.js"))
-) {
+const isMainModule = process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/^.*[\\/]/, ""));
+if (isMainModule) {
   const { app, config } = createApp();
 
   const server = serve(
