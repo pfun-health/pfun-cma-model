@@ -28,19 +28,18 @@ jobs:
       - name: Resolve image metadata
         id: meta
         run: |
-          eval "$(python - <<'PY'
+          python - <<'PY'
           import pathlib
           import tomllib
+          import os
 
           data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
-          print(f"IMAGE_NAME={data['project']['name']}")
-          print(f"VERSION={data['project']['version']}")
+          owner = os.environ["GITHUB_REPOSITORY_OWNER"]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"image_name={data['project']['name']}\n")
+              fh.write(f"version={data['project']['version']}\n")
+              fh.write(f"image_base=ghcr.io/{owner}/{data['project']['name']}\n")
           PY
-          )"
-          IMAGE_BASE="ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}"
-          echo "image_name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "image_base=${IMAGE_BASE}" >> "$GITHUB_OUTPUT"
 
       - name: Build OCI image
         run: nix build .#oci-image
@@ -70,7 +69,7 @@ jobs:
       - name: Stage VM image artifact
         id: vm
         run: |
-          VM_SOURCE="$(find -L result -type f \( -name '*.qcow2' -o -name '*.qcow' -o -name '*.img' \) | sort | head -n 1)"
+          VM_SOURCE="$(find -L result -type f \( -name '*.qcow2' -o -name '*.qcow' \) | sort | head -n 1)"
           if [ -z "${VM_SOURCE}" ]; then
             echo "Unable to find a VM image artifact in ./result" >&2
             exit 1

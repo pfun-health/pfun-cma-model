@@ -2,7 +2,8 @@
   description = "Nix deployment artifacts for pfun-cma-model";
 
   inputs = {
-    # Pin both upstream flakes to immutable Git revisions so image builds stay
+    # Pin the current nixos-24.05 nixpkgs revision and the current
+    # nixos-generators revision directly in the flake so image builds stay
     # reproducible even without committing a generated flake.lock file.
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-24.05&rev=b134951a4c9f3c995fd7be05f3243f8ecd65d798";
     nixos-generators.url = "git+https://github.com/nix-community/nixos-generators?rev=8946737ff703382fda7623b9fab071d037e897d5";
