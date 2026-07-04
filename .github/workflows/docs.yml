@@ -24,7 +24,7 @@ jobs:
             experimental-features = nix-command flakes
       - name: Build site with Nix
         run: |
-          nix shell nixpkgs#python312 nixpkgs#uv --command bash -lc '
+          nix shell nixpkgs#python312 nixpkgs#uv --command bash -c '
             uv sync --group docs --link-mode copy
             uv run zensical build --clean
           '
