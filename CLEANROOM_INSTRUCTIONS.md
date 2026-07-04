@@ -4,6 +4,8 @@
 
 Build a TypeScript service that is **functionally equivalent** to the `origin/main` FastAPI API in this repository.
 
+Parity reference snapshot: `origin/main` @ `<COMMIT_SHA>` (captured `<YYYY-MM-DD>`). Update this document whenever the parity target changes.
+
 Compatibility target:
 - Same externally reachable routes, route groups, and HTTP methods
 - Same request/response shapes and media types
