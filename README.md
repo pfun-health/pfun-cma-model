@@ -457,45 +457,317 @@ serve({
 
 ## Usage — CLI
 
-The CLI exposes several commands for interacting with the model:
+The `cli` package provides a Commander-based command-line interface for the
+pfun-cma-model project. It exposes commands for launching the API server,
+fitting the sleep-wake model, generating metabolic scenarios, running
+parameter grid searches, downloading sample data, and benchmarking.
+
+The CLI can be invoked either via `pnpm --filter cli start` (after building)
+or, if the package binary is linked, directly as `pfun-cma-model`.
+
+### Prerequisites
+
+The CLI depends on both `@pfun/core` and `@pfun/api`. These must be built
+before the CLI will function correctly:
 
 ```bash
-# See available commands
+pnpm --filter core build
+pnpm --filter api build
+pnpm --filter cli build
+```
+
+### Building the CLI
+
+```bash
+pnpm --filter cli build
+```
+
+This compiles the TypeScript source from `packages/cli/src/` to
+`packages/cli/dist/` using the project's `tsconfig.json` (target ES2022).
+The output is ESM-compatible (`"type": "module"` in package.json).
+
+### Running the CLI
+
+**Via pnpm (recommended during development):**
+
+```bash
 pnpm --filter cli start --help
+pnpm --filter cli start <command> [options]
+```
 
-# Launch the API server
-pnpm --filter cli start launch --port 8001
+**Globally via the linked binary:**
 
-# Fit the model to data (runs default simulation)
-pnpm --filter cli start fit-model --N 288
+If the package has been linked with `pnpm link --global` or installed from a
+registry, the `pfun-cma-model` binary is available directly:
 
-# Generate a scenario
-pnpm --filter cli start generate-scenario --query "night owl with diabetes"
+```bash
+pfun-cma-model --help
+pfun-cma-model <command> [options]
+```
 
-# Run a parameter grid search
-pnpm --filter cli start run-param-grid --N 24 --m 3
+---
 
-# Benchmark the model
+### Command Reference
+
+#### `launch`
+
+Start the HTTP API server.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--host <host>` | string | `127.0.0.1` | Host address to bind the server to. |
+| `--port <port>` | string | `8001` | Port number to listen on. |
+
+**How it works:** The command dynamically imports the `@pfun/api` package's
+compiled entry point (`../../api/dist/index.js` relative to the CLI dist
+directory) at runtime. This avoids a hard compile-time dependency on the API
+server — the API only needs to be present and built when `launch` is actually
+invoked.
+
+**Usage:**
+
+```bash
+pnpm --filter cli start launch --port 8080 --host 0.0.0.0
+```
+
+**Error handling:** If the dynamic import fails (e.g., `@pfun/api` has not
+been built), the command prints a descriptive message and exits with code 1:
+
+```
+Failed to launch API server. Has it been built? Run: pnpm --filter api build
+```
+
+---
+
+#### `fit-model`
+
+Fit the CMA sleep-wake model to a dataset.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--N <number>` | integer (parsed) | `288` | Number of time points. Must be an integer >= 2. |
+
+**How it works:** Parses and validates `--N`, then instantiates a
+`CMASleepWakeModel` with `{ N: n }` and calls `.solve()`. The 288 default
+corresponds to 5-minute intervals across a 24-hour period.
+
+**Usage:**
+
+```bash
+pnpm --filter cli start fit-model --N 576
+```
+
+**Error handling:** If `--N` is not a valid integer or is less than 2, the
+command prints `N must be an integer >= 2` to stderr and exits with code 1.
+
+**Example output:**
+
+```
+Fitting model with N=288...
+...wrote fitted model params to: fit_result.json
+```
+
+---
+
+#### `generate-scenario`
+
+Generate a realistic pfun (phenotype-function) metabolic scenario from a text
+prompt.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--query <query>` | string | `A healthy individual.` | Natural-language description of the scenario. |
+
+**How it works:** Calls the `generateScenario()` function from `@pfun/core`
+with the provided query string, then prints the result as formatted JSON and
+reports database persistence.
+
+**Usage:**
+
+```bash
+pnpm --filter cli start generate-scenario --query "night owl with type 2 diabetes"
+```
+
+**Note:** The status message truncates the query to 20 characters for display:
+
+```
+Generating a scenario from prompt:
+	'night owl with type 2...'
+```
+
+**Example output:**
+
+```json
+{
+  "labels": ["Sleep", "Wake", "Exercise"],
+  "values": [0.15, 0.7, 0.15],
+  "description": "A healthy individual."
+}
+```
+
+---
+
+#### `run-param-grid`
+
+Run a parameter grid search over the PFun CMA model solution space.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `-N, --N <number>` | integer (parsed) | `6` | Length of the solutions vector. Must be >= 2. |
+| `-m, --m <number>` | integer (parsed) | `3` | Grid width (granularity). Must be >= 2. |
+
+**How it works:** Creates a `PFunCMAParamsGrid` instance with `{ N, m }` and
+calls `.run()` to execute the grid search. Both values are validated as
+integers >= 2 before construction.
+
+**Usage:**
+
+```bash
+pnpm --filter cli start run-param-grid --N 24 --m 5
+```
+
+**Error handling:** Independently validates both `-N` and `-m`. If either is
+not a valid integer or is less than 2, the command prints the corresponding
+error message (`N must be an integer >= 2` or `m must be an integer >= 2`) to
+stderr and exits with code 1.
+
+**Example output:**
+
+```
+Running parameter grid search...
+...done (saved results).
+```
+
+---
+
+#### `download-sample-data`
+
+Download sample data for the pfun-cma-model package.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| *(none)* | | | No options available. |
+
+**How it works:** Prints a status message indicating that sample data is
+being downloaded. Currently a stub implementation that simulates downloading
+to `sample_data.csv`.
+
+**Usage:**
+
+```bash
+pnpm --filter cli start download-sample-data
+```
+
+**Example output:**
+
+```
+Downloading sample data for the pfun-cma-model package...
+...sample data downloaded to: sample_data.csv
+```
+
+---
+
+#### `benchmark`
+
+Run performance benchmarks on the CMA sleep-wake model.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| *(none)* | | | No options available. |
+
+**How it works:** Instantiates a default `CMASleepWakeModel` (no arguments,
+uses the internal default for `N`) and calls `.solve()`, then prints a
+confirmation message.
+
+**Usage:**
+
+```bash
 pnpm --filter cli start benchmark
 ```
 
-If the CLI package is linked globally or installed:
+**Example output:**
 
-```bash
-pfun-cma-model launch --port 8001
-pfun-cma-model generate-scenario --query "healthy individual"
+```
+Running benchmarks...
+Results saved to benchmark output
 ```
 
-### Available commands
+---
 
-| Command | Description | Key Options |
-|---|---|---|
-| `launch` | Start the API server | `--host`, `--port` |
-| `fit-model` | Fit model to a dataset | `--N` (time points) |
-| `generate-scenario` | Generate a metabolic scenario | `--query` |
-| `run-param-grid` | Run grid search | `-N`, `-m` (grid width) |
-| `download-sample-data` | Download sample data | — |
-| `benchmark` | Run performance benchmarks | — |
+### Programmatic Usage
+
+The CLI module can be imported without triggering automatic argument parsing.
+This is useful for tests and for embedding the CLI in larger scripts:
+
+```typescript
+// Import the module — no side effects
+const cli = await import('cli');
+// Parse manually when needed:
+// cli.program.parse(['node', 'entry', '--help']);
+```
+
+This is achieved via the import guard at the bottom of `src/index.ts`:
+
+```typescript
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isDirectRun) {
+  program.parse(process.argv);
+}
+```
+
+The guard compares the current module's file path (resolved via
+`import.meta.url`) against `process.argv[1]` — the entry point of the running
+process. When the module is loaded as a library via `import()`, the paths
+differ and `program.parse()` is never called.
+
+---
+
+### Architecture Notes
+
+- **Dependency chain:** `cli` → `@pfun/api` → `@pfun/core`. The `launch`
+  command uses a dynamic `import()` to load the API at runtime, while
+  `fit-model`, `generate-scenario`, `run-param-grid`, and `benchmark` use
+  direct imports from `@pfun/core`.
+- **Path resolution:** Because the package is ESM, it uses
+  `fileURLToPath(import.meta.url)` combined with `dirname` and `join` to
+  resolve sibling package paths at runtime (e.g., finding `../../api/dist/`
+  relative to the CLI dist directory).
+- **Commander pattern:** Commands are defined with a fluent
+  `.command().description().option().action()` chain. All commands use
+  `console.log` / `console.error` for I/O and call `process.exit(1)` on
+  fatal errors.
+- **Build output:** TypeScript is compiled to ESM (`dist/index.js`) with
+  `moduleResolution: "bundler"`, compatible with Node.js ESM imports.
+- **Zod dependency:** Although `zod` is listed as a dependency, it is
+  available for future validation enhancements; the current commands use
+  manual `parseInt` with guard clauses.
+
+### Testing
+
+CLI tests are written with **Vitest** and live in
+`packages/cli/src/__tests__/cli.test.ts`.
+
+```bash
+pnpm --filter cli test
+```
+
+The test suite verifies:
+
+- The module can be imported as an ES module without errors (the import guard
+  prevents accidental command parsing during import).
+
+Currently one test is defined:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+describe('CLI Package', () => {
+  it('should export the CLI entry point as an ES module', async () => {
+    const cli = await import('../index.js');
+    expect(cli).toBeDefined();
+  });
+});
+```
 
 ---
 
