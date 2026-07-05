@@ -15,3 +15,28 @@ export const CMAModelParamsSchema = z.object({
 });
 
 export type CMAModelParams = z.infer<typeof CMAModelParamsSchema>;
+
+/** Default parameter values as a plain object. */
+export const CMAModelParamsDefaults: CMAModelParams = {
+  t: null,
+  N: 24,
+  d: 0.0,
+  taup: 1.0,
+  taug: 1.0,
+  B: 0.05,
+  Cm: 0.0,
+  toff: 0.0,
+  tM: [7.0, 11.0, 17.5],
+  seed: null,
+  eps: 1e-18,
+};
+
+/** Array of all parameter keys. */
+export const CMAModelParamsKeys: (keyof CMAModelParams)[] = Object.keys(
+  CMAModelParamsSchema.shape,
+) as (keyof CMAModelParams)[];
+
+/** Returns the default model parameters. */
+export function getCMADefaultParams(): CMAModelParams {
+  return { ...CMAModelParamsDefaults };
+}
