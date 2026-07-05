@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { CMASleepWakeModel, PFunCMAParamsGrid, generateScenario } from 'core';
+import { CMASleepWakeModel, PFunCMAParamsGrid, generateScenario } from '@pfun/core';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
