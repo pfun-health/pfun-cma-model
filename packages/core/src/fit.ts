@@ -1,66 +1,118 @@
-import { PLS } from 'ml-pls';
-import { CMASleepWakeModel } from './cma.js';
-import { CMAModelParams } from './cma_model_params.js';
+/**
+ * Model fitting via least-squares optimization.
+ * Clean-room implementation.
+ */
 
-export interface DataPoint {
-    t?: number;
-    G?: number;
-    [key: string]: unknown;
+import { CMASleepWakeModel } from "./model.js";
+import {
+  CMAModelParams,
+  CMAModelParamsSchema,
+  BOUNDED_PARAM_KEYS,
+  BOUNDED_PARAM_LB,
+  BOUNDED_PARAM_UB,
+  type BoundedParamKey,
+} from "./params.js";
+import { linspace } from "./calc.js";
+
+export interface CMAFitResult {
+  params: CMAModelParams;
+  residual: number;
+  iterations: number;
+  success: boolean;
+  message: string;
 }
 
-export interface FitOptions {
-    N?: number;
-    latentVariables?: number;
-    [key: string]: unknown;
-}
+/**
+ * Simple Nelder-Mead-like optimizer for fitting model params.
+ */
+export function fitModel(
+  data: { t: number[]; G: number[] },
+  config?: Partial<CMAModelParams>,
+  maxIter: number = 200,
+  tol: number = 1e-6,
+): CMAFitResult {
+  const baseParams = CMAModelParamsSchema.parse(config ?? {});
+  const model = new CMASleepWakeModel(baseParams);
 
-export interface FitResult {
-    formatted_data: DataPoint[];
-    model_params: CMAModelParams;
-    model_dump_json: () => string;
-}
+  // We optimize only bounded parameters
+  const keys = [...BOUNDED_PARAM_KEYS];
+  let x = keys.map((k) => baseParams[k] as number);
 
-export function fitModel(data: DataPoint[], opts?: FitOptions): FitResult {
-    if (!data || data.length === 0) {
-        throw new Error("Cannot fit model on empty dataset.");
-    }
-
-    // Extract time and glucose values from input data
-    const t_values = data.map((d: DataPoint) => d.t ?? 0);
-    const g_values = data.map((d: DataPoint) => d.G ?? 0);
-
-    // Prepare regression tensors: time as predictor, glucose as response
-    const x = t_values.map((val: number) => [val]);
-    const y = g_values.map((val: number) => [val]);
-
-    // Fit a PLS model to capture the glucose dynamics
-    const latentVariables = opts?.latentVariables ?? 1;
-    // The PLS type declaration incorrectly requires a second argument.
-    // The JavaScript implementation accepts a single options argument.
-    const pls = new (PLS as unknown as new (options: { latentVectors?: number }) => PLS)({ latentVectors: latentVariables });
-    pls.train(x, y);
-
-    // Extract PLS regression coefficient to inform CMA model parameters.
-    // pls.B is the regression coefficient matrix (set by train()).
-    const coefficient = pls.B?.get(0, 0);
-    const taugHint = coefficient !== undefined && coefficient !== 0
-        ? Math.abs(coefficient) * 0.5 + 1.0
-        : 1.0;
-    const taupHint = taugHint * 1.5;
-
-    const fittedModel = new CMASleepWakeModel();
-    fittedModel.update({
-        taug: Math.min(Math.max(taugHint, 0.1), 3.0),
-        taup: Math.min(Math.max(taupHint, 0.5), 3.0),
-        B: 0.05,
-        N: opts?.N ?? data.length,
+  // Objective: sum of squared residuals between model G and data G
+  function objective(params: number[]): number {
+    const updates: Partial<CMAModelParams> = {};
+    keys.forEach((k, i) => {
+      (updates as Record<string, number>)[k] = clampParam(k, params[i]);
     });
 
-    fittedModel.solve();
+    const m = new CMASleepWakeModel({ ...baseParams, ...updates });
+    const results = m.runAtTime(
+      Math.min(...data.t),
+      Math.max(...data.t),
+      data.t.length,
+    );
 
-    return {
-        formatted_data: data,
-        model_params: fittedModel.params,
-        model_dump_json: () => JSON.stringify(fittedModel.params),
-    };
+    let sse = 0;
+    for (let i = 0; i < data.G.length; i++) {
+      const predicted = parseFloat(results[i]?.y ?? "0");
+      sse += Math.pow(data.G[i] - predicted, 2);
+    }
+    return sse;
+  }
+
+  // Simple coordinate descent optimization
+  let bestCost = objective(x);
+  let improved = true;
+  let iter = 0;
+
+  while (improved && iter < maxIter) {
+    improved = false;
+    iter++;
+
+    for (let i = 0; i < keys.length; i++) {
+      const lb = BOUNDED_PARAM_LB[keys[i]];
+      const ub = BOUNDED_PARAM_UB[keys[i]];
+      const stepSize = (ub - lb) * 0.05 * Math.pow(0.95, iter);
+
+      // Try positive step
+      const xPlus = [...x];
+      xPlus[i] = clampParam(keys[i], x[i] + stepSize);
+      const costPlus = objective(xPlus);
+
+      if (costPlus < bestCost - tol) {
+        x = xPlus;
+        bestCost = costPlus;
+        improved = true;
+        continue;
+      }
+
+      // Try negative step
+      const xMinus = [...x];
+      xMinus[i] = clampParam(keys[i], x[i] - stepSize);
+      const costMinus = objective(xMinus);
+
+      if (costMinus < bestCost - tol) {
+        x = xMinus;
+        bestCost = costMinus;
+        improved = true;
+      }
+    }
+  }
+
+  const finalParams: Partial<CMAModelParams> = { ...baseParams };
+  keys.forEach((k, i) => {
+    (finalParams as Record<string, number>)[k] = x[i];
+  });
+
+  return {
+    params: CMAModelParamsSchema.parse(finalParams),
+    residual: bestCost,
+    iterations: iter,
+    success: bestCost < tol || iter < maxIter,
+    message: improved ? "Converged" : "Optimization completed (no further improvement)",
+  };
+}
+
+function clampParam(key: BoundedParamKey, value: number): number {
+  return Math.max(BOUNDED_PARAM_LB[key], Math.min(BOUNDED_PARAM_UB[key], value));
 }

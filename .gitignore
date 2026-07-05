@@ -43,3 +43,4 @@ ses-*.md
 
 # TypeScript
 *.tsbuildinfo
+packages/api/node_modules/

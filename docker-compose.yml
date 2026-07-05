@@ -1,0 +1,34 @@
+services:
+  # pfun-cma-model fastapi backend
+  pfun-cma-model:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "nonroot:nonroot"
+    env_file: .env
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - UVICORN_RELOAD=false
+      - USER=nonroot
+      - GROUP=nonroot
+    container_name: pfun-cma-model
+    ports:
+      - "8001:8001"
+    depends_on:
+      - ollama
+    command: ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
+
+  # docker-accessible ollama server
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+# project-level volumes
+volumes:
+  ollama_data:
