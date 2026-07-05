@@ -206,6 +206,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      pfun-cma-model:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       typescript:
         specifier: ^5.7.0
