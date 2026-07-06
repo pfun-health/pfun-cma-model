@@ -21,9 +21,9 @@ on:
         type: environment
         required: false
   push:
-    branches: [main]
+    branches: [typescript-rewrite]
   pull_request:
-    branches: [main]
+    branches: [typescript-rewrite]
 
 jobs:
   test:

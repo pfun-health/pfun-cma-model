@@ -28,34 +28,45 @@ jobs:
       - name: Resolve image metadata
         id: meta
         run: |
-          python3 - <<'PY'
-          import os
-          import pathlib
-          import tomllib
+          node - <<'JS'
+          const fs = require('fs');
+          const path = require('path');
 
-          try:
-              owner = os.environ["GITHUB_REPOSITORY_OWNER"]
-              output_path = os.environ["GITHUB_OUTPUT"]
-          except KeyError as exc:
-              raise SystemExit(f"Missing required GitHub Actions environment variable: {exc.args[0]}") from exc
+          try {
+              const owner = process.env.GITHUB_REPOSITORY_OWNER;
+              const outputPath = process.env.GITHUB_OUTPUT;
+              
+              if (!owner || !outputPath) {
+                  console.error("Missing required GitHub Actions environment variables.");
+                  process.exit(1);
+              }
 
-          try:
-              data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
-              project = data["project"]
-              image_name = project["name"]
-              version = project["version"]
-          except FileNotFoundError as exc:
-              raise SystemExit("pyproject.toml is required to resolve image metadata.") from exc
-          except tomllib.TOMLDecodeError as exc:
-              raise SystemExit(f"pyproject.toml is not valid TOML: {exc}") from exc
-          except KeyError as exc:
-              raise SystemExit(f"Missing required project metadata key in pyproject.toml: {exc.args[0]}") from exc
+              const data = fs.readFileSync(path.resolve('package.json'), 'utf8');
+              const pkg = JSON.parse(data);
+              
+              if (!pkg.name || !pkg.version) {
+                  console.error("Missing required keys ('name' or 'version') in package.json.");
+                  process.exit(1);
+              }
 
-          with open(output_path, "a", encoding="utf-8") as fh:
-              fh.write(f"image_name={image_name}\n")
-              fh.write(f"version={version}\n")
-              fh.write(f"image_base=ghcr.io/{owner}/{image_name}\n")
-          PY
+              // Strip npm scope if present (e.g., "@myorg/my-vite-app" -> "my-vite-app")
+              const imageName = pkg.name.split('/').pop();
+              const version = pkg.version;
+
+              fs.appendFileSync(outputPath, `image_name=${imageName}\n`);
+              fs.appendFileSync(outputPath, `version=${version}\n`);
+              fs.appendFileSync(outputPath, `image_base=ghcr.io/${owner}/${imageName}\n`);
+          } catch (err) {
+              if (err.code === 'ENOENT') {
+                  console.error("package.json is required to resolve image metadata.");
+              } else if (err instanceof SyntaxError) {
+                  console.error(`package.json is not valid JSON: ${err.message}`);
+              } else {
+                  console.error(`Error resolving metadata: ${err.message}`);
+              }
+              process.exit(1);
+          }
+          JS
 
       - name: Build OCI image
         run: nix build .#oci-image
@@ -94,14 +105,15 @@ jobs:
             echo "Unable to find a VM image artifact in ./result" >&2
             exit 1
           fi
-          VM_TARGET="pfun-cma-model-${{ steps.meta.outputs.version }}.qcow2"
+          # Using dynamic image name instead of hardcoded prefix
+          VM_TARGET="${{ steps.meta.outputs.image_name }}-${{ steps.meta.outputs.version }}.qcow2"
           cp "${VM_SOURCE}" "${VM_TARGET}"
           echo "artifact=${VM_TARGET}" >> "$GITHUB_OUTPUT"
 
       - name: Upload VM image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pfun-cma-model-vm-image
+          name: ${{ steps.meta.outputs.image_name }}-vm-image
           path: ${{ steps.vm.outputs.artifact }}
 
       - name: Attach VM image to GitHub Release

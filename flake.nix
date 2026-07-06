@@ -1,13 +1,7 @@
 {
-  description = "Nix deployment artifacts for pfun-cma-model";
+  description = "Nix deployment artifacts for Vite application";
 
   inputs = {
-    # Pin the current nixos-24.05 nixpkgs revision and the current
-    # nixos-generators revision directly in the flake so image builds stay
-    # reproducible even without committing a generated flake.lock file.
-    # nixpkgs rev b134951... was current on the nixos-24.05 branch when this
-    # workflow was added, and nixos-generators rev 8946737... was the then-
-    # current upstream HEAD used to produce qcow images.
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-24.05&rev=b134951a4c9f3c995fd7be05f3243f8ecd65d798";
     nixos-generators.url = "git+https://github.com/nix-community/nixos-generators?rev=8946737ff703382fda7623b9fab071d037e897d5";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
@@ -23,81 +17,76 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
-      appName = pyproject.project.name;
-      appVersion = pyproject.project.version;
-      appModule = builtins.replaceStrings [ "-" ] [ "_" ] appName;
-      defaultAppDir = "/var/lib/pfun-cma-model";
-      sourceTree = builtins.path {
-        path = ./.;
-        name = "${appName}-source-tree";
-      };
-      appSource = pkgs.runCommand "${appName}-source" { } ''
-        mkdir -p "$out"
-        cp -R ${sourceTree}/. "$out/"
-        chmod -R u+w "$out"
-      '';
-      runtimeInputs = [
-        pkgs.bash
-        pkgs.coreutils
-        pkgs.git
-        pkgs.gnumake
-        pkgs.pkg-config
-        pkgs.portaudio
-        pkgs.python312
-        pkgs.stdenv.cc.cc
-        pkgs.uv
-      ];
-      startScript = pkgs.writeShellApplication {
-        name = "start-pfun-cma-model";
-        inherit runtimeInputs;
-        text = ''
-          APP_SOURCE=${appSource}
-          APP_DIR="''${APP_DIR:-${defaultAppDir}}"
-          export HOME="''${HOME:-/tmp}"
-          export PYTHONUNBUFFERED=1
-          export UV_PROJECT_ENVIRONMENT=".venv"
+      
+      packageJson = builtins.fromJSON (builtins.readFile ./package.json);
+      appName = packageJson.name;
+      appVersion = packageJson.version;
+      
+      # Use the specific Node version matching your pipeline
+      nodePkg = pkgs.nodejs_20; 
+      pnpmPkg = pkgs.pnpm;
 
-          mkdir -p "$APP_DIR"
-          if [ ! -f "$APP_DIR/pyproject.toml" ] || [ ! -f "$APP_DIR/${appModule}/__init__.py" ]; then
-            cp -R "$APP_SOURCE"/. "$APP_DIR"/
-            chmod -R u+w "$APP_DIR"
-          fi
+      # Filter source to avoid invalidating the build on minor text edits
+      sourceTree = pkgs.lib.cleanSource ./.;
 
-          cd "$APP_DIR"
+      # Step 1: Fetch dependencies and compile Vite static assets
+      # This handles your typescript/pnpm build step reproducibly.
+      appBundle = pkgs.stdenv.mkDerivation {
+        pname = appName;
+        version = appVersion;
+        src = sourceTree;
 
-          if [ ! -d .venv ]; then
-            # Copy mode keeps the runtime environment self-contained instead of
-            # relying on symlinks back into transient build locations, which is
-            # important because the app directory is materialized at runtime.
-            uv sync --frozen --no-dev --link-mode copy
-          fi
+        nativeBuildInputs = [ nodePkg pnpmPkg ];
 
-          exec uv run uvicorn pfun_cma_model.main:app --host 0.0.0.0 --port "''${PORT:-8001}"
+        # Fetch pnpm store out-of-band for sandboxed builds
+        pnpmDeps = pnpmPkg.fetchDeps {
+          pname = "${appName}-pnpm-deps";
+          inherit appVersion;
+          src = sourceTree;
+          hash = pkgs.lib.fakeHash; # Run `nix build` once, copy the real hash here when it fails
+        };
+
+        buildPhase = ''
+          export HOME = "/tmp"
+          pnpm config set store-dir $pnpmDeps
+          pnpm install --frozen-lockfile --offline
+          pnpm build
+        '';
+
+        installPhase = ''
+          mkdir -p "$out"
+          cp -R dist/. "$out/"
         '';
       };
+
+      # A production runner script to serve the built static site
+      # Uses a fast, small Rust binary instead of spinning up a whole Node runtime for static files
+      serverPkg = pkgs.static-web-server;
+      startScript = pkgs.writeShellApplication {
+        name = "start-${appName}";
+        runtimeInputs = [ serverPkg ];
+        text = ''
+          exec static-web-server \
+            --port "''${PORT:-8001}" \
+            --host 0.0.0.0 \
+            --root ${appBundle} \
+            --assets-bypass-extensions html
+        '';
+      };
+
+      # Step 2: Container Image Config
       ociImage = pkgs.dockerTools.buildLayeredImage {
         name = appName;
         tag = appVersion;
-        contents = runtimeInputs ++ [
-          appSource
-          startScript
-        ];
+        contents = [ startScript ];
         config = {
-          Cmd = [ "${startScript}/bin/start-pfun-cma-model" ];
-          Env = [
-            "APP_DIR=${defaultAppDir}"
-            "HOME=/tmp"
-            "PORT=8001"
-            "PYTHONUNBUFFERED=1"
-            "UV_PROJECT_ENVIRONMENT=.venv"
-          ];
-          ExposedPorts = {
-            "8001/tcp" = { };
-          };
-          WorkingDir = defaultAppDir;
+          Cmd = [ "${startScript}/bin/start-${appName}" ];
+          Env = [ "PORT=8001" ];
+          ExposedPorts = { "8001/tcp" = { }; };
         };
       };
+
+      # Step 3: VM Config
       vmImage = nixos-generators.nixosGenerate {
         inherit system;
         format = "qcow";
@@ -107,29 +96,20 @@
             {
               system.stateVersion = "24.05";
               nixpkgs.hostPlatform = system;
-              networking.hostName = "pfun-cma-model";
+              networking.hostName = appName;
               networking.firewall.allowedTCPPorts = [ 8001 ];
 
-              environment.systemPackages = runtimeInputs;
-
-              systemd.services.pfun-cma-model = {
-                description = "pfun-cma-model API";
+              systemd.services.${appName} = {
+                description = "${appName} Web Server";
                 wantedBy = [ "multi-user.target" ];
                 after = [ "network-online.target" ];
                 wants = [ "network-online.target" ];
                 serviceConfig = {
                   Type = "simple";
                   Restart = "on-failure";
-                  WorkingDirectory = "/var/lib/pfun-cma-model";
-                  StateDirectory = "pfun-cma-model";
-                  Environment = [
-                    "APP_DIR=/var/lib/pfun-cma-model"
-                    "HOME=/var/lib/pfun-cma-model"
-                    "PORT=8001"
-                    "PYTHONUNBUFFERED=1"
-                    "UV_PROJECT_ENVIRONMENT=.venv"
-                  ];
-                  ExecStart = "${startScript}/bin/start-pfun-cma-model";
+                  ExecStart = "${startScript}/bin/start-${appName}";
+                  DynamicUser = true; # Security bonus: runs as an unprivileged ephemeral user
+                  Environment = [ "PORT=8001" ];
                 };
               };
             }
@@ -142,6 +122,7 @@
         default = ociImage;
         oci-image = ociImage;
         vm-image = vmImage;
+        static-assets = appBundle;
       };
     };
 }
