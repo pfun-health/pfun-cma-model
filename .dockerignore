@@ -1,20 +1,77 @@
-# pfun-cma-model.dockerignore
-.venv/
-dist/
-_build/
-.trunk/
+# pfun-cma-model — Docker build context ignore
+# Only include what the multi-stage build actually needs:
+#   package.json, pnpm-*.*, tsconfig.base.json, packages/
+
+# ============================================================
+# Version control
+# ============================================================
 .git/
 .gitignore
 .gitmodules
-*.code-workspace
-*.pyc
-__pycache__/
-.devcontainer/
-*.code-workspace
-examples/
+
+# ============================================================
+# Environment — sensitive, never ship into a container image
+# ============================================================
+.env
+.envrc
+
+# ============================================================
+# Dependencies — reinstalled inside the container
+# ============================================================
+node_modules/
+.pnpm-store/
+
+# ============================================================
+# Build output — rebuilt inside the container
+# ============================================================
+dist/
+build/
+*.tsbuildinfo
+.turbo/
+
+# ============================================================
+# IDE & editor config
+# ============================================================
 .vscode/
+.idea/
+*.code-workspace
+
+# ============================================================
+# OS detritus
+# ============================================================
+.DS_Store
+Thumbs.db
+*~
+
+# ============================================================
+# Python artifacts (legacy — kept for context but harmless)
+# ============================================================
 .mypy_cache/
-.pytest_cache/
-.tox/
-generated_clients/
+__pycache__/
+*.pyc
+
+# ============================================================
+# Certificates
+# ============================================================
 certs/
+
+# ============================================================
+# Nix
+# ============================================================
+.nix/
+flake.lock
+result*
+
+# ============================================================
+# CI/CD — not needed in the build context
+# ============================================================
+.devcontainer/
+.github/
+.gitea/
+
+# ============================================================
+# Docs, scripts, tests — not consumed by the Dockerfile
+# ============================================================
+docs/
+scripts/
+tests/
