@@ -2,3 +2,4 @@ packages:
   - 'packages/*'
 allowBuilds:
   esbuild: false
+publishBranch: typescript-rewrite
