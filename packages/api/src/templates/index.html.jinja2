@@ -1,0 +1,88 @@
+{% extends "base.html.jinja2" %}
+{% block title %}PFun Glucose Web API &mdash; Demo{% endblock %}
+
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+<body>
+  <header>
+    {% block navheader %}
+      {{ super() }}
+    {% endblock %}
+  </header>
+
+  <div id="content">
+    {% block content %}
+      <h1 class="display-1">PFun Glucose Web API</h1>
+
+      <blockquote class="blockquote">
+        <p>
+          Please note that the API is currently under
+          <em>active development</em>.<br/>
+          <em>Stuff may break occasionally.</em>
+          <p>
+            Please report issues on the
+            <a href="https://github.com/pfun-health/pfun-cma-model">
+              PFun CMA Model API GitHub</a>.
+          </p>
+        </p>
+      </blockquote>
+
+      <div id="demos-index-container" class="flex grid p-2">
+        <h2 class="display-2">Demos:</h2>
+        <h5 class="text-body-secondary">Live interactive web demos.</h5>
+        <ul class="list-group list-group-flush">
+	  <li class="list-group-item list-group-item-action list-group-item-info">
+            <a href="/demo/llm" target="_self" title="(New!) LLM generate scenario demo">(LLM) Generate Scenario Demo</a>
+          </li>
+        </ul>
+      </div>
+      <hr/>
+      <h2>Notebooks</h2>
+      <ul>
+        <li>
+          <a href="{{ url_for('static', path='notebooks/cma-model-modular-demos.html') }}" target="_blank">Modular CMA Model Demo</a>
+        </li>
+        <li>
+          <a href="{{ url_for('static', path='notebooks/visualize-generated-scenarios.html') }}" target="_blank">Visualize Generated Scenarios</a>
+        </li>
+      </ul>
+      <hr/>
+      <h2 class="text-body-md">Model parameters</h2>
+      <ul>
+        <li>View the model parameters schema using the
+          <a href="/params/schema">/params/schema</a>
+          endpoint.</li>
+        <li>Get the default model parameters using the
+          <a href="/params/default">/params/default</a>
+          endpoint.</li>
+      </ul>
+      <hr/>
+      <h2>Documentation:</h2>
+      <p>For more information on how to use the API, please refer to the documentation available at:</p>
+      <ul>
+        <li>
+          <a href="/docs">(SwaggerUI) Interactive API Documentation</a>
+        </li>
+        <li>
+          <a href="/redoc">(ReDoc) Readable API Documentation</a>
+        </li>
+        <li>
+          <a href="/openapi.json">(JSON) OpenAPI Schema</a>
+        </li>
+      </ul>
+    {% endblock %}
+  </div>
+  <hr/>
+  <footer>
+    {% block footer %}
+      <hr/>
+      <div>
+        {{ super() }}
+      </div>
+    {% endblock %}
+  </footer>
+</body>
+
+</html>

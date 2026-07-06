@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default("Web Viewer") }}</title>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --bg-color: #f8f9fa;
+            --accent-color: #3b82f6;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Sidebar - Only shown if multiple pages exist */
+        nav {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .nav-header {
+            padding: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+        }
+
+        .nav-link {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-color);
+        }
+
+        .nav-link.active {
+            background: #eff6ff;
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+
+        /* Main Viewport */
+        main {
+            flex-grow: 1;
+            height: 100%;
+            background: var(--bg-color);
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none; /* Hidden by default, toggled via JS */
+        }
+
+        iframe.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    {# Sidebar logic: Only render if 'pages' is a list with more than one item #}
+    {% if pages is iterable and pages|length > 1 %}
+    <nav>
+        <div class="nav-header">Navigation</div>
+        {% for page in pages %}
+        <a href="#" class="nav-link {% if loop.first %}active{% endif %}" 
+           onclick="showFrame('frame-{{ loop.index0 }}', this)">
+            {{ page.name|default("Page " ~ loop.index) }}
+        </a>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    <main>
+        {% if pages is string %}
+            {# Single URL case #}
+            <iframe src="{{ pages }}" class="active"></iframe>
+        {% elif pages is iterable %}
+            {# Multiple URL case #}
+            {% for page in pages %}
+            <iframe id="frame-{{ loop.index0 }}" 
+                    src="{{ page.url }}" 
+                    class="{% if loop.first %}active{% endif %}"></iframe>
+            {% endfor %}
+        {% endif %}
+    </main>
+
+    <script>
+        function showFrame(id, element) {
+            // Hide all frames
+            document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
+            // Remove active class from all links
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(id).classList.add('active');
+            element.classList.add('active');
+            
+            event.preventDefault();
+        }
+    </script>
+</body>
+</html>
