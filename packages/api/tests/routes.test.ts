@@ -1,10 +1,19 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createApp } from "../src/index.js";
+import { initAdminDb, closeAdminDb } from "../src/admin/db.js";
+import { initResultsStore } from "../src/results.js";
 
 let app: ReturnType<typeof createApp>["app"];
 
 beforeAll(() => {
+  // Initialize DB and results store (mirrors startup hooks in index.ts)
+  initAdminDb({ debug: true, port: 0, host: "", redisUrl: null, redisHost: "", redisPort: 0, redisDb: 0, redisPassword: null, jwtSecretKey: "test-secret", jwtExpirationMinutes: 30, sessionSecret: "test", dexcomClientId: "", dexcomClientSecret: "", dexcomRedirectUri: "", googleClientId: "", googleClientSecret: "", corsOrigins: [], trustedHosts: ["*"], staticDir: "static", templateDir: "templates", version: "1.0.0" });
+  initResultsStore(true);
   app = createApp().app;
+});
+
+afterAll(() => {
+  closeAdminDb();
 });
 
 describe("Data routes", () => {
@@ -209,5 +218,60 @@ describe("SSO routes", () => {
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("admin");
+  });
+});
+
+describe("Admin routes", () => {
+  it("GET /admin/ should require auth", async () => {
+    const res = await app.request("/admin");
+    expect([401, 404]).toContain(res.status);
+    if (res.status === 401) {
+      const body = await res.json();
+      expect(body.detail).toContain("Authentication required");
+    }
+  });
+
+  it("GET /admin/login should return HTML login form", async () => {
+    const res = await app.request("/admin/login");
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("Admin Login");
+  });
+
+  it("GET /admin/users should require auth", async () => {
+    const res = await app.request("/admin/users");
+    expect(res.status).toBe(401);
+  });
+
+  it("GET /admin/sites should require auth", async () => {
+    const res = await app.request("/admin/sites");
+    expect(res.status).toBe(401);
+  });
+
+  it("POST /admin/login with invalid credentials should return 401", async () => {
+    const body = new URLSearchParams({ username: "notexist", password: "wrongpass" });
+    const res = await app.request("/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("Security middleware (penetration detection)", () => {
+  it("should block SQL injection in query string", async () => {
+    const res = await app.request("/health?q=SELECT%20*%20FROM%20users");
+    expect(res.status).toBe(403);
+  });
+
+  it("should block path traversal", async () => {
+    const res = await app.request("/health?path=../../etc/passwd");
+    expect(res.status).toBe(403);
+  });
+
+  it("should block debug=true", async () => {
+    const res = await app.request("/health?debug=true");
+    expect(res.status).toBe(403);
   });
 });

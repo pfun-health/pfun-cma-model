@@ -1,0 +1,86 @@
+<!-- macros/demos_common.html.jinja2 -->
+
+{% macro render_form_controls_container(params) %}
+
+<!-- toggleForm button area -->
+<div id="toggleFormBtnContainer" class="col-sm-4">
+  <button id="toggleControlsBtn" class="hidden btn btn-primary btn-sm" type="button" data-bs-toggle="offcanvas"
+    data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas">
+    Show controls
+  </button>
+</div>
+
+<!-- Off-canvas -->
+<div class="d-flex flex-column flex-md-row mb-0 p-1">
+  <div class="row offcanvas offcanvas-start show height-100 width-100 max-width-600" tabindex="-1"
+    id="controlsOffcanvas">
+    <div class="controls-container">
+      <form id="runForm">
+        <fieldset>
+          <legend>Simulation Parameters</legend>
+          <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="Simulation start time (decimal hours).">
+            <label class="form-label" for="t0">t_0 (0.0, 24.0):</label>
+            <input class="form-control" type="range" step="0.5" id="t0" name="t0" max="24.0" min="0" value="0"
+              required="required">
+            <output class="p-1" for="t0" id="rangeValue-t0" aria-hidden="false"></output>
+          </div>
+          <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Simulation
+                        end time (decimal hours). Note: t1 must be greater than t0.">
+            <label class="form-label" for="t1">t1 (0, 24.0):</label>
+            <input class="form-control" type="range" step="0.5" id="t1" name="t1" max="24.0" min="0" value="24.0"
+              required="required">
+            <output class="p-1" for="t1" id="rangeValue-t1" aria-hidden="false"></output>
+          </div>
+          <div class="form-row" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="Number of points to simulate.">
+            <label class="form-label" for="N">N (1, 250):</label>
+            <input class="form-control" type="range" step="1" id="N" name="N" min="1" max="250" value="24"
+              required="required">
+            <output class="p-1" for="N" id="rangeValue-N" aria-hidden="false"></output>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Model Parameters</legend>
+          {% for key, param in params.items() %}
+          <div class="param-item" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="{{ param.description }}">
+            <label class="form-label" for="{{ key }}">{{ key }}:
+              <output class="p-1" for="{{ key }}" id="rangeValue-{{ key }}" aria-hidden="true"></output>
+            </label>
+            <input class="form-control" type="range" step="{{ param.step | round(3) }}" id="{{ key }}" name="{{ key }}"
+              value="{{ param.value }}" min="{{ param.min }}" max="{{ param.max }}" required="required">
+
+          </div>
+          {% endfor %}
+        </fieldset>
+
+        <input class="btn btn-primary" type="submit" title="Run Simulation" value="Run Simulation"
+          id="runSimulationBtn-sidebar">
+        <input id="resetSimulationBtn" class="btn btn-secondary" type="reset" title="Reset Parameters"
+          value="Reset Parameters">
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const resetBtn = document.getElementById("resetSimulationBtn");
+
+    resetBtn.addEventListener("click", (e) => {
+      $(document.getElementById("runForm")).trigger("reset");
+      demoApp.dom.ranges.forEach(range => {
+        const outputElement = document.getElementById(`rangeValue-${range.id}`);
+        if (outputElement) {
+          // Update the corresponding output element
+          outputElement.textContent = range.value;
+        }
+      });
+    });
+
+    $(resetBtn).trigger("click");
+
+  });
+</script>
+{% endmacro %}

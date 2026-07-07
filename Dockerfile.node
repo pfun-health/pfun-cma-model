@@ -24,6 +24,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8000
+ENV STATIC_DIR=packages/api/static
+ENV TEMPLATE_DIR=packages/api/templates
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/core/package.json packages/core/
@@ -34,8 +36,14 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=build /app/packages/core/dist packages/core/dist
 COPY --from=build /app/packages/api/dist packages/api/dist
 
-# Copy static assets if needed
-COPY packages/api/src/templates packages/api/templates
+# Copy static assets, templates, and sample data
+COPY packages/api/templates packages/api/templates
+COPY packages/api/data packages/api/data
+# Copy Python static assets for /static/* routes
+COPY src/static packages/api/static
+
+# Create results directory for persistent storage
+RUN mkdir -p /app/results
 
 EXPOSE 8000
 
