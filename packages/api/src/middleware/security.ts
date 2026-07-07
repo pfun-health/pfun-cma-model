@@ -122,6 +122,9 @@ export function userAgentFilter(
 // ---------------------------------------------------------------------------
 // SQL injection / path traversal patterns to block.
 // Mirrors the fastapi-guard penetration detection ruleset used in Python.
+// NOTE: These are heuristic patterns for defense-in-depth (blocking obviously
+// malicious requests). They are not a replacement for parameterized queries or
+// proper input validation in the application layer.
 // ---------------------------------------------------------------------------
 const INJECTION_PATTERNS: RegExp[] = [
   // SQL injection

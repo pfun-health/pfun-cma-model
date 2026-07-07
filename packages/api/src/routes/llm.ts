@@ -15,10 +15,12 @@ export interface GeneratedScenario {
 
 // ---------------------------------------------------------------------------
 // Prompt sanitization
-// Mirrors Python's shlex.quote() — strips control chars so no shell-injection
-// is possible in downstream use.
+// Mirrors Python's shlex.quote() — strips ASCII control characters
+// (NUL, SOH-BS, VT, FF, SO-US, DEL) to prevent terminal escape sequences,
+// shell injection via downstream command interpolation, and null-byte attacks.
 // ---------------------------------------------------------------------------
 function sanitizePrompt(raw: string): string {
+  // Strip NUL (0x00-0x08), VT/FF (0x0b-0x0c), SO-US (0x0e-0x1f), DEL (0x7f)
   return raw.trim().replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "");
 }
 
