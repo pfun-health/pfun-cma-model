@@ -49,8 +49,9 @@ export function createHealthRoutes(
   });
 
   app.get("/login", (c) => {
-    const html = renderTemplate("sqladmin/login.html", {});
-    return c.html(html);
+    // Redirect top-level /login to the admin login page
+    c.header("Location", "/admin/login");
+    return c.body(null, 302);
   });
 
   app.get("/favicon.ico", async (c) => {

@@ -1,10 +1,18 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createApp } from "../src/index.js";
+import { initAdminDb, closeAdminDb } from "../src/admin/db.js";
+import { initResultsStore } from "../src/results.js";
 
 let app: ReturnType<typeof createApp>["app"];
 
 beforeAll(() => {
+  initAdminDb({ debug: true, port: 0, host: "", redisUrl: null, redisHost: "", redisPort: 0, redisDb: 0, redisPassword: null, jwtSecretKey: "test-secret", jwtExpirationMinutes: 30, sessionSecret: "test", dexcomClientId: "", dexcomClientSecret: "", dexcomRedirectUri: "", googleClientId: "", googleClientSecret: "", corsOrigins: [], trustedHosts: ["*"], staticDir: "static", templateDir: "templates", version: "1.0.0" });
+  initResultsStore(true);
   app = createApp().app;
+});
+
+afterAll(() => {
+  closeAdminDb();
 });
 
 describe("Model routes", () => {

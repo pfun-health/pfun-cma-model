@@ -39,6 +39,7 @@ function getClientIp(c: Context): string {
 
 /**
  * Security headers middleware.
+ * Satisfies the headers contract defined in docs/security.md.
  */
 export function securityHeaders() {
   return async (c: Context, next: Next) => {
@@ -118,15 +119,79 @@ export function userAgentFilter(
   };
 }
 
+// ---------------------------------------------------------------------------
+// SQL injection / path traversal patterns to block.
+// Mirrors the fastapi-guard penetration detection ruleset used in Python.
+// NOTE: These are heuristic patterns for defense-in-depth (blocking obviously
+// malicious requests). They are not a replacement for parameterized queries or
+// proper input validation in the application layer.
+// ---------------------------------------------------------------------------
+const INJECTION_PATTERNS: RegExp[] = [
+  // SQL injection
+  /(\bselect\b.*\bfrom\b|\bunion\b.*\bselect\b|\bdrop\b.*\btable\b|\binsert\b.*\binto\b|\bdelete\b.*\bfrom\b|\bupdate\b.*\bset\b)/i,
+  // Common SQL tautologies / comment injections
+  /('|(--|#|\/\*).*(--|#|\/\*))/,
+  /\b(or|and)\b\s+[\w'"]+=[\w'"]+/i,
+  // Path traversal
+  /\.\.(\/|\\)/,
+  // Null-byte injection
+  /\x00/,
+  // Script injection via query
+  /<script[\s>]/i,
+  // debug=true (preserve existing check)
+  /\bdebug\b\s*=\s*true/i,
+];
+
 /**
- * Debug query rejection middleware.
+ * Penetration detection middleware.
+ * Blocks SQL injection, path traversal, and other common attack patterns.
+ * Replaces the former debugQueryRejection() function.
  */
-export function debugQueryRejection() {
+export function penetrationDetection() {
   return async (c: Context, next: Next) => {
-    const debugParam = c.req.query("debug");
-    if (debugParam === "true") {
-      return c.json({ detail: "Debug mode not allowed" }, 403);
+    // Parse URL safely - use a base for relative URLs
+    let queryString = "";
+    let urlPath = c.req.path;
+    try {
+      const url = new URL(c.req.url, "http://localhost");
+      queryString = url.search;
+      urlPath = url.pathname;
+    } catch {
+      queryString = c.req.url.includes("?") ? "?" + c.req.url.split("?")[1] : "";
     }
+
+    const toCheck = decodeURIComponent(`${urlPath} ${queryString}`);
+
+    for (const pattern of INJECTION_PATTERNS) {
+      if (pattern.test(toCheck)) {
+        return c.json({ detail: "Request rejected" }, 403);
+      }
+    }
+
+    await next();
+  };
+}
+
+/**
+ * Trusted-host middleware.
+ * Rejects requests whose Host header is not in the allowlist.
+ * Mirrors FastAPI's TrustedHostMiddleware.
+ */
+export function trustedHostMiddleware(trustedHosts: string[]) {
+  return async (c: Context, next: Next) => {
+    // Allow all hosts if the list contains "*"
+    if (trustedHosts.includes("*")) {
+      await next();
+      return;
+    }
+
+    const host = (c.req.header("host") ?? "").split(":")[0].toLowerCase();
+    const allowed = trustedHosts.map((h) => h.toLowerCase());
+
+    if (host && !allowed.includes(host)) {
+      return c.json({ detail: "Invalid host header" }, 400);
+    }
+
     await next();
   };
 }
