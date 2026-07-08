@@ -4,38 +4,10 @@
  * Clean-room TypeScript implementation of the PFun CMA model.
  */
 
-// Implementation B (primary) - exports used by tests and external consumers
-export { CMASleepWakeModel } from "./cma.js";
+export { Bounds } from "./bounds.js";
 export {
   CMAModelParamsSchema,
   type CMAModelParams,
-  CMAModelParamsDefaults,
-  CMAModelParamsKeys,
-  getCMADefaultParams,
-} from "./cma_model_params.js";
-export { PFunCMAParamsGrid } from "./grid.js";
-export { generateScenario } from "./llm.js";
-export {
-  runCMAModel,
-  exp_clipped,
-  expit,
-  calc_vdep_current,
-  Light_pfun,
-  E_pfun,
-  K_pfun,
-  meal_distr_pfun,
-  calc_L,
-  calc_M,
-  calc_c,
-  calc_a,
-  calc_I_S,
-  calc_I_E,
-  calc_G,
-} from "./engine.js";
-
-// Implementation A (secondary) - higher-level API and metadata
-export { Bounds } from "./bounds.js";
-export {
   getDefaultParams,
   getParamsJsonSchema,
   getQualitativeDescriptor,
@@ -67,7 +39,14 @@ export {
   normalize,
 } from "./calc.js";
 export {
+  CMASleepWakeModel,
   type ModelRunRow,
   type RunAtTimeResult,
 } from "./model.js";
 export { fitModel, type CMAFitResult } from "./fit.js";
+
+// Implementation-B surface retained for the CLI (packages/cli/src/index.ts),
+// which imports PFunCMAParamsGrid and generateScenario. These modules still
+// exist alongside the cleaner Implementation-A re-exports above.
+export { PFunCMAParamsGrid } from "./grid.js";
+export { generateScenario } from "./llm.js";

@@ -1,12 +1,20 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createApp } from "../src/index.js";
+import { initAdminDb, closeAdminDb } from "../src/admin/db.js";
+import { initResultsStore } from "../src/results.js";
 import type { Hono } from "hono";
 
 let app: ReturnType<typeof createApp>["app"];
 
 beforeAll(() => {
+  initAdminDb({ debug: true, port: 0, host: "", redisUrl: null, redisHost: "", redisPort: 0, redisDb: 0, redisPassword: null, jwtSecretKey: "test-secret", jwtExpirationMinutes: 30, sessionSecret: "test", dexcomClientId: "", dexcomClientSecret: "", dexcomRedirectUri: "", googleClientId: "", googleClientSecret: "", corsOrigins: [], trustedHosts: ["*"], staticDir: "static", templateDir: "templates", version: "1.0.0" });
+  initResultsStore(true);
   const result = createApp();
   app = result.app;
+});
+
+afterAll(() => {
+  closeAdminDb();
 });
 
 describe("Health routes", () => {
@@ -93,7 +101,7 @@ describe("Template routes", () => {
     expect(res.status).toBe(200);
   });
 
-  it("GET /login should return HTML", async () => {
+it("GET /login should return HTML", async () => {
     const res = await app.request("/login");
     expect(res.status).toBe(200);
   });

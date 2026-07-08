@@ -1,5 +1,7 @@
 packages:
   - 'packages/*'
-allowBuilds:
-  esbuild: false
 publishBranch: typescript-rewrite
+allowBuilds:
+  bcrypt: true
+  better-sqlite3: true
+  esbuild: true

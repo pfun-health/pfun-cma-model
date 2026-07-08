@@ -47,7 +47,8 @@ export function loadConfig(): AppConfig {
     googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     corsOrigins: (process.env.CORS_ORIGINS ?? "*").split(","),
-    trustedHosts: (process.env.TRUSTED_HOSTS ?? "localhost,127.0.0.1").split(","),
+// "*" allows all hosts when debug=true; restrict via TRUSTED_HOSTS in production.
+    trustedHosts: (process.env.TRUSTED_HOSTS ?? (debug ? "*" : "localhost,127.0.0.1")).split(","),
     staticDir: process.env.STATIC_DIR ?? "static",
     templateDir: process.env.TEMPLATE_DIR ?? "templates",
     version: process.env.npm_package_version ?? "1.0.0",

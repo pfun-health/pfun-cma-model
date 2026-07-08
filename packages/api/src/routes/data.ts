@@ -4,32 +4,9 @@
 
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
-import { CMASleepWakeModel } from "@pfun/core";
+import { readSampleData, type SampleRow } from "../data.js";
 
 type MediaType = "json" | "text" | "html" | "octet-stream";
-
-interface SampleRow {
-  t: number;
-  G: number;
-  c: number;
-  m: number;
-  [key: string]: number | boolean;
-}
-
-/**
- * Get sample data from model.
- */
-function getSampleData(): SampleRow[] {
-  const model = new CMASleepWakeModel();
-  const results = model.run();
-  return results.map((r) => ({
-    t: r.t,
-    G: r.G,
-    c: r.c,
-    m: r.m,
-  }));
-}
-
 export function createDataRoutes(): Hono {
   const app = new Hono();
 
@@ -57,7 +34,7 @@ export function createDataRoutes(): Hono {
       );
     }
 
-    const allData = getSampleData();
+const allData = readSampleData();
     const data = selectRows(allData, pct0, nrows);
 
     if (mediaType === "json") {
@@ -92,7 +69,7 @@ export function createDataRoutes(): Hono {
       return c.json({ detail: "pct0 must be between 0.0 and 1.0." }, 400);
     }
 
-    const allData = getSampleData();
+const allData = readSampleData();
     const data = selectRows(allData, pct0, nrows);
 
     if (mediaType === "octet-stream") {

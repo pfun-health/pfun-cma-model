@@ -6,13 +6,16 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
-import { createServer } from "http";
+import { serveStatic } from "@hono/node-server/serve-static";
+import path from "path";
+import nunjucks from "nunjucks";
 import { loadConfig, getVersionString } from "./config.js";
 import {
   securityHeaders,
   rateLimiter,
   userAgentFilter,
-  debugQueryRejection,
+  trustedHostMiddleware,
+  penetrationDetection,
   requestTracker,
 } from "./middleware/security.js";
 import { createHealthRoutes } from "./routes/health.js";
@@ -24,22 +27,59 @@ import { createSsoRoutes } from "./routes/sso.js";
 import { createDexcomRoutes } from "./routes/dexcom.js";
 import { createLlmRoutes } from "./routes/llm.js";
 import { createDemoRoutes } from "./routes/demo.js";
+import { createAdminRoutes } from "./admin/routes.js";
+import { initAdminDb, closeAdminDb } from "./admin/db.js";
+import { initResultsStore } from "./results.js";
 import { setupSocketIO, isSocketIoActive, shutdownSocketIO } from "./socketio.js";
 
 // Redis client (optional)
 let redisClient: unknown | null = null;
 
 /**
- * Simple template renderer (Nunjucks-compatible stub).
- * In production, use full Nunjucks with template directory.
+ * Create a Nunjucks-based template renderer.
+ * Falls back to a minimal stub if the template directory does not exist.
+ * Mirrors pfun_cma_model/misc/templating.py (Jinja2 → Nunjucks).
  */
 function createTemplateRenderer(templateDir: string) {
-  return (name: string, ctx: Record<string, unknown>): string => {
-    // Minimal template rendering - returns basic HTML structure
-    const year = ctx.year ?? new Date().getFullYear();
-    const title = name.replace(/\.html\.jinja2$/, "").replace(/-/g, " ");
+  // Resolve relative to the current working directory (package root)
+  const resolvedDir = path.resolve(templateDir);
 
-    return `<!DOCTYPE html>
+  let env: nunjucks.Environment | null = null;
+  try {
+    // Configure nunjucks with the template directory; autoescape HTML
+    env = nunjucks.configure(resolvedDir, {
+      autoescape: true,
+      noCache: process.env.NODE_ENV !== "production",
+    });
+  } catch {
+    console.warn(`[templates] Could not configure Nunjucks from "${resolvedDir}", using stub.`);
+  }
+
+  return (name: string, ctx: Record<string, unknown>): string => {
+    if (!env) {
+      return stubRender(name, ctx);
+    }
+    try {
+      return env.render(name, ctx);
+    } catch (err) {
+      console.warn(`[templates] Render failed for "${name}": ${String(err)}, using stub.`);
+      return stubRender(name, ctx);
+    }
+  };
+}
+
+function stubRender(name: string, ctx: Record<string, unknown>): string {
+  const year = ctx.year ?? new Date().getFullYear();
+  const title = name.replace(/\.html\.jinja2$/, "").replace(/-/g, " ");
+  const params = ctx.bounded_params as Array<Record<string, unknown>> | undefined;
+  // Spec §3.6 demo context requires name/value/description/min/max/step per bounded key.
+  const paramsHtml = params?.length
+    ? `<table><thead><tr><th>Name</th><th>Value</th><th>Min</th><th>Max</th><th>Step</th></tr></thead><tbody>
+        ${params.map((p) => `<tr><td>${p.name}</td><td>${p.value}</td><td>${p.min}</td><td>${p.max}</td><td>${p.step}</td></tr>`).join("")}
+       </tbody></table>`
+    : "";
+
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -51,25 +91,12 @@ function createTemplateRenderer(templateDir: string) {
   <header><h1>PFun CMA Model</h1></header>
   <main>
     <h2>${title}</h2>
-    <p>Year: ${year}</p>
     ${ctx.access_message ? `<p>${ctx.access_message}</p>` : ""}
-    ${ctx.bounded_params ? renderBoundedParams(ctx.bounded_params as Array<Record<string, unknown>>) : ""}
+    ${paramsHtml}
   </main>
   <footer><p>&copy; ${year} PFun Health</p></footer>
 </body>
 </html>`;
-  };
-}
-
-function renderBoundedParams(params: Array<Record<string, unknown>>): string {
-  if (!params || params.length === 0) return "";
-  const rows = params
-    .map(
-      (p) =>
-        `<tr><td>${p.name}</td><td>${p.value}</td><td>${p.min}</td><td>${p.max}</td><td>${p.step}</td></tr>`,
-    )
-    .join("\n");
-  return `<table><thead><tr><th>Name</th><th>Value</th><th>Min</th><th>Max</th><th>Step</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 export function createApp() {
@@ -84,8 +111,15 @@ export function createApp() {
   app.use("*", securityHeaders());
   app.use("*", rateLimiter());
   app.use("*", userAgentFilter());
-  app.use("*", debugQueryRejection());
+  app.use("*", trustedHostMiddleware(config.trustedHosts));
+  app.use("*", penetrationDetection());
   app.use("*", requestTracker(redisClient));
+
+  // Serve static files
+  app.use(
+    "/static/*",
+    serveStatic({ root: path.resolve(config.staticDir, "..") }),
+  );
 
   // OpenAPI metadata routes
   app.get("/openapi.json", (c) => {
@@ -138,6 +172,7 @@ export function createApp() {
   app.route("/dexcom", createDexcomRoutes(config));
   app.route("/llm", createLlmRoutes());
   app.route("/demo", createDemoRoutes(templateRenderer));
+  app.route("/admin", createAdminRoutes(config));
 
   return { app, config };
 }
@@ -146,6 +181,15 @@ export function createApp() {
 const isMainModule = process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/^.*[\\/]/, ""));
 if (isMainModule) {
   const { app, config } = createApp();
+
+  // --- Startup hooks ---
+  // Initialize admin DB schema (mirrors Python lifespan init_models)
+  initAdminDb(config);
+  console.log("✅ Admin DB initialized.");
+
+  // Initialize results store (mirrors Python duckdb background task setup)
+  initResultsStore(config.debug);
+  console.log("✅ Results store initialized.");
 
   const server = serve(
     {
@@ -203,6 +247,7 @@ async function tryRedisConnection(config: ReturnType<typeof loadConfig>) {
 function shutdown(server: unknown) {
   console.log("\n🛑 Shutting down...");
   shutdownSocketIO();
+  closeAdminDb();
   if (redisClient && typeof (redisClient as Record<string, unknown>).quit === "function") {
     (redisClient as { quit: () => void }).quit();
   }
