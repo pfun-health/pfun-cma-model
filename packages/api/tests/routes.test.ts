@@ -1,6 +1,9 @@
+import { existsSync } from "fs";
+import path from "path";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createApp } from "../src/index.js";
 import { initAdminDb, closeAdminDb } from "../src/admin/db.js";
+import { loadConfig } from "../src/config.js";
 import { initResultsStore } from "../src/results.js";
 
 let app: ReturnType<typeof createApp>["app"];
@@ -176,14 +179,66 @@ describe("LLM routes", () => {
     const body = await res.json();
     expect(body.recommendations).toBeUndefined();
   });
+
+  it("POST /llm/generate-scenario should accept query params for demo parity", async () => {
+    const res = await app.request(
+      "/llm/generate-scenario?prompt=test&include_recommendations=false",
+      {
+        method: "POST",
+      },
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("forecasted_events");
+    expect(body.recommendations).toBeUndefined();
+  });
+
+  it("POST /llm/generate-scenario should return detail for invalid JSON", async () => {
+    const res = await app.request("/llm/generate-scenario", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{",
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.detail).toBe("Invalid JSON body");
+  });
+
+  it("POST /llm/generate-scenario should accept mixed-case JSON content types", async () => {
+    const res = await app.request("/llm/generate-scenario", {
+      method: "POST",
+      headers: { "Content-Type": "Application/JSON" },
+      body: JSON.stringify({ prompt: "test" }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("forecasted_events");
+  });
 });
 
 describe("Demo routes", () => {
+  it("loadConfig should resolve package template and static directories by default", () => {
+    const config = loadConfig();
+    expect(path.isAbsolute(config.staticDir)).toBe(true);
+    expect(path.isAbsolute(config.templateDir)).toBe(true);
+    expect(existsSync(config.staticDir)).toBe(true);
+    expect(existsSync(config.templateDir)).toBe(true);
+  });
+
   it("GET /demo/llm should return HTML", async () => {
     const res = await app.request("/demo/llm");
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("html");
+    expect(text).toContain("query-form");
+    expect(text).toContain("/static/llm-demo/llm-demo.js");
+  });
+
+  it("GET /static/llm-demo/llm-demo.js should return the demo client", async () => {
+    const res = await app.request("/static/llm-demo/llm-demo.js");
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("class LlmDemo");
   });
 
   it("GET /demo/data-stream should return HTML", async () => {
