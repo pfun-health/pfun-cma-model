@@ -1,6 +1,9 @@
+import { existsSync } from "fs";
+import path from "path";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createApp } from "../src/index.js";
 import { initAdminDb, closeAdminDb } from "../src/admin/db.js";
+import { loadConfig } from "../src/config.js";
 import { initResultsStore } from "../src/results.js";
 
 let app: ReturnType<typeof createApp>["app"];
@@ -203,11 +206,20 @@ describe("LLM routes", () => {
 });
 
 describe("Demo routes", () => {
+  it("loadConfig should resolve package template and static directories by default", () => {
+    const config = loadConfig();
+    expect(path.isAbsolute(config.staticDir)).toBe(true);
+    expect(path.isAbsolute(config.templateDir)).toBe(true);
+    expect(existsSync(config.staticDir)).toBe(true);
+    expect(existsSync(config.templateDir)).toBe(true);
+  });
+
   it("GET /demo/llm should return HTML", async () => {
     const res = await app.request("/demo/llm");
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("html");
+    expect(text).toContain("query-form");
     expect(text).toContain("/static/llm-demo/llm-demo.js");
   });
 

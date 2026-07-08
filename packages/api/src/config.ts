@@ -2,6 +2,9 @@
  * Application configuration from environment variables.
  */
 
+import path from "path";
+import { fileURLToPath } from "url";
+
 export interface AppConfig {
   port: number;
   host: string;
@@ -26,6 +29,8 @@ export interface AppConfig {
   version: string;
 }
 
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
 export function loadConfig(): AppConfig {
   const debug = process.env.DEBUG === "true" || process.env.DEBUG === "1";
 
@@ -47,10 +52,10 @@ export function loadConfig(): AppConfig {
     googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     corsOrigins: (process.env.CORS_ORIGINS ?? "*").split(","),
-// "*" allows all hosts when debug=true; restrict via TRUSTED_HOSTS in production.
+    // "*" allows all hosts when debug=true; restrict via TRUSTED_HOSTS in production.
     trustedHosts: (process.env.TRUSTED_HOSTS ?? (debug ? "*" : "localhost,127.0.0.1")).split(","),
-    staticDir: process.env.STATIC_DIR ?? "static",
-    templateDir: process.env.TEMPLATE_DIR ?? "templates",
+    staticDir: process.env.STATIC_DIR ?? path.join(packageRoot, "static"),
+    templateDir: process.env.TEMPLATE_DIR ?? path.join(packageRoot, "templates"),
     version: process.env.npm_package_version ?? "1.0.0",
   };
 }
