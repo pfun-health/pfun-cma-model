@@ -51,6 +51,15 @@ export class CMASleepWakeModel {
   }
 
   /**
+   * Solve/run the model in place, retaining the latest run output.
+   * CLI compatibility alias; equivalent to {@link run} but discards the
+   * returned rows (the CLI only needs the side-effect of execution).
+   */
+  solve(): void {
+    this.run();
+  }
+
+  /**
    * Generate the time vector.
    */
   getTimeVector(t0: number = 0, t1: number = 24, n?: number): number[] {
