@@ -109,10 +109,13 @@ class LlmDemo {
         const scenarioDesc = data?.qualitative_description ?? '';
         const recsData = data?.recommendations ?? {};
 
-        this.dom.formattedOutput.append(`<p class="lead">${scenarioDesc}</p>`);
+        this.dom.formattedOutput.append($('<p>').addClass('lead').text(scenarioDesc));
 
         Object.entries(recsData).forEach(([key, value]) => {
-            this.dom.formattedOutput.append(`<dt>${key}</dt><dd>${value}</dd>`);
+            this.dom.formattedOutput.append(
+                $('<dt>').text(key),
+                $('<dd>').text(value)
+            );
         });
 
         this.dom.responseOutput.text(strContent);
@@ -150,7 +153,7 @@ class LlmDemo {
 
             if (!response.ok) {
                 const errorBody = await response.json().catch(() => null);
-                throw new Error(errorBody?.detail ?? response.statusText);
+                throw new Error(errorBody?.detail ?? errorBody?.error ?? response.statusText);
             }
 
             const data = await response.json();

@@ -189,6 +189,17 @@ describe("LLM routes", () => {
     expect(body).toHaveProperty("forecasted_events");
     expect(body.recommendations).toBeUndefined();
   });
+
+  it("POST /llm/generate-scenario should return detail for invalid JSON", async () => {
+    const res = await app.request("/llm/generate-scenario", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{",
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.detail).toBe("Invalid JSON body");
+  });
 });
 
 describe("Demo routes", () => {

@@ -223,7 +223,7 @@ export function createLlmRoutes(): Hono {
         body = await readRequestBody(c);
       } catch (err) {
         if (err instanceof Error && err.message === "Invalid JSON body") {
-          return c.json({ error: err.message }, 400);
+          return c.json({ detail: err.message }, 400);
         }
         throw err;
       }
