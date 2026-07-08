@@ -2,7 +2,7 @@
  * LLM routes: /llm/*
  */
 
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { stream } from "hono/streaming";
 import { saveResultBackground } from "../results.js";
 
@@ -43,6 +43,46 @@ Given a patient description, generate a JSON object with these exact keys:
 - parameters: object with keys d, taup, taug, B, Cm, toff; each having value (number), description (string), stderr (number)
 - recommendations: object with keys dietary, activity, sleep (each a string)
 Respond with ONLY valid JSON, no markdown fences.`;
+
+function parseBooleanFlag(value: unknown, fallback: boolean): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["1", "true", "yes", "on"].includes(normalized)) {
+      return true;
+    }
+    if (["0", "false", "no", "off"].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return fallback;
+}
+
+async function readRequestBody(c: Context): Promise<Record<string, unknown>> {
+  const contentType = c.req.header("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    try {
+      return await c.req.json<Record<string, unknown>>();
+    } catch {
+      throw new Error("Invalid JSON body");
+    }
+  }
+
+  if (
+    contentType.includes("application/x-www-form-urlencoded") ||
+    contentType.includes("multipart/form-data")
+  ) {
+    const formData = await c.req.formData();
+    return Object.fromEntries(formData.entries());
+  }
+
+  return {};
+}
 
 async function callOllama(prompt: string): Promise<string> {
   const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -176,21 +216,28 @@ export function createLlmRoutes(): Hono {
   // POST /llm/generate-scenario
   app.post("/generate-scenario", async (c) => {
     let body: Record<string, unknown> = {};
-    try {
-      body = await c.req.json();
-    } catch {
-      return c.json({ error: "Invalid JSON body" }, 400);
+    const promptFromQuery = c.req.query("prompt") ?? c.req.query("query");
+
+    if (promptFromQuery === undefined) {
+      try {
+        body = await readRequestBody(c);
+      } catch (err) {
+        if (err instanceof Error && err.message === "Invalid JSON body") {
+          return c.json({ error: err.message }, 400);
+        }
+        throw err;
+      }
     }
 
-    const {
-      prompt = "",
-      include_sample_trace = false,
-      include_recommendations = true,
-    } = body as {
-      prompt?: string;
-      include_sample_trace?: boolean;
-      include_recommendations?: boolean;
-    };
+    const prompt = promptFromQuery ?? body.prompt ?? body.query ?? "";
+    const include_sample_trace = parseBooleanFlag(
+      body.include_sample_trace ?? c.req.query("include_sample_trace"),
+      false,
+    );
+    const include_recommendations = parseBooleanFlag(
+      body.include_recommendations ?? c.req.query("include_recommendations"),
+      true,
+    );
 
     try {
       const scenario = await generateScenario(

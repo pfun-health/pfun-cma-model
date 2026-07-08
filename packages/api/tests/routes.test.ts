@@ -176,6 +176,19 @@ describe("LLM routes", () => {
     const body = await res.json();
     expect(body.recommendations).toBeUndefined();
   });
+
+  it("POST /llm/generate-scenario should accept query params for demo parity", async () => {
+    const res = await app.request(
+      "/llm/generate-scenario?prompt=test&include_recommendations=false",
+      {
+        method: "POST",
+      },
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("forecasted_events");
+    expect(body.recommendations).toBeUndefined();
+  });
 });
 
 describe("Demo routes", () => {
@@ -184,6 +197,14 @@ describe("Demo routes", () => {
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("html");
+    expect(text).toContain("/static/llm-demo/llm-demo.js");
+  });
+
+  it("GET /static/llm-demo/llm-demo.js should return the demo client", async () => {
+    const res = await app.request("/static/llm-demo/llm-demo.js");
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("class LlmDemo");
   });
 
   it("GET /demo/data-stream should return HTML", async () => {
