@@ -44,3 +44,14 @@ ses-*.md
 # TypeScript
 *.tsbuildinfo
 packages/api/node_modules/
+
+# extra ignores
+packages/api/node_modules/*
+packages/cli/node_modules/
+packages/cli/node_modules/*
+packages/cli/node_modules/.bin/
+packages/*/node_modules/
+
+packages/api/results/admin.db
+packages/api/results/admin.db-shm
+packages/api/results/admin.db-wal
