@@ -203,6 +203,17 @@ describe("LLM routes", () => {
     const body = await res.json();
     expect(body.detail).toBe("Invalid JSON body");
   });
+
+  it("POST /llm/generate-scenario should accept mixed-case JSON content types", async () => {
+    const res = await app.request("/llm/generate-scenario", {
+      method: "POST",
+      headers: { "Content-Type": "Application/JSON" },
+      body: JSON.stringify({ prompt: "test" }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("forecasted_events");
+  });
 });
 
 describe("Demo routes", () => {

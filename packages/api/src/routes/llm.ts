@@ -63,7 +63,7 @@ function parseBooleanFlag(value: unknown, fallback: boolean): boolean {
 }
 
 async function readRequestBody(c: Context): Promise<Record<string, unknown>> {
-  const contentType = c.req.header("content-type") ?? "";
+  const contentType = (c.req.header("content-type") ?? "").toLowerCase();
 
   if (contentType.includes("application/json")) {
     try {

@@ -11,7 +11,7 @@ class LlmDemo {
             outputTitle: $('#output-title'),
         };
 
-        this.retryStorageKey = 'ntry_count';
+        this.retryStorageKey = 'retry_count';
         this.maxRetries = 4;
 
         this.initialize();
@@ -143,10 +143,6 @@ class LlmDemo {
 
             const response = await fetch(queryUrl.toString(), {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: null,
             });
 
             this.hideLoadingContainer();
