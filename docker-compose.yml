@@ -17,18 +17,30 @@ services:
       - "8001:8001"
     depends_on:
       - ollama
+      - redis
     command: ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
 
-  # docker-accessible ollama server
+   # docker-accessible ollama server
   ollama:
     image: ollama/ollama
     container_name: ollama
     restart: unless-stopped
     ports:
-      - "11434:11434"
+      - "11435:11434"
     volumes:
       - ollama_data:/root/.ollama
+
+  # redis cache service
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 # project-level volumes
 volumes:
   ollama_data:
+  redis_data:
