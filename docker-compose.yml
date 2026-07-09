@@ -1,5 +1,5 @@
 services:
-  # pfun-cma-model fastapi backend
+   # pfun-cma-model fastapi backend
   pfun-cma-model:
     restart: unless-stopped
     build:
@@ -9,6 +9,7 @@ services:
     env_file: .env
     environment:
       - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - UVICORN_RELOAD=false
       - USER=nonroot
       - GROUP=nonroot
