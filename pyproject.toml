@@ -99,7 +99,7 @@ llm = [
 ]
 lint = ["black>=25.12.0", "mypy>=1.19.1", "ruff>=0.15.11"]
 docs = ["zensical>=0.0.29"]
-datasette = ["datasette<=1.0a23", "datasette-parquet>=0.6.1"]
+datasette = ["datasette<=1.0a36", "datasette-parquet>=0.6.1"]
 
 # hatch configurations
 [tool.hatch.metadata]
