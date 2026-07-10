@@ -1,0 +1,11 @@
+{
+  "name": "pfun-cma-model-ts",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
