@@ -12,6 +12,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
     "morgan": "^1.11.0",
     "zod": "^4.4.3"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/express-rate-limit": "^6.0.2",
     "@types/morgan": "^1.9.10",
     "@types/node": "^20.19.43",
     "ts-node": "^10.9.2",

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import rateLimit from 'express-rate-limit';
 import { CMASleepWakeModel, CMAModelParamsSchema } from 'core';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,16 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
+
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again after 15 minutes."
+});
+
+// Apply rate limiter to all routes
+app.use(limiter);
 
 // Basic health check
 app.get('/health', (req, res) => {
