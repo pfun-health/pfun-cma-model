@@ -55,10 +55,15 @@
 					<div id="responses-container" class="grid flex container">
 						<ul class="list-group">
 							<div id="formatted-response-container" class="list-group-item">
-								<p class="h-5 text-center text-bg-primary fw-bolder rounded">Recommendations</p>
-								<dl id="formatted-response-output" class="text-wrap text-bg-body"></dl>
+								<p class="h-5 text-center text-bg-primary fw-bolder rounded">
+                                    Recommendations
+								</p>
+								<dl id="formatted-response-output" class="text-wrap text-bg-body">
+                                    <!-- Category-separated Health Tips will populate this descriptive list -->
+								</dl>
 							</div>
-							<div id="raw-response-container" class="list-group-item">
+							<!-- Raw responses: -->
+							<div id="raw-response-container" class="list-group-item" style="diplay:none;">
 								<p class="h-5 text-center text-bg-info fw-bolder rounded">Raw output</p>
 								<pre id="response-output" class="text-wrap text-bg-body"></pre>
 							</div>
