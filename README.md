@@ -129,23 +129,62 @@ The `flake.nix` defines two deployment artifact outputs:
 | `.#oci-image` | OCI/Docker archive (`.tar.gz`) | Container registries, Docker / Podman |
 | `.#vm-image` | qcow2 disk image | QEMU, libvirt, cloud VMs |
 
-#### Build
+After a successful build, each output is symlinked under `./result/<output-name>`:
+
+```
+./result/
+  oci-image -> /nix/store/…-pfun-cma-model-<ver>.tar.gz
+  vm-image  -> /nix/store/…-nixos-…-qcow2
+```
+
+#### Build — all outputs at once
+
+The flake exposes a `build-all` app that builds every package output and places
+each symlink under `./result/<output-name>` automatically.
+
+```bash
+# Build all outputs (places symlinks at ./result/oci-image and ./result/vm-image)
+nix run .#build-all
+```
+
+You can also enter the development shell and run the same command without the
+`nix run` prefix:
+
+```bash
+# Enter the Nix dev shell (build-all is available on PATH)
+nix develop
+
+# Inside the shell:
+build-all
+```
+
+Any extra flags are forwarded to each underlying `nix build` call, e.g.:
+
+```bash
+# Show verbose build logs for all outputs
+nix run .#build-all -- --print-build-logs
+```
+
+#### Build — individual outputs
+
+Build a single output and place the symlink wherever you like with `--out-link`:
 
 ```bash
 # OCI container image
-nix build .#oci-image
+nix build .#oci-image --out-link result/oci-image
 
 # VM disk image (qcow2)
-nix build .#vm-image
+nix build .#vm-image --out-link result/vm-image
 ```
 
-Both outputs are symlinked to `./result` after a successful build.
+Omitting `--out-link` will use Nix's default symlink name (`./result`,
+`./result-2`, …).
 
 #### Run the OCI image
 
 ```bash
 # Load into Docker
-docker load < result
+docker load < result/oci-image
 
 # Run (replace <tag> with the version printed by docker load)
 docker run --rm -p 8001:8001 pfun-cma-model:<tag>
@@ -154,8 +193,8 @@ docker run --rm -p 8001:8001 pfun-cma-model:<tag>
 #### Run the VM image (QEMU)
 
 ```bash
-# Copy to a writable location first (result/ is read-only)
-cp result/nixos.qcow2 pfun-cma-model.qcow2
+# Copy to a writable location first (result/ symlinks are read-only)
+cp result/vm-image pfun-cma-model.qcow2
 chmod u+w pfun-cma-model.qcow2
 
 # Boot the VM — the API is exposed on port 8001
