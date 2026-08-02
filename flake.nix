@@ -112,6 +112,24 @@
               networking.hostName = "pfun-cma-model";
               networking.firewall.allowedTCPPorts = [ 8001 ];
 
+              # Non-root service user with sudo access
+              users.mutableUsers = false;
+              users.users.pfun = {
+                isNormalUser = true;
+                description = "pfun-cma-model service account";
+                # wheel gives sudo access; add any other groups needed here
+                extraGroups = [ "wheel" "audio" ];
+                initialPassword = "";
+                home = "/home/pfun";
+                createHome = true;
+              };
+
+              # Allow wheel members to sudo without a password
+              security.sudo.wheelNeedsPassword = false;
+
+              # Autologin pfun on tty1 (console)
+              services.getty.autologinUser = "pfun";
+
               environment.systemPackages = runtimeInputs;
 
               systemd.services.pfun-cma-model = {
@@ -122,8 +140,12 @@
                 serviceConfig = {
                   Type = "simple";
                   Restart = "on-failure";
+                  # Run as the non-root pfun user
+                  User = "pfun";
+                  Group = "users";
                   WorkingDirectory = "/var/lib/pfun-cma-model";
                   StateDirectory = "pfun-cma-model";
+                  StateDirectoryMode = "0750";
                   Environment = [
                     "APP_DIR=/var/lib/pfun-cma-model"
                     "HOME=/var/lib/pfun-cma-model"
@@ -138,12 +160,42 @@
           )
         ];
       };
+      # Script that builds every package output and places each symlink under
+      # ./result/<output-name> instead of the default ./result.
+      buildAllScript = pkgs.writeShellApplication {
+        name = "build-all";
+        runtimeInputs = [ pkgs.nix ];
+        text = ''
+          set -euo pipefail
+          FLAKE_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || pwd)"
+          cd "$FLAKE_ROOT"
+          mkdir -p result
+          nix build .#oci-image --out-link result/oci-image "$@"
+          nix build .#vm-image  --out-link result/vm-image  "$@"
+        '';
+      };
     in
     {
       packages.${system} = {
         default = ociImage;
         oci-image = ociImage;
         vm-image = vmImage;
+      };
+
+      # Run `nix run .#build-all` (or `build-all` inside `nix develop`) to
+      # build every output and place symlinks at:
+      #   ./result/oci-image -> /nix/store/…-pfun-cma-model-<ver>.tar.gz
+      #   ./result/vm-image  -> /nix/store/…-nixos-…-qcow2
+      apps.${system}.build-all = {
+        type = "app";
+        program = "${buildAllScript}/bin/build-all";
+      };
+
+      devShells.${system}.default = pkgs.mkShell {
+        packages = [ buildAllScript ] ++ runtimeInputs;
+        shellHook = ''
+          echo "Run 'build-all' to build all outputs into ./result/<output>"
+        '';
       };
     };
 }

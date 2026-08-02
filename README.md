@@ -120,6 +120,60 @@ $ ./scripts/inject-secrets-env.sh
 	# ...or with the convenience script:
 	./scripts/full-rebuild.sh
 
+### Nix Images
+
+The `flake.nix` defines two deployment artifact outputs:
+
+| Output | Format | Use case |
+|---|---|---|
+| `.#oci-image` | OCI/Docker archive (`.tar.gz`) | Container registries, Docker / Podman |
+| `.#vm-image` | qcow2 disk image | QEMU, libvirt, cloud VMs |
+
+#### Build
+
+```bash
+# OCI container image
+nix build .#oci-image
+
+# VM disk image (qcow2)
+nix build .#vm-image
+```
+
+Both outputs are symlinked to `./result` after a successful build.
+
+#### Run the OCI image
+
+```bash
+# Load into Docker
+docker load < result
+
+# Run (replace <tag> with the version printed by docker load)
+docker run --rm -p 8001:8001 pfun-cma-model:<tag>
+```
+
+#### Run the VM image (QEMU)
+
+```bash
+# Copy to a writable location first (result/ is read-only)
+cp result/nixos.qcow2 pfun-cma-model.qcow2
+chmod u+w pfun-cma-model.qcow2
+
+# Boot the VM — the API is exposed on port 8001
+qemu-kvm \
+  -m 2048 \
+  -smp 2 \
+  -drive file=pfun-cma-model.qcow2,format=qcow2 \
+  -net nic \
+  -net user,hostfwd=tcp::8001-:8001 \
+  -nographic
+```
+
+The VM logs in automatically as the `pfun` user (no password). The
+`pfun-cma-model` systemd service starts on boot and listens on port `8001`.
+`pfun` is a member of `wheel` and can run passwordless `sudo` when needed.
+
+
+
 #### (Nix) `devenv shell`
 
 ##
