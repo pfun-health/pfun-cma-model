@@ -8,9 +8,11 @@
     # nixpkgs rev b134951... was current on the nixos-24.05 branch when this
     # workflow was added, and nixos-generators rev 8946737... was the then-
     # current upstream HEAD used to produce qcow images.
-    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-24.05&rev=b134951a4c9f3c995fd7be05f3243f8ecd65d798";
-    nixos-generators.url = "git+https://github.com/nix-community/nixos-generators?rev=8946737ff703382fda7623b9fab071d037e897d5";
-    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators/7c60ba4bc8d6aa2ba3e5b0f6ceb9fc07bc261565";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
