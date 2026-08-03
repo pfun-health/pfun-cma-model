@@ -346,13 +346,14 @@ Assistant:
     # query the LLM with the formatted prompt, generate a scenario
     generated_scenario = await _call_llm_for_json(prompt, stream=stream)
     if "health_info" not in generated_scenario:
-        query_preview = query[:100] if query else query
-        truncation_marker = "..." if query and len(query) > 100 else ""
+        # The query content is deliberately omitted from the log: WARNING logs
+        # may be persisted/forwarded, and even a truncated preview can carry PII
+        # (names, emails, phone numbers). Only the query length is logged to
+        # keep the message actionable.
         logger.warning(
-            "LLM response omitted 'health_info' (query=%r%s); substituting the fixed "
-            "sample health profile and marking used_fallback_health_info=True.",
-            query_preview,
-            truncation_marker,
+            "LLM response omitted 'health_info' (query length=%d); substituting the "
+            "fixed sample health profile and marking used_fallback_health_info=True.",
+            len(query) if query else 0,
         )
         generated_scenario["health_info"] = sample_health_info.model_dump()
         used_fallback_health_info = True
