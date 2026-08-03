@@ -5,9 +5,11 @@ import json
 import logging
 import re
 from typing import Optional, Any, Literal, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, PrivateAttr
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
+
+logger = logging.getLogger(__name__)
 
 LLMBackendChoice = Literal[
     "google", "perplexity", "ollama", "openai"
@@ -73,6 +75,22 @@ class PFunLLMGeneratedScenario(BaseModel):
 
     recommendations: dict[str, str]
     #: A mapping of pfun llm generated recommendations, indexed by recommendation-type.
+
+    _used_fallback_health_info: bool = PrivateAttr(default=False)
+    #: True when ``health_info`` was not produced by the LLM but substituted with the fixed
+    #: sample profile (see :func:`generate_scenario`). Computed by ``generate_scenario``; the
+    #: LLM never emits this value. As a PrivateAttr it is automatically excluded from
+    #: ``model_dump()`` and the JSON schema, so downstream persistence (e.g. duckdb) is
+    #: unaffected.
+
+    @property
+    def used_fallback_health_info(self) -> bool:
+        """Whether the fixed sample health profile was substituted for the LLM response."""
+        return self._used_fallback_health_info
+
+    @used_fallback_health_info.setter
+    def used_fallback_health_info(self, value: bool) -> None:
+        self._used_fallback_health_info = value
 
 
 GeneratedScenario = PFunLLMGeneratedScenario
@@ -220,7 +238,10 @@ async def generate_scenario(
         include_recommendations: Whether to include recommendations in the generated scenario.
 
     Returns:
-        A dictionary containing the generated scenario.
+        A PFunLLMGeneratedScenario containing the generated scenario. The
+        ``used_fallback_health_info`` attribute is True when the LLM omitted
+        ``health_info`` and a fixed sample profile was substituted instead; it
+        is False whenever ``health_info`` was produced by the LLM.
     """
 
     # Construct the prompt
@@ -325,6 +346,19 @@ Assistant:
     # query the LLM with the formatted prompt, generate a scenario
     generated_scenario = await _call_llm_for_json(prompt, stream=stream)
     if "health_info" not in generated_scenario:
+        query_preview = query[:100] if query else query
+        truncation_marker = "..." if query and len(query) > 100 else ""
+        logger.warning(
+            "LLM response omitted 'health_info' (query=%r%s); substituting the fixed "
+            "sample health profile and marking used_fallback_health_info=True.",
+            query_preview,
+            truncation_marker,
+        )
         generated_scenario["health_info"] = sample_health_info.model_dump()
+        used_fallback_health_info = True
+    else:
+        used_fallback_health_info = False
 
-    return PFunLLMGeneratedScenario(**generated_scenario)
+    scenario = PFunLLMGeneratedScenario(**generated_scenario)
+    scenario.used_fallback_health_info = used_fallback_health_info
+    return scenario

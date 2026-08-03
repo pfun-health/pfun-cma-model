@@ -69,6 +69,12 @@ async def attempt_scene_gen(options: SceneGenOptions) -> str:
     # convert to a JSON-seralizable dictionary
     response_data = generated_scenario.model_dump()
 
+    # expose the internal-only fallback flag to the API consumer
+    # (it is excluded from model_dump() by default)
+    response_data["used_fallback_health_info"] = (
+        generated_scenario.used_fallback_health_info
+    )
+
     # attempt to convert dict to JSON-serialized string
     try:
         content = json.dumps(response_data)
@@ -77,7 +83,10 @@ async def attempt_scene_gen(options: SceneGenOptions) -> str:
         await asyncio.sleep(1)
         return await attempt_scene_gen(options)
     else:
-        # if it succeeds, store the original dict in duckdb (background task)
+        # if it succeeds, store the original dict in duckdb (background task);
+        # keep the internal-only flag out of the persisted payload
+        # (duckdb INSERT is positional, so a new column would break persistence)
+        response_data.pop("used_fallback_health_info")
         df_result = pd.DataFrame([response_data], index=[0])
         table_id = "cma_recs"
         db_path = (

@@ -215,6 +215,14 @@ def generate_scenario(ctx, query):
         response = generated_scenario
     else:
         response = generated_scenario.model_dump()  # type: ignore
+        if generated_scenario.used_fallback_health_info:
+            click.secho(
+                "Warning: LLM response omitted health_info; substituted fixed sample "
+                "profile (used_fallback_health_info=True)",
+                err=True,
+                fg="yellow",
+                bold=True,
+            )
     output_json_formatted = json.dumps(response, indent=4)
     click.secho(
         output_json_formatted.encode("utf8").decode("unicode_escape"),
