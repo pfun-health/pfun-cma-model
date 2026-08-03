@@ -109,6 +109,21 @@ GenerativeModel = init_gen_model
 #: alias (to clearly indicate this results in a new class instance)
 
 
+def _to_described_parameters(params: CMAModelParams) -> dict[str, DescribedParameter]:
+    """Build described parameter objects from CMA model parameters."""
+    bounded_descriptions = dict(
+        zip(params.bounded_param_keys, params.bounded_param_descriptions)
+    )
+    described_parameters: dict[str, DescribedParameter] = {}
+    for name, value in params.model_dump().items():
+        described_parameters[name] = DescribedParameter(
+            value=value,
+            description=bounded_descriptions.get(name, f"{name} parameter"),
+            stderr=float(params.calc_serr(name)) if name in params.bounded_param_keys else 0.0,
+        )
+    return described_parameters
+
+
 async def _parse_generated_response(response: Any | str) -> str:  # type: ignore
     """Parse the response that was returned by the generative model.
     Await the future if it's an async routine-like object.
@@ -276,7 +291,7 @@ async def generate_scenario(
     sample_generated_scenario = PFunLLMGeneratedScenario(
         forecasted_events="Low blood glucose (hypoglycemic episodes) in the evening",
         qualitative_description=str(scenario_description),
-        parameters=scenario_params.model_dump(),
+        parameters=_to_described_parameters(scenario_params),
         health_info=sample_health_info.model_dump(),
         recommendations=sample_recommendations,
     )
@@ -309,5 +324,7 @@ Assistant:
 """
     # query the LLM with the formatted prompt, generate a scenario
     generated_scenario = await _call_llm_for_json(prompt, stream=stream)
+    if "health_info" not in generated_scenario:
+        generated_scenario["health_info"] = sample_health_info.model_dump()
 
     return PFunLLMGeneratedScenario(**generated_scenario)
