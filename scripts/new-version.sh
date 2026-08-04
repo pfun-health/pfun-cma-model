@@ -11,7 +11,7 @@ source "${SCRIPT_DIRNAME}/_funcs.def.sh"
 
 bump_package_versions() {
     # bump pfun-cma-model package version
-    uv version --bump patch --project pfun-cma-model
+    uv version --bump patch
 }
 
 bump_package_versions
