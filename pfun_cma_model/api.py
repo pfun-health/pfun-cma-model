@@ -9,6 +9,7 @@ from pfun_cma_model.security import (
 from guard import SecurityMiddleware
 from contextlib import asynccontextmanager
 from datetime import datetime
+import functools
 import importlib
 import json
 import logging
@@ -342,11 +343,16 @@ def login_sso_route(request: Request):
     )
 
 
+@functools.lru_cache()
+def _read_favicon() -> bytes:
+    """Read and cache the favicon file content."""
+    with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
+        return f.read()
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
-    img = None
-    with open(STATIC_DIR / "icons" / "pfun-cutielogo-icon.ico", "rb") as f:
-        img = f.read()
+    img = _read_favicon()
     return Response(content=img, media_type="image/x-icon")
 
 

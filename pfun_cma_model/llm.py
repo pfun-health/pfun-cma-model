@@ -4,14 +4,97 @@ import importlib
 import json
 import logging
 import re
-from typing import Optional, Any, Literal
-from pydantic import BaseModel
+from typing import Optional, Any, Literal, List
+from pydantic import BaseModel, PrivateAttr
 from pfun_common.settings import get_settings
 from pfun_cma_model.engine.cma_model_params import CMAModelParams
+
+logger = logging.getLogger(__name__)
 
 LLMBackendChoice = Literal[
     "google", "perplexity", "ollama", "openai"
 ]  # The allowed choices for LLM backend, corresponding to the implemented backends in pfun_llm.backend.
+
+
+class DescribedParameter(BaseModel):
+    """
+    PFun model parameter, along with descriptioon, value, standard error estimate.
+    """
+
+    value: float | int | Any
+    #: Parameter value.
+
+    description: str
+    #: Text description.
+
+    stderr: float
+    #: Standard error estimate.
+
+
+QualitativeLiteral = Literal["normal ", "low", "high", "very low", "very high"]
+#: Literals for qualitative string
+
+
+class PFunHealthInfo(BaseModel):
+    """
+    Defines the expected schema for estimated user health info.
+    """
+
+    age: int
+    #: Estimated age of the individual
+
+    sex: Literal["f", "m", "o"]
+    #: Estimated biological sex of the individual
+
+    stress_level: QualitativeLiteral
+    #: Estimated stress level of the individual
+
+    sleep_quality: QualitativeLiteral
+    #: Estimated sleep quality of the individual
+
+    circadian_misalignment: QualitativeLiteral
+    #: Estimated circadian misalignment of the individual
+
+
+class PFunLLMGeneratedScenario(BaseModel):
+    """
+    Defines the expected schema for an LLM-Generated scenario.
+    """
+
+    forecasted_events: str
+    #: A concise list of predicted health events.
+
+    qualitative_description: str
+    #: A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.
+
+    parameters: dict[str, DescribedParameter]
+    #: A mapping of pfun model parameter names with corresponding value, description, and stderr.
+
+    health_info: PFunHealthInfo
+    #: Health information for the given individual.
+
+    recommendations: dict[str, str]
+    #: A mapping of pfun llm generated recommendations, indexed by recommendation-type.
+
+    _used_fallback_health_info: bool = PrivateAttr(default=False)
+    #: True when ``health_info`` was not produced by the LLM but substituted with the fixed
+    #: sample profile (see :func:`generate_scenario`). Computed by ``generate_scenario``; the
+    #: LLM never emits this value. As a PrivateAttr it is automatically excluded from
+    #: ``model_dump()`` and the JSON schema, so downstream persistence (e.g. duckdb) is
+    #: unaffected.
+
+    @property
+    def used_fallback_health_info(self) -> bool:
+        """Whether the fixed sample health profile was substituted for the LLM response."""
+        return self._used_fallback_health_info
+
+    @used_fallback_health_info.setter
+    def used_fallback_health_info(self, value: bool) -> None:
+        self._used_fallback_health_info = value
+
+
+GeneratedScenario = PFunLLMGeneratedScenario
+#: Alias for PFunLLMGeneratedScenario
 
 
 def _import_genai_with_backend(llm_backend: LLMBackendChoice):
@@ -29,7 +112,10 @@ def init_gen_model(**kwds):
                  These will be passed directly to the model's internal _extra_kwds dictionary,
                  which is used to configure the model's behavior.
     """
-    kwargs = dict(options={"temperature": 0, "seed": 23})
+    kwargs = {
+        "options": {"temperature": 0, "seed": 23},
+        "format": PFunLLMGeneratedScenario.model_json_schema(),  # specifies the expected output format exactly
+    }
     kwargs.update(kwds)
     GenerativeModel = _import_genai_with_backend(get_settings().llm_backend)
     model = GenerativeModel()
@@ -38,6 +124,22 @@ def init_gen_model(**kwds):
 
 
 GenerativeModel = init_gen_model
+#: alias (to clearly indicate this results in a new class instance)
+
+
+def _to_described_parameters(params: CMAModelParams) -> dict[str, DescribedParameter]:
+    """Build described parameter objects from CMA model parameters."""
+    bounded_descriptions = dict(
+        zip(params.bounded_param_keys, params.bounded_param_descriptions)
+    )
+    described_parameters: dict[str, DescribedParameter] = {}
+    for name, value in params.model_dump().items():
+        described_parameters[name] = DescribedParameter(
+            value=value,
+            description=bounded_descriptions.get(name, f"{name} parameter"),
+            stderr=float(params.calc_serr(name)) if name in params.bounded_param_keys else 0.0,
+        )
+    return described_parameters
 
 
 async def _parse_generated_response(response: Any | str) -> str:  # type: ignore
@@ -121,43 +223,6 @@ async def _call_llm_for_json(prompt: str, stream: bool = False) -> dict:
         raise Exception(f"Failed to parse LLM API response: {e}")
 
 
-class DescribedParameter(BaseModel):
-    """
-    PFun model parameter, along with descriptioon, value, standard error estimate.
-    """
-
-    value: float | int | Any
-    #: Parameter value.
-
-    description: str
-    #: Text description.
-
-    stderr: float
-    #: Standard error estimate.
-
-
-class PFunLLMGeneratedScenario(BaseModel):
-    """
-    Defines the expected schema for an LLM-Generated scenario.
-    """
-
-    forecasted_events: str
-    #: A concise list of predicted health events.
-
-    qualitative_description: str
-    #: A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.
-
-    parameters: dict[str, DescribedParameter]
-    #: A mapping of pfun model parameter names with corresponding value, description, and stderr.
-
-    recommendations: dict[str, str]
-    #: A mapping of pfun llm generated recommendations, indexed by recommendation-type.
-
-
-GeneratedScenario = PFunLLMGeneratedScenario
-#: Alias for PFunLLMGeneratedScenario
-
-
 async def generate_scenario(
     query: Optional[str] = None,
     include_sample_trace: bool = False,
@@ -173,7 +238,10 @@ async def generate_scenario(
         include_recommendations: Whether to include recommendations in the generated scenario.
 
     Returns:
-        A dictionary containing the generated scenario.
+        A PFunLLMGeneratedScenario containing the generated scenario. The
+        ``used_fallback_health_info`` attribute is True when the LLM omitted
+        ``health_info`` and a fixed sample profile was substituted instead; it
+        is False whenever ``health_info`` was produced by the LLM.
     """
 
     # Construct the prompt
@@ -223,15 +291,31 @@ async def generate_scenario(
         if include_recommendations
         else ""
     )
-    specific_recommendations_json_extra = ""
-    if include_recommendations:
-        specific_recommendations_json_extra = f"""\
-            ,
-            "recommendations": {{
-                "stress_management": "Employ deep-breathing exercises to manage stress.",
-                "dietary_adjustments": "Include high-quality proteins and fats in evening meals to stabilize glucose levels, thus avoiding hypoglycemic episodes. Positive clinical outcomes should result in significantly decreased Cm, ideally closer to the expected baseline ({basal_params.Cm:.2f}).",
-                "sleep_hygiene_improvements": "Aim to maintain a consistent sleep schedule and avoid screens before bedtime. Improved sleep quality can help regulate cortisol levels, thus decreasing overall glucose variability (positive outcomes are seen in a return to baseline Cm). Aim to get at least 7 hours of sleep per night; increased sleep duration can also help stabilize the global rate of postprandial glucose metabolism (taug, baseline expected value {basal_params.taug:.2f}); this helps mitigate hypoglycemia risk by increasing the time until glucose levels return to baseline (or drop dangerously low)."
-        }}"""
+
+    sample_recommendations = (
+        {
+            "stress_management": "Employ deep-breathing exercises to manage stress.",
+            "dietary_adjustments": "Include high-quality proteins and fats in evening meals to stabilize glucose levels, thus avoiding hypoglycemic episodes. Positive clinical outcomes should result in significantly decreased Cm, ideally closer to the expected baseline ({basal_params.Cm:.2f}).",
+            "sleep_hygiene_improvements": "Aim to maintain a consistent sleep schedule and avoid screens before bedtime. Improved sleep quality can help regulate cortisol levels, thus decreasing overall glucose variability (positive outcomes are seen in a return to baseline Cm). Aim to get at least 7 hours of sleep per night; increased sleep duration can also help stabilize the global rate of postprandial glucose metabolism (taug, baseline expected value {basal_params.taug:.2f}); this helps mitigate hypoglycemia risk by increasing the time until glucose levels return to baseline (or drop dangerously low).",
+        }
+        if include_recommendations
+        else {}
+    )
+
+    sample_health_info = PFunHealthInfo(
+        age=37,
+        sex="f",
+        stress_level="high",
+        sleep_quality="low",
+        circadian_misalignment="high",
+    )
+    sample_generated_scenario = PFunLLMGeneratedScenario(
+        forecasted_events="Low blood glucose (hypoglycemic episodes) in the evening",
+        qualitative_description=str(scenario_description),
+        parameters=_to_described_parameters(scenario_params),
+        health_info=sample_health_info.model_dump(),
+        recommendations=sample_recommendations,
+    )
 
     prompt = f"""\
 You are a helpful assistant that generates realistic scenarios for a person with diabetes.
@@ -239,21 +323,9 @@ The user will provide a query to guide the generation.
 If the query appears blank, then generate a realistic hypothetical scenario.
 All generations must be completely valid physiofunctional results.
 
-You will return a JSON object with the following structure:
+You will return a JSON object:
 ```json
-{{
-    "forecasted_events": "A concise list of predicted health events.",
-    "qualitative_description": "A concise clinical description of the person's metabolic health, lifestyle, and any recent health-relevant events.",
-    "parameters": {{
-        "param1": {{
-            "value": value1, "stderr": <float>, "description": "Description of param1"
-        }},
-        "param2": {{
-            "value": value2, "stderr": <float>, "description": "Description of param2"
-        }},
-        ...
-    }}{recommendations_json_extra}
-}}
+{sample_generated_scenario.model_json_schema()}
 ```
 Here are the baseline PFun CMA model parameters, displayed as a markdown-formatted table:
 {basal_param_descriptions}
@@ -264,22 +336,30 @@ Think: "Corresponding to the scenario, here is a hypothetical scenario-condition
 {scenario_param_descriptions}
 Assistant:
 ```json
-{{
-    "forecasted_events": "Low blood glucose (hypoglycemic episodes) in the evening",
-    "qualitative_description": "{scenario_description}",
-    "parameters": {{
-        "Cm": {{ "value": {scenario_params.Cm},  "stderr": {scenario_params.serr("Cm")}, "description": "Heightened stress level, leading to increased cortisol-mediated glucose variability" }},
-        "B": {{ "value": {scenario_params.B}, "stderr": {scenario_params.serr("B")}, "description": "Low baseline glucose" }},
-        "tM": {{ "value": [7, 11, 18], "description": "Consistent meal times throughout the day, keep up the great work! Consider eating a small snack after dinner to avoid hypoglycemia at night." }}
-    }}{specific_recommendations_json_extra}
-}}
+{sample_generated_scenario.model_dump()}
 ```
 
 Now, please generate a scenario based on the following user query. If the query is empty, generate a random scenario.
-User: "{query if query else 'No query provided.'}"
+User: "{query if query else "No query provided."}"
 Assistant:
 """
     # query the LLM with the formatted prompt, generate a scenario
     generated_scenario = await _call_llm_for_json(prompt, stream=stream)
+    if "health_info" not in generated_scenario:
+        # The query content is deliberately omitted from the log: WARNING logs
+        # may be persisted/forwarded, and even a truncated preview can carry PII
+        # (names, emails, phone numbers). Only the query length is logged to
+        # keep the message actionable.
+        logger.warning(
+            "LLM response omitted 'health_info' (query length=%d); substituting the "
+            "fixed sample health profile and marking used_fallback_health_info=True.",
+            len(query) if query else 0,
+        )
+        generated_scenario["health_info"] = sample_health_info.model_dump()
+        used_fallback_health_info = True
+    else:
+        used_fallback_health_info = False
 
-    return PFunLLMGeneratedScenario(**generated_scenario)
+    scenario = PFunLLMGeneratedScenario(**generated_scenario)
+    scenario.used_fallback_health_info = used_fallback_health_info
+    return scenario

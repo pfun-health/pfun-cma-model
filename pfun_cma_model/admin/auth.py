@@ -2,11 +2,8 @@ import logging
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger()
-from datetime import timedelta
-from typing import Annotated, Optional
 from fastapi_sso import OpenID
-from fastapi import Depends, HTTPException, Security
-from fastapi.security import APIKeyCookie
+from fastapi import HTTPException
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from sqlalchemy import select

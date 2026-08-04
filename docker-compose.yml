@@ -1,5 +1,5 @@
 services:
-
+   # pfun-cma-model fastapi backend
   pfun-cma-model:
     restart: unless-stopped
     build:
@@ -8,31 +8,40 @@ services:
     user: "nonroot:nonroot"
     env_file: .env
     environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - UVICORN_RELOAD=false
       - USER=nonroot
       - GROUP=nonroot
     container_name: pfun-cma-model
     ports:
       - "8001:8001"
-    networks:
-      - pfun-cma-network
-    command:
-      [
-        "scripts/serve-prod.sh",
-        "full"
-      ]
+    depends_on:
+      - ollama
+      - redis
+    command: ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
 
-  pfun-qt-gui:
-    extends:
-      file: packages/pfun_qt_gui/docker-compose.yml
-      service: pfun-qt-gui
-    # #NOTE: we use 'extends' here to include the service definition from the package's
+   # docker-accessible ollama server
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
 
-# Define networks at the root level
-networks:
-  pfun-cma-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
+  # redis cache service
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+# project-level volumes
+volumes:
+  ollama_data:
+  redis_data:
