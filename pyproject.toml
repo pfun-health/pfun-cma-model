@@ -37,7 +37,6 @@ dependencies = [
   "itsdangerous>=2.2.0",
   "python-jose[cryptography]>=3.5.0",
   "duckdb==1.4.4",
-  "httpx>=0.28.1",
   "fastapi-guard>=4.2.2",
   "sqladmin[full]>=0.23.0",
   "alembic>=1.18.4",
@@ -49,6 +48,7 @@ dependencies = [
   "tqdm>=4.67.3",
   "python-dotenv>=1.2.2",
   "uvicorn>=0.42.0",
+  "httpx2>=2.5.0",
 ]
 
 
@@ -99,7 +99,7 @@ llm = [
 ]
 lint = ["black>=25.12.0", "mypy>=1.19.1", "ruff>=0.15.11"]
 docs = ["zensical>=0.0.29"]
-datasette = ["datasette<=1.0a23", "datasette-parquet>=0.6.1"]
+datasette = ["datasette<=1.0a36", "datasette-parquet>=0.6.1"]
 
 # hatch configurations
 [tool.hatch.metadata]

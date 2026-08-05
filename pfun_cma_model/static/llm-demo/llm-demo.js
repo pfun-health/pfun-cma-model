@@ -124,12 +124,15 @@ class LlmDemo {
             event.preventDefault();
         }
 
+        // loading
         this.showLoadingContainer();
 
+        // definitions for structured query
         const query = this.dom.queryInput?.value ?? '';
         const queryUrl = new URL(window.location.origin + '/llm/generate-scenario');
         queryUrl.searchParams.set('prompt', query);
 
+        // Disable submit button, clear old output
         this.disableSubmit();
         this.clearOutput();
 
@@ -138,6 +141,7 @@ class LlmDemo {
                 throw new Error('<<TEST_ERROR>>');
             }
 
+            // Attempt the request
             const response = await fetch(queryUrl.toString(), {
                 method: 'POST',
                 headers: {
@@ -146,22 +150,28 @@ class LlmDemo {
                 body: null,
             });
 
+            // done loading
             this.hideLoadingContainer();
 
             if (!response.ok) {
+                // Handle "not ok" response
                 const errorBody = await response.json().catch(() => null);
                 throw new Error(errorBody?.detail ?? response.statusText);
             }
 
+            // (successful response) Get the response data as JSON
             const data = await response.json();
             const strContent = JSON.stringify(data, null, 2);
 
+            // Handle error (not the response we expected)
             if (strContent.startsWith('Err')) {
                 throw new Error(strContent);
             }
-
+            
+            // Render, upon verifying response is as expected
             this.renderResponse(data);
-            this.enableSubmit();
+            this.enableSubmit(); // re-enable submit button
+            
         } catch (error) {
             const retryCount = this.incrementRetryCount();
 

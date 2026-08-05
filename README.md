@@ -5,8 +5,6 @@
 - [**PFun Homepage**](https://pfun.one/)
 - [**Terminal Demo Video**](./DEMO.md) — performance benchmarks + 3D waveform animation
 
-[![CMA Model 3D Waveform Visualization](docs/assets/img/demo-terminal.svg)](./DEMO.md)
-
 ## Overview
 
 ### API Description
@@ -30,7 +28,7 @@ A few pithy one-liners:
 
 **Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series)**
 
-![Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series).](./results/generated.png)
+![Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series).](https://pfun-health.github.io/pfun-cma-model/assets/img/generated.png)
 
 <div style="border-width: 1px; border-color: #444;">The CMA model leverages physiological modeling principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin. See example notebooks in the live Demo (or in ./examples/notebooks)</div>
 
@@ -121,6 +119,99 @@ $ ./scripts/inject-secrets-env.sh
 
 	# ...or with the convenience script:
 	./scripts/full-rebuild.sh
+
+### Nix Images
+
+The `flake.nix` defines two deployment artifact outputs:
+
+| Output | Format | Use case |
+|---|---|---|
+| `.#oci-image` | OCI/Docker archive (`.tar.gz`) | Container registries, Docker / Podman |
+| `.#vm-image` | qcow2 disk image | QEMU, libvirt, cloud VMs |
+
+After a successful build, each output is symlinked under `./result/<output-name>`:
+
+```
+./result/
+  oci-image -> /nix/store/…-pfun-cma-model-<ver>.tar.gz
+  vm-image  -> /nix/store/…-nixos-…-qcow2
+```
+
+#### Build — all outputs at once
+
+The flake exposes a `build-all` app that builds every package output and places
+each symlink under `./result/<output-name>` automatically.
+
+```bash
+# Build all outputs (places symlinks at ./result/oci-image and ./result/vm-image)
+nix run .#build-all
+```
+
+You can also enter the development shell and run the same command without the
+`nix run` prefix:
+
+```bash
+# Enter the Nix dev shell (build-all is available on PATH)
+nix develop
+
+# Inside the shell:
+build-all
+```
+
+Any extra flags are forwarded to each underlying `nix build` call, e.g.:
+
+```bash
+# Show verbose build logs for all outputs
+nix run .#build-all -- --print-build-logs
+```
+
+#### Build — individual outputs
+
+Build a single output and place the symlink wherever you like with `--out-link`:
+
+```bash
+# OCI container image
+nix build .#oci-image --out-link result/oci-image
+
+# VM disk image (qcow2)
+nix build .#vm-image --out-link result/vm-image
+```
+
+Omitting `--out-link` will use Nix's default symlink name (`./result`,
+`./result-2`, …).
+
+#### Run the OCI image
+
+```bash
+# Load into Docker
+docker load < result/oci-image
+
+# Run (replace <tag> with the version printed by docker load)
+docker run --rm -p 8001:8001 pfun-cma-model:<tag>
+```
+
+#### Run the VM image (QEMU)
+
+```bash
+# Copy to a writable location first (result/ symlinks are read-only)
+cp result/vm-image pfun-cma-model.qcow2
+chmod u+w pfun-cma-model.qcow2
+
+# Boot the VM — the API is exposed on port 8001
+qemu-kvm \
+  -m 2048 \
+  -smp 2 \
+  -drive file=pfun-cma-model.qcow2,format=qcow2 \
+  -net nic \
+  -net user,hostfwd=tcp::8001-:8001 \
+  -nographic
+```
+
+The VM logs in automatically as the `pfun` user (no password). The
+`pfun-cma-model` systemd service starts on boot and listens on port `8001`.
+`pfun` is a member of `wheel` and can run passwordless `sudo` when needed.
+
+
 
 #### (Nix) `devenv shell`
 

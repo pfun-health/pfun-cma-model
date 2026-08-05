@@ -4,14 +4,25 @@ import importlib
 import sys
 from pathlib import Path
 from typing import Literal
-from numpy import array, atleast_1d, clip, cos
+from numpy import array, atleast_1d, clip, cos, broadcast_to
 from numpy import exp as np_exp
 from numpy import (
-    log, nan, ndarray, pi, piecewise, power, zeros,
-    nansum, nanmean, nanmin, nanmax,
+    log,
+    nan,
+    ndarray,
+    pi,
+    piecewise,
+    power,
+    zeros,
+    nansum,
+    nanmean,
+    nanmin,
+    nanmax,
 )
 from pandas import Series
 from pydantic import BaseModel
+from pfun_cma_model.engine.cma_model_params import CMAModelParams
+
 try:
     from pfun_cma_model.misc.decorators import check_is_numpy
 except ModuleNotFoundError:
@@ -90,10 +101,17 @@ GlucoseUnits = Literal["mgdl", "mmoll"]
 
 def guess_glucose_units(values) -> GlucoseUnits:
     """Guess the glucose units (mgdl or mmoll)."""
+
     def calc_dist(x):
         gx0, gx1, gx_s = nanmin(values), nanmax(values), nanmean(values)
         gx = array([gx0, gx1, gx_s])
-        return "mgdl" if nansum((gx - GlucoseRange_mgdl().g_range) ** 2) < nansum((gx - GlucoseRange_mmoll().g_range) ** 2) else "mmoll"
+        return (
+            "mgdl"
+            if nansum((gx - GlucoseRange_mgdl().g_range) ** 2)
+            < nansum((gx - GlucoseRange_mmoll().g_range) ** 2)
+            else "mmoll"
+        )
+
     return calc_dist(values)
 
 
@@ -187,11 +205,7 @@ def K(x: ndarray):
 def vectorized_G(
     t: ndarray | float,
     I_E: ndarray | float,
-    tm: ndarray | float,
-    taug: ndarray | float,
-    B: float,
-    Cm: float,
-    toff: float,
+    params: CMAModelParams,
     include_bias: bool = False,
 ):
     """Vectorized version of G(t, I_E, tm, taug, B, Cm, toff).
@@ -202,25 +216,19 @@ def vectorized_G(
         Time vector (hours).
     I_E : float
         Extracellular insulin (u*mg/mL).
-    tm : array_like
-        Meal times (hours).
-    taug : array_like
-        Meal duration (hours).
-    B : float
-        Bias constant.
-    Cm : float
-        Cortisol temporal sensitivity coefficient (u/h).
-    toff : float
-        Meal-relative time offset (hours).
+    params: CMAModelParams
+        Model parameters.
+    include_bias: bool
+        Whether to include bias.
 
     Returns
     -------
     array_like
         G(t, I_E, tm, taug, B, Cm, toff).
     """
-    tm = atleast_1d(tm)
+    tm = atleast_1d(params.tM)
     t = atleast_1d(t)
-    taug = atleast_1d(taug)
+    taug = broadcast_to(atleast_1d(params.taug), tm.shape)
 
     def Gtmp(tm_: float | ndarray, taug_: float | ndarray):
         k_G = K((t - atleast_1d(tm_)) / power(atleast_1d(taug_), 2))
@@ -235,5 +243,7 @@ def vectorized_G(
         out[j, :] = gtmp
         j = j + 1
     if include_bias:
-        out = out + B * (1.0 + meal_distr(Cm, t, toff))  # ! apply bias constant.
+        out = out + params.B * (
+            1.0 + meal_distr(params.Cm, t, params.toff)
+        )  # ! apply bias constant.
     return out

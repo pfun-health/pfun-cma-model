@@ -47,6 +47,11 @@ class TestGenerateScenario:
         assert result.qualitative_description == "Test description"
         assert "Cm" in result.parameters
         assert "diet" in result.recommendations
+        # The mocked LLM response omits health_info, so the fixed sample
+        # profile is substituted and the flag must reflect that.
+        assert result.used_fallback_health_info is True
+        # The internal flag must never leak into model_dump() (persistence protection).
+        assert "used_fallback_health_info" not in result.model_dump()
 
         # Verify call arguments
         mock_call_llm.assert_called_once()
@@ -54,6 +59,43 @@ class TestGenerateScenario:
         prompt = args[0]
         assert "User: \"Test query\"" in prompt
         assert "recommendations" in prompt
+
+    @patch("pfun_cma_model.llm._call_llm_for_json")
+    async def test_generate_scenario_with_health_info_no_fallback(self, mock_call_llm):
+        mock_response = {
+            "forecasted_events": "Test event",
+            "qualitative_description": "Test description",
+            "parameters": {
+                "Cm": {"value": 1.5, "stderr": 0.1, "description": "Test Cm"}
+            },
+            "health_info": {
+                "age": 50,
+                "sex": "m",
+                "stress_level": "low",
+                "sleep_quality": "low",
+                "circadian_misalignment": "low",
+            },
+            "recommendations": {
+                "diet": "Test diet recommendation"
+            },
+        }
+        mock_call_llm.return_value = mock_response
+
+        result = await generate_scenario(query="Test query")
+
+        # The LLM provided health_info, so no fallback substitution happens
+        # and the flag must be False.
+        assert isinstance(result, PFunLLMGeneratedScenario)
+        assert result.used_fallback_health_info is False
+        assert result.health_info.age == 50
+        assert result.health_info.sex == "m"
+        # The internal flag must never leak into model_dump() (persistence protection).
+        assert "used_fallback_health_info" not in result.model_dump()
+        # The internal flag must not be part of the LLM-facing schema.
+        assert (
+            "used_fallback_health_info"
+            not in PFunLLMGeneratedScenario.model_json_schema()["properties"]
+        )
 
     @patch("pfun_cma_model.llm._call_llm_for_json")
     async def test_generate_scenario_no_recommendations(self, mock_call_llm):

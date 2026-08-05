@@ -74,6 +74,20 @@ class TestSecurityConfigurationBasics:
 class TestSecurityHeaders:
     """Test security headers configuration."""
 
+    def test_required_security_header_contract_matches_docs(self):
+        """Verify the documented required security headers are all configured."""
+        security_config = setup_security_config()  # Ensure config is set up
+        security_headers = security_config.security_headers
+        required_headers = {
+            "Content-Security-Policy": security_headers.get("csp"),
+            "Strict-Transport-Security": security_headers.get("hsts"),
+            "X-Frame-Options": security_headers.get("frame_options"),
+            "Referrer-Policy": security_headers.get("referrer_policy"),
+            "Permissions-Policy": security_headers.get("permissions_policy"),
+        }
+        missing = [name for name, value in required_headers.items() if not value]
+        assert not missing, f"Missing required security header config entries for: {', '.join(missing)}"
+
     def test_security_headers_enabled(self):
         """Verify security headers are enabled."""
         security_config = setup_security_config()  # Ensure config is set up
