@@ -53,7 +53,7 @@ jobs:
 
       # Bump the patch version in pyproject.toml (e.g. 0.4.208 → 0.4.209)
       - name: Bump patch version
-        run: uv version --bump patch --project pfun-cma-model
+        run: uv version --bump patch
 
       # Capture the new version string for use in later steps
       - name: Read new version
