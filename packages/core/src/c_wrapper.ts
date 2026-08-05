@@ -8,14 +8,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const ext = platform() === 'win32' ? 'dll' : platform() === 'darwin' ? 'dylib' : 'so';
-let libPath = join(__dirname, '../../../pfun-cma-engine-c/pfun_cma_engine/libpfun_cma_engine.' + ext);
+const libName = 'pfun_cma_engine/libpfun_cma_engine.' + ext;
+const libCandidates = [
+  join(__dirname, '../../../pfun-cma-engine-c/' + libName),
+  join(__dirname, '../../pfun-cma-engine-c/' + libName),
+];
+const libPath = libCandidates.find(existsSync);
 
-if (!existsSync(libPath)) {
-  libPath = join(__dirname, '../../pfun-cma-engine-c/pfun_cma_engine/libpfun_cma_engine.' + ext);
-}
-
-if (!existsSync(libPath)) {
-    throw new Error(`Could not find the compiled C engine at ${libPath}. Did you run build?`);
+if (!libPath) {
+    throw new Error(`Could not find the compiled C engine (tried: ${libCandidates.join(', ')}). Did you run build?`);
 }
 
 const lib = koffi.load(libPath);

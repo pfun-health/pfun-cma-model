@@ -19,22 +19,21 @@ def test_save2duckdb_creates_and_inserts(temp_db_path, sample_df):
     with duckdb.connect(temp_db_path) as con:
         result = con.sql("SELECT * FROM test_table").df()
 
-    expected_df = pd.concat([sample_df, sample_df], ignore_index=True)
-    pd.testing.assert_frame_equal(result, expected_df, check_dtype=False)
+    pd.testing.assert_frame_equal(result, sample_df, check_dtype=False)
 
 def test_save2duckdb_appends_to_table(temp_db_path, sample_df):
-    # First save creates AS SELECT + INSERT = 2 copies
+    # First save creates table and inserts 1 copy
     save2duckdb(sample_df, db_path=temp_db_path, table_id="test_table")
 
-    # Second save does CREATE IF NOT EXISTS (noop) + INSERT = 1 copy
-    # Total = 3 copies
+    # Second save appends 1 more copy
+    # Total = 2 copies
     save2duckdb(sample_df, db_path=temp_db_path, table_id="test_table")
 
     # Verify
     with duckdb.connect(temp_db_path) as con:
         result = con.sql("SELECT * FROM test_table").df()
 
-    expected_df = pd.concat([sample_df, sample_df, sample_df], ignore_index=True)
+    expected_df = pd.concat([sample_df, sample_df], ignore_index=True)
     pd.testing.assert_frame_equal(result, expected_df, check_dtype=False)
 
 def test_query_duckdb_valid_query(temp_db_path, sample_df):
@@ -43,8 +42,7 @@ def test_query_duckdb_valid_query(temp_db_path, sample_df):
     query = "SELECT id FROM test_table WHERE value = 'a'"
     result = query_duckdb(query, db_path=temp_db_path)
 
-    # Since it inserts twice
-    expected_df = pd.DataFrame({"id": [1, 1]})
+    expected_df = pd.DataFrame({"id": [1]})
     pd.testing.assert_frame_equal(result, expected_df, check_dtype=False)
 
 def test_query_duckdb_invalid_query(temp_db_path):
