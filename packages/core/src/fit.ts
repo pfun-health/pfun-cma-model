@@ -28,12 +28,8 @@ export async function fitModel(data: any[], opts?: any): Promise<FitResult> {
     const weight = pls.weights ? pls.weights[0][0] : 1.0;
 
     const model = new CMASleepWakeModel();
-    model.update({
-        taug: 1.0 * weight,
-        taup: 1.0 * weight,
-        B: 0.05 * weight,
-        N: data.length > 0 ? data.length : 24,
-    });
+    const N = typeof opts?.N === 'number' ? opts.N : 288;
+    model.update({ taug: 1.0 * weight, taup: 1.0 * weight, B: 0.05 * weight, N });
 
     model.solve();
 
