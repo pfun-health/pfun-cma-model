@@ -1,4 +1,4 @@
-import { run_cma_model } from './c_wrapper.js';
+import { runCMAModel } from './engine.js';
 import { CMAModelParams, CMAModelParamsSchema } from './cma_model_params.js';
 
 export class CMASleepWakeModel {
@@ -22,8 +22,10 @@ export class CMASleepWakeModel {
   }
 
   solve(): void {
-    const { N, d, taup, taug, B, Cm, toff, tM, seed, eps } = this._params;
-    const t = this._params.t || Array.from({ length: N }, (_, i) => i * (24.0 / (N - 1)));
+    const { t: paramsT, N, d, taup, taug, B, Cm, toff, tM, seed, eps } = this._params;
+    const t = (paramsT && paramsT.length > 0)
+        ? paramsT
+        : Array.from({ length: N }, (_, i) => i * (24.0 / (N - 1)));
 
     // Ensure all TypedArrays are sized appropriately
     const tArray = new Float64Array(t);
@@ -36,9 +38,9 @@ export class CMASleepWakeModel {
     const out_I_S = new Float64Array(N);
     const out_I_E = new Float64Array(N);
     const out_G = new Float64Array(N);
-    const out_g = new Float64Array(N * tM.length); // assuming 3 meals
+    const out_g = new Float64Array(N * tM.length);
 
-    run_cma_model(
+    runCMAModel(
       tArray, N, d, taup, taug, null, B, Cm, toff,
       tMArray, tM.length, seedPtr, eps,
       out_L, out_m, out_c, out_a, out_I_S, out_I_E, out_G, out_g
@@ -52,7 +54,7 @@ export class CMASleepWakeModel {
       A: Array.from(out_a),
       I_S: Array.from(out_I_S),
       I_E: Array.from(out_I_E),
-      G: Array.from(out_G)
+      G: Array.from(out_G),
     };
   }
 }

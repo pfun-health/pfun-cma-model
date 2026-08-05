@@ -1,11 +1,34 @@
 {
-  "name": "pfun-cma-model-ts",
+  "name": "pfun-cma-model",
+  "version": "1.0.2",
   "private": true,
-  "version": "1.0.0",
+  "type": "module",
+  "description": "pfun-cma-model - Circadian Metabolic Analysis",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "scripts": {
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:ci": "pnpm -r test:ci",
+    "lint": "pnpm -r lint",
+    "bench": "pnpm --filter @pfun/core bench",
+    "dev": "pnpm --filter @pfun/api dev",
+    "start": "pnpm --filter @pfun/api start"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.10.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.10.0",
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.6"
   }
 }

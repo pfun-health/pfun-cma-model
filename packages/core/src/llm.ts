@@ -5,10 +5,10 @@ export interface CMAScenarioGenerationResult {
     parameters: Partial<CMAModelParams>;
 }
 
-// In this standalone environment, simulating the LLM API call is necessary
-// as we don't have active external API keys (e.g. OpenAI) provided in the env.
-// This maintains the correct interface, schema, and basic logic mapping expected from the prompt.
-export async function generateScenario(query: string): Promise<CMAScenarioGenerationResult> {
+// Keyword-based scenario generation mapping natural language to model parameters.
+// To be replaced with LLM-based generation once an API is integrated.
+export function generateScenario(query: string): CMAScenarioGenerationResult {
+    
     const params: Partial<CMAModelParams> = {
         d: 0.0,
         taup: 1.0,
@@ -17,11 +17,12 @@ export async function generateScenario(query: string): Promise<CMAScenarioGenera
         Cm: 0.0,
         toff: 0.0
     };
-
+    
     let description = `A generated scenario based on query: "${query}". `;
-
+    
+    // Process query to match the parameter space defined by the model
     const lowerQuery = query.toLowerCase();
-
+    
     if (lowerQuery.includes('sleep in') || lowerQuery.includes('night owl')) {
         params.toff = 2.5;
         description += "This individual is a natural 'night owl' with a delayed sleep phase.";
@@ -31,7 +32,7 @@ export async function generateScenario(query: string): Promise<CMAScenarioGenera
     } else {
         description += "This individual has a standard circadian rhythm and metabolic profile.";
     }
-
+    
     if (lowerQuery.includes('unhealthy') || lowerQuery.includes('diabetes')) {
         params.B = 0.2;
         params.taug = 2.5;

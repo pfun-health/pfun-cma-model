@@ -1,9 +1,0 @@
-{
-  "plugins": {
-    "datasette-parquet": {
-      "cma": {
-        "file": "results/duckdb.db"
-      }
-    }
-  }
-}

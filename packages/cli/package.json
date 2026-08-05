@@ -8,18 +8,21 @@
     "pfun-cma-model": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run"
   },
   "dependencies": {
-    "api": "workspace:*",
+    "@pfun/api": "workspace:*",
+    "@pfun/core": "workspace:*",
     "commander": "^15.0.0",
-    "core": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.0"
   }
 }

@@ -1,3 +1,7 @@
 packages:
-  - "packages/*"
-  - "pfun-cma-engine-c"
+  - 'packages/*'
+publishBranch: typescript-rewrite
+allowBuilds:
+  bcrypt: true
+  better-sqlite3: true
+  esbuild: true

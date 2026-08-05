@@ -4,9 +4,8 @@ export class PFunCMAParamsGrid {
     N: number;
     m: number;
     keys: string[];
-    include_mealtimes: boolean;
-    collection: any[] = [];
-    pgrid: any[] = [];
+    collection: Record<string, unknown>[] = [];
+    pgrid: Record<string, number>[] = [];
 
     private readonly PARAM_RANGES: Record<string, [number, number]> = {
         taug: [0.1, 3.0],
@@ -17,11 +16,10 @@ export class PFunCMAParamsGrid {
         toff: [-3.0, 3.0]
     };
 
-    constructor(options: { N?: number, m?: number, keys?: string[], include_mealtimes?: boolean } = {}) {
+    constructor(options: { N?: number, m?: number, keys?: string[] } = {}) {
         this.N = options.N ?? 6;
-        this.m = options.m ?? 3;
+        this.m = Math.max(2, options.m ?? 3);
         this.keys = options.keys ?? ["taug", "taup", "B", "Cm"];
-        this.include_mealtimes = options.include_mealtimes ?? true;
 
         // Dynamically build the parameter grid based on m span and requested keys
         this.buildGrid();
@@ -39,15 +37,15 @@ export class PFunCMAParamsGrid {
 
         // Generate cartesian product of the ranges
         const cartesian = (arrays: number[][]): number[][] => {
-            return arrays.reduce((acc, curr) =>
-                acc.flatMap(c => curr.map(n => [...c, n])),
+            return arrays.reduce((acc, curr) => 
+                acc.flatMap(c => curr.map(n => [...c, n])), 
                 [[]] as number[][]
             );
         };
 
         const keyNames = Object.keys(grid);
         const ranges = Object.values(grid);
-
+        
         if (keyNames.length > 0) {
             const combinations = cartesian(ranges);
             this.pgrid = combinations.map(combination => {

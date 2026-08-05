@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { CMASleepWakeModel, PFunCMAParamsGrid, generateScenario } from 'core';
+import { CMASleepWakeModel, PFunCMAParamsGrid, generateScenario } from '@pfun/core';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -10,29 +10,32 @@ program
   .description('Command line interface for the pfun-cma-model package.')
   .version('1.0.0');
 
-program.command('version')
-  .description('Print the version of the pfun-cma-model package.')
-  .action(() => {
-    console.log(`pfun-cma-model version: 1.0.0`);
-  });
-
 program.command('launch')
   .description('Launch the application.')
   .option('--host <host>', 'Host to run the application on.', '127.0.0.1')
   .option('--port <port>', 'Port to run the application on.', '8001')
   .action(async (options) => {
-      // Stub to launch the API server dynamically
       const apiPath = join(dirname(fileURLToPath(import.meta.url)), '../../api/dist/index.js');
-      console.log(`Launching API on ${options.host}:${options.port}...`);
-      await import(apiPath);
+      try {
+          console.log(`Launching API on ${options.host}:${options.port}...`);
+          await import(apiPath);
+      } catch (err) {
+          console.error('Failed to launch API server. Has it been built? Run: pnpm --filter api build');
+          process.exit(1);
+      }
   });
 
 program.command('fit-model')
   .description('Fit the model to a dataset.')
   .option('--N <number>', 'Number of time points.', '288')
   .action((options) => {
-    console.log(`Fitting model with N=${options.N}...`);
-    const model = new CMASleepWakeModel({ N: parseInt(options.N) });
+    const n = parseInt(options.N);
+    if (isNaN(n) || n < 2) {
+      console.error('N must be an integer >= 2');
+      process.exit(1);
+    }
+    console.log(`Fitting model with N=${n}...`);
+    const model = new CMASleepWakeModel({ N: n });
     model.solve();
     console.log('...wrote fitted model params to: fit_result.json');
   });
@@ -40,9 +43,9 @@ program.command('fit-model')
 program.command('generate-scenario')
   .description('Generate a realistic pfun scenario.')
   .option('--query <query>', 'Specify a query describing the desired scenario.', 'A healthy individual.')
-  .action(async (options) => {
+  .action((options) => {
     console.log(`Generating a scenario from prompt:\n\t'${options.query.substring(0, 20)}...'`);
-    const result = await generateScenario(options.query);
+    const result = generateScenario(options.query);
     console.log(JSON.stringify(result, null, 4));
     console.log('...successfully saved result to the database.');
   });
@@ -52,8 +55,18 @@ program.command('run-param-grid')
   .option('-N, --N <number>', 'Length of solutions vector', '6')
   .option('-m, --m <number>', 'Parameter grid width', '3')
   .action((options) => {
+    const n = parseInt(options.N);
+    const m = parseInt(options.m);
+    if (isNaN(n) || n < 2) {
+      console.error('N must be an integer >= 2');
+      process.exit(1);
+    }
+    if (isNaN(m) || m < 2) {
+      console.error('m must be an integer >= 2');
+      process.exit(1);
+    }
     console.log('Running parameter grid search...');
-    const grid = new PFunCMAParamsGrid({ N: parseInt(options.N), m: parseInt(options.m) });
+    const grid = new PFunCMAParamsGrid({ N: n, m: m });
     grid.run();
     console.log(`...done (saved results).`);
   });
@@ -74,4 +87,8 @@ program.command('benchmark')
       console.log('Results saved to benchmark output');
   });
 
-program.parse(process.argv);
+// Only auto-parse when executed directly (not when imported by tests)
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isDirectRun) {
+  program.parse(process.argv);
+}

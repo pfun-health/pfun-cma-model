@@ -21,9 +21,9 @@ on:
         type: environment
         required: false
   push:
-    branches: [main]
+    branches: [typescript-rewrite]
   pull_request:
-    branches: [main]
+    branches: [typescript-rewrite]
 
 jobs:
   test:
@@ -32,10 +32,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
 
       - name: Run Tests
-        run: |
-          ./scripts/uv-full-sync.sh && \
-          ./scripts/run-tests.sh
+        run: pnpm test

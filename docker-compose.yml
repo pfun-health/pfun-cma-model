@@ -1,47 +1,77 @@
+# PFun CMA Model — Docker Compose
+#
+# Start with:
+#   docker compose up -d
+#
+# Full rebuild:
+#   docker compose up -d --build --renew-anon-volumes --remove-orphans
+#
+# Services:
+#   api   — Hono TypeScript API (port 8000)
+#   redis — Cache backend (port 6379)
+#   ollama — LLM backend (commented out, requires model download)
+
 services:
-   # pfun-cma-model fastapi backend
-  pfun-cma-model:
-    restart: unless-stopped
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
-    user: "nonroot:nonroot"
+      dockerfile: Dockerfile.node
+      target: production
+    ports:
+      - "8000:8000"
     env_file: .env
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
-      - UVICORN_RELOAD=false
-      - USER=nonroot
-      - GROUP=nonroot
-    container_name: pfun-cma-model
-    ports:
-      - "8001:8001"
     depends_on:
-      - ollama
-      - redis
-    command: ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
-
-   # docker-accessible ollama server
-  ollama:
-    image: ollama/ollama
-    container_name: ollama
+      redis:
+        condition: service_healthy
+    networks:
+      - pfun-network
     restart: unless-stopped
-    ports:
-      - "11435:11434"
-    volumes:
-      - ollama_data:/root/.ollama
 
-  # redis cache service
   redis:
     image: redis:7-alpine
-    container_name: redis
-    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - redis_data:/data
+      - redis-data:/data
+    networks:
+      - pfun-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
-# project-level volumes
+  # ---- LLM Backend (optional) ----
+  # Uncomment and run `docker compose up -d ollama` to enable local LLM inference.
+  # Then set LLM_BACKEND=ollama in your .env file.
+  # The first model pull may take several minutes:
+  #   docker compose exec ollama ollama pull llama3.2
+  #
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   profiles:
+  #     - llm
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   networks:
+  #     - pfun-network
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+
+networks:
+  pfun-network:
+    driver: bridge
+
 volumes:
-  ollama_data:
-  redis_data:
+  redis-data:
+  # ollama-data:

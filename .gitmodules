@@ -4,6 +4,6 @@
 [submodule "examples"]
 	path = examples
 	url = https://github.com/pfun-health/pfun-cma-examples.git
-[submodule "pfun-cma-engine-c"]
-	path = pfun-cma-engine-c
+[submodule "packages/pfun-cma-engine-c"]
+	path = packages/pfun-cma-engine-c
 	url = https://github.com/pfun-health/pfun-cma-engine-c

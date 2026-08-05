@@ -8,11 +8,26 @@ set -e
 SCRIPT_DIRNAME="$(dirname "$0")"
 source "${SCRIPT_DIRNAME}/_funcs.def.sh"
 
+BRANCH_NAME="$(git branch --show-current)"
+
 # Extract the current version
-VERSION="$(uv version | grep -o '[0-9]*\.[0-9]*\.[0-9]*')"
+case "$BRANCH_NAME" in
+    "typescript-rewrite")
+    VERSION="$(pnpm pkg get version | grep -o '[0-9]*\.[0-9]*\.[0-9]*')" 
+    ;;
+    
+    "main")
+    VERSION="$(uv version | grep -o '[0-9]*\.[0-9]*\.[0-9]*')"
+    ;;
+    
+    *)
+    echo -e "ERROR: not implemented for current branch:\n\t${BRANCH_NAME}\n"
+    exit 1
+    ;;
+esac
 
 if [ -z "$VERSION" ]; then
-	echo "ERROR: Could not extract version from 'uv version'."
+	echo "ERROR: Could not extract version (current branch: ${BRANCH_NAME})."
 	exit 1
 fi
 
