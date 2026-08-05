@@ -340,7 +340,7 @@ Assistant:
 ```
 
 Now, please generate a scenario based on the following user query. If the query is empty, generate a random scenario.
-User: "{query if query else "No query provided."}"
+User: "{query if query else 'No query provided.'}"
 Assistant:
 """
     # query the LLM with the formatted prompt, generate a scenario
