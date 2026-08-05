@@ -28,7 +28,7 @@ A few pithy one-liners:
 
 **Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series)**
 
-![Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series).](./results/generated.png)
+![Generated Cortisol-Melatonin-Adiponectin decomposition (from Glucose time series).](https://pfun-health.github.io/pfun-cma-model/assets/img/generated.png)
 
 <div style="border-width: 1px; border-color: #444;">The CMA model leverages physiological modeling principles to decompose glucose time series data into underlying hormonal influences, specifically cortisol, melatonin, and adiponectin. See example notebooks in the live Demo (or in ./examples/notebooks)</div>
 
