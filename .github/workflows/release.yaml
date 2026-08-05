@@ -5,7 +5,8 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write   # needed to push version commit, create tags, and create GitHub Release
+  contents: write              # needed to push version commit, create tags, and create GitHub Release
+  bypass-branch-protections: true  # allow direct push to protected branch main
 
 jobs:
   # ── 1. Run the test suite ─────────────────────────────────────────────────
@@ -35,9 +36,9 @@ jobs:
         with:
           # Fetch full history so that git operations (tagging, pushing) work
           fetch-depth: 0
-          # Use a PAT (stored as GH_TOKEN secret) so the push triggers downstream
-          # workflows.  Falls back to the default GITHUB_TOKEN if not set.
-          token: ${{ secrets.GH_TOKEN || github.token }}
+          # Use a PAT (stored as GH_TOKEN secret) that has bypass-branch-protection
+          # permission to push the version-bump commit directly to main.
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
