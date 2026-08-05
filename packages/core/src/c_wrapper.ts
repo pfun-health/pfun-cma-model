@@ -1,0 +1,46 @@
+import koffi from 'koffi';
+import { join, dirname } from 'path';
+import { existsSync } from 'fs';
+import { platform } from 'os';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const ext = platform() === 'win32' ? 'dll' : platform() === 'darwin' ? 'dylib' : 'so';
+const libName = 'pfun_cma_engine/libpfun_cma_engine.' + ext;
+const libCandidates = [
+  join(__dirname, '../../../pfun-cma-engine-c/' + libName),
+  join(__dirname, '../../pfun-cma-engine-c/' + libName),
+];
+const libPath = libCandidates.find(existsSync);
+
+if (!libPath) {
+    throw new Error(`Could not find the compiled C engine (tried: ${libCandidates.join(', ')}). Did you run build?`);
+}
+
+const lib = koffi.load(libPath);
+
+export const run_cma_model = lib.func('run_cma_model', 'void', [
+  'const double*',
+  'int',
+  'double',
+  'double',
+  'double',
+  'const double*',
+  'double',
+  'double',
+  'double',
+  'const double*',
+  'int',
+  'int*',
+  'double',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*',
+  'double*'
+]);
