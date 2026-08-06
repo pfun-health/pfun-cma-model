@@ -1,18 +1,27 @@
-name: Release
+name: TypeScript Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: Create a TypeScript release
+        required: true
+        default: false
+        type: boolean
   push:
-    branches: [ typescript-rewrite ]
+    branches: [typescript-rewrite]
 
 permissions:
   contents: write
 
-jobs:
-  # ── 1. Run the test suite ─────────────────────────────────────────────────
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
+concurrency:
+  group: typescript-release-${{ github.ref }}
+  cancel-in-progress: false
 
+jobs:
+  verify:
+    name: Verify TypeScript build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -23,28 +32,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm -r build
+      - name: Lint
+        run: pnpm lint
 
-      - name: Run Tests
+      - name: Test
         run: pnpm test
 
-  # ── 2. Bump version, build, and publish a GitHub Release ─────────────────
-  release:
-    name: Create Release
-    needs: test
-    runs-on: ubuntu-latest
+      - name: Build
+        run: pnpm build
 
+  package:
+    name: Package TypeScript artifacts
+    needs: verify
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      artifact_name: ${{ steps.package.outputs.artifact_name }}
+      artifact_file: ${{ steps.package.outputs.artifact_file }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -53,48 +64,72 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Configure git identity
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Build
+        run: pnpm build
 
-      - name: Build all packages
-        run: pnpm -r build
-
-      - name: Bump version
+      - name: Resolve version
         id: version
+        run: echo "value=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
+      - name: Build TypeScript release artifact
+        id: package
         run: |
-          pnpm version patch --no-git-tag-version
-          VERSION=$(node -p "require('./package.json').version")
-          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+          VERSION="${{ steps.version.outputs.value }}"
+          ARTIFACT_NAME="typescript-build-${VERSION}"
+          ARTIFACT_FILE="${ARTIFACT_NAME}.tar.gz"
+          mapfile -t DIST_DIRS < <(find packages -mindepth 2 -maxdepth 2 -type d -name dist | sort)
+          if [ "${#DIST_DIRS[@]}" -eq 0 ]; then
+            echo "No build output folders found under packages/*/dist" >&2
+            exit 1
+          fi
+          tar -czf "${ARTIFACT_FILE}" "${DIST_DIRS[@]}"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "artifact_file=${ARTIFACT_FILE}" >> "$GITHUB_OUTPUT"
 
-      - name: Commit version bump
+      - name: Upload TypeScript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.artifact_name }}
+          path: ${{ steps.package.outputs.artifact_file }}
+          if-no-files-found: error
+
+  release:
+    name: Create TypeScript release
+    needs: package
+    runs-on: ubuntu-latest
+    if: >
+      github.ref == 'refs/heads/typescript-rewrite' &&
+      (
+        (github.event_name == 'workflow_dispatch' && inputs.create_release) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, '[release-ts]'))
+      )
+    steps:
+      - name: Download TypeScript artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.artifact_name }}
+          path: release-assets
+
+      - name: Resolve release artifact path
+        id: artifact
         run: |
-          git add package.json packages/*/package.json
-          git commit -m "(${{ steps.version.outputs.value }}) bump to new version. [skip ci]"
+          FILE="$(find release-assets -type f -name '*.tar.gz' | LC_ALL=C sort | head -n 1)"
+          if [ -z "${FILE}" ]; then
+            echo "No downloaded TypeScript release artifact found." >&2
+            exit 1
+          fi
+          echo "file=${FILE}" >> "$GITHUB_OUTPUT"
 
-      - name: Create version tag
-        run: git tag "${{ steps.version.outputs.value }}"
-
-      - name: Push commit and tag
-        run: |
-          git push origin main
-          git push origin "${{ steps.version.outputs.value }}"
-
-      - name: Create GitHub Release
+      - name: Create TypeScript GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.value }}
-          name: "v${{ steps.version.outputs.value }}"
-          body: |
-            Automated release — patch version bump.
-
-            ### Assets
-            Built packages are available on the npm registry.
-          draft: false
-          prerelease: false
+          tag_name: typescript-v${{ needs.package.outputs.version }}
+          name: TypeScript v${{ needs.package.outputs.version }}
+          target_commitish: typescript-rewrite
+          files: ${{ steps.artifact.outputs.file }}
+          generate_release_notes: true
