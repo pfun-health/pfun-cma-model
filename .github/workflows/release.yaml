@@ -115,11 +115,21 @@ jobs:
           name: ${{ needs.package.outputs.artifact_name }}
           path: release-assets
 
+      - name: Resolve release artifact path
+        id: artifact
+        run: |
+          FILE="$(find release-assets -type f -name '*.tar.gz' | LC_ALL=C sort | head -n 1)"
+          if [ -z "${FILE}" ]; then
+            echo "No downloaded TypeScript release artifact found." >&2
+            exit 1
+          fi
+          echo "file=${FILE}" >> "$GITHUB_OUTPUT"
+
       - name: Create TypeScript GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: typescript-v${{ needs.package.outputs.version }}
           name: TypeScript v${{ needs.package.outputs.version }}
           target_commitish: typescript-rewrite
-          files: release-assets/${{ needs.package.outputs.artifact_file }}
+          files: ${{ steps.artifact.outputs.file }}
           generate_release_notes: true
