@@ -1,5 +1,5 @@
 {
-  "name": "cli",
+  "name": "@pfun/cli",
   "version": "1.0.0",
   "description": "",
   "type": "module",
