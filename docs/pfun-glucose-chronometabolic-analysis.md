@@ -4,9 +4,7 @@ icon: lucide/flask-conical
 
 # PFun Glucose — Chronometabolic Analysis
 
-> **Source document:** [`PFun Glucose - Chronometabolic Analysis.pdf`](rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf) (6 pages, by PFun Digital Health)
-
-This page reproduces the content of the PFun Glucose Chronometabolic Analysis research summary, with extracted figures and formatted text. The document describes the physiological rationale and computational modeling approach underlying the PFun CMA model — a physiofunctional framework for circadian-ultradian glucose dynamics.
+This document describes the physiological rationale and computational modeling approach underlying the PFun CMA model — a physiofunctional framework for circadian-ultradian glucose dynamics.
 
 ---
 
