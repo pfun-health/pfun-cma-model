@@ -31,7 +31,8 @@ ENV PYTHONPATH="${PYTHONPATH}:${PWD}"
 ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 RUN \
     ./scripts/uv-full-sync.sh && \
-    uv run pfun-cma-model download-sample-data --overwrite
+    uv run pfun-cma-model download-sample-data --overwrite && \
+    uv run ./scripts/generate-dev-certs.py
 
 
 FROM deps AS dist

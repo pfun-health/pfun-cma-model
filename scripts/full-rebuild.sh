@@ -11,7 +11,9 @@ docker compose down
 
 export CURRENT_VERSION NEW_VERSION
 
-"$(dirname "$0")/rebuild-uv.sh" "$@"
+echo -e "cleaning old dists..."
+rm -vrf "$(dirname "$0")/dist"
+sleep 1s
 
 echo -e "relaunching compose services..."
 sleep 1s

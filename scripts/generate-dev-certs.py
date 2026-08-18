@@ -57,6 +57,7 @@ class CertGeneratorApp(App):
 @click.option(
     "--self-signed",
     is_flag=True,
+    default=True,
     help="Generate self-signed certificates without interactive prompt.",
 )
 def main(tailscale, self_signed):

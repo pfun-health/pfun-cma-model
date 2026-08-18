@@ -5,15 +5,15 @@
 set -e
 
 # try to find dcli
-DCLI=$(which dcli)
+export DCLI="$(which dcli)"
 
-if [[ -z $DCLI ]]; then
-    echo "dashlane cli not installed (exiting!)"
+if [ -z "$DCLI" ] || [ "$DCLI" == "dcli not found" ]; then
+    echo -e "dashlane cli not installed (exiting!)"
     exit 1
 fi
 
-TEMPLATE_FN='./.env.template'
-OUTPUT_FN='./.env'
+export TEMPLATE_FN="${PWD}/.env.template"
+export OUTPUT_FN="${PWD}/.env"
 
 echo "(from template: ${TEMPLATE_FN})"
 echo "Injecting secrets into $OUTPUT_FN..."
