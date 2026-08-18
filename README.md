@@ -22,7 +22,7 @@ A few pithy one-liners:
 #### Background
 
 - **About the project:** <a href="https://pfun-health.github.io/pfun-cma-model">PFun CMA Model Documentation</a>
-- **Preliminary research summary (includes citations):** <a href="./docs/pfun-glucose-chronometabolic-analysis.md">Chronometabolic Analysis (Markdown)</a> · <a href="./docs/rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf">PDF</a>
+- **Preliminary research summary (includes citations):** <a href="./docs/pfun-glucose-chronometabolic-analysis.md">Chronometabolic Analysis (Markdown)</a> ·
 
 ### About this repository
 
