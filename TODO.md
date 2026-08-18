@@ -13,7 +13,7 @@ TODO for `pfun-cma-model`
   + **After the on-prem network is ready, migrate docs to Gitea (or whichever selfhosted service).**
   + ~~Use `Zensical` to publish the documentation for `pfun-cma-model`.~~
   + ~~Publish to: `pfun-health.github.io/pfun-cma-model` (Github Pages).~~
-+ _Implement SSE-based streaming for LLM responses:_
++ _Implement MQTT-based streaming for LLM responses:_
   + **Modify LLM route to support streaming responses.**
   + Update frontend to handle and display streamed data.
   + Test streaming functionality with various LLM backends.
