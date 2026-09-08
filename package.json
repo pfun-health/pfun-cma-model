@@ -22,13 +22,13 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.10.0",
+      "version": "12.3.4",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@11.10.0",
+  "packageManager": "pnpm@12.3.4",
   "devDependencies": {
     "typescript": "^5.9.3",
-    "vitest": "^3.2.6"
+    "vitest": "^3.2.7"
   }
 }
