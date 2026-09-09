@@ -4,6 +4,9 @@ from typing import List, Optional
 import socketio
 from fastapi.applications import FastAPI
 from pfun_common.settings import get_settings
+from pfun_common.logs import setup_logging
+
+logger = setup_logging(debug=get_settings().debug)
 
 
 class PFunSocketIOSession:
@@ -97,7 +100,13 @@ class PFunSocketIOSession:
         if url is None:
             settings = get_settings()
             url = settings.redis_url
-        self.mgr = socketio.AsyncRedisManager(url=url, **kwargs)
+        try:
+            self.mgr = socketio.AsyncRedisManager(url=url, **kwargs)
+        except Exception as exc:
+            logger.warning(
+                "(sessions.PFunSocketIOSession.setup_redis_manager) Error: setting up the redis session manager.\n%s",
+                str(exc)
+            )
         return self.mgr
 
 

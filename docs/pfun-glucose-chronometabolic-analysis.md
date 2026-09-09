@@ -68,4 +68,4 @@ This example chronometabolic model of circadian-ultradian glucose dynamics is a 
 
 ---
 
-→ [View the original PDF](rendered_pdf/PFun%20Glucose%20-%20Chronometabolic%20Analysis.pdf)  |  → [CMA Model Overview](model/overview.md)
+→ [CMA Model Overview](model/overview.md)
