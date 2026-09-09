@@ -79,7 +79,7 @@ jobs:
       # Push the commit and the tag together
       - name: Push commit and tag
         run: |
-          git push origin main
+          git push origin staged
           git push origin "${{ steps.version.outputs.value }}"
 
       # Create a GitHub Release and upload the built wheels/sdist
