@@ -1222,6 +1222,18 @@ wheels = [
 ]
 
 [[package]]
+name = "jdk4py"
+version = "25.0.2.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/c3/3883815de1ecb3dca14f6ada6b38c6e9bb7fc7c3585b2b1924970d4d33fc/jdk4py-25.0.2.1-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:5df67e2f6a5277f39fb97584eb64ee8d7265770fd42425ec2f11fc4e72c82c6c", size = 31516775, upload-time = "2026-04-23T18:35:28.427Z" },
+    { url = "https://files.pythonhosted.org/packages/95/b8/398b8cff51b1109cdaa424dc4e62ef60acb89e5eb8041fb16a40bc005b49/jdk4py-25.0.2.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:eda21f14d7d56c7e1ee0f2beb55bfc19f311a8653bdb00217f0cc013c2f2c587", size = 30141372, upload-time = "2026-04-23T18:35:37.948Z" },
+    { url = "https://files.pythonhosted.org/packages/52/fe/e382f79e1fc1f7dfa04c4a7df765203f780590221c26ddff79a1e56aec76/jdk4py-25.0.2.1-py3-none-manylinux_2_17_aarch64.whl", hash = "sha256:b7246170d605dd7b65340994fedea2615737e63955f0b95389202e0ab4a166ac", size = 34514613, upload-time = "2026-04-23T18:35:31.382Z" },
+    { url = "https://files.pythonhosted.org/packages/02/5a/b572f441714a420d65805cbf8806d9b78a8ab70060ed251310661c0b934c/jdk4py-25.0.2.1-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:383d71d8639d072752d2eaafc84944e0d8de7f1c45d30c28f6dfef8a4a65543c", size = 35411575, upload-time = "2026-04-23T18:35:34.772Z" },
+    { url = "https://files.pythonhosted.org/packages/74/42/4517e3d5b75f52d330acb5816c387d28d58f1689e3ab91c48639fcde3483/jdk4py-25.0.2.1-py3-none-win_amd64.whl", hash = "sha256:5f0ad2e8f7ad3b40eef8af75062d830afd3feccca62fc03db611b2e9a5fa9824", size = 30982993, upload-time = "2026-04-23T18:35:40.652Z" },
+]
+
+[[package]]
 name = "jedi"
 version = "0.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1908,6 +1920,20 @@ wheels = [
 ]
 
 [[package]]
+name = "openapi-generator-cli"
+version = "7.25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/fb/60be1f9412e3134f91e1af0f49d797abfc42a7df7762720f4224b75d9ddb/openapi_generator_cli-7.25.0.tar.gz", hash = "sha256:f91783a92ce5491ae09b212efa7c43acf227b0d9b2d491edb8ce78bf98d9da2c", size = 28625124, upload-time = "2026-08-25T01:16:45.49Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dc/eb/20387f8f6cf3736eb02e73042f565a806d56b79d1bbe04de482c14698f4b/openapi_generator_cli-7.25.0-py3-none-any.whl", hash = "sha256:dbe64b2d968ec0a32939c1eede5ac1ffa318f28d93d11701ecd0267ed7395266", size = 28639339, upload-time = "2026-08-25T01:16:41.995Z" },
+]
+
+[package.optional-dependencies]
+jdk4py = [
+    { name = "jdk4py" },
+]
+
+[[package]]
 name = "packaging"
 version = "24.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2016,7 +2042,7 @@ dependencies = [
 
 [[package]]
 name = "pfun-cma-model"
-version = "0.4.209"
+version = "0.4.210"
 source = { editable = "." }
 dependencies = [
     { name = "aioredis" },
@@ -2072,6 +2098,7 @@ dev = [
     { name = "ipython", version = "9.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "mypy" },
     { name = "nbconvert" },
+    { name = "openapi-generator-cli", extra = ["jdk4py"] },
     { name = "pandas-stubs" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -2138,6 +2165,7 @@ requires-dist = [
     { name = "nbconvert", marker = "extra == 'dev'", specifier = ">=7.16.6" },
     { name = "numba", specifier = ">=0.63.1" },
     { name = "numpy", specifier = ">=2.2.6" },
+    { name = "openapi-generator-cli", extras = ["jdk4py"], marker = "extra == 'dev'", specifier = ">=7.17.0" },
     { name = "pandas", specifier = ">=2.1.1" },
     { name = "pandas-stubs", marker = "extra == 'dev'", specifier = ">=2.2.3.250527" },
     { name = "passlib", specifier = ">=1.7.4" },
