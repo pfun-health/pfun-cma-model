@@ -2243,8 +2243,11 @@ dependencies = [
 
 [[package]]
 name = "pfun-llm"
-version = "0.1.0"
-source = { git = "https://github.com/pfun-health/pfun-llm#43efa317a0c798ae96cb81d050e5bf767b3abf3e" }
+version = "0.1.3"
+source = { git = "https://github.com/pfun-health/pfun-llm#d76bc294fc3b54e75137df6787f367014a0d31a3" }
+dependencies = [
+    { name = "pfun-common" },
+]
 
 [package.optional-dependencies]
 ollama = [
