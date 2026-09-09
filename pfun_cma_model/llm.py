@@ -18,7 +18,7 @@ LLMBackendChoice = Literal[
 
 class DescribedParameter(BaseModel):
     """
-    PFun model parameter, along with descriptioon, value, standard error estimate.
+    PFun model parameter, along with description, value, standard error estimate.
     """
 
     value: float | int | Any

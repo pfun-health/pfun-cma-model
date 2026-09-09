@@ -123,12 +123,12 @@ uv run alembic downgrade -1
 
 See `.env.template` for all required configuration:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `LLM_BACKEND` | ✅ | LLM provider (`ollama`, `google`, etc.) |
-| `SERVER_HOST` | ✅ | Bind host |
-| `SERVER_PORT` | ✅ | Bind port |
-| `REDIS_CONNECTION_STRING` | | Redis URL for caching/rate limiting |
-| `DATABASE_URL` | | SQLite/PostgreSQL connection |
-| `GOOGLE_CLIENT_ID` | | OAuth2 client ID |
-| `GOOGLE_CLIENT_SECRET` | | OAuth2 secret |
+| Variable                  | Required | Description                             |
+|---------------------------|----------|-----------------------------------------|
+| `LLM_BACKEND`             | ✅       | LLM provider (`ollama`, `google`, etc.) |
+| `SERVER_HOST`             | ✅       | Bind host                               |
+| `SERVER_PORT`             | ✅       | Bind port                               |
+| `REDIS_CONNECTION_STRING` |          | Redis URL for caching/rate limiting     |
+| `DATABASE_URL`            |          | SQLite/PostgreSQL connection            |
+| `GOOGLE_CLIENT_ID`        |          | OAuth2 client ID                        |
+| `GOOGLE_CLIENT_SECRET`    |          | OAuth2 secret                           |

@@ -8,6 +8,8 @@ services:
     user: "nonroot:nonroot"
     env_file: .env
     environment:
+      # Note: the redis connection string refers to the local redis service
+      - REDIS_CONNECTION_STRING=redis://redis:6379
       - OLLAMA_HOST=http://ollama:11434
       - OLLAMA_API_KEY=${OLLAMA_API_KEY}
       - UVICORN_RELOAD=false
@@ -27,6 +29,8 @@ services:
     container_name: ollama
     restart: unless-stopped
     ports:
+      # Accessible from host: 'http://localhost:11435'
+      # From pfun-cma-model service: 'http://ollama:11434'
       - "11435:11434"
     volumes:
       - ollama_data:/root/.ollama

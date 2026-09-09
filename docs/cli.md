@@ -80,8 +80,8 @@ Generate a physiologically valid scenario using the configured LLM backend.
 uv run pfun-cma-model generate-scenario [OPTIONS]
 ```
 
-| Option | Default | Description |
-|--------|---------|-------------|
+| Option    | Default                   | Description                  |
+|-----------|---------------------------|------------------------------|
 | `--query` | `"A healthy individual."` | Natural language description |
 
 ```bash

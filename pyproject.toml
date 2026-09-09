@@ -85,7 +85,6 @@ dev = [
   "httpx>=0.28.1",
   "kaggle>=2.0.1",
   "nbformat>=5.10.4",
-  "openapi-generator-cli[jdk4py]>=7.17.0",
   "pyperformance>=1.14.0",
   "textual>=8.2.3",
   { include-group = "docs" },
@@ -95,7 +94,7 @@ dev = [
 ]
 llm = [
     "fastapi-mcp>=0.4.0",
-    "pfun-llm[ollama]",
+    "pfun-llm[ollama]>=0.1.3",
 ]
 lint = ["black>=25.12.0", "mypy>=1.19.1", "ruff>=0.15.11"]
 docs = ["zensical>=0.0.29"]
