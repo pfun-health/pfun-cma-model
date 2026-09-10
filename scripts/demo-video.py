@@ -5,7 +5,9 @@ Demonstrates:
 1. Vectorized parameter column operations in DuckDB (vs metadata)
 2. 3D waveform visualization in terminal over time
 """
-
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 import os
 import sys
 import json

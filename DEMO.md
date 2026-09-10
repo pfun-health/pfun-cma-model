@@ -1,6 +1,10 @@
-# DEMO — PFun CMA Model: Terminal Video Generator
+# DEMO PFun CMA Model: Terminal Video Generator
 
 A terminal-based demo video generator that showcases the PFun CMA Model's performance and visualization capabilities.
+
+## Example (GIF)
+
+![results/demo.gif](./results/demo.gif)
 
 ## Quick Start
 
@@ -11,6 +15,14 @@ uv run python scripts/demo-video.py
 ```
 
 ## Recording
+
+### Convenient
+
+```bash
+./scripts/record-demo.sh
+```
+
+### Low-level
 
 ```bash
 # Terminal recording (no GUI needed)

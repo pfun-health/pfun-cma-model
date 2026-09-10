@@ -6,7 +6,7 @@ set -e
 
 rm --force results/demo.cast results/demo.gif
 
-asciinema rec --window-size '80x25' \
+asciinema rec --window-size '80x35' \
     -c "uv run python scripts/demo-video.py" \
     results/demo.cast
 
