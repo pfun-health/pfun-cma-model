@@ -93,5 +93,11 @@ jobs:
             ### Assets
             Built wheel and source distribution are attached below.
           files: dist/*
-          draft: false
+          draft: true
           prerelease: true
+
+      # Publish only after all assets have been uploaded to the draft release.
+      - name: Publish GitHub Release
+        run: gh release edit "${{ steps.version.outputs.value }}" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
