@@ -1,51 +1,52 @@
 services:
-   # pfun-cma-model fastapi backend
-  pfun-cma-model:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: Dockerfile
-    user: "nonroot:nonroot"
-    env_file: .env
-    environment:
-      # Note: the redis connection string refers to the local redis service
-      - REDIS_CONNECTION_STRING=redis://redis:6379
-      - OLLAMA_HOST=http://ollama:11434
-      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
-      - UVICORN_RELOAD=false
-      - USER=nonroot
-      - GROUP=nonroot
-    container_name: pfun-cma-model
-    ports:
-      - "8001:8001"
-    depends_on:
-      - ollama
-      - redis
-    command: ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
+    # pfun-cma-model fastapi backend
+    pfun-cma-model:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: Dockerfile
+        user: "nonroot:nonroot"
+        env_file: .env
+        environment:
+            # Note: the redis connection string refers to the local redis service
+            - REDIS_CONNECTION_STRING=redis://redis:6379
+            - OLLAMA_HOST=http://ollama-pfun-cma:11434
+            - OLLAMA_API_KEY=${OLLAMA_API_KEY}
+            - UVICORN_RELOAD=false
+            - USER=nonroot
+            - GROUP=nonroot
+        container_name: pfun-cma-model
+        ports:
+            - "8001:8001"
+        depends_on:
+            - ollama-pfun-cma
+            - redis
+        command:
+            ["scripts/serve-prod.sh", "--host", "0.0.0.0", "--port", "8001"]
 
-   # docker-accessible ollama server
-  ollama:
-    image: ollama/ollama
-    container_name: ollama
-    restart: unless-stopped
-    ports:
-      # Accessible from host: 'http://localhost:11435'
-      # From pfun-cma-model service: 'http://ollama:11434'
-      - "11435:11434"
-    volumes:
-      - ollama_data:/root/.ollama
+        # docker-accessible ollama server
+    ollama-pfun-cma:
+        image: ollama/ollama
+        container_name: ollama-pfun-cma
+        restart: unless-stopped
+        ports:
+            # Accessible from host: 'http://localhost:11435'
+            # From pfun-cma-model service: 'http://ollama-pfun-cma:11434'
+            - "11435:11434"
+        volumes:
+            - ollama_data:/root/.ollama
 
-  # redis cache service
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+    # redis cache service
+    redis:
+        image: redis:7-alpine
+        container_name: redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
 
 # project-level volumes
 volumes:
-  ollama_data:
-  redis_data:
+    ollama_data:
+    redis_data:
