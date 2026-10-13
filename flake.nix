@@ -163,20 +163,42 @@
           )
         ];
       };
-      # Script that builds every package output and places each symlink under
-      # ./result/<output-name> instead of the default ./result.
-      buildAllScript = pkgs.writeShellApplication {
-        name = "build-all";
-        runtimeInputs = [ pkgs.nix ];
-        text = ''
-          set -euo pipefail
-          FLAKE_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || pwd)"
-          cd "$FLAKE_ROOT"
-          mkdir -p result
-          nix build .#oci-image --out-link result/oci-image "$@"
-          nix build .#vm-image  --out-link result/vm-image  "$@"
-        '';
+      # Registry of buildable package outputs. Adding an entry here is all that
+      # is needed to get it built by `build-all`; add a matching `build-<key>`
+      # entry to `buildScripts` below for a dedicated command.
+      buildTargets = {
+        oci = "oci-image";
+        vm = "vm-image";
       };
+
+      # Generates a script that builds the given package outputs, placing each
+      # symlink at ./result/<package-name> instead of the default ./result.
+      # Extra arguments are forwarded to `nix build`.
+      mkBuildScript =
+        name: packageNames:
+        pkgs.writeShellApplication {
+          inherit name;
+          runtimeInputs = [
+            pkgs.nix
+            pkgs.git
+          ];
+          text = ''
+            cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+            mkdir -p result
+            for pkg in ${pkgs.lib.escapeShellArgs packageNames}; do
+              echo "==> building .#$pkg -> result/$pkg"
+              nix build ".#$pkg" --out-link "result/$pkg" "$@"
+            done
+          '';
+        };
+
+      buildScripts =
+        (pkgs.lib.mapAttrs' (
+          key: pkg: pkgs.lib.nameValuePair "build-${key}" (mkBuildScript "build-${key}" [ pkg ])
+        ) buildTargets)
+        // {
+          build-all = mkBuildScript "build-all" (builtins.attrValues buildTargets);
+        };
     in
     {
       packages.${system} = {
@@ -185,19 +207,19 @@
         vm-image = vmImage;
       };
 
-      # Run `nix run .#build-all` (or `build-all` inside `nix develop`) to
-      # build every output and place symlinks at:
+      # Run `nix run .#build-oci`, `.#build-vm` or `.#build-all` (or the bare
+      # command inside `nix develop`). Symlinks are placed at:
       #   ./result/oci-image -> /nix/store/…-pfun-cma-model-<ver>.tar.gz
       #   ./result/vm-image  -> /nix/store/…-nixos-…-qcow2
-      apps.${system}.build-all = {
+      apps.${system} = pkgs.lib.mapAttrs (name: script: {
         type = "app";
-        program = "${buildAllScript}/bin/build-all";
-      };
+        program = "${script}/bin/${name}";
+      }) buildScripts;
 
       devShells.${system}.default = pkgs.mkShell {
-        packages = [ buildAllScript ] ++ runtimeInputs;
+        packages = builtins.attrValues buildScripts ++ runtimeInputs;
         shellHook = ''
-          echo "Run 'build-all' to build all outputs into ./result/<output>"
+          echo "Build commands: ${builtins.concatStringsSep ", " (builtins.attrNames buildScripts)} (outputs in ./result/<output>)"
         '';
       };
     };
