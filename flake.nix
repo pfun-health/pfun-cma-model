@@ -72,7 +72,7 @@
             # Copy mode keeps the runtime environment self-contained instead of
             # relying on symlinks back into transient build locations, which is
             # important because the app directory is materialized at runtime.
-            uv sync --frozen --no-dev --link-mode copy
+            uv sync --no-dev --link-mode copy
           fi
 
           exec uv run uvicorn pfun_cma_model.main:app --host 0.0.0.0 --port "''${PORT:-8001}"
@@ -118,7 +118,10 @@
                 isNormalUser = true;
                 description = "pfun-cma-model service account";
                 # wheel gives sudo access; add any other groups needed here
-                extraGroups = [ "wheel" "audio" ];
+                extraGroups = [
+                  "wheel"
+                  "audio"
+                ];
                 initialPassword = "";
                 home = "/home/pfun";
                 createHome = true;
