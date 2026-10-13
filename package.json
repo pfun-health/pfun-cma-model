@@ -22,11 +22,11 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.3.4",
+      "version": "12.11.2",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@12.3.4",
+  "packageManager": "pnpm@12.11.2",
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^3.2.7"
