@@ -185,7 +185,8 @@
           text = ''
             cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
             mkdir -p result
-            for pkg in ${pkgs.lib.escapeShellArgs packageNames}; do
+            packages=(${pkgs.lib.escapeShellArgs packageNames})
+            for pkg in "''${packages[@]}"; do
               echo "==> building .#$pkg -> result/$pkg"
               nix build ".#$pkg" --out-link "result/$pkg" "$@"
             done
