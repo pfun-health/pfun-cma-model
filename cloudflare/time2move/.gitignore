@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+# The engine is built from the private pfun-cma-engine-c repository and is
+# never committed here; `npm run engine` copies it in (see README.md).
+src/worker/cma.wasm
+src/worker/engine.json
